@@ -1,6 +1,6 @@
 <?php
-ini_set("error_reporting","E_ALL & ~E_NOTICE"); 
-header("Content-type: text/html; charset=utf-8"); 
+ini_set("error_reporting","E_ALL & ~E_NOTICE");
+header("Content-type: text/html; charset=utf-8");
   /**************************************/
   /*		文件名：view_topic.php		*/
   /*		功能：文章详细页面			*/
@@ -11,12 +11,10 @@ header("Content-type: text/html; charset=utf-8");
   //根据ID取得贴子记录
   $id=$_GET['id'];
   $sql="SELECT * FROM forum_topic WHERE id='$id'";
-
-  $result=mysql_query($sql);
-  $rows=mysql_fetch_array($result);
+  $rows=fetch_once($sql);
 
   //记录不存在
-  if (!$rows) 
+  if (!$rows)
   {
 	echo '<script>alert(\'该贴记录不存在！\');window.history.back();</script>';
 	exit();
@@ -78,36 +76,34 @@ echo '';
 
   //获取回复内容
   $sql	="SELECT * FROM forum_reply WHERE topic_id='$id' order by reply_id";//order by xx根据回复先后顺序排序
-
-  $result	= mysql_query($sql);
-  $num_rows = mysql_num_rows($result);
-
+  $num_rows = num_rows($sql);
   if ($num_rows)
   {
 	//循环取出记录内容
-	while($rows=mysql_fetch_array($result))
+$rows=fetch_all($sql);
+foreach ($rows as $key => $row)
 	{
 ?>
 
  <dt>
-    <a href="view_profile.php?id=<?php echo $rows['reply_name']; ?>">
-    	<?php echo '用户'.$rows['reply_name']; ?>
+    <a href="view_profile.php?id=<?php echo $row['reply_name']; ?>">
+    	<?php echo '用户'.$row['reply_name']; ?>
     </a>
-      <?php echo $rows['reply_datetime']; ?>
+      <?php echo $row['reply_datetime']; ?>
  </dt>
  <dd>
   <p><?php
     	//输出整理好的内容
-    	echo nl2br(htmlspecialchars($rows['reply_detail'])); 
-		
+    	echo nl2br(htmlspecialchars($row['reply_detail']));
+
 		echo '</br>';
-		
+
      ?>
-     
+
 <?php
-if(!empty($rows['reply_pics'])){
+if(!empty($row['reply_pics'])){
 ?>
-<img class="materialboxed" width="30%" src="<?php echo $rows['reply_pics']?>">
+<img class="materialboxed" width="30%" src="<?php echo $row['reply_pics']?>">
 <?php
 }else{
 echo '';
@@ -117,16 +113,16 @@ echo '';
 </p>
 </dd>
 
- 
+
  <?php
 	}//结束循环
   }else{
 	echo "&nbsp;&nbsp;&nbsp;&nbsp;暂无回复!";
   }
- 
+
   //浏览量加1
   $sql = "UPDATE forum_topic set view=view+1 WHERE id='$id'";
-  $result = mysql_query($sql);
+  $result = mysqli_query($sql);
 
     ?></p>
 </dl>
@@ -137,7 +133,7 @@ echo '';
 <!--内容回复表单，开始-->
 
 
-<div class="replyText"><?php 
+<div class="replyText"><?php
 //判断用户是否已经注册
 if (!$_SESSION['username'])
 {
@@ -151,7 +147,7 @@ if (!$_SESSION['username'])
     <?php
 } else {
 
-	
+
 ?>
 <form enctype="multipart/form-data" method="post" action="add_reply.php">
 <input name="id" type="hidden" value="<?php echo $id;?>">
@@ -189,10 +185,10 @@ if (!$_SESSION['username'])
 <br>
 <!--内容回复表单，结束-->
 
-<?php 
+<?php
   //如果是管理员用户，则输出“置顶”、“锁定”和“删除”按钮
   if ($_SESSION['user_auth'] == 1)
-  { 
+  {
 ?>
 <!--管理员操作表单，开始-->
 <div class="center">
@@ -213,17 +209,17 @@ if (!$_SESSION['username'])
 	 取消该贴置顶
 	</form>
   <?php } ?>
-  
+
   <!--显示删除操作按钮-->
   <form name="delete" method="get" action="del_topic.php">
 	 <input type="hidden" name="id" value="<?php echo $id; ?>">
-	 <button type="submit" name="Submit" class="btn waves-effect waves-light">删除帖子</button><br/>
+	 <button type="submit" class="btn waves-effect waves-light">删除帖子</button><br/>
 	 删除该帖与回复内容
   </form>
 </div>
 <!--管理员操作表单，结束-->
-<?php 
-	} 
+<?php
+	}
 
 ?>
 </fieldset>

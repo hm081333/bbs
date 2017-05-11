@@ -1,6 +1,6 @@
 <?php
-ini_set("error_reporting","E_ALL & ~E_NOTICE"); 
-header("Content-type: text/html; charset=utf-8"); 
+ini_set("error_reporting","E_ALL & ~E_NOTICE");
+header("Content-type: text/html; charset=utf-8");
   /**************************************/
   /*		文件名：add_topic.php		*/
   /*		功能：发表文章程序			*/
@@ -21,7 +21,7 @@ header("Content-type: text/html; charset=utf-8");
 或者进行<a href="login.php">登录</a>。
 </p>
 
-<?php 
+<?php
 	include('./footer.inc.php');		//尾文件
 
   } else {
@@ -29,18 +29,17 @@ header("Content-type: text/html; charset=utf-8");
 	//获得用户信息
 	$username = $_SESSION['username'];
 	$sql = "SELECT * from forum_user WHERE username='$username'";
-	$result = mysql_query($sql);
-	$info = mysql_fetch_array($result);
+	$info = fetch_once($sql);
 
 	//取得传递来的值
 	//标题
-    
-	$topic= $_POST['topic'];	
-      
+
+	$topic= $_POST['topic'];
+
 	//正文
-  
-	$detail= $_POST['detail'];	
-	 
+
+	$detail= $_POST['detail'];
+
 	//图片
 	include_once './upfile.php';
 	$fileinfo = $_FILES['pics'];
@@ -49,22 +48,22 @@ header("Content-type: text/html; charset=utf-8");
 	echo '<script>alert(\'上传失败！\');window.history.back();</script>';
 	exit();
 	}
-	
+
 	//帖子类型
 	$class_id = $_POST['class_id'];
-    
+
 	//电子邮件地址
-    
+
 	$email	= $info['email'];
- 
+
 	//是否置顶
-   
+
 	$sticky	= $_POST['sticky'];
-    
+
 	//是否锁定
-    
+
 //	$locked	= $_POST['locked'];
-    
+
 	//数据合法性检查
 	if (!$topic)
 	{
@@ -82,30 +81,30 @@ header("Content-type: text/html; charset=utf-8");
 	    exit();
 	}
 	//判断是否为锁定状态
-//	if ($locked == "on" && $name == ADMIN_USER) { 
-//		$locked = 1; 
+//	if ($locked == "on" && $name == ADMIN_USER) {
+//		$locked = 1;
 //	}
 //	else {
-//		$locked = 0; 
+//		$locked = 0;
 //	}
 
 	//判断是否置顶状态
 	if ($sticky == "on" && $_SESSION['user_auth'] == 1) {
 		$sticky = 1;
-	} 
+	}
 	else {
 		$sticky = 0;
 	}
 
 	//将数据插入数据库
 	$sql="INSERT INTO forum_topic(class_id,topic,detail,pics,name,email,datetime,sticky) VALUES('$class_id','$topic','$detail','$reback','$username','$email',NOW(),'$sticky')";
-	$result=mysql_query($sql);
+	$result=query($sql);
 	if($result)
 	{
 		//成功后，跳转页面到论坛主页面
 		header("Location: ./");
 	}
-	else 
+	else
 	{
 		echo '<script>alert(\'数据库错误！\');window.history.back();</script>';
 	    exit();

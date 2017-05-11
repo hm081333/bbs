@@ -14,7 +14,7 @@ include('./header.inc.php');
 
 $id=$_POST['id'];
 $sql = "DELETE FROM forum_admin WHERE id=$id";
-$result=mysql_query($sql);
+$result=mysqli_query($sql);
 if($result)
 {
 ?>

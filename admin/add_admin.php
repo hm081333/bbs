@@ -35,8 +35,8 @@ header("Content-type: text/html; charset=utf-8");
 
   //判断用户是否已经存在
   $sql = "SELECT * FROM forum_admin WHERE username='$username'";
-  $result = mysql_query($sql);
-  $num_rows = mysql_num_rows($result);
+  $result = mysqli_query($sql);
+  $num_rows = mysqli_num_rows($result);
 
   if ($num_rows > 0) {
 	echo '<script>alert(\'该用户已经存在！点击确定返回重新添加\');window.history.back();</script>';
@@ -45,7 +45,7 @@ header("Content-type: text/html; charset=utf-8");
 
   //创建用户
   $sql = "INSERT INTO forum_admin (username,password,auth)VALUES('$username','$hash','$auth')";
-  $result = mysql_query($sql);
+  $result = mysqli_query($sql);
   
   if($result)
   {

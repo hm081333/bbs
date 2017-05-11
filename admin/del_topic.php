@@ -16,11 +16,11 @@ if(isset($_SESSION["admin"])&&$_SESSION['admin'])
 
 	//删除文章
 	$sql = "DELETE FROM forum_topic WHERE id=$id";
-	$result=mysql_query($sql);
+	$result=mysqli_query($sql);
 
 	//删除回复内容
 	$sql2 = "DELETE FROM forum_reply WHERE topic_id=$id";
-	$result2=mysql_query($sql2); 
+	$result2=mysqli_query($sql2); 
 
 	if($result && $result2)
 	{

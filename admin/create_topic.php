@@ -44,9 +44,9 @@ ini_set("error_reporting","E_ALL & ~E_NOTICE");
 <option value="" disabled selected>请选择</option>
 <?php
 $sql = "SELECT * FROM forum_class";
-$result = mysql_query($sql);
+$result = mysqli_query($sql);
 //循环输出输出记录列表
-while($rows=mysql_fetch_array($result))
+while($rows=mysqli_fetch_array($result))
 {
 ?>
 <option value="<?php echo $rows['id'];?>"><?php echo $rows['name'];?></option>

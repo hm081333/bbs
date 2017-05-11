@@ -15,13 +15,13 @@ header("Content-type: text/html; charset=utf-8");
 
 	//从数据库中检索用户名，密码是否匹配
 	$sql = "SELECT * FROM forum_admin WHERE username='$username'";
-	$result = mysql_query($sql);
-	$num_rows = mysql_num_rows($result);
+	$result = mysqli_query($sql);
+	$num_rows = mysqli_num_rows($result);
 	
 	if($num_rows == 1)
 	{
 		//获得用户名
-		$row = mysql_fetch_assoc($result);
+		$row = mysqli_fetch_assoc($result);
 		
 		$hash = $row['password'];
 		if(password_verify($password,$hash)){ 

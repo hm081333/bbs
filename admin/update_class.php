@@ -23,7 +23,7 @@ include('./header.inc.php');
 	$sql="UPDATE forum_class SET name = '$name' WHERE tips = '$tips'";
   }
 
-  $result=mysql_query($sql);
+  $result=mysqli_query($sql);
 
   if($result){
 ?>

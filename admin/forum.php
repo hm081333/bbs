@@ -40,10 +40,10 @@ header("Content-type: text/html; charset=utf-8");
 <?php
 //检索记录，按照置顶标记和时间排序
 $sql = "SELECT * FROM forum_topic ORDER BY sticky DESC, datetime DESC LIMIT $start, $each_page";
-$result = mysql_query($sql);
+$result = mysqli_query($sql);
 
 //循环输出输出记录列表
-while($rows=mysql_fetch_array($result))
+while($rows=mysqli_fetch_array($result))
 { 
 ?>
 
@@ -63,8 +63,8 @@ while($rows=mysql_fetch_array($result))
 <td>
 <?php
 $sql1="SELECT * FROM forum_class WHERE id=".$rows['class_id']."";
-$result1=mysql_query($sql1);
-$rows1=mysql_fetch_array($result1);
+$result1=mysqli_query($sql1);
+$rows1=mysqli_fetch_array($result1);
 echo $rows1['name'];
 ?>
 </td>
@@ -116,13 +116,13 @@ echo $rows['datetime'];  //日期
   }
 
   //当前记录
-  $currentend = $start + EACH_PAGE;
+  $currentend = $start + $each_page;
 
   //取得所有的记录数
-  $sql = "SELECT COUNT(*) FROM forum_topic";
-  $result = mysql_query($sql);
-  $row = mysql_fetch_row($result);
-  $total = $row[0];
+  $sql = "SELECT COUNT(*) AS c FROM forum_topic";
+  $result = mysqli_query($sql);
+  $row = mysqli_fetch_row($result);
+  $total = fetch_once($sql)['c'];
   $nextpage = 0;
   //计算后一页
   if($total>$currentend)

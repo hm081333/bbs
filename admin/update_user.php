@@ -38,7 +38,7 @@ include('./header.inc.php');
 	$sql="UPDATE forum_user SET password = '$hash', email = '$email', realname = '$realname', auth = '$auth' WHERE id = '$id'";
   }
 
-  $result=mysql_query($sql);
+  $result=mysqli_query($sql);
 
   if($result){
 ?>

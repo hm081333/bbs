@@ -1,6 +1,6 @@
 <script src="./js/login.js"></script>
 <?php
-header("Content-type: text/html; charset=utf-8"); 
+header("Content-type: text/html; charset=utf-8");
   /**************************************/
   /*		文件名：login.php	    	*/
   /*		功能：用户登录程序	    		*/
@@ -48,7 +48,7 @@ header("Content-type: text/html; charset=utf-8");
 </form>
 </fieldset>
 
-<?php 
+<?php
   //公用尾部页面
-  include('./footer.inc.php'); 
+  include('./footer.inc.php');
 ?>

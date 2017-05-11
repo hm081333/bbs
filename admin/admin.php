@@ -1,5 +1,5 @@
 <?php
-header("Content-type: text/html; charset=utf-8"); 
+header("Content-type: text/html; charset=utf-8");
   /**************************************/
   /*		文件名：user.php		    */
   /*		  功能：管理用户	    	 	*/
@@ -8,15 +8,15 @@ header("Content-type: text/html; charset=utf-8");
 	require('../config.inc.php');
 
 //判断用户是否登录，从而显示不同的界面
-if(isset($_SESSION["admin"])&&$_SESSION['admin']) 
+if(isset($_SESSION["admin"])&&$_SESSION['admin'])
 { //登陆后显示页面
 include('./header.inc.php');
 //取得当前页数
-  
+
 //  $page=$_GET['page'];
   $page=$_GET["page"];
- 
-  
+
+
   //每页最多显示的记录数
   $each_page = 8;
 
@@ -43,10 +43,10 @@ include('./header.inc.php');
 <tbody>
 <?php
 $sql="SELECT * FROM forum_admin LIMIT $start, $each_page";
-$result = mysql_query($sql);
+$result = mysqli_query($sql);
 //循环输出输出记录列表
-while($rows=mysql_fetch_array($result))
-{ 
+while($rows=mysqli_fetch_array($result))
+{
 ?>
 <form enctype="multipart/form-data" method="post" action="update_admin.php">
 <input name="id" type="hidden" value="<?php echo $rows['id'];?>">
@@ -63,7 +63,7 @@ if ($rows['auth'] == '1') {
 <label for="auth<?php echo $rows['id'];?>"></label>
 </p>
 <?PHP
-} 
+}
 else {
 ?>
 <p>
@@ -75,7 +75,7 @@ else {
 ?>
 </td>
 <td>
-<input placeholder="密码留空，将不被更新" name="password<?php echo $rows['id'];?>" type="password">	
+<input placeholder="密码留空，将不被更新" name="password<?php echo $rows['id'];?>" type="password">
 </td>
 <td>
 <button type="submit" name="submit" class="btn-floating waves-effect waves-light">修改</button>
@@ -97,13 +97,13 @@ else {
   }
 
   //当前记录
-  $currentend = $start + EACH_PAGE;
+  $currentend = $start + $each_page;
 
   //取得所有的记录数
-  $sql = "SELECT COUNT(*) FROM forum_admin";
-  $result = mysql_query($sql);
-  $row = mysql_fetch_row($result);
-  $total = $row[0];
+  $sql = "SELECT COUNT(*) AS c FROM forum_admin";
+  $result = mysqli_query($sql);
+  $row = mysqli_fetch_row($result);
+  $total = fetch_once($sql)['c'];
   $nextpage = 0;
   //计算后一页
   if($total>$currentend)
@@ -119,7 +119,7 @@ else {
 <td colspan="5">
 <?php
 //判断分页并输出
-if ($prevpage || $nextpage) 
+if ($prevpage || $nextpage)
 {
 //上一页
 if($prevpage)
@@ -156,5 +156,5 @@ if($nextpage)
 	}
 
 	//公用尾部页面
-	include('./footer.inc.php'); 
+	include('./footer.inc.php');
 ?>

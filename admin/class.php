@@ -40,9 +40,9 @@ if(isset($_SESSION["admin"])&&$_SESSION['admin'])
 <tbody>
 <?php
 $sql="SELECT * FROM forum_class LIMIT $start, $each_page";
-$result = mysql_query($sql);
+$result = mysqli_query($sql);
 //循环输出输出记录列表
-while($rows=mysql_fetch_array($result))
+while($rows=mysqli_fetch_array($result))
 { 
 ?>
 <form enctype="multipart/form-data" method="post" action="update_class.php">
@@ -73,13 +73,13 @@ while($rows=mysql_fetch_array($result))
   }
 
   //当前记录
-  $currentend = $start + EACH_PAGE;
+  $currentend = $start + $each_page;
 
   //取得所有的记录数
-  $sql = "SELECT COUNT(*) FROM forum_class";
-  $result = mysql_query($sql);
-  $row = mysql_fetch_row($result);
-  $total = $row[0];
+  $sql = "SELECT COUNT(*) AS c FROM forum_class";
+  $result = mysqli_query($sql);
+  $row = mysqli_fetch_row($result);
+  $total = fetch_once($sql)['c'];
   $nextpage = 0;
   //计算后一页
   if($total>$currentend)

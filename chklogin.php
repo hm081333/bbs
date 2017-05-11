@@ -1,6 +1,6 @@
 <script src="./js/login.js"></script>
 <?php
-header("Content-type: text/html; charset=utf-8"); 
+header("Content-type: text/html; charset=utf-8");
   /**************************************/
   /*		文件名：chklogin.php     	*/
   /*		功能：用户登录程序		    	*/
@@ -16,16 +16,15 @@ header("Content-type: text/html; charset=utf-8");
 
 	//从数据库中检索用户名，密码是否匹配
 	$sql = "SELECT * FROM forum_user WHERE username='$username'";
-	$result = mysql_query($sql);
-	$num_rows = mysql_num_rows($result);
-	
+	$num_rows = num_rows($sql);
+
 	if($num_rows == 1)
 	{
 		//获得用户名
-		$row = mysql_fetch_assoc($result);
-		
+		$row = fetch_once($sql);
+
 		$hash = $row['password'];
-		if(password_verify($password,$hash)){ 
+		if(password_verify($password,$hash)){
 
 		//将用户名存如SESSION中
 		$_SESSION['username'] = $row['username'];
@@ -44,5 +43,5 @@ header("Content-type: text/html; charset=utf-8");
 	}
 
   //公用尾部页面
-  include('./footer.inc.php'); 
+  include('./footer.inc.php');
 ?>

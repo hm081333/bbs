@@ -12,8 +12,8 @@ header("Content-type: text/html; charset=utf-8");
   $id=$_GET['id'];
   $sql="SELECT * FROM forum_topic WHERE id='$id'";
 
-  $result=mysql_query($sql);
-  $rows=mysql_fetch_array($result);
+  $result=mysqli_query($sql);
+  $rows=mysqli_fetch_array($result);
 
   //记录不存在
   if (!$rows) 
@@ -79,13 +79,13 @@ echo '';
   //获取回复内容
   $sql	="SELECT * FROM forum_reply WHERE topic_id='$id' order by reply_id";//order by xx根据回复先后顺序排序
 
-  $result	= mysql_query($sql);
-  $num_rows = mysql_num_rows($result);
+  $result	= mysqli_query($sql);
+  $num_rows = mysqli_num_rows($result);
 
   if ($num_rows)
   {
 	//循环取出记录内容
-	while($rows=mysql_fetch_array($result))
+	while($rows=mysqli_fetch_array($result))
 	{
 ?>
 
@@ -126,7 +126,7 @@ echo '';
  
   //浏览量加1
   $sql = "UPDATE forum_topic set view=view+1 WHERE id='$id'";
-  $result = mysql_query($sql);
+  $result = mysqli_query($sql);
 
     ?></p>
 </dl>

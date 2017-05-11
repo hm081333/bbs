@@ -6,5 +6,4 @@ $group1	= $_POST['group1'];
 echo $group1;
 
 
-include('./footer.inc.php'); 
-?>
+include('./footer.inc.php');
