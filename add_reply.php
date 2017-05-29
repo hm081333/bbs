@@ -7,7 +7,7 @@ header("Content-type: text/html; charset=utf-8");
   /***************************************/
 
   require('./config.inc.php');
-  include('./header.inc.php');
+  include('./header/header.inc.php');
 
 //判断用户是否登录
   if(isset($_SESSION["username"])&&$_SESSION['username'])

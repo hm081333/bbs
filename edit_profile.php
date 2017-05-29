@@ -18,7 +18,7 @@ header("Content-type: text/html; charset=utf-8");
   }
 ?>
 
-<?php include('./header.inc.php'); ?>
+<?php include('./header/header.inc.php'); ?>
 
 <h3 class="center">编辑个人资料</h3>
 
@@ -57,4 +57,4 @@ header("Content-type: text/html; charset=utf-8");
 </table>
 </form>
 </fieldset>
-<?php include('./footer.inc.php'); ?>
+<?php include('./header/footer.inc.php'); ?>

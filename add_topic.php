@@ -11,7 +11,7 @@ header("Content-type: text/html; charset=utf-8");
   if (!$_SESSION['username'])
   {
 	//如果用户未登录，显示错误信息
-	include('./header.inc.php');	//头文件
+	include('./header/header.inc.php');	//头文件
 ?>
 
 <h2 class="center">创建新贴</h2>
@@ -22,7 +22,7 @@ header("Content-type: text/html; charset=utf-8");
 </p>
 
 <?php
-	include('./footer.inc.php');		//尾文件
+	include('./header/footer.inc.php');		//尾文件
 
   } else {
 

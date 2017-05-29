@@ -10,7 +10,7 @@ require('../config.inc.php');
 //判断用户是否登录，从而显示不同的界面
 if(isset($_SESSION["admin"])&&$_SESSION['admin']) 
 { //登陆后显示页面
-include('./header.inc.php');
+include('../header/admin.header.inc.php');
 
 $id=$_POST['id'];
 $sql = "DELETE FROM forum_user WHERE id=$id";
@@ -37,5 +37,5 @@ exit();
 header("Location: ./");
 }
 //公用尾部页面
-include('./footer.inc.php'); 
+include('../header/footer.inc.php'); 
 ?>

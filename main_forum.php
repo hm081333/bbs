@@ -28,7 +28,7 @@ $class_id=$_GET["id"];
   }
 ?>
 
-<?php include('./header.inc.php');?>
+<?php include('./header/header.inc.php');?>
 
 <?php
 //检索记录，按照置顶标记和时间排序
@@ -157,5 +157,5 @@ if($nextpage)
 
 <?php
 //公用尾部页面
-include('./footer.inc.php')
+include('./header/footer.inc.php')
 ?>

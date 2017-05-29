@@ -8,7 +8,7 @@ header("Content-type: text/html; charset=utf-8");
   /**************************************/
 
   require('./config.inc.php');
-  include('./header.inc.php');
+  include('./header/header.inc.php');
 ?>
 
 <h3 class="center">注册</h3>
@@ -83,5 +83,5 @@ header("Content-type: text/html; charset=utf-8");
 <?php 
 
 	//公用尾部页面
-	include('./footer.inc.php');
+	include('./header/footer.inc.php');
 ?>

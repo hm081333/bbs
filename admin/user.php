@@ -1,5 +1,5 @@
 <?php
-header("Content-type: text/html; charset=utf-8"); 
+header("Content-type: text/html; charset=utf-8");
   /**************************************/
   /*		文件名：user.php		    */
   /*		  功能：管理用户	    	 	*/
@@ -8,15 +8,15 @@ header("Content-type: text/html; charset=utf-8");
 	require('../config.inc.php');
 
 //判断用户是否登录，从而显示不同的界面
-if(isset($_SESSION["admin"])&&$_SESSION['admin']) 
+if(isset($_SESSION["admin"])&&$_SESSION['admin'])
 { //登陆后显示页面
-include('./header.inc.php');
+include('../header/admin.header.inc.php');
 //取得当前页数
-  
+
 //  $page=$_GET['page'];
-  $page=$_GET["page"];
- 
-  
+  $page=isset($_GET["page"])?$_GET["page"]:0;
+
+
   //每页最多显示的记录数
   $each_page = 8;
 
@@ -45,51 +45,50 @@ include('./header.inc.php');
 <tbody>
 <?php
 $sql="SELECT * FROM forum_user order by id LIMIT $start, $each_page";
-$result = mysqli_query($sql);
-//循环输出输出记录列表
-while($rows=mysqli_fetch_array($result))
-{ 
+$rows=fetch_all($sql);
+foreach ($rows as $key => $row)
+{
 ?>
 <form enctype="multipart/form-data" method="post" action="update_user.php">
-<input name="id" type="hidden" value="<?php echo $rows['id'];?>">
+<input name="id" type="hidden" value="<?php echo $row['id'];?>">
 <tr>
 <td>
-<?php echo $rows['username'];?>
+<?php echo $row['username'];?>
 </td>
 <td>
 <?php
-if ($rows['auth'] == '1') {
+if ($row['auth'] == '1') {
 ?>
 <p>
-<input name="auth<?php echo $rows['id'];?>" type="checkbox" class="filled-in" id="auth<?php echo $rows['id'];?>" checked/>
-<label for="auth<?php echo $rows['id'];?>"></label>
+<input name="auth<?php echo $row['id'];?>" type="checkbox" class="filled-in" id="auth<?php echo $row['id'];?>" checked/>
+<label for="auth<?php echo $row['id'];?>"></label>
 </p>
 <?PHP
-} 
+}
 else {
 ?>
 <p>
-<input name="auth<?php echo $rows['id'];?>" type="checkbox" class="filled-in" id="auth<?php echo $rows['id'];?>"/>
-<label for="auth<?php echo $rows['id'];?>"></label>
+<input name="auth<?php echo $row['id'];?>" type="checkbox" class="filled-in" id="auth<?php echo $row['id'];?>"/>
+<label for="auth<?php echo $row['id'];?>"></label>
 </p>
 <?php
 }
 ?>
 </td>
 <td>
-<input name="email<?php echo $rows['id'];?>" type="text" value="<?php echo $rows['email'];?>">
+<input name="email<?php echo $row['id'];?>" type="text" value="<?php echo $row['email'];?>">
 </td>
 <td>
-<input name="realname<?php echo $rows['id'];?>" type="text" value="<?php echo $rows['realname'];?>">
+<input name="realname<?php echo $row['id'];?>" type="text" value="<?php echo $row['realname'];?>">
 </td>
 <td>
-<input placeholder="密码留空，将不被更新" name="password<?php echo $rows['id'];?>" type="password">	
+<input placeholder="密码留空，将不被更新" name="password<?php echo $row['id'];?>" type="password">
 </td>
 <td>
 <button type="submit" name="submit" class="btn-floating waves-effect waves-light">修改</button>
 </form>
 <form enctype="multipart/form-data" method="post" action="del_user.php">
-<input name="id" type="hidden" value="<?php echo $rows['id'];?>">
+<input name="id" type="hidden" value="<?php echo $row['id'];?>">
 <button type="submit" name="submit" class="btn-floating waves-effect waves-light">删除</button>
 </form>
 </td>
@@ -107,10 +106,8 @@ else {
   $currentend = $start + $each_page;
 
   //取得所有的记录数
-  $sql = "SELECT COUNT(*) AS c FROM forum_user";
-  $result = mysqli_query($sql);
-  $row = mysqli_fetch_row($result);
-  $total = fetch_once($sql)['c'];
+  $sql = "SELECT * FROM forum_user";
+  $total = num_rows($sql);
   $nextpage = 0;
   //计算后一页
   if($total>$currentend)
@@ -126,7 +123,7 @@ else {
 <td colspan="5">
 <?php
 //判断分页并输出
-if ($prevpage || $nextpage) 
+if ($prevpage || $nextpage)
 {
 //上一页
 if($prevpage)
@@ -163,5 +160,5 @@ if($nextpage)
 	}
 
 	//公用尾部页面
-	include('./footer.inc.php'); 
+	include('../header/footer.inc.php');
 ?>

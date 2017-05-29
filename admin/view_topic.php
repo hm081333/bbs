@@ -27,7 +27,7 @@ header("Content-type: text/html; charset=utf-8");
 
 ?>
 
-<?php include('./header.inc.php'); ?>
+<?php include('../header/admin.header.inc.php'); ?>
 
 
 <fieldset>
@@ -228,4 +228,4 @@ if (!$_SESSION['username'])
 ?>
 </fieldset>
 
-<?php include('./footer.inc.php'); ?>
+<?php include('../header/footer.inc.php'); ?>

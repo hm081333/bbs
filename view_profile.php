@@ -24,14 +24,14 @@ header("Content-type: text/html; charset=utf-8");
   $num_count_q = num_rows($sql);
 
   //回复内容
-  $sql = "SELECT * FROM forum_reply WHERE reply_name = '" . $id . "'";
+  $sql = "SELECT * FROM `forum_reply` WHERE reply_name = '" . $id . "'";
   $num_count_a = num_rows($sql);
 
   //计算用户发表的帖子数量
   $num_count = $num_count_q + $num_count_a;
 ?>
 
-<?php include('./header.inc.php'); ?>
+<?php include('./header/header.inc.php'); ?>
 
 <h3 class="center">查看 <b><?php echo $rows['username']; ?></b> 个人资料</h3>
 
@@ -59,4 +59,4 @@ header("Content-type: text/html; charset=utf-8");
 </table>
 </fieldset>
 
-<?php include('./footer.inc.php'); ?>
+<?php include('./header/footer.inc.php'); ?>

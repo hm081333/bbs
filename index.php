@@ -17,16 +17,16 @@ $page=$_GET["page"];
 $each_page = 8;
 
 //计算页面开始位置
-if(!$page || $page == 1) {
+if (!$page || $page == 1) {
     $start = 0;
-}else{
+} else {
     $offset = $page - 1;
     $start = ($offset * $each_page);
 }
 ?>
 
 <?php
-require './header.inc.php';
+require './header/header.inc.php';
 ?>
 
 
@@ -47,18 +47,18 @@ $rows=fetch_all($sql);
 <tbody>
 <?php
 //循环输出输出记录列表
-foreach ($rows as $key => $row)
-{
-?>
+foreach ($rows as $key => $row) {
+    ?>
 <tr class="green accent-1">
 <td>
-<i class="material-icons">label</i><a class="brown-text" href="main_forum.php?<?php echo "id=".$row['id'];?>&page=1"><b><?php echo $row['name'];?></b></a>
+<i class="material-icons">label</i><a class="brown-text" href="main_forum.php?<?php echo "id=".$row['id']; ?>&page=1"><b><?php echo $row['name']; ?></b></a>
 </td>
 <td>
-<?php echo $row['tips'];?>
+<?php echo $row['tips']; ?>
 </td>
 </tr>
 <?php
+
 }//退出遍历
 ?>
 <tr>
@@ -67,7 +67,7 @@ foreach ($rows as $key => $row)
 <?php
   $prevpage = 0;
   //计算前一页
-if($page > 1) {
+if ($page > 1) {
     $prevpage = $page - 1;
 }
 
@@ -79,10 +79,10 @@ if($page > 1) {
   $total = fetch_once($sql)['c'];
   $nextpage = 0;
   //计算后一页
-if($total>$currentend) {
-    if(!$page) {
+if ($total>$currentend) {
+    if (!$page) {
         $nextpage = 2;
-    }else{
+    } else {
         $nextpage = $page + 1;
     }
 }
@@ -90,24 +90,28 @@ if($total>$currentend) {
 //判断分页并输出
 if ($prevpage || $nextpage) {
     //上一页
-    if($prevpage) {
+    if ($prevpage) {
         ?>
         <a class="btn waves-effect waves-light" href="./?page=<?php echo $prevpage ?>"><i class="material-icons">arrow_back</i></a>
     <?php
-    }else{
+
+    } else {
         ?>
         <a class="disabled btn waves-effect waves-light"><i class="material-icons">arrow_back</i></a>
         <?php
+
     }
     //后一页
-    if($nextpage) {
+    if ($nextpage) {
         ?>
         <a class="btn waves-effect waves-light" href="./?page=<?php echo $nextpage ?>"><i class="material-icons">arrow_forward</i></a>
     <?php
-    }else{
+
+    } else {
         ?>
         <a class="disabled btn waves-effect waves-light"><i class="material-icons">arrow_forward</i></a>
         <?php
+
     }
 }
 ?>
@@ -121,5 +125,5 @@ if ($prevpage || $nextpage) {
 
 <?php
 //公用尾部页面
-require './footer.inc.php';
+require './header/footer.inc.php';
 ?>

@@ -1,6 +1,6 @@
 ﻿<?php
 ini_set("error_reporting","E_ALL & ~E_NOTICE");
-header("Content-type: text/html; charset=utf-8"); 
+header("Content-type: text/html; charset=utf-8");
   /**************************************/
   /*		文件名：main_forum.php		*/
   /*		功能：论坛主页面			*/
@@ -21,7 +21,7 @@ header("Content-type: text/html; charset=utf-8");
   }
 ?>
 
-<?php include('./header.inc.php');?>
+<?php include('../header/admin.header.inc.php');?>
 
 <h3 class="center">管理帖子</h3>
 
@@ -40,11 +40,9 @@ header("Content-type: text/html; charset=utf-8");
 <?php
 //检索记录，按照置顶标记和时间排序
 $sql = "SELECT * FROM forum_topic ORDER BY sticky DESC, datetime DESC LIMIT $start, $each_page";
-$result = mysqli_query($sql);
-
-//循环输出输出记录列表
-while($rows=mysqli_fetch_array($result))
-{ 
+$rows=fetch_all($sql);
+foreach ($rows as $key => $row)
+{
 ?>
 
 <tbody>
@@ -53,52 +51,51 @@ while($rows=mysqli_fetch_array($result))
 
 <?php
 	//如果是“置顶”的记录
-	if ($rows['sticky'] == "1")
+	if ($row['sticky'] == "1")
 	{
-	  ?><i class="material-icons">stars</i><?php 
+	  ?><i class="material-icons">stars</i><?php
 	}
 ?>
-<a href="view_topic.php?id=<?php echo $rows['id'];?>"><?php echo $rows['topic']; ?></a><br/><?php echo '发帖者: '.$rows['name']?>
+<a href="view_topic.php?id=<?php echo $row['id'];?>"><?php echo $row['topic']; ?></a><br/><?php echo '发帖者: '.$row['name']?>
 </td>
 <td>
 <?php
-$sql1="SELECT * FROM forum_class WHERE id=".$rows['class_id']."";
-$result1=mysqli_query($sql1);
-$rows1=mysqli_fetch_array($result1);
-echo $rows1['name'];
+$sql1="SELECT * FROM forum_class WHERE id=".$row['class_id']."";
+$row1=fetch_once($sql1);
+echo $row1['name'];
 ?>
 </td>
 <td>
-<?php 
-echo $rows['view'];  //浏览量
+<?php
+echo $row['view'];  //浏览量
 ?>
 </td>
 <td>
-<?php 
-echo $rows['reply'];  //回复量
+<?php
+echo $row['reply'];  //回复量
 ?>
 </td>
 <td>
-<?php 
-echo $rows['datetime'];  //日期
+<?php
+echo $row['datetime'];  //日期
 ?>
 </td>
 <td>
 <!--显示置顶操作按钮-->
-<?php if ($rows['sticky'] == 0) { ?>
+<?php if ($row['sticky'] == 0) { ?>
 <form enctype="multipart/form-data" method="post" action="stick_topic.php">
-<input type="hidden" name="id" value="<?php echo $rows['id'];?>">
+<input type="hidden" name="id" value="<?php echo $row['id'];?>">
 <button type="submit" name="submit" class="btn-floating waves-effect waves-light"><i class="material-icons">publish</i></button>
 </form>
 <?php } else { ?>
 <form enctype="multipart/form-data" method="post" action="unstick_topic.php">
-<input type="hidden" name="id" value="<?php echo $rows['id'];?>">
+<input type="hidden" name="id" value="<?php echo $row['id'];?>">
 <button type="submit" name="submit" class="btn-floating waves-effect waves-light"><i class="material-icons">stars</i></button>
 </form>
-<?php } ?>  
+<?php } ?>
 <!--显示删除操作按钮-->
 <form enctype="multipart/form-data" method="post" action="del_topic.php">
-<input name="id" type="hidden" value="<?php echo $rows['id'];?>">
+<input name="id" type="hidden" value="<?php echo $row['id'];?>">
 <button type="submit" name="submit" class="btn-floating waves-effect waves-light"><i class="material-icons">clear</i></button>
 </form>
 </td>
@@ -119,10 +116,8 @@ echo $rows['datetime'];  //日期
   $currentend = $start + $each_page;
 
   //取得所有的记录数
-  $sql = "SELECT COUNT(*) AS c FROM forum_topic";
-  $result = mysqli_query($sql);
-  $row = mysqli_fetch_row($result);
-  $total = fetch_once($sql)['c'];
+  $sql = "SELECT * FROM forum_topic";
+  $total = num_rows($sql);
   $nextpage = 0;
   //计算后一页
   if($total>$currentend)
@@ -139,7 +134,7 @@ echo $rows['datetime'];  //日期
 <td colspan="6">
 <?php
 //判断分页并输出
-if ($prevpage || $nextpage) 
+if ($prevpage || $nextpage)
 {
 //上一页
 if($prevpage)
@@ -172,5 +167,5 @@ if($nextpage)
 
 <?php
 //公用尾部页面
-include('./footer.inc.php') 
+include('../header/footer.inc.php')
 ?>

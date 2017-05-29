@@ -7,7 +7,7 @@ header("Content-type: text/html; charset=utf-8");
   /**************************************/
 
   require('./config.inc.php');
-  include ('./header.inc.php');
+  include ('./header/header.inc.php');
   if (!$_SESSION['username']) {
 	echo '<script>alert(\'请登录后执行该请求！\');window.history.back();</script>';
 	exit();
@@ -55,5 +55,5 @@ header("Content-type: text/html; charset=utf-8");
 	echo '<script>alert(\'记录不存在！\');window.history.back();</script>';
 	exit();
   }
-include ('./footer.inc.php');
+include ('./header/footer.inc.php');
 ?>

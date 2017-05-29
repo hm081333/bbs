@@ -7,7 +7,7 @@ ini_set("error_reporting","E_ALL & ~E_NOTICE");
   /***********************************/
 
   require('./config.inc.php');
-  include('./header.inc.php');
+  include('./header/header.inc.php');
 ?>
 
 
@@ -85,7 +85,7 @@ foreach ($rows as $key => $row)
   if ($_SESSION['user_auth'] == 1)
   {
 ?>
-<div class="center col s12">
+<div class="center col s12" style="margin: 15px 0px;">
 <div class="switch">
 <label>
 <b>不顶置</b>
@@ -113,5 +113,5 @@ foreach ($rows as $key => $row)
 
 <?php
 	//公用尾部页面
-	include('./footer.inc.php');
+	include('./header/footer.inc.php');
 ?>

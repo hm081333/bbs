@@ -6,7 +6,7 @@ header("Content-type: text/html; charset=utf-8");
   /*		功能：搜索结果页面		     	*/
   /**************************************/
 require('./config.inc.php');
-include('./header.inc.php');
+include('./header/header.inc.php');
 
 $keyword = $_POST['keyword'];
 $term = $_POST['term'];
@@ -82,5 +82,5 @@ echo $row['datetime'];  //日期
 </table>
 
 <?php
-include('./footer.inc.php')
+include('./header/footer.inc.php')
 ?>

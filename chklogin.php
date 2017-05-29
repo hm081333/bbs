@@ -8,7 +8,7 @@ header("Content-type: text/html; charset=utf-8");
 
   require('./config.inc.php');
   //公用头部页面
-  include('./header.inc.php');
+  include('./header/header.inc.php');
 	//用户名
 	$username=ClearSpecialChars($_POST['username']);
 	//密码，需要进行MD5加密
@@ -43,5 +43,5 @@ header("Content-type: text/html; charset=utf-8");
 	}
 
   //公用尾部页面
-  include('./footer.inc.php');
+  include('./header/footer.inc.php');
 ?>

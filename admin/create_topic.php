@@ -1,16 +1,15 @@
 <?php
-header("Content-type: text/html; charset=utf-8"); 
-ini_set("error_reporting","E_ALL & ~E_NOTICE");
+header("Content-type: text/html; charset=utf-8");
+ini_set("error_reporting", "E_ALL & ~E_NOTICE");
   /***********************************/
   /*      文件名：create_topic.php   */
   /*      功能：发表文章页面		 */
   /***********************************/
 
   require('../config.inc.php');
-  include('./header.inc.php');
+  include('../header/admin.header.inc.php');
   //判断用户是否登录，从而显示不同的界面
-  if(isset($_SESSION["admin"])&&$_SESSION['admin']) 
-  { //登陆后显示页面
+  if (isset($_SESSION["admin"])&&$_SESSION['admin']) { //登陆后显示页面
 ?>
 
 <h3 class="center">添加新帖</h3>
@@ -41,17 +40,13 @@ ini_set("error_reporting","E_ALL & ~E_NOTICE");
 
 <label>课程选择</label>
 <select name="class_id" class="browser-default col s4">
-<option value="" disabled selected>请选择</option>
+<option disabled selected>请选择课程</option>
 <?php
-$sql = "SELECT * FROM forum_class";
-$result = mysqli_query($sql);
-//循环输出输出记录列表
-while($rows=mysqli_fetch_array($result))
-{
-?>
-<option value="<?php echo $rows['id'];?>"><?php echo $rows['name'];?></option>
-<?php
-}//退出while循环
+	$sql = "SELECT * FROM forum_class";
+    $rows=fetch_all($sql);
+	foreach ($rows as $row) {
+		echo '<option value='.$row['id'].'>'.$row['name'].'</option>';
+    }//退出while循环
 ?>
 </select>
 
@@ -63,7 +58,7 @@ while($rows=mysqli_fetch_array($result))
 
 <div id="preview" class="center"></div>
 
-<div class="center col s12">
+<div class="center col s12" style="margin: 10;">
 <div class="switch">
 <label>
 <b>不顶置</b>
@@ -86,9 +81,10 @@ while($rows=mysqli_fetch_array($result))
 </fieldset>
 
 <?php
-	}else{//未登陆返回登陆页面
-	header("Location: ./");
-	}
-	//公用尾部页面
-	include('./footer.inc.php');
+
+  } else {//未登陆返回登陆页面
+    header("Location: ./");
+  }
+    //公用尾部页面
+    include('../header/footer.inc.php');
 ?>

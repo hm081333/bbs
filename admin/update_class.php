@@ -10,7 +10,7 @@ header("Content-type: text/html; charset=utf-8");
 //判断用户是否登录，从而显示不同的界面
 if(isset($_SESSION["admin"])&&$_SESSION['admin']) 
 { //登陆后显示页面
-include('./header.inc.php');
+include('../header/admin.header.inc.php');
   $id =$_POST['id'];;
   $name=$_POST['name'.$id.''];
   $tips=$_POST['tips'.$id.''];
@@ -49,5 +49,5 @@ include('./header.inc.php');
 	header("Location: ./");
 	}
 	//公用尾部页面
-	include('./footer.inc.php'); 
+	include('../header/footer.inc.php'); 
 ?>

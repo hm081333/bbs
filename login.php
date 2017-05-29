@@ -8,7 +8,7 @@ header("Content-type: text/html; charset=utf-8");
 
   require('./config.inc.php');
   //公用头部页面
-  include('./header.inc.php');
+  include('./header/header.inc.php');
 ?>
 
 <h3 class="center">用户登录</h3>
@@ -50,5 +50,5 @@ header("Content-type: text/html; charset=utf-8");
 
 <?php
   //公用尾部页面
-  include('./footer.inc.php');
+  include('./header/footer.inc.php');
 ?>

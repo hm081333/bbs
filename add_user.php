@@ -8,7 +8,7 @@ header("Content-type: text/html; charset=utf-8");
   require('./config.inc.php');
 
   //取得提交的数据，并做清理
-  include ('./header.inc.php');
+  include ('./header/header.inc.php');
   //用户名
   $username	= ClearSpecialChars($_POST['username']);
   //密码
@@ -66,7 +66,7 @@ setTimeout("window.location.href='login.php'",5000);
 </script>
 
 	<?php
-	include('./footer.inc.php');		//尾文件
+	include('./header/footer.inc.php');		//尾文件
   }
   else {
 	echo '<script>alert(\'数据库错误！\');window.history.back();</script>';

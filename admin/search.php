@@ -7,7 +7,7 @@ header("Content-type: text/html; charset=utf-8");
 /**************************************/
 
 require('../config.inc.php');
-include('./header.inc.php');
+include('../header/admin.header.inc.php');
 ?>
 
 <h3 class="center">搜索</h3>
@@ -42,5 +42,5 @@ include('./header.inc.php');
 
 <?php
 //公用尾部页面
-include('./footer.inc.php');
+include('../header/footer.inc.php');
 ?>
