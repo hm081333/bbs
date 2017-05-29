@@ -1,39 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a7417d45-826a-40ff-b307-007494e054b9" name="默认" comment="添加谷歌二次验证API，前台还有搜索功能没做">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Public/static/upload/pics/1496079875.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Public/static/upload/pics/1496080784.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Public/static/upload/pics/1496081103.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Public/static/upload/pics/1496081680.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Public/static/upload/pics/1496081698.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Public/static/upload/pics/1496081746.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Public/static/upload/pics/1496081818.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Public/static/upload/pics/1496081920.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Bbs/View/create_topic.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Common/Api/Public.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Library/Google_Authenticator/exmple.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Library/upload_image/upload_image.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Public/static/js/jquery.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Public/static/js/jquery.min.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Runtime/log/201705/20170530.log" />
+    <list default="true" id="a7417d45-826a-40ff-b307-007494e054b9" name="默认" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Bbs/Api/Topic.php" afterPath="$PROJECT_DIR$/Bbs/Api/Topic.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Bbs/Api/User.php" afterPath="$PROJECT_DIR$/Bbs/Api/User.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Bbs/View/index.php" afterPath="$PROJECT_DIR$/Bbs/View/index.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Bbs/View/login.php" afterPath="$PROJECT_DIR$/Bbs/View/login.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Bbs/View/register.php" afterPath="$PROJECT_DIR$/Bbs/View/register.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Bbs/View/topic_list.php" afterPath="$PROJECT_DIR$/Bbs/View/topic_list.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Common/Api/Common.php" afterPath="$PROJECT_DIR$/Common/Api/Common.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Common/Domain/Class.php" afterPath="$PROJECT_DIR$/Common/Domain/Class.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Common/Model/Class.php" afterPath="$PROJECT_DIR$/Common/Model/Class.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Config/constant.php" afterPath="$PROJECT_DIR$/Config/constant.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Config/dbs.php" afterPath="$PROJECT_DIR$/Config/dbs.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Public/init.php" afterPath="$PROJECT_DIR$/Public/init.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Public/static/header/header.php" afterPath="$PROJECT_DIR$/Public/static/header/header.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Public/static/js/login.js" afterPath="$PROJECT_DIR$/Public/static/js/login.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Public/static/js/reg.js" afterPath="$PROJECT_DIR$/Public/static/js/reg.js" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/Library/Lite.php" afterPath="$PROJECT_DIR$/Library/php_view/Lite.php" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -509,7 +478,7 @@
       <updated>1495986168487</updated>
       <workItem from="1495986169722" duration="23188000" />
       <workItem from="1496053306442" duration="1389000" />
-      <workItem from="1496072929692" duration="10467000" />
+      <workItem from="1496072929692" duration="10562000" />
     </task>
     <task id="LOCAL-00001" summary="谷歌二次验证API">
       <created>1496072180197</created>
@@ -518,15 +487,21 @@
       <option name="project" value="LOCAL" />
       <updated>1496072180198</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="添加谷歌二次验证API，前台还有搜索功能没做">
+      <created>1496083609914</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1496083609914</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="35044000" />
+    <option name="totallyTimeSpent" value="35139000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14818764" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -535,7 +510,7 @@
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32939914" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -569,6 +544,32 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="processedProjectFiles" value="true" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
