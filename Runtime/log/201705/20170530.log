@@ -1,0 +1,10 @@
+2017-05-30 00:27:40|ERROR|Topic.create_Topic|PDOException: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'asc)' at line 1 in D:\WWW\1\test\PhalApi\NotORM\NotORM\Result.php:246
+Stack trace:
+#0 D:\WWW\1\test\PhalApi\NotORM\NotORM\Result.php(717): NotORM_Result->query('SELECT COUNT(*)...', Array)
+#1 D:\WWW\1\test\PhalApi\NotORM\NotORM\Result.php(729): NotORM_Result->aggregation('COUNT(*)')
+#2 D:\WWW\1\test\Common\Model\Class.php(6): NotORM_Result->count()
+#3 D:\WWW\1\test\Common\Domain\Class.php(13): Model_Class->getClassList(Array, '*', 'id asc')
+#4 D:\WWW\1\test\Bbs\Api\Topic.php(63): Domain_Class::getAllClassList()
+#5 D:\WWW\1\test\PhalApi\PhalApi.php(55): Api_Topic->create_Topic()
+#6 D:\WWW\1\test\index.php(17): PhalApi->response()
+#7 {main}

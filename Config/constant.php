@@ -8,6 +8,7 @@
 defined('Pub_ROOT') || define('Pub_ROOT', dirname(__FILE__) . '/');
 defined('URL_ROOT') || define('URL_ROOT', 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']);
 defined('each_page') || define('each_page', 8);
+defined('NOW_TIME') || define('NOW_TIME', time());
 //http://localhost/1/test/?service=Default.index&page=1
 
 

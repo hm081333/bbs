@@ -137,17 +137,17 @@ window.onload = function () {
 		// console.log($("#Register"));
 		$.ajax({
 			type: 'POST',
-			url: '?service=User.doRegister',
+			url: '?service=User.register',
 			data: $("#Register").serialize(),
 			success: function (d) {
 				if (d.ret == 200) {
 					Materialize.toast(d.msg, 2000, 'rounded', function () {
-						location.href = './';
+						// location.href = './';
+						history.back();
 					});
 				} else {
 					Materialize.toast(d.msg, 2000, 'rounded');
 				}
-				console.log(d);
 			}
 		});
 	});

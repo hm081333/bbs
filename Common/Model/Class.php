@@ -8,6 +8,11 @@ class Model_Class extends PhalApi_Model_NotORM {
 		return $rs;
     }
 
+	public function getAllClassList($where, $select, $order) {
+		$rs = $this->getORM()->select($select)->where($where)->order($order)->fetchAll();
+		return $rs;
+	}
+
     protected function getTableName($id) {
         return 'class';
     }

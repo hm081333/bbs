@@ -84,7 +84,7 @@ require_once './Public/static/header/header.php';
 			}
 			?>
 
-			<a class="btn right waves-effect waves-light" onClick="location.href='create_topic.php'">发帖</a>
+			<a class="btn right waves-effect waves-light" onClick="location.href='?service=Topic.create_Topic'">发帖</a>
 		</td>
 	</tr>
 	</tbody>

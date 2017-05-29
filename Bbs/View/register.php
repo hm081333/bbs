@@ -7,8 +7,8 @@ require_once './Public/static/header/header.php';
 <fieldset>
 	<legend>Register</legend>
 	<div class="row">
-		<form id="Register" enctype="multipart/form-data" method="post" action="add_user.php" class="col s12">
-
+		<form id="Register" class="col s12">
+			<input name="action" value="post" type="hidden">
 			<div class="col s12">
 				<div class="input-field">
 					<i class="material-icons prefix">account_box</i>

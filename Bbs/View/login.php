@@ -8,6 +8,7 @@ require_once './Public/static/header/header.php';
 	<legend>Login</legend>
 	<div class="row">
 		<form id="Login_in" class="col s12">
+			<input name="action" value="post" type="hidden">
 			<div class="col s12">
 				<div class="input-field">
 					<i class="material-icons prefix">account_box</i>

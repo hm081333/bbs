@@ -6,14 +6,13 @@
 	<title>南洋师生交流平台DEMO</title>
 	<link href="./Public/static/css/material-icons-3.0.1.css" rel="stylesheet"><!--加载Material style图标-->
 	<link href="./Public/static/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection"><!--加载框架css-->
-	<script src="./Public/static/js/jquery-3.1.1.min.js"></script><!--加载jQuery-->
+	<script src="./Public/static/js/jquery.min.js"></script><!--加载jQuery-->
 	<script src="./Public/static/js/materialize.min.js"></script><!--加载框架js-->
 	<link href="./Public/static/css/diy.css" rel="stylesheet"><!--加载自定义样式-->
 	<script src="./Public/static/js/diy.js"></script><!--自定义JS脚本-->
 </head>
 
 <body><!-- style="background-image:url(./images/bgl.jpg);background-repeat:no-repeat;background-attachment:fixed;" -->
-
 <!-- 头开始 -->
 <?php
 //判断用户是否登录，从而显示不同的导航界面

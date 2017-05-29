@@ -10,8 +10,10 @@ date_default_timezone_set('Asia/Shanghai');
 defined('API_ROOT') || define('API_ROOT', dirname(__FILE__) . '/..');
 
 require_once API_ROOT . '/PhalApi/PhalApi.php';
-require_once API_ROOT . '/Library/Lite.php';
-require_once API_ROOT . '/Config/constant.php';
+require_once API_ROOT . '/Library/php_view/Lite.php'; // 视图控制器
+require_once API_ROOT . '/Library/Google_Authenticator/GoogleAuthenticator.php'; // 谷歌二次验证
+require_once API_ROOT . '/Library/upload_image/upload_image.php'; // 简陋的图片上传function
+require_once API_ROOT . '/Config/constant.php'; // 常量
 
 session_start();
 

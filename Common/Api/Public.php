@@ -1,6 +1,12 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: LYi-Ho
+ * Date: 2017/5/30
+ * Time: 上午 12:01
+ */
 
-class Api_Common extends PhalApi_Api
+class Api_Public extends PhalApi_Api
 {
 
 	public function getRules()
