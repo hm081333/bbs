@@ -92,6 +92,14 @@ form#Login_in p.msg{
 	max-width:100%;
 }
 
+/*导航栏搜索*/
+/*div#navsearch {
+	margin:0;
+	border:0 none;
+	padding:0;
+	float:left;
+}*/
+
 /*导航栏悬浮*/
 /*nav {
 	position:fixed;

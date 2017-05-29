@@ -1,6 +1,6 @@
 <?php
-ini_set("error_reporting","E_ALL & ~E_NOTICE"); 
-header("Content-type: text/html; charset=utf-8"); 
+ini_set("error_reporting","E_ALL & ~E_NOTICE");
+header("Content-type: text/html; charset=utf-8");
   /**************************************/
   /*		文件名：search_result.php	    */
   /*		功能：搜索结果页面		     	*/
@@ -17,12 +17,11 @@ exit();
 }
 if($term=="topic"){
 $sql = "select * from forum_topic where topic like '%".$keyword."%'";
-$result = mysql_query($sql);
 }
 elseif($term=="detail"){
 $sql = "select * from forum_topic where detail like '%".$keyword."%'";
-$result = mysql_query($sql);
 }
+
 ?>
 <h3 class="center">搜索结果</h3>
 <table>
@@ -37,7 +36,8 @@ $result = mysql_query($sql);
 </thead>
 <?php
 //循环输出输出记录列表
-while($rows=mysql_fetch_array($result))
+$rows=fetch_all($sql);
+foreach ($rows as $key => $row)
 {
 ?>
 <tbody>
@@ -45,34 +45,33 @@ while($rows=mysql_fetch_array($result))
 <td>
 <?php
 //如果是“置顶”的记录
-if ($rows['sticky'] == "1")
+if ($row['sticky'] == "1")
 {
-?><i class="material-icons">stars</i><?php 
+?><i class="material-icons">stars</i><?php
 }
 ?>
-<a href="view_topic.php?id=<?php echo $rows['id'];?>"><?php echo $rows['topic']; ?></a><br/>
+<a href="view_topic.php?id=<?php echo $row['id'];?>"><?php echo $row['topic']; ?></a><br/>
 </td>
 <td>
 <?php
-$sql1="SELECT * FROM forum_class WHERE id=".$rows['class_id']."";
-$result1=mysql_query($sql1);
-$rows1=mysql_fetch_array($result1);
-echo $rows1['name'];
+$sql1="SELECT * FROM forum_class WHERE id=".$row['class_id']."";
+$row1=fetch_once($sql1);
+echo $row1['name'];
 ?>
 </td>
 <td>
-<?php 
-echo $rows['view'];  //浏览量
+<?php
+echo $row['view'];  //浏览量
 ?>
 </td>
 <td>
-<?php 
-echo $rows['reply'];  //回复量
+<?php
+echo $row['reply'];  //回复量
 ?>
 </td>
 <td>
-<?php 
-echo $rows['datetime'];  //日期
+<?php
+echo $row['datetime'];  //日期
 ?>
 </td>
 </tr>

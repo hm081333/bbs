@@ -6,8 +6,8 @@
 
 <div class="row container"><!--row行，可用col-->
 <div class="col s12 m4"><!--col定义总长度为12，字母代表设备，s为手机分辨率的百分之85，m为平板分辨率的百分之85，l为电脑分辨率的百分之70。此语句为：此div在电脑上浏览时宽度为分辨率宽度百分之70的y一半，在手机上浏览时宽度为分辨率宽度的百分之85-->
-<h5 class="white-text">老子是页脚</h5>
-<p class="white-text">恭喜NOTE7爆炸</p>
+<h5 class="white-text">页脚</h5>
+<p class="white-text">没说明</p>
 </div>
 
 <div class="col s12 m4"><!--类似上面 offset为抵消-在电脑上浏览时距离左边物体两个单位-->

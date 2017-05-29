@@ -11,7 +11,7 @@
 <script src="./js/diy.js"></script><!--自定义JS脚本-->
 </head>
 
-<body><!-- style="background-image:url(./images/bgl.jpg);background-repeat:no-repeat;background-attachment:fixed;" -->
+<body>
 
 <!-- 头开始 -->
 <?php 
@@ -49,6 +49,7 @@
 </div>
 
 </nav><!--导航栏语句结束-->
+
 
 <!-- 头结束 -->
 

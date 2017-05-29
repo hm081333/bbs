@@ -66,7 +66,7 @@ include('./header.inc.php');
 
 //将数据插入数据库
 $sql="INSERT INTO forum_topic(class_id,topic,detail,pics,name,datetime,sticky)VALUES('$class_id','$topic','$detail','$reback','$name',NOW(),'$sticky')";
-$result=mysql_query($sql);
+$result=mysqli_query($sql);
 if($result)
 {
 ?>

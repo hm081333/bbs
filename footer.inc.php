@@ -6,18 +6,17 @@
 
 <div class="row container"><!--row行，可用col-->
 <div class="col s12 m4"><!--col定义总长度为12，字母代表设备，s为手机分辨率的百分之85，m为平板分辨率的百分之85，l为电脑分辨率的百分之70。此语句为：此div在电脑上浏览时宽度为分辨率宽度百分之70的y一半，在手机上浏览时宽度为分辨率宽度的百分之85-->
-<h5 class="white-text">老子是页脚</h5>
-<p class="white-text">恭喜NOTE7爆炸</p>
+<h5 class="white-text">页脚</h5>
+<p class="white-text">没说明</p>
 </div>
 
 <div class="col s12 m4"><!--类似上面 offset为抵消-在电脑上浏览时距离左边物体两个单位-->
 <h5 class="white-text">友情链接</h5>
 <ul>
 <li><a class="white-text" href="#!">暂时没有友情链接</a></li>
-<li><a class="white-text" href="#!">您的IP地址：</a></li>
-<li><a class="white-text" href="#!">
+<li><a class="white-text">您的IP地址：</a></li>
 <?php
-function GetIP() {
+/*function GetIP() {
 if ($_SERVER["HTTP_X_FORWARDED_FOR"])
 $ip = $_SERVER["HTTP_X_FORWARDED_FOR"];
 else if ($_SERVER["HTTP_CLIENT_IP"])
@@ -35,20 +34,31 @@ $ip = "Unknown";
 if($ip='::1')
 $ip = "127.0.0.1";
 return $ip;
-}
-echo GetIP();
+}*/
+// $visitip=GetIP();
 ?>
-</a></li>
-<li><a class="white-text" href="#!">您的所在地：</a></li>
-<li><a class="white-text" href="#!">
+<!-- <li><a class="white-text" href="http://www.ip.cn/?ip=<?php echo $visitip; ?>">
 <?php
-/*$json=file_get_contents('http://ip.taobao.com/service/getIpInfo.php?ip='.GetIP().'');
+// echo $visitip;
+?>
+</a></li> -->
+<li><a class="white-text">您的所在地：</a></li>
+<li><a class="white-text">
+<?php
+/*if(GetIP()=="127.0.0.1"){
+	echo "本地IP浏览";
+}elseif(GetIP()=="Unknown"){
+	echo "不明IP";
+}else{
+//ali ip获取大概位置
+$json=file_get_contents('http://ip.taobao.com/service/getIpInfo.php?ip='.GetIP().'');
 $arr=json_decode($json);
 echo $arr->data->country;    //国家
 echo $arr->data->area;    //区域
 echo $arr->data->region;    //省份
 echo $arr->data->city;    //城市
-echo $arr->data->isp;    //运营商*/
+echo $arr->data->isp;    //运营商
+}*/
 ?>
 </a></li>
 </ul>

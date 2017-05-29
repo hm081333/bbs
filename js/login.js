@@ -1,4 +1,4 @@
-window.onload=function(){
+window.onload = function() {
     var formlogin = document.getElementById('Login_in');
     var oInput = formlogin.getElementsByTagName('input');
     var aName = oInput[0];
@@ -12,11 +12,11 @@ window.onload=function(){
     apsw.ok = false;
 
     //用户名
-     aName.onfocus=function(){
-        aName_msg.style.display="inline";
-        aName_msg.innerHTML='<i class="material-icons">warning</i>请输入用户名';
+    aName.onfocus = function() {
+        aName_msg.style.display = "inline";
+        aName_msg.innerHTML = '<i class="material-icons">warning</i>请输入用户名';
     }
-     aName.onblur = function () {
+    aName.onblur = function() {
         if (this.value == "") {
             aName_msg.innerHTML = '<i class="material-icons">clear</i>不能为空';
             aName.ok = false;
@@ -26,32 +26,32 @@ window.onload=function(){
         }
 
     }
-     
-     //密码验证
-    apsw.onfocus=function(){
-        apsw_msg.style.display="inline";
-        apsw_msg.innerHTML='<i class="material-icons">warning</i>请输入密码';
+
+    //密码验证
+    apsw.onfocus = function() {
+        apsw_msg.style.display = "inline";
+        apsw_msg.innerHTML = '<i class="material-icons">warning</i>请输入密码';
     }
-    apsw.onblur=function(){
-        apsw_msg.innerHTML="";
-        if(this.value==""){
-            apsw_msg.innerHTML='<i class="material-icons">clear</i>不能为空';
-        }else{
-        	apsw.ok = true;
+    apsw.onblur = function() {
+        apsw_msg.innerHTML = "";
+        if (this.value == "") {
+            apsw_msg.innerHTML = '<i class="material-icons">clear</i>不能为空';
+        } else {
+            apsw.ok = true;
         }
     }
 
 
 
-    ologin.onclick = function () {
-            for (var i = 0; i < 3; i++) {
-                if (!aInput[i].ok) {
-                    aInput[i].onfocus();
-                    aInput[i].value="";
-                    return allgood = false;
-                }
-            }
-            return allgood;
-        }
-    
+    // ologin.onclick = function() {
+    //     for (var i = 0; i < 3; i++) {
+    //         if (!aInput[i].ok) {
+    //             aInput[i].onfocus();
+    //             aInput[i].value = "";
+    //             return allgood = false;
+    //         }
+    //     }
+    //     return allgood;
+    // }
+
 };

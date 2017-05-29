@@ -1,5 +1,5 @@
 <?php
-header("Content-type: text/html; charset=utf-8"); 
+header("Content-type: text/html; charset=utf-8");
 ini_set("error_reporting","E_ALL & ~E_NOTICE");
   /***********************************/
   /*      文件名：create_topic.php   */
@@ -7,14 +7,14 @@ ini_set("error_reporting","E_ALL & ~E_NOTICE");
   /***********************************/
 
   require('./config.inc.php');
-  include('./header.inc.php'); 
+  include('./header.inc.php');
 ?>
 
 
 
-<?php 
+<?php
   if (!$_SESSION['username'])
-  { 
+  {
 	  //如果用户未登录，显示错误信息
 ?>
 
@@ -26,7 +26,7 @@ ini_set("error_reporting","E_ALL & ~E_NOTICE");
 </p>
 
 <?php
-  }else{ 
+  }else{
 	//如果用户登录，显示输入表单
 ?>
 
@@ -62,12 +62,11 @@ ini_set("error_reporting","E_ALL & ~E_NOTICE");
 <option value="" disabled selected>请选择</option>
 <?php
 $sql = "SELECT * FROM forum_class";
-$result = mysql_query($sql);
-//循环输出输出记录列表
-while($rows=mysql_fetch_array($result))
+$rows=fetch_all($sql);
+foreach ($rows as $key => $row)
 {
 ?>
-<option value="<?php echo $rows['id'];?>"><?php echo $rows['name'];?></option>
+<option value="<?php echo $row['id'];?>"><?php echo $row['name'];?></option>
 <?php
 }//退出while循环
 ?>
@@ -112,7 +111,7 @@ while($rows=mysql_fetch_array($result))
 
 <?php } ?>
 
-<?php 
+<?php
 	//公用尾部页面
-	include('./footer.inc.php'); 
+	include('./footer.inc.php');
 ?>

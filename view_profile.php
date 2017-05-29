@@ -1,6 +1,6 @@
 <?php
-ini_set("error_reporting","E_ALL & ~E_NOTICE"); 
-header("Content-type: text/html; charset=utf-8"); 
+ini_set("error_reporting","E_ALL & ~E_NOTICE");
+header("Content-type: text/html; charset=utf-8");
   /**************************************/
   /*		文件名：view_profile.php	*/
   /*		功能：查看用户资料页面		*/
@@ -12,8 +12,7 @@ header("Content-type: text/html; charset=utf-8");
 
   //取得用户信息
   $sql="SELECT * FROM forum_user WHERE username='$id'";
-  $result=mysql_query($sql);
-  $rows=mysql_fetch_array($result);
+  $rows=fetch_once($sql);
 
   if (!$rows){
 	echo '<script>alert(\'用户记录不存在！\');window.history.back();</script>';
@@ -22,13 +21,11 @@ header("Content-type: text/html; charset=utf-8");
 
   //正文内容
   $sql = "SELECT * FROM forum_topic WHERE name = '" . $id . "'";
-  $count_q = mysql_query($sql);
-  $num_count_q = mysql_num_rows($count_q);
+  $num_count_q = num_rows($sql);
 
   //回复内容
   $sql = "SELECT * FROM forum_reply WHERE reply_name = '" . $id . "'";
-  $count_a = mysql_query($sql);
-  $num_count_a = mysql_num_rows($count_a);
+  $num_count_a = num_rows($sql);
 
   //计算用户发表的帖子数量
   $num_count = $num_count_q + $num_count_a;

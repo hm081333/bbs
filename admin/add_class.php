@@ -18,7 +18,7 @@ exit();
 }
 //创建
 $sql = "INSERT INTO forum_class (name,tips)VALUES('$name','$tips')";
-$result = mysql_query($sql);
+$result = mysqli_query($sql);
   
 if($result)
 {

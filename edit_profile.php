@@ -1,6 +1,6 @@
 <?php
-ini_set("error_reporting","E_ALL & ~E_NOTICE"); 
-header("Content-type: text/html; charset=utf-8"); 
+ini_set("error_reporting","E_ALL & ~E_NOTICE");
+header("Content-type: text/html; charset=utf-8");
   /******************************************/
   /*		文件名：edit_profile.php		*/
   /*		功能：用户资料修改页面		    */
@@ -25,8 +25,7 @@ header("Content-type: text/html; charset=utf-8");
 <?php
   //查询用户资料
   $sql="SELECT * FROM forum_user WHERE username = '$id'";
-  $result=mysql_query($sql);
-  $rows=mysql_fetch_array($result);
+  $rows=fetch_once($sql);
 ?>
 
 <fieldset>

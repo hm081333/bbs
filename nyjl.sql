@@ -63,7 +63,7 @@ INSERT INTO `forum_class` (`id`, `name`, `tips`) VALUES
 (4, 'Photoshop', ''),
 (5, 'Flash', ''),
 (6, 'C程序设计', ''),
-(7, 'MySQL数据库', ''),
+(7, 'mysqli数据库', ''),
 (8, '网页设计', ''),
 (9, '网络营销', ''),
 (10, '计算机网络基础', ''),

@@ -15,7 +15,7 @@
 	//设置“置顶”的SQL语句
 	$sql = "UPDATE forum_topic SET sticky='1' WHERE id='$id'";
 
-	$result=mysql_query($sql);
+	$result=query($sql);
 
 	if($result)
 	{

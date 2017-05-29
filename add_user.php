@@ -1,6 +1,6 @@
 <?php
-ini_set("error_reporting","E_ALL & ~E_NOTICE"); 
-header("Content-type: text/html; charset=utf-8"); 
+ini_set("error_reporting","E_ALL & ~E_NOTICE");
+header("Content-type: text/html; charset=utf-8");
   /**********************************/
   /*	   文件名：add_user.php		*/
   /*	   功能：添加注册用户记录	*/
@@ -20,15 +20,15 @@ header("Content-type: text/html; charset=utf-8");
   $realname	= ClearSpecialChars($_POST['realname']);
 
   //检验数据的合法性
-  if (!$username) { 
+  if (!$username) {
 	echo '<script>alert(\'请输入用户名！\');window.history.back();</script>';
 	exit();
   }
-  if (!$password) { 
+  if (!$password) {
 	echo '<script>alert(\'请输入密码！\');window.history.back();</script>';
 	exit();
   }
-  if (!$email) { 
+  if (!$email) {
 	echo '<script>alert(\'请输入邮箱！\');window.history.back();</script>';
 	exit();
   }
@@ -39,8 +39,7 @@ header("Content-type: text/html; charset=utf-8");
 
   //判断用户是否已经存在
   $sql = "SELECT * FROM forum_user WHERE username='$username'";
-  $result = mysql_query($sql);
-  $num_rows = mysql_num_rows($result);
+  $num_rows = num_rows($sql);
 
   if ($num_rows > 0) {
 	echo '<script>alert(\'该用户已经存在！点击确定返回重新注册\');window.history.back();</script>';
@@ -50,12 +49,12 @@ header("Content-type: text/html; charset=utf-8");
   //创建用户
   $sql = "INSERT INTO forum_user (username, password, email, realname, regdate)
 		VALUES('$username', '$hash', '$email', '$realname', NOW())";
-  $result = mysql_query($sql);
-  
+  $result = query($sql);
+
   if($result)
   {
 	?>
-	
+
 	<h2 class="center">创建用户</h2>
 
 	<p class="center">
@@ -65,7 +64,7 @@ header("Content-type: text/html; charset=utf-8");
 <script type="text/javascript">
 setTimeout("window.location.href='login.php'",5000);
 </script>
-    
+
 	<?php
 	include('./footer.inc.php');		//尾文件
   }

@@ -17,11 +17,11 @@ exit();
 }
 if($term=="topic"){
 $sql = "select * from forum_topic where topic like '%".$keyword."%'";
-$result = mysql_query($sql);
+$result = mysqli_query($sql);
 }
 elseif($term=="detail"){
 $sql = "select * from forum_topic where detail like '%".$keyword."%'";
-$result = mysql_query($sql);
+$result = mysqli_query($sql);
 }
 ?>
 <h3 class="center">搜索结果</h3>
@@ -37,7 +37,7 @@ $result = mysql_query($sql);
 </thead>
 <?php
 //循环输出输出记录列表
-while($rows=mysql_fetch_array($result))
+while($rows=mysqli_fetch_array($result))
 {
 ?>
 <tbody>
@@ -55,8 +55,8 @@ if ($rows['sticky'] == "1")
 <td>
 <?php
 $sql1="SELECT * FROM forum_class WHERE id=".$rows['class_id']."";
-$result1=mysql_query($sql1);
-$rows1=mysql_fetch_array($result1);
+$result1=mysqli_query($sql1);
+$rows1=mysqli_fetch_array($result1);
 echo $rows1['name'];
 ?>
 </td>
