@@ -30,12 +30,12 @@ class PhalApi_Model_NotORM implements PhalApi_Model {
         return $rs;
     }
 
-	public function getInfo($data, $fields = '*', $id = NULL) {
+	public function getInfo($condition, $fields = '*', $id = NULL) {
 		$needFields = is_array($fields) ? implode(',', $fields) : $fields;
 		$notorm = $this->getORM($id);
 
 		$table = $this->getTableName($id);
-		$rs = $notorm->select($needFields)->where($data)->fetch();
+		$rs = $notorm->select($needFields)->where($condition)->fetch();
 		$this->parseExtData($rs);
 
 		return $rs;

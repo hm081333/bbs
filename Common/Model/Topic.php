@@ -8,6 +8,11 @@ class Model_Topic extends PhalApi_Model_NotORM {
 		return $rs;
     }
 
+	public function TopicCount($where) {
+		$rs = $this->getORM()->where($where)->count();
+		return $rs;
+	}
+
     protected function getTableName($id) {
         return 'topic';
     }

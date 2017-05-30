@@ -1,6 +1,6 @@
-﻿</div>
+</div>
 <!-- 正文内容结束 -->
-
+<br/>
 <!-- 页脚信息 -->
 <footer class="page-footer cyan darken-4">
 
@@ -21,10 +21,8 @@
 		<div class="col s12 m4">
 			<h5 class="white-text">联系我</h5>
 			<ul>
-				<li><a style="width: 127px;" class="white-text btn waves-effect waves-light"
-					   href="mailto:522751485@qq.com"><i class="tiny material-icons">mail</i>Email</a></li>
-				<li><a style="width: 127px;" class="white-text btn waves-effect waves-light"
-					   href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=522751485">QQ</a></li>
+				<li><a style="width: 127px;" class="white-text btn waves-effect waves-light" href="mailto:522751485@qq.com"><i class="tiny material-icons">mail</i>Email</a></li>
+				<li><a style="width: 127px;" class="white-text btn waves-effect waves-light" href="http://sighttp.qq.com/authd?IDKEY=2370447117525914b38fc589aa94b53b4d3a892de4c76039">QQ</a></li>
 			</ul>
 		</div>
 	</div>

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once './Public/static/header/header.php';
 ?>
 

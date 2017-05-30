@@ -5,7 +5,8 @@
 	<!--	<meta name="viewport" content="width=device-width, initial-scale=1.0"/><!--识别浏览设备-->
 	<title>南洋师生交流平台DEMO</title>
 	<link href="./Public/static/css/material-icons-3.0.1.css" rel="stylesheet"><!--加载Material style图标-->
-	<link href="./Public/static/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection"><!--加载框架css-->
+	<link href="./Public/static/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection">
+	<!--加载框架css-->
 	<script src="./Public/static/js/jquery.min.js"></script><!--加载jQuery-->
 	<script src="./Public/static/js/materialize.min.js"></script><!--加载框架js-->
 	<link href="./Public/static/css/diy.css" rel="stylesheet"><!--加载自定义样式-->
@@ -16,30 +17,28 @@
 <!-- 头开始 -->
 <?php
 //判断用户是否登录，从而显示不同的导航界面
-
-if (isset($_SESSION["username"]) && $_SESSION['username']) {
-	?>
-
+if (isset($_SESSION["username"])) : ?>
 	<!-- 用户登录后 -->
 	<ul id="menu" class="dropdown-content">
-		<li><a href="./edit_profile.php"><?php echo $_SESSION['username']; ?></a></li>
+		<li><a href="?service=User.edit_Member&user_id=<?php echo $_SESSION['user_id']; ?>"><?php echo $_SESSION['username']; ?></a></li>
 		<li class="divider"></li>
 		<li><a href="?service=User.logoff">退出登录</a></li>
 	</ul>
-<?php } else { ?>
+<?php else : ?>
 	<!-- 用户未登录 -->
 	<ul id="menu" class="dropdown-content">
 		<li><a href="?service=User.register">注册</a></li>
 		<li class="divider"></li>
 		<li><a href="?service=User.login">登录</a></li>
 	</ul>
-	<?php
-}//判断结束
-?>
+<?php endif; ?>
 
-<nav class="hoverable cyan darken-4"><!--导航栏语句开始-->
+<nav class="<!--hoverable--> cyan darken-4"><!--导航栏语句开始-->
 
 	<div class="nav-wrapper container"><!--导航栏内容开始-->
+		<?php if (!isset($back) && back) : ?>
+		<a href="#" onclick="history.back();" class="button-collapse show-on-large" style="float: left !important;"><i class="material-icons">arrow_back</i></a><!--网页LOGO-->
+		<?php endif; ?>
 		<a href="./" class="brand-logo">LYiHo</a><!--网页LOGO-->
 		<ul class="right">
 			<li><a class="search_pic" href="./search.php"><i class="material-icons">search</i></a></li>

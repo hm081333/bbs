@@ -36,8 +36,7 @@ class Api_Default extends PhalApi_Api
 //		DI()->view->assign($xx);
 
 		//抛出多个变量
-		DI()->view->assign(array('page' => $this->page));
-		DI()->view->assign(array('rows' => $class_list['rows'], 'total' => $class_list['total']));
+		DI()->view->assign(array('rows' => $class_list['rows'], 'total' => $class_list['total'], 'page' => $this->page, 'back' => 0));
 
 		//引入模板
 		DI()->view->show('index');

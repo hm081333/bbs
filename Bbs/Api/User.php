@@ -9,16 +9,25 @@ class Api_User extends PhalApi_Api
 	public function getRules()
 	{
 		return array(
-			'logoff' => array(
-			),
+			'logoff' => array(),
 			'login' => array(
 				'action' => array('name' => 'action', 'type' => 'string', 'default' => 'view', 'require' => true, 'desc' => '操作'),
-                'username' => array('name' => 'username', 'type' => 'string', 'require' => false, 'desc' => '用户名'),
+				'username' => array('name' => 'username', 'type' => 'string', 'require' => false, 'desc' => '用户名'),
 				'password' => array('name' => 'password', 'type' => 'string', 'require' => false, 'desc' => '用户密码'),
 			),
 			'register' => array(
 				'action' => array('name' => 'action', 'type' => 'string', 'default' => 'view', 'require' => true, 'desc' => '操作'),
 				'username' => array('name' => 'username', 'type' => 'string', 'require' => false, 'desc' => '用户名'),
+				'password' => array('name' => 'password', 'type' => 'string', 'require' => false, 'desc' => '用户密码'),
+				'email' => array('name' => 'email', 'type' => 'string', 'require' => false, 'desc' => '用户邮箱'),
+				'realname' => array('name' => 'realname', 'type' => 'string', 'require' => false, 'desc' => '用户姓名'),
+			),
+			'user_Info' => array(
+				'user_id' => array('name' => 'user_id', 'type' => 'int', 'require' => false, 'desc' => '用户ID')
+			),
+			'edit_Member' => array(
+				'action' => array('name' => 'action', 'type' => 'string', 'default' => 'view', 'require' => true, 'desc' => '操作'),
+				'user_id' => array('name' => 'user_id', 'type' => 'int', 'require' => false, 'desc' => '用户ID'),
 				'password' => array('name' => 'password', 'type' => 'string', 'require' => false, 'desc' => '用户密码'),
 				'email' => array('name' => 'email', 'type' => 'string', 'require' => false, 'desc' => '用户邮箱'),
 				'realname' => array('name' => 'realname', 'type' => 'string', 'require' => false, 'desc' => '用户姓名'),
@@ -105,4 +114,29 @@ class Api_User extends PhalApi_Api
 		//跳转页面
 		header("Location: ./");
 	}
+
+	public function user_Info()
+	{
+		$user_domain = new Domain_User();
+		$user = $user_domain->userInfo($this->user_id);
+		DI()->view->assign(array('user' => $user));
+		DI()->view->show('user_info');
+	}
+
+	public function edit_Member()
+	{
+		if ($this->action == 'post') {
+			$user_domain = new Domain_User();
+			$rs = $user_domain->edit_Member($this->user_id, $this->password, $this->email, $this->realname);
+			DI()->response->setMsg(T('修改成功'));
+			return;
+		} else {
+			$user_domain = new Domain_User();
+			$user = $user_domain->userInfo($this->user_id);
+			DI()->view->assign(array('user' => $user['info']));
+			DI()->view->show('edit_member');
+		}
+	}
+
+
 }

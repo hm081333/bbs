@@ -24,7 +24,16 @@ class Api_Topic extends PhalApi_Api
 				'detail' => array('name' => 'detail', 'type' => 'string', 'require' => false, 'desc' => '正文内容'),
 				'class_id' => array('name' => 'class_id', 'type' => 'int', 'require' => false, 'desc' => '课程'),
 //				'pics' => array('name' => 'pics', 'type' => 'file', 'range' => array('image/jpeg', 'image/png', 'image/gif', 'image/bmp'), 'ext' => array('jpg', 'jpeg', 'png', 'gif', 'bmp'), 'desc' => '图片'),
-				'sticky' => array('name' => 'sticky', 'type' => 'int', 'default' => 0, 'require' => false, 'desc' => '顶置'),
+				'sticky' => array('name' => 'sticky', 'type' => 'int', 'default' => 0, 'require' => false, 'desc' => '顶置')
+			),
+			'stick_Topic' => array(
+				'topic_id' => array('name' => 'topic_id', 'type' => 'int', 'default' => 0, 'min' => 0, 'require' => true, 'desc' => 'ID')
+			),
+			'unstick_Topic' => array(
+				'topic_id' => array('name' => 'topic_id', 'type' => 'int', 'default' => 0, 'min' => 0, 'require' => true, 'desc' => 'ID')
+			),
+			'delete_Topic' => array(
+				'topic_id' => array('name' => 'topic_id', 'type' => 'int', 'default' => 0, 'min' => 0, 'require' => true, 'desc' => 'ID')
 			),
 		);
 	}
@@ -53,7 +62,6 @@ class Api_Topic extends PhalApi_Api
 	public function create_Topic()
 	{
 		if ($this->action == 'post') {
-			var_dump($this);exit;
 			$reback = '';
 			if (empty($this->topic)) {
 				throw new PhalApi_Exception_Error(T('请输入文章标题'), 1);// 抛出普通错误 T标签翻译
@@ -92,4 +100,41 @@ class Api_Topic extends PhalApi_Api
 			DI()->view->show('create_topic');
 		}
 	}
+
+	public function stick_Topic()
+	{
+		$topic_model = new Model_Topic();
+		$rs = $topic_model->update($this->topic_id,array('sticky' => 1));
+		if ($rs) {
+			DI()->response->setMsg(T('顶置成功'));
+			return;
+		} else {
+			throw new PhalApi_Exception_InternalServerError(T('顶置失败'), 2);// 抛出服务端错误
+		}
+	}
+
+	public function unstick_Topic()
+	{
+		$topic_model = new Model_Topic();
+		$rs = $topic_model->update($this->topic_id,array('sticky' => 0));
+		if ($rs) {
+			DI()->response->setMsg(T('取消顶置成功'));
+			return;
+		} else {
+			throw new PhalApi_Exception_InternalServerError(T('取消顶置失败'), 2);// 抛出服务端错误
+		}
+	}
+
+	public function delete_Topic()
+	{
+		$topic_model = new Model_Topic();
+		$rs = $topic_model->delete($this->topic_id);
+		if ($rs) {
+			DI()->response->setMsg(T('删除成功'));
+			return;
+		} else {
+			throw new PhalApi_Exception_InternalServerError(T('删除失败'), 2);// 抛出服务端错误
+		}
+	}
+
 }

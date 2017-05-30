@@ -8,6 +8,11 @@ class Model_Reply extends PhalApi_Model_NotORM {
 		return $rs;
     }
 
+	public function ReplyCount($where) {
+		$rs = $this->getORM()->where($where)->count();
+		return $rs;
+	}
+
     protected function getTableName($id) {
         return 'reply';
     }

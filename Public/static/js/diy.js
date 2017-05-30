@@ -37,3 +37,55 @@ function preview(file) {
 		prevDiv.innerHTML = '<img style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src=\'' + file.value + '\'">';
 	}
 }
+
+function stick_topic(topic_id) {
+	$.ajax({
+		type: 'POST',
+		url: '?service=Topic.stick_Topic',
+		data: {topic_id: topic_id},
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+}
+
+function unstick_topic(topic_id) {
+	$.ajax({
+		type: 'POST',
+		url: '?service=Topic.unstick_Topic',
+		data: {topic_id: topic_id},
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+}
+
+function delete_topic(topic_id) {
+	$.ajax({
+		type: 'POST',
+		url: '?service=Topic.delete_Topic',
+		data: {topic_id: topic_id},
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					history.back();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+}
+
