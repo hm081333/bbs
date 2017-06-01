@@ -9,8 +9,7 @@ class Model_Class extends PhalApi_Model_NotORM {
     }
 
 	public function getAllClassList($where, $select, $order) {
-		$rs = $this->getORM()->select($select)->where($where)->order($order)->fetchAll();
-		return $rs;
+		return $this->getORM()->select($select)->where($where)->order($order)->fetchAll();
 	}
 
     protected function getTableName($id) {

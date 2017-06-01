@@ -20,7 +20,9 @@
 if (isset($_SESSION["username"])) : ?>
 	<!-- 用户登录后 -->
 	<ul id="menu" class="dropdown-content">
-		<li><a href="?service=User.edit_Member&user_id=<?php echo $_SESSION['user_id']; ?>"><?php echo $_SESSION['username']; ?></a></li>
+		<li>
+			<a href="?service=User.edit_Member&user_id=<?php echo $_SESSION['user_id']; ?>"><?php echo $_SESSION['username']; ?></a>
+		</li>
 		<li class="divider"></li>
 		<li><a href="?service=User.logoff">退出登录</a></li>
 	</ul>
@@ -37,11 +39,12 @@ if (isset($_SESSION["username"])) : ?>
 
 	<div class="nav-wrapper container"><!--导航栏内容开始-->
 		<?php if (!isset($back) && back) : ?>
-		<a href="#" onclick="history.back();" class="button-collapse show-on-large" style="float: left !important;"><i class="material-icons">arrow_back</i></a><!--网页LOGO-->
+			<a href="#" onclick="history.back();" class="button-collapse show-on-large" style="float: left !important;"><i
+						class="material-icons">arrow_back</i></a><!--网页LOGO-->
 		<?php endif; ?>
 		<a href="./" class="brand-logo">LYiHo</a><!--网页LOGO-->
 		<ul class="right">
-			<li><a class="search_pic" href="./search.php"><i class="material-icons">search</i></a></li>
+			<!--			<li><a class="search_pic" href="./search.php"><i class="material-icons">search</i></a></li>-->
 			<li><a class="dropdown-button" data-activates="menu"><i class="material-icons">perm_identity</i></a></li>
 		</ul>
 	</div>

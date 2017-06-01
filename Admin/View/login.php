@@ -1,8 +1,7 @@
-<?php
-require_once './Public/static/header/header.php';
-?>
-<script src="./Public/static/js/login.js"></script>
-<h3 class="center">用户登录</h3>
+<?php require_once './Public/static/header/header_admin.php'; ?>
+<!--<script src="./Public/static/js/login.js"></script>-->
+
+<h3 class="center">后台登录</h3>
 
 <fieldset>
 	<legend>Login</legend>
@@ -33,12 +32,9 @@ require_once './Public/static/header/header.php';
 			</div>
 		</form>
 			<div class="col s12 center">
-				<button id="login" class="btn waves-effect waves-light">登录</button>
+				<button onclick="login()" class="btn waves-effect waves-light">登录</button>
 <!--				<button type="reset" class="btn waves-effect waves-light">清空</button>-->
 			</div>
 </fieldset>
 
-<?php
-//公用尾部页面
-require_once './Public/static/header/footer.php';
-?>
+<?php require_once './Public/static/header/footer.php'; ?>

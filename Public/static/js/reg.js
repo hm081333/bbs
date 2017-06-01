@@ -134,10 +134,9 @@ window.onload = function () {
 
 
 	$("#Reg").click(function () {
-		// console.log($("#Register"));
 		$.ajax({
 			type: 'POST',
-			url: '?service=User.register',
+			// url: '',
 			data: $("#Register").serialize(),
 			success: function (d) {
 				if (d.ret == 200) {

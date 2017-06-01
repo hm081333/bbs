@@ -42,10 +42,8 @@ window.onload = function() {
     }
 
 	$("#login").click(function(){
-		// console.log($("#Login_in"));
 		$.ajax({
 			type: 'POST',
-			url: '?service=User.login',
 			data: $("#Login_in").serialize(),
 			success: function (d) {
 				if (d.ret == 200) {

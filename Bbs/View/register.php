@@ -1,7 +1,7 @@
-<?php
-require_once './Public/static/header/header.php';
-?>
+<?php require_once './Public/static/header/header.php'; ?>
+
 <script src="./Public/static/js/reg.js"></script>
+
 <h3 class="center">注册</h3>
 
 <fieldset>
@@ -9,6 +9,7 @@ require_once './Public/static/header/header.php';
 	<div class="row">
 		<form id="Register" class="col s12">
 			<input name="action" value="post" type="hidden">
+			<input name="service" value="User.register" type="hidden">
 			<div class="col s12">
 				<div class="input-field">
 					<i class="material-icons prefix">account_box</i>
@@ -71,7 +72,4 @@ require_once './Public/static/header/header.php';
 
 </fieldset>
 
-<?php
-//公用尾部页面
-require_once './Public/static/header/footer.php';
-?>
+<?php require_once './Public/static/header/footer.php'; ?>
