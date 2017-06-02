@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2017-05-30 18:05:44
+Date: 2017-06-02 22:16:38
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -25,12 +25,14 @@ CREATE TABLE `forum_admin` (
   `password` varchar(255) NOT NULL,
   `auth` int(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of forum_admin
 -- ----------------------------
 INSERT INTO `forum_admin` VALUES ('1', 'root', '$2y$10$G0yecuK.J5OEkRdKf//0oOku6dIAD5ys/Y0lnBfLNjYACsFrMZLxm', '1');
+INSERT INTO `forum_admin` VALUES ('2', 'test', '$2y$10$ycAX52.TI4svrq2gO8CuZOjPp.OvGx8g6VHWJz8imLupL38QCNiqK', '1');
+INSERT INTO `forum_admin` VALUES ('3', 'empty', '$2y$10$d4uOFrCTN0LfTyIuChNEOO3a9uSS7SsjDa2LgoNwE6y4Mj6bGuNNC', '0');
 
 -- ----------------------------
 -- Table structure for forum_class
@@ -41,14 +43,14 @@ CREATE TABLE `forum_class` (
   `name` varchar(255) NOT NULL,
   `tips` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of forum_class
 -- ----------------------------
 INSERT INTO `forum_class` VALUES ('1', '闲聊', '随意灌水区');
-INSERT INTO `forum_class` VALUES ('2', 'PHP', '');
-INSERT INTO `forum_class` VALUES ('3', 'JavaScript', '');
+INSERT INTO `forum_class` VALUES ('2', 'PHP', 'PHP是世界上最好的语言');
+INSERT INTO `forum_class` VALUES ('3', 'JavaScript', 'JS是微信最常用的语言');
 INSERT INTO `forum_class` VALUES ('4', 'Photoshop', '');
 INSERT INTO `forum_class` VALUES ('5', 'Flash', '');
 INSERT INTO `forum_class` VALUES ('6', 'C程序设计', '');
@@ -60,7 +62,7 @@ INSERT INTO `forum_class` VALUES ('11', 'Illustrator平面设计', '');
 INSERT INTO `forum_class` VALUES ('12', 'Linux网络操作系统', '');
 INSERT INTO `forum_class` VALUES ('13', 'ASP.NET', '');
 INSERT INTO `forum_class` VALUES ('14', 'Android应用开发', '');
-INSERT INTO `forum_class` VALUES ('15', '体育与健康', '体育与健康');
+INSERT INTO `forum_class` VALUES ('16', 'PhalApi', 'PhalApi是一个用于快速写api接口的php框架');
 
 -- ----------------------------
 -- Table structure for forum_reply
@@ -79,7 +81,7 @@ CREATE TABLE `forum_reply` (
   PRIMARY KEY (`id`),
   KEY `a_id` (`reply_id`),
   FULLTEXT KEY `reply_pics` (`reply_pics`)
-) ENGINE=MyISAM AUTO_INCREMENT=123 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=124 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of forum_reply
@@ -114,6 +116,7 @@ INSERT INTO `forum_reply` VALUES ('119', '110', '6', '4', 'hm081333', '522751485
 INSERT INTO `forum_reply` VALUES ('120', '110', '7', '4', 'hm081333', '522751485@qq.com', '123', 'pics/1496138278.jpg', '2017-05-30 17:57:59');
 INSERT INTO `forum_reply` VALUES ('121', '110', '8', '4', 'hm081333', '522751485@qq.com', '123', 'pics/1496138309.jpg', '2017-05-30 17:58:30');
 INSERT INTO `forum_reply` VALUES ('122', '110', '9', '4', 'hm081333', '522751485@qq.com', '123', 'pics/1496138363.jpg', '2017-05-30 17:59:24');
+INSERT INTO `forum_reply` VALUES ('123', '112', '1', '4', 'hm081333', '522751485@qq.com', '自己回复自己', 'pics/1496140010.png', '2017-05-30 18:26:51');
 
 -- ----------------------------
 -- Table structure for forum_topic
@@ -133,7 +136,7 @@ CREATE TABLE `forum_topic` (
   `reply` int(10) NOT NULL DEFAULT '0',
   `sticky` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=112 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=114 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of forum_topic
@@ -141,9 +144,8 @@ CREATE TABLE `forum_topic` (
 INSERT INTO `forum_topic` VALUES ('105', '1', '替换，使用phalapi框架作为核心', 'test123', 'pics/1496039683.jpg', '4', 'hm081333', '522751485@qq.com', '2017-05-29 14:34:43', '0', '0', '1');
 INSERT INTO `forum_topic` VALUES ('68', '1', '新用户尝试发帖', '新用户尝试发帖图片内容', 'pics/1476281421.png', '34', '123', '123@123.123', '2016-10-12 22:10:21', '23', '0', '0');
 INSERT INTO `forum_topic` VALUES ('89', '1', '手机尝试发图贴', '第一次尝试', 'pics/1476369877.jpeg', '34', '123', '123@123.123', '2016-10-13 22:44:37', '29', '2', '0');
-INSERT INTO `forum_topic` VALUES ('76', '1', '上传图片预览', '尝试上传图片本地预览', 'pics/1476345220.png', '0', 'admin', '', '2016-10-13 15:53:40', '2', '0', '0');
+INSERT INTO `forum_topic` VALUES ('113', '16', 'PhalApi框架进度', '后台创建新帖成功', 'pics/1496412596.jpg', '0', '管理员', '', '2017-06-02 22:09:57', '8', '0', '1');
 INSERT INTO `forum_topic` VALUES ('61', '1', 'first test', 'first test', '', '0', 'admin', '', '2016-10-12 12:27:22', '96', '16', '0');
-INSERT INTO `forum_topic` VALUES ('97', '1', 'qwe', 'qwe', 'pics/1477319059.jpg', '0', 'admin', '', '2016-10-24 22:24:19', '1', '0', '0');
 INSERT INTO `forum_topic` VALUES ('99', '2', '管理员第二次尝试发帖', '管理员第二次尝试发帖', 'pics/1477319322.jpg', '1', '管理员', '', '2016-10-24 22:28:42', '3', '0', '1');
 INSERT INTO `forum_topic` VALUES ('95', '2', '123', '123', '', '0', 'admin', '', '2016-10-24 19:04:22', '11', '0', '0');
 INSERT INTO `forum_topic` VALUES ('98', '1', '管理员第一次尝试发帖', '管理员第一次尝试发帖', 'pics/1477319193.jpg', '1', '管理员', '', '2016-10-24 22:26:33', '31', '0', '1');
@@ -152,8 +154,9 @@ INSERT INTO `forum_topic` VALUES ('104', '1', '更新支持php7', '2017年5月12
 INSERT INTO `forum_topic` VALUES ('106', '1', '把前台转移去phalapi ing', '工程有点大。。。', 'pics/1496039732.jpg', '4', 'hm081333', '522751485@qq.com', '2017-05-29 14:35:32', '0', '0', '1');
 INSERT INTO `forum_topic` VALUES ('107', '1', '把前台转移去phalapi ing', '工程有点大。。。', 'pics/1496039733.jpg', '4', 'hm081333', '522751485@qq.com', '2017-05-29 14:35:33', '18', '0', '1');
 INSERT INTO `forum_topic` VALUES ('108', '1', 'phalapi尝试添加新帖', 'phalapi尝试添加新帖', 'pics/1496081698.jpg', '4', 'hm081333', '522751485@qq.com', '2017-05-30 02:16:59', '2', '0', '1');
-INSERT INTO `forum_topic` VALUES ('110', '1', 'phalapi尝试添加新帖', 'phalapi尝试添加新帖', 'pics/1496081920.jpg', '4', 'hm081333', '522751485@qq.com', '2017-05-30 02:18:41', '62', '0', '1');
-INSERT INTO `forum_topic` VALUES ('111', '1', 'PhalApi前台基本完工', 'PhalApi前台基本完工', 'pics/1496138646.jpg', '0', 'hm081333', '522751485@qq.com', '2017-05-30 18:04:07', '1', '0', '1');
+INSERT INTO `forum_topic` VALUES ('110', '1', 'phalapi尝试添加新帖', 'phalapi尝试添加新帖', 'pics/1496081920.jpg', '4', 'hm081333', '522751485@qq.com', '2017-05-30 02:18:41', '64', '0', '1');
+INSERT INTO `forum_topic` VALUES ('111', '1', 'PhalApi前台基本完工', 'PhalApi前台基本完工', 'pics/1496138646.jpg', '0', 'hm081333', '522751485@qq.com', '2017-05-30 18:04:07', '2', '0', '1');
+INSERT INTO `forum_topic` VALUES ('112', '1', 'phalapi.版尝试手机上传图片', '传图片', 'pics/1496139940.png', '0', 'hm081333', '522751485@qq.com', '2017-05-30 18:25:41', '2', '0', '1');
 
 -- ----------------------------
 -- Table structure for forum_user
@@ -168,20 +171,20 @@ CREATE TABLE `forum_user` (
   `auth` int(1) NOT NULL DEFAULT '0',
   `regdate` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=42 DEFAULT CHARSET=gbk;
+) ENGINE=MyISAM AUTO_INCREMENT=46 DEFAULT CHARSET=gbk;
 
 -- ----------------------------
 -- Records of forum_user
 -- ----------------------------
-INSERT INTO `forum_user` VALUES ('3', 'root', '$2y$10$2jH.x35xlp4c7MJskYnVeO8VuTpvREUjfwPAdKp.78h2GY.S9hMXu', 'root@root.root', 'test', '0', '2016-10-27 12:08:58');
-INSERT INTO `forum_user` VALUES ('1', '管理员', '管理员', '522751485@qq.com', 'LYi-Ho', '0', '2016-10-24 18:00:00');
-INSERT INTO `forum_user` VALUES ('4', 'hm081333', '$2y$10$ww7CvAzywm63TrgxAc5LjO5LbCj5Qk/NrEId5QdWkEerXHcZVidhq', '522751485@qq.com', 'lyihe2', '1', '2016-10-27 11:32:20');
-INSERT INTO `forum_user` VALUES ('33', '123123', '$2y$10$ZoUxjzUlQnfVWxFts3A2HOpTJknT2ahSZHPabqfOCqhF.0tc9LmSC', '123@123.123', '123', '0', '2016-10-31 22:03:47');
-INSERT INTO `forum_user` VALUES ('34', '123', '$2y$10$iZsEASmPA5ikW1hJa/l47.FED279nCjB0TFMEj4bE44EdX.4InKW.', '', '', '0', '2016-10-31 22:12:46');
-INSERT INTO `forum_user` VALUES ('35', '111', '$2y$10$l.ievSTtv5W5qvXoVpsaleN39igncNj2.EcMAc2.UrsoGuYvKCV.m', '123@123.123', '123', '0', '2017-05-12 00:49:48');
-INSERT INTO `forum_user` VALUES ('36', '1231', '$2y$10$9vu0ZH/G.WL87OAxlGmCuOO3c0cDxhHIHd/n9QiwSlmTrvVvHgeFy', '123@123.1231', '123', '0', '0000-00-00 00:00:00');
-INSERT INTO `forum_user` VALUES ('37', 'LYi-Ho', '$2y$10$t9FV3OxjNvPwQFSHYfAkgezcKtzzdfHLIACsuD4bR6aKaZjVgn9l2', '503214851@qq.com', '何朗义', '0', '0000-00-00 00:00:00');
-INSERT INTO `forum_user` VALUES ('38', '1234', '$2y$10$hg.SdCRStEl97DapsUG8j.vhhx.eDJ4JB8ZqOA93gwXxyESJ3hRx2', '1234@1234.1234', '1234', '0', '0000-00-00 00:00:00');
-INSERT INTO `forum_user` VALUES ('39', '12345', '$2y$10$/8z7fm4VVKv2JxiC2VNXaeZpkxRkkkyvz3CDlstmwvg8djcT0DrIa', '1234@1234.123', '1234', '0', '0000-00-00 00:00:00');
-INSERT INTO `forum_user` VALUES ('40', '123456', '$2y$10$bdAs4.dIdEbCUL49sipib.xLJGqr7Yw7MJ6FfyKbgsz88StuCzse2', '1234@1234.12345', '1234', '0', '0000-00-00 00:00:00');
-INSERT INTO `forum_user` VALUES ('41', 'test', '$2y$10$lltIRB4Va/1UKdyXZWRjDOXrxtocw5vqrufmf8t13v3rGEPi0wdOy', 'test@test.test', 'test123', '0', '0000-00-00 00:00:00');
+INSERT INTO `forum_user` VALUES ('43', 'qqq', '$2y$10$q.g8ZKcIrxcCFaUFvzQctOsmV3mPYQMSmHd5A35oDoJsXJ0ClADTu', 'qqq@qqq.qqq', 'qqq', '0', '0000-00-00 00:00:00');
+INSERT INTO `forum_user` VALUES ('44', 'asd', '$2y$10$XFML6DA3Bd0g.WzsRMXjReHihyFLOsLtTT.f0URVWBWs6.QgS4Uvi', 'asd@asd.asd', 'asd', '0', '0000-00-00 00:00:00');
+INSERT INTO `forum_user` VALUES ('4', 'hm081333', '$2y$10$ww7CvAzywm63TrgxAc5LjO5LbCj5Qk/NrEId5QdWkEerXHcZVidhq', '522751485@qq.com', '何朗义', '0', '2016-10-27 11:32:20');
+INSERT INTO `forum_user` VALUES ('34', '123', '$2y$10$3WwirmQkC76hGz7ICMA8jOk3LS7lNtZ/QoTxZEEDKUj6e/stXMzMS', '123', '', '1', '2016-10-31 22:12:46');
+INSERT INTO `forum_user` VALUES ('42', 'qwe', '$2y$10$1wFHILZnaOfLXlM/k4YnquNRVri56TDmsMPScARA9Esenly10mU6a', 'qwe@qwe.qwe', 'qwe', '0', '0000-00-00 00:00:00');
+INSERT INTO `forum_user` VALUES ('36', '1231', '$2y$10$Js2EeIpCJb2ulZULvJPpQuwhpCW2R.U6lK3R/CWFZYbf0n4E.X1PS', '123@123.1231', '123', '1', '0000-00-00 00:00:00');
+INSERT INTO `forum_user` VALUES ('37', 'LYi-Ho', '$2y$10$XamG9q35OPsGYNg7s2m5EesZbcE3fs6k5qvqfK1rBP0oAm9X141YG', '503214851@qq.com', '何朗义', '0', '0000-00-00 00:00:00');
+INSERT INTO `forum_user` VALUES ('38', '1234', '$2y$10$WxpRJRo8SDwyTusqFOXqUuNm.HMOU4LFZG/0wvM6Frg71jxSJJtZO', '1234@1234.1234', '', '0', '0000-00-00 00:00:00');
+INSERT INTO `forum_user` VALUES ('39', '12345', '$2y$10$cOTwR/BJeEmGC0JdimzPxukMnuKni/7knA6qoqsb/4zxtToW7aaF.', '1234@1234.123', '', '0', '0000-00-00 00:00:00');
+INSERT INTO `forum_user` VALUES ('40', '123456', '$2y$10$XGx55oG4i4OqpiVGwPQVJupgkLhvb9cXLnL3XUewcOzHMtH2GlG3C', '1234@1234.12345', '', '0', '0000-00-00 00:00:00');
+INSERT INTO `forum_user` VALUES ('41', 'test', '$2y$10$k1U76hKD7SaNevJSz2bw2OeKbbaxZCDTfXrnmk9DO2UdZTVtb75UO', 'test@test.test', '', '0', '0000-00-00 00:00:00');
+INSERT INTO `forum_user` VALUES ('45', 'test', '$2y$10$cDj6AUspm5kmPDd6d6sGRua.ArmlTne8pIeIpq16Rt8LIZ.jvC/AG', '', '', '1', '0000-00-00 00:00:00');
