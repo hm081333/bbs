@@ -153,7 +153,7 @@ function delete_user(user_id) {
 	});
 };
 
-function login(){
+function login() {
 	$.ajax({
 		type: 'POST',
 		data: $("#Login_in").serialize(),
@@ -198,7 +198,8 @@ function update_admin(admin_id) {
 	$.ajax({
 		type: 'POST',
 		data: {
-			service: 'User.admin_list', action: 'post', admin_id: admin_id, auth: auth, email: email, realname: realname,
+			service: 'User.admin_list', action: 'post', admin_id: admin_id, auth: auth, email: email,
+			realname: realname,
 			password: password
 		},
 		success: function (d) {
@@ -217,6 +218,56 @@ function delete_admin(admin_id) {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'User.delete_User', admin_id: admin_id},
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+};
+
+function create_Class() {
+	$.ajax({
+		type: 'POST',
+		data: $("#add_Class").serialize(),
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+};
+
+function update_Class(class_id) {
+	var name = $('#name' + class_id).val();
+	var tips = $('#tips' + class_id).val();
+	$.ajax({
+		type: 'POST',
+		data: {service: 'Class.update_Class', action: 'post', name: name, tips: tips, class_id: class_id},
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+};
+
+function delete_Class(class_id) {
+	$.ajax({
+		type: 'POST',
+		data: {service: 'Class.delete_Class', class_id: class_id},
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {

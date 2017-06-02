@@ -102,7 +102,7 @@
 											class="material-icons">arrow_drop_down</i></a>
 								<div class="collapsible-body">
 									<ul>
-										<li><a class="waves-effect waves-teal" href="./admin/create_topic.php">添加新贴</a>
+										<li><a class="waves-effect waves-teal" href="?service=Topic.create_Topic">添加新贴</a>
 										</li>
 										<li><a class="waves-effect waves-teal" href="?service=Topic.topic_List">管理帖子</a></li>
 									</ul>
@@ -115,9 +115,9 @@
 											class="material-icons">arrow_drop_down</i></a>
 								<div class="collapsible-body">
 									<ul>
-										<li><a class="waves-effect waves-teal" href="./admin/create_class.php">添加分类</a>
+										<li><a class="waves-effect waves-teal" href="?service=Class.create_Class">添加分类</a>
 										</li>
-										<li><a class="waves-effect waves-teal" href="./admin/class.php">管理分类</a></li>
+										<li><a class="waves-effect waves-teal" href="?service=Class.class_List">管理分类</a></li>
 									</ul>
 								</div>
 							</li>

@@ -12,7 +12,6 @@ class Api_Topic extends PhalApi_Api
 	{
 		return array(
 			'topic_List' => array(
-				'action' => array('name' => 'action', 'type' => 'string', 'default' => 'view', 'require' => true, 'desc' => '操作'),
 				'page' => array('name' => 'page', 'type' => 'int', 'default' => 1, 'min' => 1, 'require' => false, 'desc' => '当前页数')
 			),
 			'topic' => array(
@@ -40,18 +39,16 @@ class Api_Topic extends PhalApi_Api
 
 	public function topic_List()
 	{
-		if ($this->action == 'post') {} else {
-			$topic_domain = new Domain_Topic();
-			$topic_list = $topic_domain->getTopicList((($this->page - 1) * each_page), ($this->page * each_page));
-			foreach ($topic_list['rows'] as &$item) {
-				$class_model = new Model_Class();
-				$class = $class_model->get($item['class_id'], 'name');
-				$item['class_name'] = $class['name'];
+		$topic_domain = new Domain_Topic();
+		$topic_list = $topic_domain->getTopicList((($this->page - 1) * each_page), ($this->page * each_page));
+		foreach ($topic_list['rows'] as &$item) {
+			$class_model = new Model_Class();
+			$class = $class_model->get($item['class_id'], 'name');
+			$item['class_name'] = $class['name'];
 
-			}
-			DI()->view->assign(array('page' => $this->page, 'total' => $topic_list['total'], 'rows' => $topic_list['rows']));
-			DI()->view->show('topic_list');
 		}
+		DI()->view->assign(array('page' => $this->page, 'total' => $topic_list['total'], 'rows' => $topic_list['rows']));
+		DI()->view->show('topic_list');
 	}
 
 	public function topic()
@@ -81,16 +78,16 @@ class Api_Topic extends PhalApi_Api
 					throw new PhalApi_Exception_InternalServerError(T('图片上传失败'), 2);// 抛出服务端错误
 				}
 			}
-			$user_model = new Model_User();
-			$user = $user_model->get($_SESSION['user_id'], 'email, username');
+			//$user_model = new Model_User();
+			//$user = $user_model->get($_SESSION['user_id'], 'email, username');
 			$topic_model = new Model_Topic();
 			$insert_data = array();
 			$insert_data['class_id'] = $this->class_id;
 			$insert_data['topic'] = $this->topic;
 			$insert_data['detail'] = $this->detail;
 			$insert_data['pics'] = $reback;
-			$insert_data['name'] = $user['username'];
-			$insert_data['email'] = $user['email'];
+			$insert_data['name'] = '管理员';
+			$insert_data['email'] = '';
 			$insert_data['datetime'] = new NotORM_Literal("NOW()");
 			$insert_data['sticky'] = $this->sticky;
 			$rs = $topic_model->insert($insert_data);

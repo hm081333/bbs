@@ -26,7 +26,7 @@
 					?><i class="material-icons">stars</i><?php
 				}
 				?>
-				<a href="view_topic.php?id=<?php echo $row['id']; ?>"><?php echo $row['topic']; ?></a><br/><?php echo '发帖者: ' . $row['name'] ?>
+				<a href="?service=Topic.topic&topic_id=<?php echo $row['id']; ?>"><?php echo $row['topic']; ?></a><br/><?php echo '发帖者: ' . $row['name'] ?>
 			</td>
 			<td>
 				<?php
