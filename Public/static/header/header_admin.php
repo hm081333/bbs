@@ -134,9 +134,9 @@
 					</li>
 				</ul>
 				<a href="./admin.php" class="center brand-logo">后台</a>
-				<ul class="right">
+				<!--<ul class="right">
 					<li><a class="search_pic" href="./admin/search.php"><i class="material-icons">search</i></a></li>
-				</ul>
+				</ul>-->
 			<?php else: ?>
 				<!-- 用户未登录 -->
 				<a href="./admin.php" class="center brand-logo">后台</a>
