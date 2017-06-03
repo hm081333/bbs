@@ -28,7 +28,7 @@ class Domain_Admin {
 		$admin_model = new Model_Admin();
 		$update_data = array();
 		if (!empty($password)) {
-			$update_data['password'] = password_hash($password, PASSWORD_BCRYPT);
+			$update_data['password'] = Domain_Common::hash($password);
 		}
 		if (isset($auth)) {
 			$update_data['auth'] = $auth;

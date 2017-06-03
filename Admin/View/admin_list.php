@@ -25,7 +25,7 @@
 					</p>
 				</td>
 				<td>
-					<input placeholder="密码留空，将不被更新" name="password<?php echo $row['id']; ?>" type="password">
+					<input id="password<?php echo $row['id']; ?>" placeholder="密码留空，将不被更新" name="password<?php echo $row['id']; ?>" type="password">
 				</td>
 				<td>
 					<button onclick="update_admin(<?php echo $row['id']; ?>)"

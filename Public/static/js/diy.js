@@ -192,16 +192,10 @@ function update_admin(admin_id) {
 	} else {
 		auth = 0;
 	}
-	var email = $('#email' + admin_id).val();
-	var realname = $('#realname' + admin_id).val();
 	var password = $('#password' + admin_id).val();
 	$.ajax({
 		type: 'POST',
-		data: {
-			service: 'User.admin_list', action: 'post', admin_id: admin_id, auth: auth, email: email,
-			realname: realname,
-			password: password
-		},
+		data: {service: 'User.admin_list', action: 'post', admin_id: admin_id, auth: auth, password: password},
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {

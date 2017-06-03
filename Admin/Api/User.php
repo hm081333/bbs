@@ -63,7 +63,7 @@ class Api_User extends PhalApi_Api
 			$admin = $admin_model->getInfo(array('username' => $this->username), 'id, username, password, auth');
 			if ($admin === false) {
 				throw new PhalApi_Exception_Error(T('用户名不存在'), 1);// 抛出客户端错误 T标签翻译
-			} elseif (!password_verify($this->password, $admin['password'])) {
+			} elseif (!Domain_Common::verify($this->password, $admin['password'])) {
 				throw new PhalApi_Exception_Error(T('密码错误'), 1);// 抛出客户端错误 T标签翻译
 			} else {
 				//将用户名存如SESSION中
@@ -106,7 +106,7 @@ class Api_User extends PhalApi_Api
 
 			$insert_data = array();
 			$insert_data['username'] = $this->username;
-			$insert_data['password'] = password_hash($this->password, PASSWORD_BCRYPT);
+			$insert_data['password'] = Domain_Common::hash($this->password);
 			$insert_data['email'] = $this->email;
 			$insert_data['realname'] = $this->realname;
 			if ($this->auth == 'on') {
@@ -146,7 +146,7 @@ class Api_User extends PhalApi_Api
 
 			$insert_data = array();
 			$insert_data['username'] = $this->username;
-			$insert_data['password'] = password_hash($this->password, PASSWORD_BCRYPT);
+			$insert_data['password'] = Domain_Common::hash($this->password);
 			if ($this->auth == 'on') {
 				$insert_data['auth'] = 1;
 			}

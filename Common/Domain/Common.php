@@ -1,8 +1,10 @@
 <?php
 
-class Domain_Common {
+class Domain_Common
+{
 
-	public static function checkEmail($email) {
+	public static function checkEmail($email)
+	{
 		$check = "/^[0-9a-zA-Z_-]+@[0-9a-zA-Z_-]+(\.[0-9a-zA-Z_-]+){0,3}$/";
 
 		if (preg_match($check, $email)) {
@@ -10,5 +12,15 @@ class Domain_Common {
 		} else {
 			return false;
 		}
+	}
+
+	public static function hash($password, $algo = PASSWORD_DEFAULT, $options = null)
+	{
+		return password_hash($password, $algo , $options);
+	}
+
+	public static function verify($password, $hash)
+	{
+		return password_verify($password, $hash);
 	}
 }

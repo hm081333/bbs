@@ -30,7 +30,7 @@ class Domain_User {
 		$update_data['email'] = $email;
 		$update_data['realname'] = $realname;
 		if (!empty($password)) {
-			$update_data['password'] = password_hash($password, PASSWORD_BCRYPT);
+			$update_data['password'] = Domain_Common::hash($password);
 		}
 		if ($admin && isset($auth)) {
 			$update_data['auth'] = $auth;
