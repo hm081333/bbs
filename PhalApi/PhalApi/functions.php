@@ -25,6 +25,13 @@ function SL($language) {
 }
 
 /**
+ * 设定语言，GL为getLanguage的简写
+ */
+function GL() {
+	return PhalApi_Translator::getLanguage();
+}
+
+/**
  * 快速翻译
  * @param string $msg 待翻译的内容
  * @param array $params 动态参数

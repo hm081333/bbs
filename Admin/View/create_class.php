@@ -1,9 +1,9 @@
 <?php require_once './Public/static/header/header_admin.php'; ?>
 
-	<h3 class="center">添加课程分类</h3>
+	<h3 class="center"><?php echo T('添加课程分类'); ?></h3>
 
 	<fieldset>
-		<legend>Add Class</legend>
+		<legend><?php echo T('添加课程'); ?></legend>
 		<div class="row">
 			<form id="add_Class" class="col s12">
 				<input name="action" value="post" type="hidden">
@@ -12,7 +12,7 @@
 					<div class="input-field">
 						<i class="material-icons prefix">label_outline</i>
 						<input name="name" type="text" class="validate">
-						<label for="name">课程名</label>
+						<label for="name"><?php echo T('课程名'); ?></label>
 					</div>
 				</div>
 
@@ -20,12 +20,12 @@
 					<div class="input-field">
 						<i class="material-icons prefix">label_outline</i>
 						<input name="tips" type="text" class="validate">
-						<label for="tips">课程说明</label>
+						<label for="tips"><?php echo T('课程说明'); ?></label>
 					</div>
 				</div>
 			</form>
 			<div class="col s12 center">
-				<button onclick="create_Class()" class="btn waves-effect waves-light">添加课程</button>
+				<button onclick="create_Class()" class="btn waves-effect waves-light"><?php echo T('添加课程'); ?></button>
 			</div>
 
 	</fieldset>

@@ -1,7 +1,22 @@
-<?php
-// 法语 fr - fr 法标
-// 法语 fr - lu 卢森堡
-return array(
-	'Hi {name}, welcome to use PhalApi!' => '{name}Bonjour, bienvenue PhalApi！',
-	'user not exists' => "L'utilisateur n'existe pas",
+<?php 
+return array (
+  '南洋师生交流平台DEMO' => 'les enseignants et les étudiants Nanyang plate-forme d\'échange DEMO',
+  '简体中文' => 'Chinois simplifié',
+  '繁体中文' => '繁体中文',
+  '英语' => 'Anglais',
+  '德语' => 'allemand',
+  '法语' => 'français',
+  '闲聊' => 'bavarder',
+  '随意灌水区' => 'district d\'irrigation au hasard',
+  'PHP' => 'PHP',
+  'PHP是世界上最好的语言' => 'PHP est la meilleure langue dans le monde',
+  'JavaScript' => 'JavaScript',
+  'JS是微信最常用的语言' => 'JS est le micro-canal de langue la plus parlée',
+  'Photoshop' => 'Photoshop',
+  '' => '',
+  'Flash' => 'flash',
+  'C程序设计' => 'C programmation',
+  'MySQL数据库' => 'base de données MySQL',
+  '网页设计' => 'Web Design',
+  '发帖' => 'messages',
 );

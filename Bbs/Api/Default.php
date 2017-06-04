@@ -30,8 +30,6 @@ class Api_Default extends PhalApi_Api
 	{
 		$class_domain = new Domain_Class();
 		$class_list = $class_domain->getClassList((($this->page - 1) * each_page), ($this->page * each_page));
-//		var_dump($class_list);
-
 		//抛出变量
 //		DI()->view->assign($xx);
 

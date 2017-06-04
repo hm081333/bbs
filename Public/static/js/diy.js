@@ -38,12 +38,15 @@ function preview(file) {
 	}
 };
 
+
 function open_url(service) {
 	$.ajax({
 		type: 'GET',
 		data: {service: service, action: 'view'}
 	});
 };
+
+
 
 function stick_topic(topic_id) {
 	$.ajax({
@@ -169,6 +172,22 @@ function login() {
 	});
 };
 
+function logoff() {
+	$.ajax({
+		type: 'POST',
+		data: {service: 'User.logoff'},
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+};
+
 function register() {
 	$.ajax({
 		type: 'POST',
@@ -262,6 +281,22 @@ function delete_Class(class_id) {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'Class.delete_Class', class_id: class_id},
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+};
+
+function set_language(language) {
+	$.ajax({
+		type: 'POST',
+		data: {service: 'Public.setLanguage', language: language},
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {

@@ -1,10 +1,10 @@
 <?php require_once './Public/static/header/header_admin.php'; ?>
 <!--<script src="./Public/static/js/login.js"></script>-->
 
-<h3 class="center">后台登录</h3>
+<h3 class="center"><?php echo T('后台登录') ?></h3>
 
 <fieldset>
-	<legend>Login</legend>
+	<legend><?php echo T('登录') ?></legend>
 	<div class="row">
 		<form id="Login_in" class="col s12">
 			<input name="action" value="post" type="hidden">
@@ -13,10 +13,10 @@
 				<div class="input-field">
 					<i class="material-icons prefix">account_box</i>
 					<input id="username" name="username" type="text">
-					<label for="username">用户名</label>
+					<label for="username"><?php echo T('用户名') ?></label>
 				</div>
 				<div>
-					<p class="msg right"><i class="material-icons">warning</i>请输入用户名</p>
+					<p class="msg right"><i class="material-icons">warning</i><?php echo T('请输入用户名') ?></p>
 				</div>
 			</div>
 
@@ -24,15 +24,15 @@
 				<div class="input-field">
 					<i class="material-icons prefix">vpn_key</i>
 					<input id="password" name="password" type="password">
-					<label for="password">密码</label>
+					<label for="password"><?php echo T('密码') ?></label>
 				</div>
 				<div>
-					<p class="msg right"><i class="material-icons">warning</i>请输入密码</p>
+					<p class="msg right"><i class="material-icons">warning</i><?php echo T('请输入密码') ?></p>
 				</div>
 			</div>
 		</form>
 			<div class="col s12 center">
-				<button onclick="login()" class="btn waves-effect waves-light">登录</button>
+				<button onclick="login()" class="btn waves-effect waves-light"><?php echo T('登录') ?></button>
 <!--				<button type="reset" class="btn waves-effect waves-light">清空</button>-->
 			</div>
 </fieldset>

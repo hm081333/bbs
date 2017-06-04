@@ -1,16 +1,16 @@
 <?php require_once './Public/static/header/header_admin.php'; ?>
 
-	<h3 class="center">管理帖子</h3>
+	<h3 class="center"><?php echo T('管理帖子'); ?></h3>
 
 	<table>
 		<thead>
 		<tr class="teal darken-3">
-			<th width="31%">帖子</th>
-			<th width="15%">课程</th>
-			<th width="12%">访问</th>
-			<th width="12%">回复</th>
-			<th width="25%">发表日期</th>
-			<th width="5%">操作</th>
+			<th width="31%"><?php echo T('帖子'); ?></th>
+			<th width="15%"><?php echo T('课程'); ?></th>
+			<th width="12%"><?php echo T('访问'); ?></th>
+			<th width="12%"><?php echo T('回复'); ?></th>
+			<th width="25%"><?php echo T('发表日期'); ?></th>
+			<th width="5%"><?php echo T('操作'); ?></th>
 		</tr>
 		</thead>
 
@@ -26,11 +26,11 @@
 					?><i class="material-icons">stars</i><?php
 				}
 				?>
-				<a href="?service=Topic.topic&topic_id=<?php echo $row['id']; ?>"><?php echo $row['topic']; ?></a><br/><?php echo '发帖者: ' . $row['name'] ?>
+				<a href="?service=Topic.topic&topic_id=<?php echo $row['id']; ?>"><?php echo T($row['topic']); ?></a><br/><?php echo T('发帖者: ') . $row['name'] ?>
 			</td>
 			<td>
 				<?php
-				echo $row['class_name'];
+				echo T($row['class_name']);
 				?>
 			</td>
 			<td>
@@ -58,7 +58,7 @@
 							class="btn-floating waves-effect waves-light"><i class="material-icons">stars</i></button>
 				<?php endif; ?>
 				<button onclick="admin_delete_topic(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light">
-					<i class="material-icons">clear</i></button>
+					<i class="material-icons">delete</i></button>
 			</td>
 		</tr>
 		<?php endforeach; ?>

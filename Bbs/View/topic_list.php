@@ -2,15 +2,15 @@
 require_once './Public/static/header/header.php';
 ?>
 
-<h3 class="center"><?php echo $class['name']; ?>区</h3>
+<h3 class="center"><?php echo T($class['name'] . '区'); ?></h3>
 
 <table>
 	<thead>
 	<tr class="teal darken-3">
-		<th width="44%">帖子</th>
-		<th width="12%">访问</th>
-		<th width="12%">回复</th>
-		<th width="32%">发表日期</th>
+		<th width="44%"><?php echo T('帖子'); ?></th>
+		<th width="12%"><?php echo T('访问'); ?></th>
+		<th width="12%"><?php echo T('回复'); ?></th>
+		<th width="32%"><?php echo T('发表日期'); ?></th>
 	</tr>
 	</thead>
 
@@ -30,7 +30,7 @@ require_once './Public/static/header/header.php';
 				?><i class="material-icons">stars</i><?php
 			}
 			?>
-			<a href="?service=Topic.topic&topic_id=<?php echo $row['id']; ?>"><?php echo $row['topic']; ?></a><br/><?php echo '发帖者: ' . $row['name'] ?>
+			<a href="?service=Topic.topic&topic_id=<?php echo $row['id']; ?>"><?php echo T($row['topic']); ?></a><br/><?php echo T('发帖者: ' . $row['name']) ?>
 		</td>
 		<td>
 			<?php
@@ -59,7 +59,8 @@ require_once './Public/static/header/header.php';
 			//上一页
 			if ($page > 1) {
 				?>
-				<a class="btn waves-effect waves-light" href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo($page - 1) ?>"><i
+				<a class="btn waves-effect waves-light"
+				   href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo($page - 1) ?>"><i
 							class="material-icons">arrow_back</i></a>
 				<?php
 
@@ -72,7 +73,8 @@ require_once './Public/static/header/header.php';
 			//后一页
 			if (($page * each_page) < $total) {
 				?>
-				<a class="btn waves-effect waves-light" href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo($page + 1) ?>"><i
+				<a class="btn waves-effect waves-light"
+				   href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo($page + 1) ?>"><i
 							class="material-icons">arrow_forward</i></a>
 				<?php
 
@@ -84,7 +86,7 @@ require_once './Public/static/header/header.php';
 			}
 			?>
 
-			<a class="btn right waves-effect waves-light" onClick="location.href='?service=Topic.create_Topic'">发帖</a>
+			<a class="btn right waves-effect waves-light" onClick="location.href='?service=Topic.create_Topic'"><?php echo T('发帖'); ?></a>
 		</td>
 	</tr>
 	</tbody>

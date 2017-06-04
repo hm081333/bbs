@@ -25,13 +25,13 @@ class Translate_Lite {
      * @param $secKey
      */
     public function __construct($appId = "", $secKey = "") {
-        if ($appId) {
-            $this->appId = $appId;
-        }
-        if ($secKey) {
-            $this->secKey = $secKey;
-        }
-    }
+	if ($appId) {
+		$this->appId = $appId;
+	}
+	if ($secKey) {
+		$this->secKey = $secKey;
+	}
+}
 
     //翻译入口
     public function translate($query, $from, $to) {

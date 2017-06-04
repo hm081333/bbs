@@ -3,7 +3,7 @@ require_once './Public/static/header/header.php';
 ?>
 
 <fieldset>
-	<legend>正文</legend>
+	<legend><?php echo T('正文') ?></legend>
 	<table>
 		<tr>
 			<td>
@@ -13,12 +13,12 @@ require_once './Public/static/header/header.php';
 		<tr>
 			<td class="center">
 				<!--				<a class="btn-floating waves-effect waves-light" onclick="history.back();" style="float:left;margin-left: -10px;"><i class="material-icons">arrow_back</i></a>-->
-				<h4><?php echo '主题：' . $topic['topic']; ?></h4>
+				<h4><?php echo T('主题：' . $topic['topic']); ?></h4>
 			</td>
 		</tr>
 		<tr>
 			<td class="center">
-				用户<a href="?service=User.user_Info&user_id=<?php echo $topic['user_id']; ?>">
+				<?php echo T('用户：') ?><a href="?service=User.user_Info&user_id=<?php echo $topic['user_id']; ?>">
 					<?php echo $topic['name']; ?></a><br/><?php echo $topic['datetime']; ?>
 			</td>
 		</tr>
@@ -26,7 +26,7 @@ require_once './Public/static/header/header.php';
 			<td class="cyan lighten-3">
 				<?php
 				//输出整理好的内容
-				echo nl2br(htmlspecialchars($topic['detail']));
+				echo T(nl2br(htmlspecialchars($topic['detail'])));
 				echo '</br>';
 				?>
 
@@ -50,18 +50,18 @@ require_once './Public/static/header/header.php';
 
 					<?php
 					if (empty($reply['total'])) :
-						echo '暂无回复!';
+						echo T('暂无回复！');
 					else :
 					foreach ($reply['rows'] as $key => $row) : ?>
 
 					<dt>
-						用户：<a href="?service=User.user_Info&user_id=<?php echo $row['user_id']; ?>"><?php echo $row['reply_name']; ?></a>
+						<?php echo T('用户：') ?><a href="?service=User.user_Info&user_id=<?php echo $row['user_id']; ?>"><?php echo $row['reply_name']; ?></a>
 						<?php echo $row['reply_datetime']; ?>
 					</dt>
 					<dd>
 						<?php
 						//输出整理好的内容
-						echo nl2br(htmlspecialchars($row['reply_detail']));
+						echo T(nl2br(htmlspecialchars($row['reply_detail'])));
 						echo '</br>';
 						?>
 
@@ -80,13 +80,13 @@ require_once './Public/static/header/header.php';
 
 	<div class="replyText"><?php
 		//判断用户是否已经注册
-		if (!isset($_SESSION['username'])) {
+		if (!isset($_SESSION['user_name'])) {
 			?>
 			<p class="center">
-				<a class="btn waves-effect waves-light" href="?service=User.register">注册</a><br/>
-				或<br/>
-				<a class="btn waves-effect waves-light" href="?service=User.login">登录</a><br/>
-				进行评论
+				<a class="btn waves-effect waves-light" href="?service=User.register"><?php echo T('注册') ?></a><br/>
+				<?php echo T('或') ?><br/>
+				<a class="btn waves-effect waves-light" href="?service=User.login"><?php echo T('登录') ?></a><br/>
+				<?php echo T('进行评论') ?>
 			</p>
 			<?php
 
@@ -101,7 +101,7 @@ require_once './Public/static/header/header.php';
 					<td>
 						<div class="input-field">
 							<textarea name="reply_detail" class="materialize-textarea validate"></textarea>
-							<label for="reply_detail">回帖内容</label>
+							<label for="reply_detail"><?php echo T('回帖内容') ?></label>
 							<!--<textarea class="coolscrollbar" name="reply_detail" cols="80" rows="5"></textarea>-->
 					</td>
 				</tr>
@@ -109,7 +109,7 @@ require_once './Public/static/header/header.php';
 					<td>
 						<div class="file-field input-field">
 							<div class="btn waves-effect waves-light">
-								<span>上传图片</span>
+								<span><?php echo T('上传图片') ?></span>
 								<input type="file" name="reply_pics" onchange="preview(this)">
 							</div>
 							<div class="file-path-wrapper">
@@ -122,7 +122,7 @@ require_once './Public/static/header/header.php';
 			</form>
 			<tr>
 				<td class="center">
-					<button id="reply" class="btn waves-effect waves-light">回复该帖</button>
+					<button id="reply" class="btn waves-effect waves-light"><?php echo T('回复该帖') ?></button>
 				</td>
 			</tr>
 		</table>
@@ -137,18 +137,18 @@ require_once './Public/static/header/header.php';
 		?>
 		<!--管理员操作表单，开始-->
 		<div class="center">
-			<p>管理员操作</p>
+			<p><?php echo T('管理员操作') ?></p>
 
 
 			<!--显示置顶操作按钮-->
 			<?php if ($topic['sticky'] == 0) : ?>
-				<button onclick="stick_topic(<?php echo $topic['id']; ?>)" class="btn waves-effect waves-light">置顶该贴
+				<button onclick="stick_topic(<?php echo $topic['id']; ?>)" class="btn waves-effect waves-light"><?php echo T('置顶该贴') ?>
 				</button>
 			<?php else : ?>
-				<button onclick="unstick_topic(<?php echo $topic['id']; ?>)" class="btn waves-effect waves-light">取消置顶
+				<button onclick="unstick_topic(<?php echo $topic['id']; ?>)" class="btn waves-effect waves-light"><?php echo T('取消置顶') ?>
 				</button>
 			<?php endif; ?>
-			<button onclick="delete_topic(<?php echo $topic['id']; ?>)" class="btn waves-effect waves-light">删除帖子
+			<button onclick="delete_topic(<?php echo $topic['id']; ?>)" class="btn waves-effect waves-light"><?php echo T('删除帖子') ?>
 			</button>
 		</div>
 		<!--管理员操作表单，结束-->

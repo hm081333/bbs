@@ -116,7 +116,7 @@ class Api_User extends PhalApi_Api
 			unset($insert_data);
 			if ($rs) {
 				$_SESSION['user_id'] = $rs;
-				$_SESSION['username'] = $this->username;
+				$_SESSION['user_name'] = $this->username;
 				$_SESSION['user_auth'] = 0;
 				DI()->response->setMsg(T('新增用户成功'));
 				return;
@@ -154,7 +154,7 @@ class Api_User extends PhalApi_Api
 			unset($insert_data);
 			if ($rs) {
 				$_SESSION['user_id'] = $rs;
-				$_SESSION['username'] = $this->username;
+				$_SESSION['user_name'] = $this->username;
 				$_SESSION['user_auth'] = 0;
 				DI()->response->setMsg(T('新增管理员成功'));
 				return;
@@ -199,12 +199,23 @@ class Api_User extends PhalApi_Api
 
 	public function logoff()
 	{
-		$_SESSION = array();
+		/*$_SESSION = array();
 		session_unset();
 		//清空SESSION
-		session_destroy();
+		session_destroy();*/
+		//仅清除管理员相关session
+		if (isset($_SESSION['admin_id'])) {
+			unset($_SESSION['admin_id']);
+		}
+		if (isset($_SESSION['admin_name'])) {
+			unset($_SESSION['admin_name']);
+		}
+		if (isset($_SESSION['admin_auth'])) {
+			unset($_SESSION['admin_auth']);
+		}
+		DI()->response->setMsg(T('退出登录成功'));
 		//跳转页面
-		header("Location: ./");
+		//header("Location: ./");
 	}
 
 	public function user_Info()

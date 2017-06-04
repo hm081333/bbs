@@ -16,7 +16,11 @@ class Domain_Common
 
 	public static function hash($password, $algo = PASSWORD_DEFAULT, $options = null)
 	{
-		return password_hash($password, $algo , $options);
+		if (empty($options)) {
+			return password_hash($password, $algo);
+		} else {
+			return password_hash($password, $algo , $options);
+		}
 	}
 
 	public static function verify($password, $hash)

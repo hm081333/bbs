@@ -1,17 +1,17 @@
 <?php require_once './Public/static/header/header_admin.php'; ?>
 
-	<h3 class="center">管理用户</h3>
+	<h3 class="center"><?php echo T('管理用户') ?></h3>
 	<fieldset>
-	<legend>Manage User</legend>
+	<legend><?php echo T('管理用户') ?></legend>
 	<table>
 		<thead>
 		<tr>
-			<th>用户名</th>
-			<th>权限</th>
-			<th>E-mail</th>
-			<th>名字</th>
-			<th>更改密码</th>
-			<th width="5%">操作</th>
+			<th><?php echo T('用户名') ?></th>
+			<th><?php echo T('权限') ?></th>
+			<th><?php echo T('邮箱') ?></th>
+			<th><?php echo T('名字') ?></th>
+			<th><?php echo T('更改密码') ?></th>
+			<th width="5%"><?php echo T('操作') ?></th>
 		</tr>
 		</thead>
 		<tbody>
@@ -36,8 +36,8 @@
 						<input id="password<?php echo $row['id']; ?>" placeholder="密码留空，将不被更新" name="password<?php echo $row['id']; ?>" type="password">
 					</td>
 					<td>
-						<button onclick="update_user(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light">修改</button>
-						<button onclick="delete_user(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light">删除</button>
+						<button onclick="update_user(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light"><i class="material-icons">edit</i></button>
+						<button onclick="delete_user(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light"><i class="material-icons">delete</i></button>
 					</td>
 				</tr>
 		<?php endforeach; ?>

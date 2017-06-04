@@ -11,5 +11,6 @@ defined('each_page') || define('each_page', 8);
 defined('NOW_TIME') || define('NOW_TIME', time());
 defined('back') || define('back', TRUE);
 //http://localhost/1/test/?service=Default.index&page=1
+/*<?php echo T(''); ?>*/
 
 

@@ -1,9 +1,22 @@
-<?php
-// 德语 de - de 德标
-// 德语 de - at 奥地利
-// 德语 de - ch 瑞士
-// 德语 de - ru 俄罗斯(欧境)
-return array(
-	'Hi {name}, welcome to use PhalApi!' => '{name}Hallo, Willkommen PhalApi！',
-	'user not exists' => 'Der nutzer gibt es nicht',
+<?php 
+return array (
+  '南洋师生交流平台DEMO' => 'Nanyang Lehrer und Schüler Austauschplattform DEMO',
+  '简体中文' => 'vereinfachtes Chinesisch',
+  '繁体中文' => 'Traditionelles Chinesisch',
+  '英语' => 'Englisch',
+  '德语' => 'Deutsch',
+  '法语' => 'Französisch',
+  '闲聊' => 'Unterhaltung',
+  '随意灌水区' => 'Zufällige Bewässerung Bezirk',
+  'PHP' => 'PHP',
+  'PHP是世界上最好的语言' => 'PHP ist die beste Sprache der Welt',
+  'JavaScript' => 'JavaScript',
+  'JS是微信最常用的语言' => 'JS ist die häufigste Sprache Mikrokanal',
+  'Photoshop' => 'Photoshop',
+  '' => '',
+  'Flash' => 'Blitz',
+  'C程序设计' => 'C-Programmierung',
+  'MySQL数据库' => 'MySQL-Datenbank',
+  '网页设计' => 'Web Design',
+  '发帖' => 'Beiträge',
 );

@@ -11,7 +11,7 @@ defined('API_ROOT') || define('API_ROOT', dirname(__FILE__) . '/..');
 
 require_once API_ROOT . '/PhalApi/PhalApi.php';
 //require_once API_ROOT . '/Library/View/Lite.php'; // 视图控制器
-require_once API_ROOT . '/Library/Google_Authenticator/GoogleAuthenticator.php'; // 谷歌二次验证
+//require_once API_ROOT . '/Library/Google_Authenticator/GoogleAuthenticator.php'; // 谷歌二次验证
 require_once API_ROOT . '/Library/upload_image/upload_image.php'; // 简陋的图片上传function
 require_once API_ROOT . '/Config/constant.php'; // 常量
 
@@ -45,7 +45,15 @@ DI()->logger = new PhalApi_Logger_File(API_ROOT . '/Runtime', PhalApi_Logger::LO
 DI()->notorm = new PhalApi_DB_NotORM(DI()->config->get('dbs'), DI()->debug);
 
 // 翻译语言包设定
-SL('zh_cn');
+if (isset($_SESSION['Language'])) {
+	$language = GL();
+	if ($_SESSION['Language'] != $language) {
+		SL($_SESSION['Language']);
+	}
+	unset($language);
+} else {
+	SL('zh_cn');
+}
 
 /** ---------------- 定制注册 可选服务组件 ---------------- **/
 
