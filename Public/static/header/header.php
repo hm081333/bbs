@@ -10,12 +10,12 @@
 	<script src="./Public/static/js/jquery.min.js"></script><!--加载jQuery-->
 	<script src="./Public/static/js/materialize.min.js"></script><!--加载框架js-->
 	<link href="./Public/static/css/diy.css" rel="stylesheet"><!--加载自定义样式-->
-	<script src="./Public/static/js/diy.js"></script><!--自定义JS脚本-->
+	<!--<script src="./Public/static/js/diy.js"></script><!--自定义JS脚本-->
 </head>
 
 <body><!-- style="background-image:url(./images/bgl.jpg);background-repeat:no-repeat;background-attachment:fixed;" -->
 <!-- 头开始 -->
-
+<header>
 <nav class="<!--hoverable--> cyan darken-4"><!--导航栏语句开始-->
 
 	<div class="nav-wrapper container"><!--导航栏内容开始-->
@@ -25,7 +25,7 @@
 		<?php endif; ?>
 		<a href="./" class="brand-logo">LYiHo</a><!--网页LOGO-->
 		<ul class="right">
-			<!--			<li><a class="search_pic" href="./search.php"><i class="material-icons">search</i></a></li>-->
+			<!--<li><a class="search_pic" href="?service=Public.search"><i class="material-icons">search</i></a></li>-->
 			<li><a class="dropdown-button" data-activates="language"><i class="material-icons">translate</i></a></li>
 			<li><a class="dropdown-button" data-activates="menu"><i class="material-icons">perm_identity</i></a></li>
 		</ul>
@@ -72,8 +72,8 @@
 		<a onclick="javascript:set_language('fr')"><?php echo T('法语'); ?></a>
 	</li>
 </ul>
-
+</header>
 <!-- 头结束 -->
 
 <!-- 正文内容开始 -->
-<div id="Content" class="container">
+<main id="Content" class="container">

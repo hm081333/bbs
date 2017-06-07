@@ -1,4 +1,5 @@
-</div>
+</main>
+<script src="./Public/static/js/diy.js"></script><!--自定义JS脚本-->
 <!-- 正文内容结束 -->
 <br/>
 <!-- 页脚信息 -->

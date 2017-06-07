@@ -18,6 +18,11 @@ class Api_Public extends PhalApi_Api
 			'setLanguage' => array(
 				'language' => array('name' => 'language', 'type' => 'string', 'require' => true, 'desc' => '语言'),
 			),
+			'search' => array(
+				'action' => array('name' => 'action', 'type' => 'string', 'default' => 'view', 'require' => true, 'desc' => '操作'),
+				'keyword' => array('name' => 'keyword', 'type' => 'string', 'require' => false, 'desc' => '搜索关键字'),
+				'term' => array('name' => 'term', 'type' => 'string', 'require' => false, 'desc' => '搜索类型'),
+			),
 		);
 	}
 
@@ -57,6 +62,15 @@ class Api_Public extends PhalApi_Api
 			DI()->response->setMsg(T('语言设置成功，请等待刷新！'));
 		} else {
 			throw new PhalApi_Exception_Error(T('选择语言已经是当前语言'), 1);// 抛出客户端错误 T标签翻译*/
+		}
+	}
+
+	public function search()
+	{
+		if ($this->action == 'post') {
+			var_dump($this);
+		} else {
+			DI()->view->show('search');
 		}
 	}
 

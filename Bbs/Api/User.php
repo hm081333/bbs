@@ -21,6 +21,7 @@ class Api_User extends PhalApi_Api
 				'password' => array('name' => 'password', 'type' => 'string', 'require' => false, 'desc' => '用户密码'),
 				'email' => array('name' => 'email', 'type' => 'string', 'require' => false, 'desc' => '用户邮箱'),
 				'realname' => array('name' => 'realname', 'type' => 'string', 'require' => false, 'desc' => '用户姓名'),
+				'birthdate' => array('name' => 'birthdate', 'type' => 'string', 'require' => false, 'desc' => '用户生日'),
 			),
 			'user_Info' => array(
 				'user_id' => array('name' => 'user_id', 'type' => 'int', 'require' => false, 'desc' => '用户ID')
@@ -69,7 +70,10 @@ class Api_User extends PhalApi_Api
 				throw new PhalApi_Exception_Error(T('请输入邮箱'), 1);// 抛出普通错误 T标签翻译
 			} elseif (empty($this->realname)) {
 				throw new PhalApi_Exception_Error(T('请输入姓名'), 1);// 抛出普通错误 T标签翻译
+			} elseif (empty($this->birthdate)) {
+				throw new PhalApi_Exception_Error(T('请选择生日'), 1);// 抛出普通错误 T标签翻译
 			}
+
 			$user = $user_model->getInfo(array('username' => $this->username), 'id');
 			if ($user !== false) {
 				throw new PhalApi_Exception_Error(T('用户名已注册'), 1);// 抛出普通错误 T标签翻译
@@ -82,13 +86,16 @@ class Api_User extends PhalApi_Api
 			if ($email !== false) {
 				throw new PhalApi_Exception_Error(T('邮箱已注册'), 1);// 抛出普通错误 T标签翻译
 			}
-
+			$birth_time = strtotime($this->birthdate);
 			$user_model = new Model_User();
 			$insert_data = array();
 			$insert_data['username'] = $this->username;
 			$insert_data['password'] = Domain_Common::hash($this->password);
 			$insert_data['email'] = $this->email;
 			$insert_data['realname'] = $this->realname;
+			$insert_data['regdate'] = new NotORM_Literal("NOW()");
+			$insert_data['reg_time'] = NOW_TIME;
+			$insert_data['birth_time'] = $birth_time;
 			$rs = $user_model->insert($insert_data);
 			unset($insert_data);
 			if ($rs) {

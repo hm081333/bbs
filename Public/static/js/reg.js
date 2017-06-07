@@ -1,13 +1,13 @@
 window.onload = function () {
-	var allgood = true;
+	// var allgood = true;
 	var findid = document.getElementById('Register');
 	var aInput = findid.getElementsByTagName('input');
-	var oName = aInput[0];
-	var psw = aInput[1];
-	var psw2 = aInput[2];
-	var email = aInput[3];
-	var nime = aInput[4];
-	var login = aInput[5];
+	var oName = aInput[2];
+	var psw = aInput[3];
+	var psw2 = aInput[4];
+	var email = aInput[5];
+	var nime = aInput[6];
+	// var login = aInput[7];
 	oName.ok = false;
 	psw.ok = false;
 	psw2.ok = false;
@@ -19,7 +19,6 @@ window.onload = function () {
 	var psw2_msg = aP[2];
 	var email_msg = aP[3];
 	var nime_msg = aP[4];
-
 	//用户名验证
 	oName.onfocus = function () {
 		oName_msg.style.display = "inline";
@@ -103,7 +102,7 @@ window.onload = function () {
 	//真实名验证
 	nime.onfocus = function () {
 		nime_msg.style.display = "inline";
-		nime_msg.innerHTML = '<i class="material-icons">warning</i>打名啊7头';
+		nime_msg.innerHTML = '<i class="material-icons">warning</i>请输入姓名';
 	};
 	nime.onblur = function () {
 		if (this.value == "") {
@@ -133,10 +132,9 @@ window.onload = function () {
 	});*/
 
 
-	$("#Reg").click(function () {
+	/*$("#Reg").click(function () {
 		$.ajax({
 			type: 'POST',
-			// url: '',
 			data: $("#Register").serialize(),
 			success: function (d) {
 				if (d.ret == 200) {
@@ -149,5 +147,5 @@ window.onload = function () {
 				}
 			}
 		});
-	});
+	});*/
 };

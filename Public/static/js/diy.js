@@ -47,7 +47,6 @@ function open_url(service) {
 };
 
 
-
 function stick_topic(topic_id) {
 	$.ajax({
 		type: 'POST',
@@ -308,4 +307,37 @@ function set_language(language) {
 		}
 	});
 };
+
+function search(language) {
+	$.ajax({
+		type: 'POST',
+		data: {service: 'Public.setLanguage', language: language},
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+};
+
+$('#Register').submit(function ()//提交表单
+{
+	$.ajax({
+		type: 'POST',
+		data: $("#Register").serialize(),
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					history.back();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+});
 
