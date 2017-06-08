@@ -60,6 +60,11 @@ class Api_User extends PhalApi_Api
 	{
 		if ($this->action == 'post') {
 			$admin_model = new Model_Admin();
+			if (empty($this->username)) {
+				throw new PhalApi_Exception_Error(T('请输入用户名'), 1);// 抛出普通错误 T标签翻译
+			} elseif (empty($this->password)) {
+				throw new PhalApi_Exception_Error(T('请输入密码'), 1);// 抛出普通错误 T标签翻译
+			}
 			$admin = $admin_model->getInfo(array('username' => $this->username), 'id, username, password, auth');
 			if ($admin === false) {
 				throw new PhalApi_Exception_Error(T('用户名不存在'), 1);// 抛出客户端错误 T标签翻译
@@ -71,7 +76,7 @@ class Api_User extends PhalApi_Api
 				$_SESSION['admin_name'] = $admin['username'];
 				$_SESSION['admin_auth'] = $admin['auth'];
 				DI()->response->setMsg(T('登陆成功'));
-				return;
+				return 'admin';
 			}
 		} else {
 			DI()->view->show('login');
@@ -119,7 +124,7 @@ class Api_User extends PhalApi_Api
 				$_SESSION['user_name'] = $this->username;
 				$_SESSION['user_auth'] = 0;
 				DI()->response->setMsg(T('新增用户成功'));
-				return;
+				return 'admin';
 			} else {
 				throw new PhalApi_Exception_InternalServerError(T('新增用户失败'), 2);// 抛出服务端错误
 			}

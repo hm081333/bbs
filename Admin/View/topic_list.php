@@ -57,7 +57,7 @@
 					<button onclick="unstick_topic(<?php echo $row['id']; ?>)"
 							class="btn-floating waves-effect waves-light"><i class="material-icons">stars</i></button>
 				<?php endif; ?>
-				<button onclick="admin_delete_topic(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light">
+				<button onclick="delete_topic(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light">
 					<i class="material-icons">delete</i></button>
 			</td>
 		</tr>

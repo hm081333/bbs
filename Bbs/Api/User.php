@@ -40,6 +40,11 @@ class Api_User extends PhalApi_Api
 	{
 		if ($this->action == 'post') {
 			$user_model = new Model_User();
+			if (empty($this->username)) {
+				throw new PhalApi_Exception_Error(T('请输入用户名'), 1);// 抛出普通错误 T标签翻译
+			} elseif (empty($this->password)) {
+				throw new PhalApi_Exception_Error(T('请输入密码'), 1);// 抛出普通错误 T标签翻译
+			}
 			$user = $user_model->getInfo(array('username' => $this->username), 'id, username, password, auth');
 			if ($user === false) {
 				throw new PhalApi_Exception_Error(T('用户名不存在'), 1);// 抛出客户端错误 T标签翻译
@@ -51,7 +56,7 @@ class Api_User extends PhalApi_Api
 				$_SESSION['user_name'] = $user['username'];
 				$_SESSION['user_auth'] = $user['auth'];
 				DI()->response->setMsg(T('登陆成功'));
-				return;
+				return 'user';
 			}
 		} else {
 			DI()->view->show('login');
@@ -103,7 +108,7 @@ class Api_User extends PhalApi_Api
 				$_SESSION['user_name'] = $this->username;
 				$_SESSION['user_auth'] = 0;
 				DI()->response->setMsg(T('注册成功'));
-				return;
+				return 'user';
 			} else {
 				throw new PhalApi_Exception_InternalServerError(T('注册失败'), 2);// 抛出服务端错误
 			}
@@ -119,11 +124,18 @@ class Api_User extends PhalApi_Api
 		//清空SESSION
 		session_destroy();*/
 		//仅清除会员相关session
-		unset($_SESSION['user_id']);
-		unset($_SESSION['user_name']);
-		unset($_SESSION['user_auth']);
+		if (isset($_SESSION['user_id'])) {
+			unset($_SESSION['user_id']);
+		}
+		if (isset($_SESSION['user_name'])) {
+			unset($_SESSION['user_name']);
+		}
+		if (isset($_SESSION['user_auth'])) {
+			unset($_SESSION['user_auth']);
+		}
+		DI()->response->setMsg(T('退出登录成功'));
 		//跳转页面
-		header("Location: ./");
+		//header("Location: ./");
 	}
 
 	public function user_Info()

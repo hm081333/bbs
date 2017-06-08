@@ -21,12 +21,11 @@
 						<label for="detail"><?php echo T('正文内容'); ?></label>
 					</p>
 				</div>
-
 				<div class="col s12 center">
-					<button type="submit" name="submit" class="btn waves-effect waves-light"><?php echo T('搜索'); ?></button>
+					<button type="submit" name="submit"
+							class="btn waves-effect waves-light"><?php echo T('搜索'); ?></button>
 					<button type="reset" class="btn waves-effect waves-light"><?php echo T('重新输入'); ?></button>
 				</div>
-
 			</form>
 		</div>
 	</fieldset>

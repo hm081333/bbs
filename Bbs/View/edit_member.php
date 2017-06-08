@@ -7,7 +7,8 @@
 	<br/>
 
 	<table width="100%">
-		<form id="edit_member">
+		<form id="edit_member" method="post" onsubmit="return false;">
+			<input name="service" type="hidden" value="User.edit_Member">
 			<input name="action" type="hidden" value="post">
 			<input name="user_id" type="hidden" value="<?php echo $user['id']; ?>">
 			<tr>
@@ -16,7 +17,8 @@
 			</tr>
 			<tr>
 				<td width="15%"><?php echo T('更新密码:'); ?></td>
-				<td width="85%"><input placeholder="<?php echo T('密码留空，将不被更新'); ?>" name="password" type="password"></td>
+				<td width="85%"><input placeholder="<?php echo T('密码留空，将不被更新'); ?>" name="password" type="password">
+				</td>
 			</tr>
 			<tr>
 				<td><?php echo T('电子邮件:'); ?></td>
@@ -26,35 +28,15 @@
 				<td><?php echo T('真实姓名:'); ?></td>
 				<td><input name="realname" type="text" value="<?php echo $user['realname']; ?>" class="validate"></td>
 			</tr>
+			<tr>
+				<td colspan="2" class="center">
+					<button type="submit" name="submit"
+							class="btn waves-effect waves-light"><?php echo T('更新'); ?></button>
+				</td>
+			</tr>
 		</form>
-		<tr>
-			<td colspan="2" class="center">
-				<button id="submit" class="btn waves-effect waves-light"><?php echo T('更新'); ?></button>
-			</td>
-		</tr>
 	</table>
 
 </fieldset>
-
-<script>
-	$("#submit").click(function () {
-		$.ajax({
-			type: 'POST',
-			url: '?service=User.edit_Member',
-			data: $("#edit_member").serialize(),
-			success: function (d) {
-				if (d.ret == 200) {
-					Materialize.toast(d.msg, 2000, 'rounded', function () {
-						// location.href = './';
-//						history.back();
-						location.reload();
-					});
-				} else {
-					Materialize.toast(d.msg, 2000, 'rounded');
-				}
-			}
-		});
-	});
-</script>
 
 <?php require_once './Public/static/header/footer.php'; ?>

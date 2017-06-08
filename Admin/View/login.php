@@ -6,7 +6,7 @@
 <fieldset>
 	<legend><?php echo T('登录') ?></legend>
 	<div class="row">
-		<form id="Login_in" class="col s12">
+		<form id="Login_in" method="post" onsubmit="return false;" class="col s12">
 			<input name="action" value="post" type="hidden">
 			<input name="service" value="User.login" type="hidden">
 			<div class="col s12">
@@ -30,11 +30,11 @@
 					<p class="msg right"><i class="material-icons">warning</i><?php echo T('请输入密码') ?></p>
 				</div>
 			</div>
-		</form>
 			<div class="col s12 center">
-				<button onclick="login()" class="btn waves-effect waves-light"><?php echo T('登录') ?></button>
-<!--				<button type="reset" class="btn waves-effect waves-light">清空</button>-->
+				<button type="submit" name="submit" class="btn waves-effect waves-light"><?php echo T('登录') ?></button>
+				<button type="reset" class="btn waves-effect waves-light">清空</button>
 			</div>
+		</form>
 </fieldset>
 
 <?php require_once './Public/static/header/footer.php'; ?>

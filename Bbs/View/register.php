@@ -72,8 +72,9 @@
 					</div>
 				</div>
 				<div class="col s12 center">
-					<button type="submit" name="submit" class="btn waves-effect waves-light"><?php echo T('提交注册'); ?></button>
-					<!--				<button type="reset" class="btn waves-effect waves-light">重新输入</button>-->
+					<button type="submit" name="submit"
+							class="btn waves-effect waves-light"><?php echo T('提交注册'); ?></button>
+					<button type="reset" class="btn waves-effect waves-light">重新输入</button>
 				</div>
 			</form>
 	</fieldset>

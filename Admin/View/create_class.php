@@ -5,9 +5,9 @@
 	<fieldset>
 		<legend><?php echo T('添加课程'); ?></legend>
 		<div class="row">
-			<form id="add_Class" class="col s12">
-				<input name="action" value="post" type="hidden">
+			<form id="add_Class" method="post" onsubmit="return false;" class="col s12">
 				<input name="service" value="Class.create_Class" type="hidden">
+				<input name="action" value="post" type="hidden">
 				<div class="col s12">
 					<div class="input-field">
 						<i class="material-icons prefix">label_outline</i>
@@ -23,11 +23,11 @@
 						<label for="tips"><?php echo T('课程说明'); ?></label>
 					</div>
 				</div>
+				<div class="col s12 center">
+					<button type="submit" name="submit"
+							class="btn waves-effect waves-light"><?php echo T('添加课程'); ?></button>
+				</div>
 			</form>
-			<div class="col s12 center">
-				<button onclick="create_Class()" class="btn waves-effect waves-light"><?php echo T('添加课程'); ?></button>
-			</div>
-
 	</fieldset>
 
 <?php require_once './Public/static/header/footer.php'; ?>

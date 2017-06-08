@@ -3,9 +3,9 @@
 <fieldset>
 	<legend><?php echo T('新帖子'); ?></legend>
 	<div class="row">
-		<form id="Create_Topic" enctype="multipart/form-data" class="col s12">
-			<input name="action" value="post" type="hidden">
+		<form id="Create_Topic" enctype="multipart/form-data" method="post" onsubmit="return false;" class="col s12">
 			<input name="service" value="Topic.create_Topic" type="hidden">
+			<input name="action" value="post" type="hidden">
 			<div class="input-field col s12">
 				<input name="topic" type="text" id="topic" class="validate" length="100">
 				<label for="topic"><?php echo T('标题'); ?></label>
@@ -56,14 +56,11 @@
 				</div>
 			</div>
 			<br/>
-
+			<div class="col s12 center">
+				<button type="submit" name="submit" class="btn waves-effect waves-light">立即发布</button>
+				<button type="reset" name="reset" class="btn waves-effect waves-light">重新输入</button>
+			</div>
 		</form>
-		<div class="col s12 center">
-			<button id="submit" class="btn waves-effect waves-light">立即发布</button>
-			<!--				<button type="reset" name="reset" class="btn waves-effect waves-light">重新输入</button>-->
-		</div>
-
-
 	</div>
 </fieldset>
 
@@ -79,23 +76,5 @@
 			sticky = 0;
 		}
 		$('input[name="sticky"]').attr('value', sticky);
-	});
-	$("#submit").click(function () {
-		$.ajax({
-			type: 'POST',
-			data: new FormData($('#Create_Topic')[0]),
-			processData: false,
-			contentType: false,
-			success: function (d) {
-				if (d.ret == 200) {
-					Materialize.toast(d.msg, 2000, 'rounded', function () {
-						// location.href='./';
-						history.back();
-					});
-				} else {
-					Materialize.toast(d.msg, 2000, 'rounded');
-				}
-			}
-		});
 	});
 </script>

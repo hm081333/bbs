@@ -131,7 +131,7 @@ class Api_Topic extends PhalApi_Api
 		$rs = $topic_model->delete($this->topic_id);
 		if ($rs) {
 			DI()->response->setMsg(T('删除成功'));
-			return;
+			return 'user';
 		} else {
 			throw new PhalApi_Exception_InternalServerError(T('删除失败'), 2);// 抛出服务端错误
 		}
