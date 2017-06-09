@@ -23,6 +23,10 @@ class Api_Public extends PhalApi_Api
 				'keyword' => array('name' => 'keyword', 'type' => 'string', 'require' => false, 'desc' => '搜索关键字'),
 				'term' => array('name' => 'term', 'type' => 'string', 'require' => false, 'desc' => '搜索类型'),
 			),
+			'verify_Google_Auth_Code' => array(
+				'secret' => array('name' => 'secret', 'type' => 'string', 'require' => true, 'desc' => '密钥'),
+				'oneCode' => array('name' => 'code', 'type' => 'string', 'require' => true, 'desc' => '验证码'),
+			),
 		);
 	}
 
@@ -71,6 +75,16 @@ class Api_Public extends PhalApi_Api
 			var_dump($this);
 		} else {
 			DI()->view->show('search');
+		}
+	}
+
+	public function verify_Google_Auth_Code()
+	{
+		$checkResult = Domain_Common::verify_Google_Auth_Code($this->secret, $this->oneCode);
+		if ($checkResult) {
+			DI()->response->setMsg(T('验证成功，请提交个人资料！'));
+		} else {
+			throw new PhalApi_Exception_Error(T('验证失败'), 1);// 抛出客户端错误 T标签翻译*/
 		}
 	}
 

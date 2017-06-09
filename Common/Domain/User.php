@@ -24,7 +24,7 @@ class Domain_User {
 		return $rs;
 	}
 
-	public function edit_Member($user_id, $password, $email, $realname, $auth = false, $admin = false) {
+	public function edit_Member($user_id, $password, $email, $realname, $auth = false, $admin = false, $secret = false, $check = false) {
 		$user_model = new Model_User();
 		$update_data = array();
 		$update_data['email'] = $email;
@@ -34,6 +34,9 @@ class Domain_User {
 		}
 		if ($admin && isset($auth)) {
 			$update_data['auth'] = $auth;
+		}
+		if ($check == 1) {
+			$update_data['secret'] = $secret;
 		}
 		$rs = $user_model->update($user_id, $update_data);
 		if ($rs === false) {

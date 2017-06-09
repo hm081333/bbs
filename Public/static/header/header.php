@@ -39,7 +39,7 @@
 		<?php if (isset($_SESSION["user_name"])) : ?>
 			<!-- 用户登录后 -->
 			<li>
-				<a href="?service=User.edit_Member&user_id=<?php echo $_SESSION['user_id']; ?>"><?php echo $_SESSION['user_name']; ?></a>
+				<a href="?service=User.edit_Member"><?php echo $_SESSION['user_name']; ?></a>
 			</li>
 			<li class="divider"></li>
 			<li><a onclick="logoff()"><?php echo T('退出登录'); ?></a></li>

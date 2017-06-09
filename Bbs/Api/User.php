@@ -32,6 +32,8 @@ class Api_User extends PhalApi_Api
 				'password' => array('name' => 'password', 'type' => 'string', 'require' => false, 'desc' => '用户密码'),
 				'email' => array('name' => 'email', 'type' => 'string', 'require' => false, 'desc' => '用户邮箱'),
 				'realname' => array('name' => 'realname', 'type' => 'string', 'require' => false, 'desc' => '用户姓名'),
+				'secret' => array('name' => 'secret', 'type' => 'string', 'require' => false, 'desc' => '谷歌身份验证器密钥'),
+				'check' => array('name' => 'check', 'type' => 'string', 'require' => false, 'desc' => '身份验证器验证成功'),
 			),
 		);
 	}
@@ -150,13 +152,17 @@ class Api_User extends PhalApi_Api
 	{
 		if ($this->action == 'post') {
 			$user_domain = new Domain_User();
-			$rs = $user_domain->edit_Member($this->user_id, $this->password, $this->email, $this->realname);
+			$rs = $user_domain->edit_Member($this->user_id, $this->password, $this->email, $this->realname, false, false, $this->secret, $this->check);
 			DI()->response->setMsg(T('修改成功'));
 			return;
 		} else {
 			$user_domain = new Domain_User();
-			$user = $user_domain->userInfo($this->user_id);
-			DI()->view->assign(array('user' => $user['info']));
+			$user = $user_domain->userInfo($_SESSION['user_id']);
+			//密钥
+			$secret = Domain_Common::create_Google_Auth();
+			//二维码
+			$qrCodeUrl = Domain_Common::get_Google_Auth_Url($secret);
+			DI()->view->assign(array('user' => $user['info'], 'secret' => $secret, 'qrCodeUrl' => $qrCodeUrl));
 			DI()->view->show('edit_member');
 		}
 	}

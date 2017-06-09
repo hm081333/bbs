@@ -270,6 +270,25 @@ function set_language(language) {
 	});
 };
 
+function check_google_auth(language) {
+	var code = $('input[name="code"]').val();
+	var secret = $('input[name="secret"]').val();
+	$.ajax({
+		type: 'POST',
+		data: {service: 'Public.verify_Google_Auth_Code', code: code, secret: secret},
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					$('input[name="check"]').attr('value', 1);
+					$('#google_Auth').modal('close');
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+};
+
 $('#Register').submit(function ()//提交表单
 {
 	$.ajax({
