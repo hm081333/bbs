@@ -8,7 +8,7 @@ def show_res(response)
 end
 
 a_client = PhalApi::Client.create.withHost('http://demo.phalapi.net')
-a_response = a_client.withService('Default.Index').withParams('username', 'dogstar').withTimeout(3000).request()
+a_response = a_client.withService('Default.Index').withParams('user_name', 'dogstar').withTimeout(3000).request()
 
 puts a_response.ret, a_response.data, a_response.msg
 
@@ -17,7 +17,7 @@ puts "--------------------"
 a_client = PhalApi::Client.create
 #a_client = PhalApi::Client.new
 
-a_response = a_client.withHost('http://demo.phalapi.net').withService('Default.Index').withParams('username', 'dogstar').withParams('v', '1.3.0').request()
+a_response = a_client.withHost('http://demo.phalapi.net').withService('Default.Index').withParams('user_name', 'dogstar').withParams('v', '1.3.0').request()
 
 puts "--------------------"
 
@@ -34,7 +34,7 @@ end
 
 puts "--------------------"
 
-a_response = a_client.reset.withFilter(MyFilter.new).withService('Default.Index').withParams('username', 'dogstar').request
+a_response = a_client.reset.withFilter(MyFilter.new).withService('Default.Index').withParams('user_name', 'dogstar').request
 show_res a_response
 
 puts "--------------------"

@@ -36,7 +36,7 @@ class PhpUnderControl_TaskMQMemcached_Test extends PHPUnit_Framework_TestCase
     {
         $service = 'Task_MQ_Memcached_Default.Index';
         $params = array (
-            'username' => 'dogstar',
+            'user_name' => 'dogstar',
         );
 
         $rs = $this->taskMQMemcached->add($service, $params);

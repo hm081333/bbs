@@ -35,8 +35,8 @@ class PhpUnderControl_TaskRunnerRemote_Test extends PHPUnit_Framework_TestCase
     public function testHere()
     {
         $service1 = 'Default.Index';
-        $this->mq->add($service1, array('username' => 'phalapi'));
-        $this->mq->add($service1, array('username' => 'net'));
+        $this->mq->add($service1, array('user_name' => 'phalapi'));
+        $this->mq->add($service1, array('user_name' => 'net'));
 
         $service2 = 'WrongUser.GetBaseInfo';
         $this->mq->add($service2, array('userId' => 1));

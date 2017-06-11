@@ -15,7 +15,7 @@
 		<?php foreach ($rows as $key => $row) : ?>
 			<tr>
 				<td>
-					<?php echo $row['username']; ?>
+					<?php echo $row['user_name']; ?>
 				</td>
 				<td>
 					<p>

@@ -14,7 +14,7 @@
  *  $rs = $curl->get('http://phalapi.oschina.mopaas.com/Public/demo/?service=Default.Index');
  *
  *  // POST
- *  $data = array('username' => 'dogstar');
+ *  $data = array('user_name' => 'dogstar');
  *  $rs = $curl->post('http://phalapi.oschina.mopaas.com/Public/demo/?service=Default.Index', $data);
 ```
  *

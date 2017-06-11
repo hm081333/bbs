@@ -76,14 +76,14 @@ class Api_Topic extends PhalApi_Api
 				}
 			}
 			$user_model = new Model_User();
-			$user = $user_model->get($_SESSION['user_id'], 'email, username');
+			$user = $user_model->get($_SESSION['user_id'], 'email, user_name');
 			$topic_model = new Model_Topic();
 			$insert_data = array();
 			$insert_data['class_id'] = $this->class_id;
 			$insert_data['topic'] = $this->topic;
 			$insert_data['detail'] = $this->detail;
 			$insert_data['pics'] = $reback;
-			$insert_data['name'] = $user['username'];
+			$insert_data['name'] = $user['user_name'];
 			$insert_data['email'] = $user['email'];
 			$insert_data['datetime'] = new NotORM_Literal("NOW()");
 			$insert_data['sticky'] = $this->sticky;

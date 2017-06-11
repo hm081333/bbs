@@ -21,7 +21,7 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `forum_admin`;
 CREATE TABLE `forum_admin` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) NOT NULL,
+  `user_name` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `auth` int(1) NOT NULL,
   PRIMARY KEY (`id`)
@@ -164,10 +164,10 @@ INSERT INTO `forum_topic` VALUES ('112', '1', 'phalapi.版尝试手机上传图�
 DROP TABLE IF EXISTS `forum_user`;
 CREATE TABLE `forum_user` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `username` varchar(32) NOT NULL,
+  `user_name` varchar(32) NOT NULL,
   `password` varchar(255) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `realname` varchar(50) NOT NULL,
+  `real_name` varchar(50) NOT NULL,
   `auth` int(1) NOT NULL DEFAULT '0',
   `regdate` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`)

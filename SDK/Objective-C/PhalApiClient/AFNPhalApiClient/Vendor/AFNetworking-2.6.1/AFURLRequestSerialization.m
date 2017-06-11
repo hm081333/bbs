@@ -345,10 +345,10 @@ forHTTPHeaderField:(NSString *)field
     return [self.mutableHTTPRequestHeaders valueForKey:field];
 }
 
-- (void)setAuthorizationHeaderFieldWithUsername:(NSString *)username
+- (void)setAuthorizationHeaderFieldWithuser_name:(NSString *)user_name
                                        password:(NSString *)password
 {
-	NSString *basicAuthCredentials = [NSString stringWithFormat:@"%@:%@", username, password];
+	NSString *basicAuthCredentials = [NSString stringWithFormat:@"%@:%@", user_name, password];
     [self setValue:[NSString stringWithFormat:@"Basic %@", AFBase64EncodedStringFromString(basicAuthCredentials)] forHTTPHeaderField:@"Authorization"];
 }
 

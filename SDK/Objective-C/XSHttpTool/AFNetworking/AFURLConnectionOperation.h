@@ -158,7 +158,7 @@
 /**
  The credential used for authentication challenges in `-connection:didReceiveAuthenticationChallenge:`.
 
- This will be overridden by any shared credentials that exist for the username or password of the request URL, if present.
+ This will be overridden by any shared credentials that exist for the user_name or password of the request URL, if present.
  */
 @property (nonatomic, strong) NSURLCredential *credential;
 

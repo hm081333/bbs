@@ -1,8 +1,6 @@
-<?php
-require_once './Public/static/header/header.php';
-?>
-<script src="./Public/static/js/login.js"></script>
-<h3 class="center"><?php echo T('用户'); ?></h3>
+<?php require_once './Public/static/header/header.php'; ?>
+<!--<script src="./Public/static/js/login.js"></script>-->
+<h3 class="center"><?php echo T('用户登录'); ?></h3>
 
 <fieldset>
 	<legend><?php echo T('登录'); ?></legend>
@@ -13,14 +11,13 @@ require_once './Public/static/header/header.php';
 			<div class="col s12">
 				<div class="input-field">
 					<i class="material-icons prefix">account_box</i>
-					<input id="username" name="username" type="text">
-					<label for="username"><?php echo T('用户名'); ?></label>
+					<input id="user_name" name="user_name" type="text">
+					<label for="user_name"><?php echo T('用户名'); ?></label>
 				</div>
 				<div>
 					<p class="msg right"><i class="material-icons">warning</i><?php echo T('请输入用户名'); ?></p>
 				</div>
 			</div>
-
 			<div class="col s12">
 				<div class="input-field">
 					<i class="material-icons prefix">vpn_key</i>
@@ -36,9 +33,23 @@ require_once './Public/static/header/header.php';
 				<button type="reset" class="btn waves-effect waves-light">清空</button>
 			</div>
 		</form>
+		<div class="col s12 center">
+			<!--<button onclick="location.href='?service=User.google_auth_login'" class="btn waves-effect waves-light">--><?php //echo T('忘记密码') ?><!--</button>-->
+			<a class="btn waves-effect waves-light" href="#find_password">找回密码</a>
+		</div>
 </fieldset>
 
-<?php
-//公用尾部页面
-require_once './Public/static/header/footer.php';
-?>
+<!-- Modal Structure -->
+<div id="find_password" class="modal center">
+	<div class="modal-content">
+		<h4>找回密码</h4>
+		<p>找回途径</p>
+	</div>
+	<div class="modal-footer">
+		<a onclick="location.href='?service=User.forget&type=0'" style="float: none !important;" class="modal-action modal-close btn waves-effect waves-light">谷歌身份验证器</a>
+		<!--<a onclick="location.href='?service=User.forget&type=1'" style="float: none !important;" class="modal-action modal-close btn waves-effect waves-light">手机短信找回</a>-->
+		<!--<a onclick="location.href='?service=User.forget&type=2'" style="float: none !important;" class="modal-action modal-close btn waves-effect waves-light">邮件找回</a>-->
+	</div>
+</div>
+
+<?php require_once './Public/static/header/footer.php'; ?>

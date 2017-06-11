@@ -12,8 +12,8 @@
 			<div class="col s12">
 				<div class="input-field">
 					<i class="material-icons prefix">account_box</i>
-					<input id="username" name="username" type="text" class="validate">
-					<label for="username"><?php echo T('用户名'); ?></label>
+					<input id="user_name" name="user_name" type="text" class="validate">
+					<label for="user_name"><?php echo T('用户名'); ?></label>
 				</div>
 			</div>
 

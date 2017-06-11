@@ -36,7 +36,7 @@ class PhpUnderControl_TaskMQFile_Test extends PHPUnit_Framework_TestCase
     {
         $service = 'Task_MQ_File_Default.Index';
         $params = array (
-            'username' => 'dogstar',
+            'user_name' => 'dogstar',
         );
 
         $rs = $this->taskMQFile->add($service, $params);

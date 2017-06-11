@@ -8,11 +8,11 @@
 	<table width="100%">
 		<tr>
 			<td width="30%"><?php echo T('会员：') ?></td>
-			<td width="70%"><b><?php echo $user['info']['username']; ?></b></td>
+			<td width="70%"><b><?php echo $user['info']['user_name']; ?></b></td>
 		</tr>
 		<tr>
 			<td width="30%"><?php echo T('真实姓名：') ?></td>
-			<td width="70%"><?php echo $user['info']['realname']; ?></td>
+			<td width="70%"><?php echo $user['info']['real_name']; ?></td>
 		</tr>
 		<tr>
 			<td><?php echo T('电子邮件：') ?></td>

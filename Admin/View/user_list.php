@@ -18,7 +18,7 @@
 		<?php foreach ($rows as $key => $row) : ?>
 				<tr>
 					<td>
-						<?php echo $row['username']; ?>
+						<?php echo $row['user_name']; ?>
 					</td>
 					<td>
 						<p>
@@ -30,7 +30,7 @@
 						<input id="email<?php echo $row['id']; ?>" name="email<?php echo $row['id']; ?>" type="text" value="<?php echo $row['email']; ?>">
 					</td>
 					<td>
-						<input id="realname<?php echo $row['id']; ?>" name="realname<?php echo $row['id']; ?>" type="text" value="<?php echo $row['realname']; ?>">
+						<input id="real_name<?php echo $row['id']; ?>" name="real_name<?php echo $row['id']; ?>" type="text" value="<?php echo $row['real_name']; ?>">
 					</td>
 					<td>
 						<input id="password<?php echo $row['id']; ?>" placeholder="密码留空，将不被更新" name="password<?php echo $row['id']; ?>" type="password">

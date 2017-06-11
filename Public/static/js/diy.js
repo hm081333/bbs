@@ -129,12 +129,12 @@ function update_user(user_id) {
 		auth = 0;
 	}
 	var email = $('#email' + user_id).val();
-	var realname = $('#realname' + user_id).val();
+	var real_name = $('#real_name' + user_id).val();
 	var password = $('#password' + user_id).val();
 	$.ajax({
 		type: 'POST',
 		data: {
-			service: 'User.edit_Member', action: 'post', user_id: user_id, auth: auth, email: email, realname: realname,
+			service: 'User.edit_Member', action: 'post', user_id: user_id, auth: auth, email: email, real_name: real_name,
 			password: password
 		},
 		success: function (d) {
@@ -323,6 +323,25 @@ $('#Login_in').submit(function ()//提交表单
 					} else {
 						history.back();
 					}
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+});
+
+// 谷歌身份认证登录
+$('#forget').submit(function ()//提交表单
+{
+	$.ajax({
+		type: 'POST',
+		data: $("#forget").serialize(),
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					history.back();
+					// location.href='?service=User.login';
 				});
 			} else {
 				Materialize.toast(d.msg, 2000, 'rounded');

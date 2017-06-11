@@ -51,7 +51,7 @@ class PhpUnderControl_PhalApiCUrl_Test extends PHPUnit_Framework_TestCase
     public function testPost()
     {
         $url = 'http://demo.phalapi.net/';
-        $data = array('username' => 'phalapi');
+        $data = array('user_name' => 'phalapi');
         $timeoutMs = 1000;
 
         $rs = $this->phalApiCUrl->post($url, $data, $timeoutMs);

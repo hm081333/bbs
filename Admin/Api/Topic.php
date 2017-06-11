@@ -79,7 +79,7 @@ class Api_Topic extends PhalApi_Api
 				}
 			}
 			//$user_model = new Model_User();
-			//$user = $user_model->get($_SESSION['user_id'], 'email, username');
+			//$user = $user_model->get($_SESSION['user_id'], 'email, user_name');
 			$topic_model = new Model_Topic();
 			$insert_data = array();
 			$insert_data['class_id'] = $this->class_id;

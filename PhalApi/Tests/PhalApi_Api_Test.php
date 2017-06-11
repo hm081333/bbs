@@ -60,8 +60,8 @@ class PhpUnderControl_PhalApiApi_Test extends PHPUnit_Framework_TestCase
 
     public function testSetterAndGetter()
     {
-        $this->coreApi->username = 'phalapi';
-        $this->assertEquals('phalapi', $this->coreApi->username);
+        $this->coreApi->user_name = 'phalapi';
+        $this->assertEquals('phalapi', $this->coreApi->user_name);
     }
 
     /**

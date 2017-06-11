@@ -24,11 +24,11 @@ class Domain_User {
 		return $rs;
 	}
 
-	public function edit_Member($user_id, $password, $email, $realname, $auth = false, $admin = false, $secret = false, $check = false) {
+	public function edit_Member($user_id, $password, $email, $real_name, $auth = false, $admin = false, $secret = false, $check = false) {
 		$user_model = new Model_User();
 		$update_data = array();
 		$update_data['email'] = $email;
-		$update_data['realname'] = $realname;
+		$update_data['real_name'] = $real_name;
 		if (!empty($password)) {
 			$update_data['password'] = Domain_Common::hash($password);
 		}

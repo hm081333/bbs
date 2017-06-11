@@ -12,7 +12,7 @@ require 'json'
 # a_response = PhalApi::Client.create \
 #   .withHost('http://demo.phalapi.net') \
 #   .withService('Default.Index') \
-#   .withParams('username', 'dogstar') \
+#   .withParams('user_name', 'dogstar') \
 #   .withTimeout(3000) \
 #   .request
 #

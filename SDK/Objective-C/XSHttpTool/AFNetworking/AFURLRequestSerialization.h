@@ -149,12 +149,12 @@ forHTTPHeaderField:(NSString *)field;
 - (NSString *)valueForHTTPHeaderField:(NSString *)field;
 
 /**
- Sets the "Authorization" HTTP header set in request objects made by the HTTP client to a basic authentication value with Base64-encoded username and password. This overwrites any existing value for this header.
+ Sets the "Authorization" HTTP header set in request objects made by the HTTP client to a basic authentication value with Base64-encoded user_name and password. This overwrites any existing value for this header.
 
- @param username The HTTP basic auth username
+ @param user_name The HTTP basic auth user_name
  @param password The HTTP basic auth password
  */
-- (void)setAuthorizationHeaderFieldWithUsername:(NSString *)username
+- (void)setAuthorizationHeaderFieldWithuser_name:(NSString *)user_name
                                        password:(NSString *)password;
 
 /**

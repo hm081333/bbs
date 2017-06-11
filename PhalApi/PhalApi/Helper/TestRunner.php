@@ -6,7 +6,7 @@
 ```
  * public function testWhatever() {
  *		//Step 1. 构建请求URL
- *		$url = 'service=Default.Index&username=dogstar';
+ *		$url = 'service=Default.Index&user_name=dogstar';
  *		
  *		//Step 2. 执行请求	
  *		$rs = PhalApi_Helper_TestRunner::go($url);

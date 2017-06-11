@@ -25,7 +25,7 @@ class Domain_Reply {
 		$reply_data['topic_id'] = $topic_id;
 		$reply_data['reply_id'] = $reply_id;
 		$reply_data['user_id'] = $user['id'];
-		$reply_data['reply_name'] = $user['username'];
+		$reply_data['reply_name'] = $user['user_name'];
 		$reply_data['reply_email'] = $user['email'];
 		$reply_data['reply_detail'] = $reply_detail;
 		$reply_data['reply_pics'] = $reback;

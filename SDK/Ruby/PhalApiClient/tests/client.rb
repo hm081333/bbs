@@ -46,12 +46,12 @@ class ClientTest < Test::Unit::TestCase
     end
 
     def test_with_more_params
-        @a_client.withParams('username', 'dogstar')
+        @a_client.withParams('user_name', 'dogstar')
         @a_client.withParams('version', '1.3.0')
         @a_client.withParams('age', 100)
 
         params = @a_client.params
-        assert_equal 'dogstar', params['username']
+        assert_equal 'dogstar', params['user_name']
         assert_equal 100, params['age']
     end
 
@@ -67,11 +67,11 @@ class ClientTest < Test::Unit::TestCase
         @a_client.reset
         assert_equal '', @a_client.service
 
-        @a_client.withService('Default.Index').withParams('username', 'dogstar')
+        @a_client.withService('Default.Index').withParams('user_name', 'dogstar')
         assert_equal 'Default.Index', @a_client.service
 
         params = @a_client.params
-        assert_equal 'dogstar', params['username']
+        assert_equal 'dogstar', params['user_name']
         assert_equal nil, params['id']
     end
 
@@ -83,7 +83,7 @@ class ClientTest < Test::Unit::TestCase
     end
 
     def test_normal_request
-        a_response = @a_client.withHost('http://demo.phalapi.net').withService('Default.Index').withParams('username', 'dogstar').withParams('v', '1.3.0').request
+        a_response = @a_client.withHost('http://demo.phalapi.net').withService('Default.Index').withParams('user_name', 'dogstar').withParams('v', '1.3.0').request
 
         assert_equal 200, a_response.ret
         assert_not_nil a_response.data

@@ -56,7 +56,7 @@ NSString *URLStr = @"http://www.xsdota.com/PhalApi/Public/demo/?service=User.App
 ##POST请求
 ###普通的POST请求
 ```javascript
-	NSDictionary *params = @{@"userName" : @"xiaos",
+	NSDictionary *params = @{@"user_name" : @"xiaos",
                              @"password" : @"111111" };
                              
     [XSHttpTool POST:@"User.TimeLines" param:params success:^(id responseObject) {

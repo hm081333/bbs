@@ -12,15 +12,22 @@ class Api_User extends PhalApi_Api
 			'logoff' => array(),
 			'login' => array(
 				'action' => array('name' => 'action', 'type' => 'string', 'default' => 'view', 'require' => true, 'desc' => '操作'),
-				'username' => array('name' => 'username', 'type' => 'string', 'require' => false, 'desc' => '用户名'),
+				'user_name' => array('name' => 'user_name', 'type' => 'string', 'require' => false, 'desc' => '用户名'),
 				'password' => array('name' => 'password', 'type' => 'string', 'require' => false, 'desc' => '用户密码'),
+			),
+			'forget' => array(
+				'action' => array('name' => 'action', 'type' => 'string', 'default' => 'view', 'require' => true, 'desc' => '操作'),
+				'type' => array('name' => 'type', 'type' => 'int', 'require' => true, 'desc' => '操作方式'),
+				'user_name' => array('name' => 'user_name', 'type' => 'string', 'require' => false, 'desc' => '用户名'),
+				'code' => array('name' => 'code', 'type' => 'string', 'require' => false, 'desc' => '验证码'),
+				'password' => array('name' => 'password', 'type' => 'string', 'require' => false, 'desc' => '新密码'),
 			),
 			'register' => array(
 				'action' => array('name' => 'action', 'type' => 'string', 'default' => 'view', 'require' => true, 'desc' => '操作'),
-				'username' => array('name' => 'username', 'type' => 'string', 'require' => false, 'desc' => '用户名'),
+				'user_name' => array('name' => 'user_name', 'type' => 'string', 'require' => false, 'desc' => '用户名'),
 				'password' => array('name' => 'password', 'type' => 'string', 'require' => false, 'desc' => '用户密码'),
 				'email' => array('name' => 'email', 'type' => 'string', 'require' => false, 'desc' => '用户邮箱'),
-				'realname' => array('name' => 'realname', 'type' => 'string', 'require' => false, 'desc' => '用户姓名'),
+				'real_name' => array('name' => 'real_name', 'type' => 'string', 'require' => false, 'desc' => '用户姓名'),
 				'birthdate' => array('name' => 'birthdate', 'type' => 'string', 'require' => false, 'desc' => '用户生日'),
 			),
 			'user_Info' => array(
@@ -31,7 +38,7 @@ class Api_User extends PhalApi_Api
 				'user_id' => array('name' => 'user_id', 'type' => 'int', 'require' => false, 'desc' => '用户ID'),
 				'password' => array('name' => 'password', 'type' => 'string', 'require' => false, 'desc' => '用户密码'),
 				'email' => array('name' => 'email', 'type' => 'string', 'require' => false, 'desc' => '用户邮箱'),
-				'realname' => array('name' => 'realname', 'type' => 'string', 'require' => false, 'desc' => '用户姓名'),
+				'real_name' => array('name' => 'real_name', 'type' => 'string', 'require' => false, 'desc' => '用户姓名'),
 				'secret' => array('name' => 'secret', 'type' => 'string', 'require' => false, 'desc' => '谷歌身份验证器密钥'),
 				'check' => array('name' => 'check', 'type' => 'string', 'require' => false, 'desc' => '身份验证器验证成功'),
 			),
@@ -42,12 +49,12 @@ class Api_User extends PhalApi_Api
 	{
 		if ($this->action == 'post') {
 			$user_model = new Model_User();
-			if (empty($this->username)) {
+			if (empty($this->user_name)) {
 				throw new PhalApi_Exception_Error(T('请输入用户名'), 1);// 抛出普通错误 T标签翻译
 			} elseif (empty($this->password)) {
 				throw new PhalApi_Exception_Error(T('请输入密码'), 1);// 抛出普通错误 T标签翻译
 			}
-			$user = $user_model->getInfo(array('username' => $this->username), 'id, username, password, auth');
+			$user = $user_model->getInfo(array('user_name' => $this->user_name), 'id, user_name, password, auth');
 			if ($user === false) {
 				throw new PhalApi_Exception_Error(T('用户名不存在'), 1);// 抛出客户端错误 T标签翻译
 			} elseif (!Domain_Common::verify($this->password, $user['password'])) {
@@ -55,7 +62,7 @@ class Api_User extends PhalApi_Api
 			} else {
 				//将用户名存如SESSION中
 				$_SESSION['user_id'] = $user['id'];
-				$_SESSION['user_name'] = $user['username'];
+				$_SESSION['user_name'] = $user['user_name'];
 				$_SESSION['user_auth'] = $user['auth'];
 				DI()->response->setMsg(T('登陆成功'));
 				return 'user';
@@ -65,23 +72,83 @@ class Api_User extends PhalApi_Api
 		}
 	}
 
+	public function forget()
+	{
+		if ($this->action == 'post') {
+			$user_model = new Model_User();
+			if (empty($this->user_name)) {
+				throw new PhalApi_Exception_Error(T('请输入用户名'), 1);// 抛出普通错误 T标签翻译
+			}
+			if ($this->type == 0) {
+				if (empty($this->code)) {
+					throw new PhalApi_Exception_Error(T('请输入验证码'), 1);// 抛出普通错误 T标签翻译
+				}
+				$user = $user_model->getInfo(array('user_name' => $this->user_name), 'id, user_name, auth, secret');
+				if ($user === false) {
+					throw new PhalApi_Exception_Error(T('用户名不存在'), 1);// 抛出客户端错误 T标签翻译
+				} elseif (!Domain_Common::verify_Google_Auth_Code($user['secret'], $this->code)) {
+					throw new PhalApi_Exception_Error(T('验证码错误'), 1);// 抛出客户端错误 T标签翻译
+				} elseif (Domain_Common::verify_Google_Auth_Code($user['secret'], $this->code)) {
+					$change_password = $user_model->update($user['id'], array('password' => Domain_Common::hash($this->password)));
+					if ($change_password == false) {
+						throw new PhalApi_Exception_InternalServerError(T('密码修改失败'));
+					}
+				}
+			} elseif ($this->type == 1) {
+				if (empty($this->code)) {
+					throw new PhalApi_Exception_Error(T('请输入验证码'), 1);// 抛出普通错误 T标签翻译
+				}
+				$user = $user_model->getInfo(array('user_name' => $this->user_name), 'id, user_name, auth, secret');
+				if ($user === false) {
+					throw new PhalApi_Exception_Error(T('用户名不存在'), 1);// 抛出客户端错误 T标签翻译
+				} elseif (!Domain_Common::verify_Google_Auth_Code($user['secret'], $this->code)) {
+					throw new PhalApi_Exception_Error(T('验证码错误'), 1);// 抛出客户端错误 T标签翻译
+				} elseif (Domain_Common::verify_Google_Auth_Code($user['secret'], $this->code)) {
+					$change_password = $user_model->update($user['id'], array('password' => Domain_Common::hash($this->password)));
+					if ($change_password == false) {
+						throw new PhalApi_Exception_InternalServerError(T('密码修改失败'));
+					}
+				}
+			} elseif ($this->type == 2) {
+				if (empty($this->code)) {
+					throw new PhalApi_Exception_Error(T('请输入验证码'), 1);// 抛出普通错误 T标签翻译
+				}
+				$user = $user_model->getInfo(array('user_name' => $this->user_name), 'id, user_name, auth, secret');
+				if ($user === false) {
+					throw new PhalApi_Exception_Error(T('用户名不存在'), 1);// 抛出客户端错误 T标签翻译
+				} elseif (!Domain_Common::verify_Google_Auth_Code($user['secret'], $this->code)) {
+					throw new PhalApi_Exception_Error(T('验证码错误'), 1);// 抛出客户端错误 T标签翻译
+				} elseif (Domain_Common::verify_Google_Auth_Code($user['secret'], $this->code)) {
+					$change_password = $user_model->update($user['id'], array('password' => Domain_Common::hash($this->password)));
+					if ($change_password == false) {
+						throw new PhalApi_Exception_InternalServerError(T('密码修改失败'));
+					}
+				}
+			}
+			DI()->response->setMsg(T('修改密码成功'));
+		} else {
+			DI()->view->assign(array('type' => $this->type));
+			DI()->view->show('forget');
+		}
+	}
+
 	public function register()
 	{
 		if ($this->action == 'post') {
 			$user_model = new Model_User();
-			if (empty($this->username)) {
+			if (empty($this->user_name)) {
 				throw new PhalApi_Exception_Error(T('请输入用户名'), 1);// 抛出普通错误 T标签翻译
 			} elseif (empty($this->password)) {
 				throw new PhalApi_Exception_Error(T('请输入密码'), 1);// 抛出普通错误 T标签翻译
 			} elseif (empty($this->email)) {
 				throw new PhalApi_Exception_Error(T('请输入邮箱'), 1);// 抛出普通错误 T标签翻译
-			} elseif (empty($this->realname)) {
+			} elseif (empty($this->real_name)) {
 				throw new PhalApi_Exception_Error(T('请输入姓名'), 1);// 抛出普通错误 T标签翻译
 			} elseif (empty($this->birthdate)) {
 				throw new PhalApi_Exception_Error(T('请选择生日'), 1);// 抛出普通错误 T标签翻译
 			}
 
-			$user = $user_model->getInfo(array('username' => $this->username), 'id');
+			$user = $user_model->getInfo(array('user_name' => $this->user_name), 'id');
 			if ($user !== false) {
 				throw new PhalApi_Exception_Error(T('用户名已注册'), 1);// 抛出普通错误 T标签翻译
 			} elseif (strlen($this->password) < 6) {
@@ -96,18 +163,18 @@ class Api_User extends PhalApi_Api
 			$birth_time = strtotime($this->birthdate);
 			$user_model = new Model_User();
 			$insert_data = array();
-			$insert_data['username'] = $this->username;
+			$insert_data['user_name'] = $this->user_name;
 			$insert_data['password'] = Domain_Common::hash($this->password);
 			$insert_data['email'] = $this->email;
-			$insert_data['realname'] = $this->realname;
-			$insert_data['regdate'] = new NotORM_Literal("NOW()");
+			$insert_data['real_name'] = $this->real_name;
+			//$insert_data['regdate'] = new NotORM_Literal("NOW()");
 			$insert_data['reg_time'] = NOW_TIME;
 			$insert_data['birth_time'] = $birth_time;
 			$rs = $user_model->insert($insert_data);
 			unset($insert_data);
 			if ($rs) {
 				$_SESSION['user_id'] = $rs;
-				$_SESSION['user_name'] = $this->username;
+				$_SESSION['user_name'] = $this->user_name;
 				$_SESSION['user_auth'] = 0;
 				DI()->response->setMsg(T('注册成功'));
 				return 'user';
@@ -152,7 +219,7 @@ class Api_User extends PhalApi_Api
 	{
 		if ($this->action == 'post') {
 			$user_domain = new Domain_User();
-			$rs = $user_domain->edit_Member($this->user_id, $this->password, $this->email, $this->realname, false, false, $this->secret, $this->check);
+			$rs = $user_domain->edit_Member($this->user_id, $this->password, $this->email, $this->real_name, false, false, $this->secret, $this->check);
 			DI()->response->setMsg(T('修改成功'));
 			return;
 		} else {

@@ -7,7 +7,7 @@ $client = PhalApiClient::create()
 
 $rs = $client->reset()
     ->withService('Default.Index')
-    ->withParams('username', 'dogstar')
+    ->withParams('user_name', 'dogstar')
     ->withTimeout(3000)
     ->request();
 

@@ -25,7 +25,7 @@ return array (
   '暂时没有友情链接' => 'There is no link yet',
   '联系我' => 'contact me',
   '注册' => 'registered',
-  '用户名' => 'username',
+  '用户名' => 'user_name',
   '请输入6-26个字符' => 'Please enter 6-26 characters',
   '密码' => 'password',
   '密码长度不大于16' => 'Password length is not greater than 16',
