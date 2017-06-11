@@ -45,11 +45,11 @@
 		<div class="modal-content" style="text-align: center;">
 			<h4><?php echo isset($user['secret']) ? T('修改谷歌身份验证') : T('添加谷歌身份验证'); ?></h4>
 			<p><?php echo T('一、手机下载谷歌身份验证器'); ?></p>
-			<p><?php echo T('二、扫描二维码'); ?></p>
+			<p><?php echo T('二、扫描二维码或手动输入密钥'); ?></p>
 			<p><?php echo T('三、输入扫描后出现的验证码'); ?></p>
 			<img src="<?php echo $qrCodeUrl; ?>"/>
+			<p><?php echo T('密钥：').$secret; ?></p>
 			<input type="text" name="code" placeholder="<?php echo T('请输入扫描后出现的验证码'); ?>">
-
 			<a onclick="check_google_auth()" class="btn waves-effect waves-light"><?php echo T('验证'); ?></a>
 		</div>
 	</div>
