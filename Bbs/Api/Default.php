@@ -30,8 +30,8 @@ class Api_Default extends PhalApi_Api
 	{
 		$class_domain = new Domain_Class();
 		$class_list = $class_domain->getClassList((($this->page - 1) * each_page), ($this->page * each_page));
-		//抛出变量
-//		DI()->view->assign($xx);
+		$class_list['page_total'] = ceil($class_list['total'] / each_page);
+		//return $class_list;
 
 		//抛出多个变量
 		DI()->view->assign(array('rows' => $class_list['rows'], 'total' => $class_list['total'], 'page' => $this->page, 'back' => 0));

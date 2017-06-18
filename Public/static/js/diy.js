@@ -421,3 +421,20 @@ $('#search').submit(function ()//提交表单
 	});
 });
 
+$('#config').submit(function ()//提交表单
+{
+	$.ajax({
+		type: 'POST',
+		data: $("#config").serialize(),
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+});
+

@@ -4,11 +4,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<!--	<meta name="viewport" content="width=device-width, initial-scale=1.0"/><!--识别浏览设备-->
 	<title><?php echo T('南洋师生交流平台DEMO'); ?></title>
-	<link href="./Public/static/css/material-icons-3.0.1.css" rel="stylesheet"><!--加载Material style图标-->
-	<link href="./Public/static/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection">
+	<link href="./Public/static/css/material-design-icons/3.0.1/material-icons.min.css" rel="stylesheet"><!--加载Material style图标-->
+	<link href="./Public/static/css/materialize/0.98.2/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection">
 	<!--加载框架css-->
-	<script src="./Public/static/js/jquery.min.js"></script><!--加载jQuery-->
-	<script src="./Public/static/js/materialize.min.js"></script><!--加载框架js-->
+	<script src="./Public/static/js/jquery/3.2.1/jquery.min.js"></script><!--加载jQuery-->
+	<script src="./Public/static/js/materialize/0.98.2/materialize.min.js"></script><!--加载框架js-->
+	<script type="text/javascript" src="./Public/static/js/vue/2.3.4/vue.min.js"></script>
 	<link href="./Public/static/css/diy.css" rel="stylesheet"><!--加载自定义样式-->
 	<!--<script src="./Public/static/js/diy.js"></script><!--自定义JS脚本-->
 </head>
