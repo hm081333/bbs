@@ -71,18 +71,19 @@ class Api_Topic extends PhalApi_Api
 				throw new PhalApi_Exception_Error(T('请选择课程'), 1);// 抛出普通错误 T标签翻译
 			} elseif (!empty($_FILES['pics']['tmp_name'])) {
 				$reback = uppic($_FILES['pics']);
-				if($reback === false){
+				if ($reback === false) {
 					throw new PhalApi_Exception_InternalServerError(T('图片上传失败'), 2);// 抛出服务端错误
 				}
 			}
 			$user_model = new Model_User();
-			$user = $user_model->get($_SESSION['user_id'], 'email, user_name');
+			$user = $user_model->get($_SESSION['user_id'], 'id, email, user_name');
 			$topic_model = new Model_Topic();
 			$insert_data = array();
 			$insert_data['class_id'] = $this->class_id;
 			$insert_data['topic'] = $this->topic;
 			$insert_data['detail'] = $this->detail;
 			$insert_data['pics'] = $reback;
+			$insert_data['user_id'] = $user['id'];
 			$insert_data['name'] = $user['user_name'];
 			$insert_data['email'] = $user['email'];
 			$insert_data['datetime'] = new NotORM_Literal("NOW()");
@@ -104,7 +105,7 @@ class Api_Topic extends PhalApi_Api
 	public function stick_Topic()
 	{
 		$topic_model = new Model_Topic();
-		$rs = $topic_model->update($this->topic_id,array('sticky' => 1));
+		$rs = $topic_model->update($this->topic_id, array('sticky' => 1));
 		if ($rs) {
 			DI()->response->setMsg(T('顶置成功'));
 			return;
@@ -116,7 +117,7 @@ class Api_Topic extends PhalApi_Api
 	public function unstick_Topic()
 	{
 		$topic_model = new Model_Topic();
-		$rs = $topic_model->update($this->topic_id,array('sticky' => 0));
+		$rs = $topic_model->update($this->topic_id, array('sticky' => 0));
 		if ($rs) {
 			DI()->response->setMsg(T('取消顶置成功'));
 			return;
