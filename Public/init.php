@@ -13,7 +13,7 @@ require_once API_ROOT . '/PhalApi/PhalApi.php';
 //require_once API_ROOT . '/Library/View/Lite.php'; // 视图控制器
 //require_once API_ROOT . '/Library/Google_Authenticator/GoogleAuthenticator.php'; // 谷歌二次验证
 require_once API_ROOT . '/Library/upload_image/upload_image.php'; // 简陋的图片上传function
-require_once API_ROOT . '/Config/constant.php'; // 常量
+//require_once API_ROOT . '/Config/constant.php'; // 常量
 
 session_start();
 
@@ -26,6 +26,8 @@ DI()->loader = $loader;
 
 // 配置
 DI()->config = new PhalApi_Config_File(API_ROOT . '/Config');
+
+DI()->config->get('constant'); // 常量
 
 // 调试模式，$_GET['__debug__']可自行改名
 DI()->debug = !empty($_GET['__debug__']) ? true : DI()->config->get('sys.debug');
@@ -43,6 +45,19 @@ DI()->logger = new PhalApi_Logger_File(API_ROOT . '/Runtime', PhalApi_Logger::LO
 
 // 数据操作 - 基于NotORM
 DI()->notorm = new PhalApi_DB_NotORM(DI()->config->get('dbs'), DI()->debug);
+
+if(!defined('IS_JSON')){
+	$accept = DI()->request->getHeader('Accept');
+	$accept = explode(',',$accept);
+	$accept = $accept[0];
+	if($accept=='text/html'||$accept=='text/plain'){
+		defined('IS_JSON')||define('IS_JSON',false);
+		DI()->response = 'PhalApi_Response_Explorer';
+	}else{
+		defined('IS_JSON')||define('IS_JSON',true);
+		DI()->response = 'PhalApi_Response_Json';
+	}
+}
 
 // 翻译语言包设定
 if (isset($_SESSION['Language'])) {

@@ -201,4 +201,6 @@ return array (
   '账号不存在' => '账号不存在',
   '短信发送成功' => '短信发送成功',
   'PhalApi是一个用于快速写api接口的php框架' => 'PhalApi是一个用于快速写api接口的php框架',
+  'miss HTTP_RAW_POST_DATA' => 'miss HTTP_RAW_POST_DATA',
+  'coming soon!' => 'coming soon!',
 );

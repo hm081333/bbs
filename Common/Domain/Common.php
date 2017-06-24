@@ -2,7 +2,6 @@
 
 class Domain_Common
 {
-
 	public static function checkEmail($email)
 	{
 		$check = "/^[0-9a-zA-Z_-]+@[0-9a-zA-Z_-]+(\.[0-9a-zA-Z_-]+){0,3}$/";
