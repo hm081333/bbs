@@ -7,12 +7,12 @@
 	<title><?php echo T('后台DEMO') ?></title>
 	<script type="text/javascript" src="./Public/static/js/jquery/3.2.1/jquery.min.js"></script>
 	<!--加载jQuery-->
-	<script type="text/javascript" src="./Public/static/js/materialize/0.98.2/materialize.min.js"></script>
+	<script type="text/javascript" src="./Public/static/js/materialize/0.99.0/materialize.min.js"></script>
 	<script type="text/javascript" src="./Public/static/js/vue/2.3.4/vue.min.js"></script>
 	<!--加载框架js-->
 	<link href="./Public/static/css/material-design-icons/3.0.1/material-icons.min.css" rel="stylesheet">
 	<!--加载Material style图标-->
-	<link href="./Public/static/css/materialize/0.98.2/materialize.min.css" type="text/css" rel="stylesheet"
+	<link href="./Public/static/css/materialize/0.99.0/materialize.min.css" type="text/css" rel="stylesheet"
 		  media="screen,projection">
 	<!--加载框架css-->
 	<link href="./Public/static/css/diy.css" rel="stylesheet">
