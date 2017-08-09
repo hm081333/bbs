@@ -320,7 +320,7 @@ $('#Login_in').submit(function ()//提交表单
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
 					if (d.data == 'admin') {
 						location.reload();
-					} else {
+					} else if (d.data == 'user')  {
 						history.back();
 					}
 				});

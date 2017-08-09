@@ -11,10 +11,11 @@ class Api_Default extends PhalApi_Api
 	public function getRules()
 	{
 		return array(
+			'main' => array(
+				'page' => array('name' => 'page', 'type' => 'int', 'default' => 1, 'min' => 1, 'desc' => '当前页数'),
+			),
 			'index' => array(
-				// 'limit' => array('name' => 'limit', 'type' => 'int', 'default' => 0, 'min' => 0, 'require' => false, 'desc' => ''),
-				// 'offset' => array('name' => 'offset', 'type' => 'int', 'default' => each_page, 'min' => 0, 'require' => false, 'desc' => ''),
-				'page' => array('name' => 'page', 'type' => 'int', 'default' => 1, 'min' => 1, 'require' => false, 'desc' => '当前页数'),
+				'page' => array('name' => 'page', 'type' => 'int', 'default' => 1, 'min' => 1, 'desc' => '当前页数'),
 			),
 		);
 	}
@@ -31,14 +32,20 @@ class Api_Default extends PhalApi_Api
 		$class_domain = new Domain_Class();
 		$class_list = $class_domain->getClassList((($this->page - 1) * each_page), ($this->page * each_page));
 		$class_list['page_total'] = ceil($class_list['total'] / each_page);
-		//return $class_list;
-
-		//抛出多个变量
-		DI()->view->assign(array('rows' => $class_list['rows'], 'total' => $class_list['total'], 'page' => $this->page, 'back' => 0));
-
-		//引入模板
-		DI()->view->show('index');
-		// throw new PhalApi_Exception_BadRequest(T('wrong sign'), 1);// 抛出客户端错误 T标签翻译
-		// throw new PhalApi_Exception_InternalServerError(T('system is busy now'), 2);// 抛出服务端错误
+		DI()->view->show('index', array('rows' => $class_list['rows'], 'total' => $class_list['total'], 'page' => $this->page, 'back' => 0));
 	}
+	/*public function index()
+	{
+		DI()->view->show('main');
+	}
+
+	public function main()
+	{
+		$class_domain = new Domain_Class();
+		$class_list = $class_domain->getClassList((($this->page - 1) * each_page), ($this->page * each_page));
+		$class_list['page_total'] = ceil($class_list['total'] / each_page);
+		$html = DI()->view->post('index', array('rows' => $class_list['rows'], 'total' => $class_list['total'], 'page' => $this->page, 'back' => 0));
+		$html = Common_Function::higrid_compress_html($html);
+		return $html;
+	}*/
 }

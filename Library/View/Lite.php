@@ -78,4 +78,31 @@ class View_Lite {
         $content = ob_get_contents();
         return $content;
     }
+
+	public function post($name, $param=array()){
+
+		if (empty($this->type)) {
+			$view = API_ROOT . '/' . $this->item . '/View/inc/' . $name . '.php';
+		} else {
+			$view = API_ROOT . '/' . $this->item . '/View/' . $this->type . '/inc/' . $name . '.php';
+		}
+
+        //合并参数
+        $param = array_merge($this->param, $param);
+
+        //将数组键名作为变量名，如果有冲突，则覆盖已有的变量
+        extract($param, EXTR_OVERWRITE);
+
+        //开启缓冲区
+        ob_start();
+        ob_implicit_flush(false);
+
+        //检查文件是否存在
+        file_exists($view) ? require $view : exit($view . ' 模板文件不存在');
+
+        //获取当前缓冲区内容
+        //$content = ob_get_contents(); // 仅输出
+		$content = ob_get_clean(); // 输出并清空关闭
+        return $content;
+    }
 }

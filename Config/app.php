@@ -20,9 +20,9 @@ return array(
 	 * - *.Index        全部接口类的Index方法
 	 * - Default.Index  指定某个接口服务，即Api_Default::Index()
 	 */
-	'service_whitelist' => array(
+	/*'service_whitelist' => array(
 		'Default.Index',
-	),
+	),*/
 
 	'Wechat' => array(
 		'plugins' => array(
