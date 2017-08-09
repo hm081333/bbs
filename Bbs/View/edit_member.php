@@ -1,10 +1,7 @@
-<?php require_once './Public/static/header/header.php'; ?>
-
 <h3 class="center"><?php echo T('编辑个人资料'); ?></h3>
 
 <fieldset>
 	<legend><?php echo T('个人资料'); ?></legend>
-	<br/>
 	<form id="edit_member" method="post" onsubmit="return false;">
 		<input name="service" type="hidden" value="User.edit_Member">
 		<input name="action" type="hidden" value="post">
@@ -54,5 +51,3 @@
 		</div>
 	</div>
 </fieldset>
-
-<?php require_once './Public/static/header/footer.php'; ?>

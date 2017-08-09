@@ -3,6 +3,7 @@
  * $APP_NAME 统一入口
  */
 
+define('index', true);
 
 require_once dirname(__FILE__) . '/Public/init.php';
 

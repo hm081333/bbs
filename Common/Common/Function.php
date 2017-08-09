@@ -8,17 +8,6 @@
  */
 class Common_Function
 {
-
-	/**
-	 * 压缩HTML字符串
-	 * @param $string
-	 * @return string
-	 */
-	public static function compress_html($string)
-	{
-		return ltrim(rtrim(preg_replace(array("/> *([^ ]*) *</", "//", "'/\*[^*]*\*/'", "/\r\n/", "/\n/", "/\t/", '/>[ ]+</'), array(">\\1<", '', '', '', '', '', '><'), $string)));
-	}
-
 	/**
 	 * PHP压缩html js css的函数
 	 * 激进
@@ -36,7 +25,7 @@ class Common_Function
 	 * @param $string HTML内容
 	 * @return $string 压缩后HTML内容
 	 */
-	public static function compress_html1($string)
+	public static function compress_html($string)
 	{
 		$string = str_replace("\r\n", '', $string); //清除换行符
 		$string = str_replace("\n", '', $string); //清除换行符

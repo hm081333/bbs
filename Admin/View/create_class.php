@@ -1,5 +1,3 @@
-<?php require_once './Public/static/header/header_admin.php'; ?>
-
 	<h3 class="center"><?php echo T('添加课程分类'); ?></h3>
 
 	<fieldset>
@@ -29,5 +27,3 @@
 				</div>
 			</form>
 	</fieldset>
-
-<?php require_once './Public/static/header/footer.php'; ?>

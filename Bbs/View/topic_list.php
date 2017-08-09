@@ -1,7 +1,3 @@
-<?php
-require_once './Public/static/header/header.php';
-?>
-
 <h3 class="center"><?php echo T($class['name'] . '区'); ?></h3>
 
 <table>
@@ -14,11 +10,9 @@ require_once './Public/static/header/header.php';
 	</tr>
 	</thead>
 
-	<?php
-	//循环输出输出记录列表
-	foreach ($rows as $row)
-	{
-	?>
+	<?php foreach ($rows
+
+	as $row)://循环输出输出记录列表      ?>
 
 	<tbody>
 	<tr class="green accent-1">
@@ -48,51 +42,30 @@ require_once './Public/static/header/header.php';
 			?>
 		</td>
 	</tr>
-	<?php
-	} //退出while循环
-	?>
+	<?php endforeach; //退出while循环?>
 
 
 	<tr>
 		<td colspan="4">
-			<?php
-			//上一页
-			if ($page > 1) {
+			<?php if ($page > 1) ://上一页
 				?>
 				<a class="btn waves-effect waves-light"
-				   href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo($page - 1) ?>"><i
-							class="material-icons">arrow_back</i></a>
-				<?php
-
-			} else {
-				?>
+				   href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo($page - 1) ?>">
+					<i class="material-icons">arrow_back</i></a>
+			<?php else: ?>
 				<a class="disabled btn waves-effect waves-light"><i class="material-icons">arrow_back</i></a>
-				<?php
-
-			}
-			//后一页
-			if (($page * each_page) < $total) {
+			<?php endif;
+			if (($page * each_page) < $total) ://后一页
 				?>
 				<a class="btn waves-effect waves-light"
-				   href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo($page + 1) ?>"><i
-							class="material-icons">arrow_forward</i></a>
-				<?php
-
-			} else {
-				?>
+				   href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo($page + 1) ?>">
+					<i class="material-icons">arrow_forward</i></a>
+			<?php else: ?>
 				<a class="disabled btn waves-effect waves-light"><i class="material-icons">arrow_forward</i></a>
-				<?php
-
-			}
-			?>
-
-			<a class="btn right waves-effect waves-light" onClick="location.href='?service=Topic.create_Topic'"><?php echo T('发帖'); ?></a>
+			<?php endif; ?>
+			<a class="btn right waves-effect waves-light"
+			   onClick="location.href='?service=Topic.create_Topic'"><?php echo T('发帖'); ?></a>
 		</td>
 	</tr>
 	</tbody>
 </table>
-
-<?php
-//公用尾部页面
-require_once './Public/static/header/footer.php';
-?>

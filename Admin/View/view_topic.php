@@ -1,5 +1,3 @@
-<?php require_once './Public/static/header/header_admin.php'; ?>
-
 <fieldset>
 	<legend>正文</legend>
 	<table>
@@ -88,7 +86,8 @@
 		<?php else: ?>
 
 		<table class="blue lighten-5">
-			<form enctype="multipart/form-data" method="post">
+			<form id="Reply_Topic" enctype="multipart/form-data" method="post" onsubmit="return false;">
+				<input name="service" value="Reply.add_Reply" type="hidden">
 				<input name="topic_id" type="hidden" value="<?php echo $topic['id']; ?>">
 				<input name="user_id" type="hidden" value="<?php echo $_SESSION['admin_id']; ?>">
 				<tr>
@@ -96,7 +95,6 @@
 						<div class="input-field">
 							<textarea name="reply_detail" class="materialize-textarea validate"></textarea>
 							<label for="reply_detail">回帖内容</label>
-							<!--<textarea class="coolscrollbar" name="reply_detail" cols="80" rows="5"></textarea>-->
 					</td>
 				</tr>
 				<tr>
@@ -113,12 +111,13 @@
 						</div>
 					</td>
 				</tr>
+				<tr>
+					<td class="center">
+						<button type="submit" name="submit"
+								class="btn waves-effect waves-light"><?php echo T('回复该帖') ?></button>
+					</td>
+				</tr>
 			</form>
-			<tr>
-				<td class="center">
-					<button id="reply" class="btn waves-effect waves-light">回复该帖</button>
-				</td>
-			</tr>
 		</table>
 
 	</div>
@@ -144,26 +143,3 @@
 	<!--管理员操作表单，结束-->
 	<?php endif; ?>
 </fieldset>
-
-<script>
-	$("#reply").click(function () {
-		$.ajax({
-			type: 'POST',
-			url: '?service=Reply.add_Reply',
-			data: new FormData($('form')[0]),
-			processData: false,
-			contentType: false,
-			success: function (d) {
-				if (d.ret == 200) {
-					Materialize.toast(d.msg, 2000, 'rounded', function () {
-						location.reload();
-					});
-				} else {
-					Materialize.toast(d.msg, 2000, 'rounded');
-				}
-			}
-		});
-	});
-</script>
-
-<?php require_once './Public/static/header/footer.php'; ?>

@@ -1,11 +1,10 @@
-<?php require_once './Public/static/header/header_admin.php'; ?>
-
 <fieldset>
 	<legend><?php echo T('新帖子'); ?></legend>
 	<div class="row">
 		<form id="Create_Topic" enctype="multipart/form-data" method="post" onsubmit="return false;" class="col s12">
 			<input name="service" value="Topic.create_Topic" type="hidden">
 			<input name="action" value="post" type="hidden">
+			<input type="hidden" value="0" name="sticky">
 			<div class="input-field col s12">
 				<input name="topic" type="text" id="topic" class="validate" length="100">
 				<label for="topic"><?php echo T('标题'); ?></label>
@@ -44,7 +43,6 @@
 
 			<div id="preview" class="center"></div>
 
-			<input type="hidden" name="sticky">
 			<div class="center col s12" style="margin: 15px 0px;">
 				<div class="switch">
 					<label>
@@ -63,18 +61,3 @@
 		</form>
 	</div>
 </fieldset>
-
-
-<?php require_once './Public/static/header/footer.php'; ?>
-
-<script>
-	$('span[class="lever"]').click(function () {
-		var sticky = '';
-		if ($('input[type="checkbox"]')[0]['checked'] == false) {
-			sticky = 1;
-		} else {
-			sticky = 0;
-		}
-		$('input[name="sticky"]').attr('value', sticky);
-	});
-</script>

@@ -3,6 +3,8 @@
  * $APP_NAME 统一入口
  */
 
+define('admin', true);
+
 require_once dirname(__FILE__) . '/Public/init.php';
 
 //装载你的接口

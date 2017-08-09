@@ -1,7 +1,6 @@
 </main>
-<script src="./Public/static/js/diy.js"></script><!--自定义JS脚本-->
 <!-- 正文内容结束 -->
-<br/>
+<script src="./Public/static/js/diy.js"></script><!--自定义JS脚本-->
 <!-- 页脚信息 -->
 <footer class="page-footer cyan darken-4">
 

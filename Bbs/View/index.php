@@ -1,5 +1,3 @@
-<?php require_once './Public/static/header/header.php'; ?>
-
 <h3 class="center"><?php echo T('南洋交流平台'); ?></h3>
 <table>
 	<thead>
@@ -27,16 +25,16 @@
 			//上一页
 			if ($page > 1) :
 				?>
-				<a class="btn waves-effect waves-light" href="./?page=<?php echo($page - 1) ?>"><i
-							class="material-icons">arrow_back</i></a>
+				<a class="btn waves-effect waves-light" href="./?page=<?php echo($page - 1) ?>">
+					<i class="material-icons">arrow_back</i></a>
 			<?php else: ?>
 				<a class="disabled btn waves-effect waves-light"><i class="material-icons">arrow_back</i></a>
 			<?php endif;
 			//后一页
 			if (($page * each_page) < $total) :
 				?>
-				<a class="btn waves-effect waves-light" href="./?page=<?php echo($page + 1) ?>"><i
-							class="material-icons">arrow_forward</i></a>
+				<a class="btn waves-effect waves-light" href="./?page=<?php echo($page + 1) ?>">
+					<i class="material-icons">arrow_forward</i></a>
 			<?php else: ?>
 				<a class="disabled btn waves-effect waves-light"><i class="material-icons">arrow_forward</i></a>
 			<?php endif; ?>
@@ -48,5 +46,3 @@
 	</tr>
 	</tbody>
 </table>
-
-<?php require_once './Public/static/header/footer.php'; ?>

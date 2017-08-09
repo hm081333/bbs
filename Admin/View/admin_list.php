@@ -1,5 +1,3 @@
-<?php require_once './Public/static/header/header_admin.php'; ?>
-
 	<h3 class="center"><?php echo T('管理管理员账号'); ?></h3>
 	<fieldset>
 	<legend><?php echo T('管理管理员'); ?></legend>
@@ -47,8 +45,8 @@
 				if ($page > 1) {
 					?>
 					<a class="btn waves-effect waves-light"
-					   href="?service=User.admin_list&page=<?php echo($page - 1) ?>"><i
-								class="material-icons">arrow_back</i></a>
+					   href="?service=User.admin_list&page=<?php echo($page - 1) ?>">
+						<i class="material-icons">arrow_back</i></a>
 					<?php
 				} else {
 					?>
@@ -58,8 +56,8 @@
 				if (($page * each_page) < $total) {
 					?>
 					<a class="btn waves-effect waves-light"
-					   href="?service=User.admin_list&page=<?php echo($page + 1) ?>"><i
-								class="material-icons">arrow_forward</i></a>
+					   href="?service=User.admin_list&page=<?php echo($page + 1) ?>">
+						<i class="material-icons">arrow_forward</i></a>
 					<?php
 				} else {
 					?>
@@ -71,5 +69,3 @@
 		</tr>
 		</tbody>
 	</table>
-
-<?php require_once './Public/static/header/footer.php'; ?>

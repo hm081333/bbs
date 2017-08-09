@@ -1,7 +1,3 @@
-<?php require_once './Public/static/header/header_admin.php'; ?>
-
-<!--<script src="./Public/static/js/reg.js"></script>-->
-
 <h3 class="center"><?php echo T('添加用户'); ?></h3>
 
 <fieldset>
@@ -59,5 +55,3 @@
 			</div>
 		</form>
 </fieldset>
-
-<?php require_once './Public/static/header/footer.php'; ?>

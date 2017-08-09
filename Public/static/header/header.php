@@ -2,16 +2,15 @@
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8;" charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-	<!--	<meta name="viewport" content="width=device-width, initial-scale=1.0"/><!--识别浏览设备-->
 	<title><?php echo T('南洋师生交流平台DEMO'); ?></title>
-	<link href="./Public/static/css/material-design-icons/3.0.1/material-icons.min.css" rel="stylesheet"><!--加载Material style图标-->
-	<link href="./Public/static/css/materialize/0.99.0/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection">
+	<link href="./Public/static/css/material-design-icons/3.0.1/material-icons.min.css" rel="stylesheet">
+	<!--加载Material style图标-->
+	<link href="./Public/static/css/materialize/0.99.0/materialize.min.css" type="text/css" rel="stylesheet"
+		  media="screen,projection">
 	<!--加载框架css-->
 	<script src="./Public/static/js/jquery/3.2.1/jquery.min.js"></script><!--加载jQuery-->
 	<script src="./Public/static/js/materialize/0.99.0/materialize.min.js"></script><!--加载框架js-->
-	<script type="text/javascript" src="./Public/static/js/vue/2.3.4/vue.min.js"></script>
 	<link href="./Public/static/css/diy.css" rel="stylesheet"><!--加载自定义样式-->
-	<!--<script src="./Public/static/js/diy.js"></script><!--自定义JS脚本-->
 </head>
 
 <body><!-- style="background-image:url(./images/bgl.jpg);background-repeat:no-repeat;background-attachment:fixed;" -->
@@ -22,8 +21,8 @@
 		<div class="nav-wrapper container"><!--导航栏内容开始-->
 			<?php if (!isset($back) && back) : ?>
 				<a href="#" onclick="history.back();" class="button-collapse show-on-large"
-				   style="float: left !important;"><i
-							class="material-icons">arrow_back</i></a><!--网页LOGO-->
+				   style="float: left !important;">
+					<i class="material-icons">arrow_back</i></a><!--网页LOGO-->
 			<?php endif; ?>
 			<a href="./" class="brand-logo">LYiHo</a><!--网页LOGO-->
 			<ul class="right">
@@ -79,7 +78,7 @@
 	<!-- Modal Structure -->
 	<!--<div id="modal1" class="modal bottom-sheet">
 		<div class="modal-content row" style="text-align: center;">
-			<h4><?php /*echo T('搜索'); */?></h4>
+			<h4><?php /*echo T('搜索'); */ ?></h4>
 			<form id="search" method="post" onsubmit="return false;" class="col s12">
 				<input type="hidden" name="service" value="public.search"/>
 				<input type="hidden" name="action" value="post"/>
@@ -87,24 +86,24 @@
 					<div class="input-field">
 						<i class="material-icons prefix">label_outline</i>
 						<input name="keyword" type="text" class="validate">
-						<label for="keyword"><?php /*echo T('关键字'); */?></label>
+						<label for="keyword"><?php /*echo T('关键字'); */ ?></label>
 					</div>
 					<p>搜索条件：</p>
 					<p>
 						<input name="term" type="radio" id="topic" value="topic" class="with-gap" checked/>
-						<label for="topic"><?php /*echo T('标题'); */?></label>
+						<label for="topic"><?php /*echo T('标题'); */ ?></label>
 						<input name="term" type="radio" id="detail" value="detail" class="with-gap"/>
-						<label for="detail"><?php /*echo T('正文内容'); */?></label>
+						<label for="detail"><?php /*echo T('正文内容'); */ ?></label>
 						<input name="term" type="radio" id="user_name" value="user_name" class="with-gap"/>
-						<label for="user_name"><?php /*echo T('用户名'); */?></label>
+						<label for="user_name"><?php /*echo T('用户名'); */ ?></label>
 						<input name="term" type="radio" id="real_name" value="real_name" class="with-gap"/>
-						<label for="real_name"><?php /*echo T('姓名'); */?></label>
+						<label for="real_name"><?php /*echo T('姓名'); */ ?></label>
 					</p>
 				</div>
 				<div class="col s12 center">
 					<button type="submit" name="submit"
-							class="btn waves-effect waves-light"><?php /*echo T('搜索'); */?></button>
-					<button type="reset" class="btn waves-effect waves-light"><?php /*echo T('重新输入'); */?></button>
+							class="btn waves-effect waves-light"><?php /*echo T('搜索'); */ ?></button>
+					<button type="reset" class="btn waves-effect waves-light"><?php /*echo T('重新输入'); */ ?></button>
 				</div>
 			</form>
 		</div>

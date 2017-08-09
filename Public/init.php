@@ -15,7 +15,7 @@ date_default_timezone_set('Asia/Shanghai');
 
 defined('API_ROOT') || define('API_ROOT', dirname(__FILE__) . '/..');
 defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/Public/');
-defined('Pub_ROOT') || define('Pub_ROOT', dirname(__FILE__) . '/');
+defined('PUB_ROOT') || define('PUB_ROOT', dirname(__FILE__) . '/');
 
 
 require_once API_ROOT . '/PhalApi/PhalApi.php';

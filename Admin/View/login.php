@@ -1,6 +1,3 @@
-<?php require_once './Public/static/header/header_admin.php'; ?>
-<!--<script src="./Public/static/js/login.js"></script>-->
-
 <h3 class="center"><?php echo T('后台登录') ?></h3>
 
 <fieldset>
@@ -36,5 +33,3 @@
 			</div>
 		</form>
 </fieldset>
-
-<?php require_once './Public/static/header/footer.php'; ?>

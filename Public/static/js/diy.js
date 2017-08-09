@@ -43,6 +43,11 @@ $(document).ready(function () {
 	 } // Callback for Modal close
 	 }
 	 );*/
+	$('select').material_select();
+	$('.datepicker').pickadate({
+		selectMonths: true, // Creates a dropdown to control month
+		selectYears: 15 // Creates a dropdown of 15 years to control year
+	});
 });
 
 //上传图片预览
@@ -57,7 +62,7 @@ function preview(file) {
 	} else {
 		prevDiv.innerHTML = '<img style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src=\'' + file.value + '\'">';
 	}
-};
+}
 
 // 打开url（未实现）
 function open_url(service) {
@@ -65,7 +70,7 @@ function open_url(service) {
 		type: 'GET',
 		data: {service: service, action: 'view'}
 	});
-};
+}
 
 // 帖子操作
 function stick_topic(topic_id) {
@@ -82,7 +87,7 @@ function stick_topic(topic_id) {
 			}
 		}
 	});
-};
+}
 
 function unstick_topic(topic_id) {
 	$.ajax({
@@ -98,7 +103,7 @@ function unstick_topic(topic_id) {
 			}
 		}
 	});
-};
+}
 
 function delete_topic(topic_id) {
 	$.ajax({
@@ -118,7 +123,7 @@ function delete_topic(topic_id) {
 			}
 		}
 	});
-};
+}
 
 // 会员操作
 function update_user(user_id) {
@@ -134,7 +139,8 @@ function update_user(user_id) {
 	$.ajax({
 		type: 'POST',
 		data: {
-			service: 'User.edit_Member', action: 'post', user_id: user_id, auth: auth, email: email, real_name: real_name,
+			service: 'User.edit_Member', action: 'post', user_id: user_id, auth: auth, email: email,
+			real_name: real_name,
 			password: password
 		},
 		success: function (d) {
@@ -147,7 +153,7 @@ function update_user(user_id) {
 			}
 		}
 	});
-};
+}
 
 function delete_user(user_id) {
 	$.ajax({
@@ -163,7 +169,7 @@ function delete_user(user_id) {
 			}
 		}
 	});
-};
+}
 
 function logoff() {
 	$.ajax({
@@ -179,7 +185,7 @@ function logoff() {
 			}
 		}
 	});
-};
+}
 
 function update_admin(admin_id) {
 	var auth = $('#auth' + admin_id)[0]['checked'];
@@ -202,7 +208,7 @@ function update_admin(admin_id) {
 			}
 		}
 	});
-};
+}
 
 function delete_admin(admin_id) {
 	$.ajax({
@@ -218,7 +224,7 @@ function delete_admin(admin_id) {
 			}
 		}
 	});
-};
+}
 
 function update_Class(class_id) {
 	var name = $('#name' + class_id).val();
@@ -236,7 +242,7 @@ function update_Class(class_id) {
 			}
 		}
 	});
-};
+}
 
 function delete_Class(class_id) {
 	$.ajax({
@@ -252,7 +258,7 @@ function delete_Class(class_id) {
 			}
 		}
 	});
-};
+}
 
 function set_language(language) {
 	$.ajax({
@@ -268,7 +274,7 @@ function set_language(language) {
 			}
 		}
 	});
-};
+}
 
 function check_google_auth(language) {
 	var code = $('input[name="code"]').val();
@@ -287,7 +293,7 @@ function check_google_auth(language) {
 			}
 		}
 	});
-};
+}
 
 $('#Register').submit(function ()//提交表单
 {
@@ -320,7 +326,7 @@ $('#Login_in').submit(function ()//提交表单
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
 					if (d.data == 'admin') {
 						location.reload();
-					} else if (d.data == 'user')  {
+					} else if (d.data == 'user') {
 						history.back();
 					}
 				});
@@ -369,6 +375,11 @@ $('#add_Class').submit(function ()//提交表单
 
 $('#Create_Topic').submit(function ()//提交表单
 {
+	if ($('input[type="checkbox"]')[0]['checked'] == false) {
+		$('input[name="sticky"]').attr('value', 1);
+	} else {
+		$('input[name="sticky"]').attr('value', 0);
+	}
 	$.ajax({
 		type: 'POST',
 		data: new FormData($('#Create_Topic')[0]),
@@ -379,6 +390,25 @@ $('#Create_Topic').submit(function ()//提交表单
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
 					// history.back();
 					location.href = '?service=Topic.topic_List';
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+});
+
+$('#Reply_Topic').submit(function ()//提交表单
+{
+	$.ajax({
+		type: 'POST',
+		data: new FormData($('#Reply_Topic')[0]),
+		processData: false,
+		contentType: false,
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
 				});
 			} else {
 				Materialize.toast(d.msg, 2000, 'rounded');

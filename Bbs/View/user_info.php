@@ -1,10 +1,7 @@
-<?php require_once './Public/static/header/header.php'; ?>
-
 <h3 class="center"><?php echo T('查看会员资料'); ?></h3>
 
 <fieldset>
 	<legend><?php echo T('个人资料') ?></legend>
-	<br/>
 	<table width="100%">
 		<tr>
 			<td width="30%"><?php echo T('会员：') ?></td>
@@ -33,5 +30,3 @@
 		</tr>
 	</table>
 </fieldset>
-
-<?php require_once './Public/static/header/footer.php'; ?>

@@ -1,5 +1,3 @@
-<?php require_once './Public/static/header/header_admin.php'; ?>
-
 <h3 class="center"><?php echo T('配置短信宝') ?></h3>
 
 <fieldset>
@@ -32,5 +30,3 @@
 			</div>
 		</form>
 </fieldset>
-
-<?php require_once './Public/static/header/footer.php'; ?>

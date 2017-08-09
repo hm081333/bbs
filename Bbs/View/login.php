@@ -1,5 +1,3 @@
-<?php require_once './Public/static/header/header.php'; ?>
-<!--<script src="./Public/static/js/login.js"></script>-->
 <h3 class="center"><?php echo T('用户登录'); ?></h3>
 
 <fieldset>
@@ -51,5 +49,3 @@
 		<!--<a onclick="location.href='?service=User.forget&type=2'" style="float: none !important;" class="modal-action modal-close btn waves-effect waves-light">邮件找回</a>-->
 	</div>
 </div>
-
-<?php require_once './Public/static/header/footer.php'; ?>

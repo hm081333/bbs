@@ -1,9 +1,3 @@
-<?php require_once './Public/static/header/header.php'; ?>
-<script>
-	$(document).ready(function () {
-		$('select').material_select();
-	});
-</script>
 <?php if (!isset($_SESSION['user_id'])) : //如果用户未登录，显示错误信息?>
 	<h3 class="center"><?php echo T('您未登陆,没有发帖权限！'); ?></h3>
 	<p class="center"><?php echo T('对不起，请'); ?><br/>
@@ -19,6 +13,7 @@
 				  class="col s12">
 				<input name="service" value="Topic.create_Topic" type="hidden">
 				<input name="action" value="post" type="hidden">
+				<input type="hidden" value="0" name="sticky">
 				<div class="input-field col s12">
 					<input name="topic" type="text" id="topic" class="validate" length="100">
 					<label for="topic"><?php echo T('标题'); ?></label>
@@ -59,7 +54,6 @@
 				<div id="preview" class="center"></div>
 
 				<?php if ($_SESSION['user_auth'] == 1) : //如果是管理员，将显示“置顶”和“锁定”功能?>
-					<input type="hidden" name="sticky">
 					<div class="center col s12" style="margin: 15px 0px;">
 						<div class="switch">
 							<label>
@@ -81,17 +75,3 @@
 		</div>
 	</fieldset>
 <?php endif; ?>
-
-<?php require_once './Public/static/header/footer.php'; ?>
-
-<script>
-	$('span[class="lever"]').click(function () {
-		var sticky = '';
-		if ($('input[type="checkbox"]')[0]['checked'] == false) {
-			sticky = 1;
-		} else {
-			sticky = 0;
-		}
-		$('input[name="sticky"]').attr('value', sticky);
-	});
-</script>
