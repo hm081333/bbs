@@ -15,6 +15,7 @@
 			<h5 class="white-text"><?php echo T('友情链接'); ?></h5>
 			<ul>
 				<li><a class="white-text" href="#!"><?php echo T('暂时没有友情链接'); ?></a></li>
+				<li><a class="white-text" href="#!"><?php echo T('当前访问IP：') . PhalApi_Tool::getClientIp(); ?></a></li>
 			</ul>
 		</div>
 
