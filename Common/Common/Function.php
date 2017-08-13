@@ -82,7 +82,8 @@ class Common_Function
 	public static function tuling($question)
 	{
 		$tuling_config = DI()->config->get('app.tuling_config');
-		$rs = self::curl_request($tuling_config['URI'], array('key' => $tuling_config['APIkey'], 'info' => $question));
+		//$rs = self::curl_request($tuling_config['URI'], array('key' => $tuling_config['APIkey'], 'info' => $question));
+		$rs = DI()->curl->json_post($tuling_config['URI'], array('key' => $tuling_config['APIkey'], 'info' => $question));
 		return $rs;
 	}
 
@@ -114,7 +115,7 @@ class Common_Function
 		//请求参数中有中文、特殊字符等需要进行urlencode，确保请求串与sn对应
 		$request = sprintf($url, urlencode($data), $output, $ak, $sn);
 		//执行请求的url
-		$rs = self::curl_request($request);
+		$rs = DI()->curl->json_get($request);
 		if ($rs['status'] !== 0) {
 			DI()->logger->error('百毒地图API报错，错误码：' . $rs['status'] . '，错误信息：' . $rs['message']);
 		}

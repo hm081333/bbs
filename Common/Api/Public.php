@@ -36,7 +36,19 @@ class Api_Public extends PhalApi_Api
 				'phone' => array('name' => 'phone', 'type' => 'string', 'require' => true, 'desc' => '密钥'),
 				'content' => array('name' => 'content', 'type' => 'string', 'require' => true, 'desc' => '内容'),
 			),
+			'ip' => array(
+				'ip' => array('name' => 'ip', 'type' => 'string', 'require' => true, 'desc' => 'IP'),
+			),
 		);
+	}
+
+	public function ip()
+	{
+		$data = DI()->curl->json_post('http://ip.taobao.com/service/getIpInfo.php', array('ip' => $this->ip));
+		if ($data['code'] !== 0) {
+			throw new PhalApi_Exception_Error(T($data['data']));
+		}
+		return $data['data'];
 	}
 
 	public function checkEmail()

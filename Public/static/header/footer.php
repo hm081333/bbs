@@ -15,9 +15,40 @@
 			<h5 class="white-text"><?php echo T('友情链接'); ?></h5>
 			<ul>
 				<li><a class="white-text" href="#!"><?php echo T('暂时没有友情链接'); ?></a></li>
-				<li><a class="white-text" href="#!"><?php echo T('当前访问IP：') . PhalApi_Tool::getClientIp(); ?></a></li>
+				<li>
+					<a class="white-text">
+						<?php echo T('IP：'); ?>
+						<a id="ip" class="white-text"
+						   href="http://www.ip.cn/index.php?ip=<?php echo PhalApi_Tool::getClientIp(); ?>">
+							<?php echo PhalApi_Tool::getClientIp(); ?>
+						</a>
+					</a>
+				</li>
+				<li>
+					<a class="white-text">
+						<?php echo T('IP所在地：'); ?>
+						<a id="ip_address" class="white-text">
+						</a>
+					</a>
+				</li>
 			</ul>
 		</div>
+		<script>
+			$(document).ready(function () {
+				var ip = $('#ip').html();
+				$.ajax({
+					type: 'POST',
+					data: {service: 'Public.ip', ip: ip},
+					success: function (d) {
+						if (d.ret == 200) {
+							$('#ip_address').text(d.data.country + d.data.area + d.data.region + d.data.city + d.data.isp)
+						} else {
+							$('#ip_address').text(d.msg)
+						}
+					}
+				});
+			})
+		</script>
 
 		<div class="col s12 m4">
 			<h5 class="white-text"><?php echo T('联系我'); ?></h5>

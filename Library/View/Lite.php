@@ -84,14 +84,14 @@ class View_Lite
 		require PUB_ROOT.'static/header/footer.php';
 
 		//获取当前缓冲区内容
-		$content = ob_get_contents(); // 仅输出
-		//$content = ob_get_clean(); // 输出并清空关闭
-		return $content;
+		//$content = ob_get_contents(); // 仅输出
+		//return $content;
+		$content = ob_get_clean(); // 输出并清空关闭
+		echo $content;
 	}
 
 	public function post($name, $param = array())
 	{
-
 		if (empty($this->type)) {
 			$view = API_ROOT . '/' . $this->item . '/View/inc/' . $name . '.php';
 		} else {
