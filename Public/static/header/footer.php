@@ -19,9 +19,7 @@
 					<a class="white-text">
 						<?php echo T('IP：'); ?>
 						<a id="ip" class="white-text"
-						   href="http://www.ip.cn/index.php?ip=<?php echo PhalApi_Tool::getClientIp(); ?>">
-							<?php echo PhalApi_Tool::getClientIp(); ?>
-						</a>
+						   href="http://www.ip.cn/index.php?ip=<?php echo PhalApi_Tool::getClientIp(); ?>"><?php echo PhalApi_Tool::getClientIp(); ?></a>
 					</a>
 				</li>
 				<li>
@@ -35,13 +33,13 @@
 		</div>
 		<script>
 			$(document).ready(function () {
-				var ip = $('#ip').html();
+				var ip = $('#ip').text();
 				$.ajax({
 					type: 'POST',
 					data: {service: 'Public.ip', ip: ip},
 					success: function (d) {
 						if (d.ret == 200) {
-							$('#ip_address').text(d.data.country + d.data.area + d.data.region + d.data.city + d.data.isp)
+							$('#ip_address').text(d.data.country + ' ' + d.data.area + ' ' + d.data.region + ' ' + d.data.city + ' ' + d.data.isp)
 						} else {
 							$('#ip_address').text(d.msg)
 						}
