@@ -39,7 +39,9 @@
  * @property PhalApi_DB_NotORM      $notorm     数据库
  * @property PhalApi_Loader         $loader     自动加载
  * @property PhalApi_Helper_Tracer  $tracer     全球追踪器
- * 
+ * @property PhalApi_CUrl  $curl     全球追踪器
+ * @property View_Lite  $view     全球追踪器
+ *
  * @package     PhalApi\DI
  * @link        http://docs.phalconphp.com/en/latest/reference/di.html 实现统一的资源设置、获取与管理，支持延时加载
  * @license     http://www.phalapi.net/license GPL 协议

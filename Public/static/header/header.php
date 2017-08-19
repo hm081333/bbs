@@ -42,6 +42,8 @@
 				<a href="?service=User.edit_Member"><?php echo $_SESSION['user_name']; ?></a>
 			</li>
 			<li class="divider"></li>
+			<li><a href="?service=Default.deliveryList"><?php echo T('查询快递'); ?></a></li>
+			<li class="divider"></li>
 			<li><a onclick="logoff()"><?php echo T('退出登录'); ?></a></li>
 		<?php else : ?>
 			<!-- 用户未登录 -->

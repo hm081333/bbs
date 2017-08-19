@@ -1,5 +1,6 @@
 </main>
 <!-- 正文内容结束 -->
+<!--<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>-->
 <script src="./Public/static/js/diy.js"></script><!--自定义JS脚本-->
 <!-- 页脚信息 -->
 <footer class="page-footer cyan darken-4">
@@ -18,8 +19,7 @@
 				<li>
 					<a class="white-text">
 						<?php echo T('IP：'); ?>
-						<a id="ip" class="white-text"
-						   href="http://www.ip.cn/index.php?ip=<?php echo PhalApi_Tool::getClientIp(); ?>"><?php echo PhalApi_Tool::getClientIp(); ?></a>
+						<a id="ip" class="white-text"></a>
 					</a>
 				</li>
 				<li>
@@ -31,10 +31,12 @@
 				</li>
 			</ul>
 		</div>
-		<script>
-			$(document).ready(function () {
-				var ip = $('#ip').text();
-				$.ajax({
+		<!--<script>
+			//$(document).ready(function () {
+				//var ip = returnCitySN['cip'];
+				//$('#ip').html(ip);
+				//$('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + ip);
+				/*$.ajax({
 					type: 'POST',
 					data: {service: 'Public.ip', ip: ip},
 					success: function (d) {
@@ -44,9 +46,9 @@
 							$('#ip_address').text(d.msg)
 						}
 					}
-				});
-			})
-		</script>
+				});*/
+			//})
+		</script>-->
 
 		<div class="col s12 m4">
 			<h5 class="white-text"><?php echo T('联系我'); ?></h5>

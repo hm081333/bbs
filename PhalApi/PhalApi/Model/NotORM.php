@@ -13,137 +13,171 @@
  * @author      dogstar <chanzonghuang@gmail.com> 2015-02-22
  */
 
-class PhalApi_Model_NotORM implements PhalApi_Model {
+class PhalApi_Model_NotORM implements PhalApi_Model
+{
 
-    protected static $tableKeys = array();
+	protected static $tableKeys = array();
 
-    public function get($id, $fields = '*') {
-        $needFields = is_array($fields) ? implode(',', $fields) : $fields;
-        $notorm = $this->getORM($id);
-
-        $table = $this->getTableName($id);
-        $rs = $notorm->select($needFields)
-            ->where($this->getTableKey($table), $id)->fetch();
-
-        $this->parseExtData($rs);
-
-        return $rs;
-    }
-
-	public function getInfo($condition, $fields = '*', $id = NULL) {
+	public function get($id, $fields = '*')
+	{
 		$needFields = is_array($fields) ? implode(',', $fields) : $fields;
 		$notorm = $this->getORM($id);
 
 		$table = $this->getTableName($id);
-		$rs = $notorm->select($needFields)->where($condition)->fetch();
+		$rs = $notorm->select($needFields)
+			->where($this->getTableKey($table), $id)->fetch();
+
 		$this->parseExtData($rs);
 
 		return $rs;
 	}
 
-    public function insert($data, $id = NULL) {
-        $this->formatExtData($data);
+	public function getInfo($condition, $fields = '*', $id = NULL)
+	{
+		$needFields = is_array($fields) ? implode(',', $fields) : $fields;
+		$notorm = $this->getORM($id);
+		$table = $this->getTableName($id);
+		$rs = $notorm->select($needFields)->where($condition)->fetch();
+		$this->parseExtData($rs);
+		return $rs;
+	}
 
-        $notorm = $this->getORM($id);
-        $notorm->insert($data);
+	public function getList($limit, $offset, $where = array(), $fields = '*', $order = 'id desc')
+	{
+		$needFields = is_array($fields) ? implode(',', $fields) : $fields;
+		$notorm = $this->getORM(NULL);
+		$rs['total'] = $notorm->where($where)->count();
+		$rs['rows'] = $notorm->select($needFields)->where($where)->order($order)->limit($limit, $offset)->fetchAll();
+		return $rs;
+	}
 
-        return $notorm->insert_id();
-    }
+	public function getListByWhere($where = array(), $fields = '*', $order = 'id desc')
+	{
+		$needFields = is_array($fields) ? implode(',', $fields) : $fields;
+		$notorm = $this->getORM(NULL);
+		$rs = $notorm->select($needFields)->where($where)->order($order)->fetchAll();
+		return $rs;
+	}
 
-    public function update($id, $data) {
-        $this->formatExtData($data);
+	public function updateByWhere($where, $data)
+	{
+		$this->formatExtData($data);
+		$notorm = $this->getORM(NULL);
+		return $notorm->where($where)->update($data);
+	}
 
-        $notorm = $this->getORM($id);
+	public function insert($data, $id = NULL)
+	{
+		$this->formatExtData($data);
 
-        $table = $this->getTableName($id);
-        return $notorm->where($this->getTableKey($table), $id)->update($data);
-    }
+		$notorm = $this->getORM($id);
+		$notorm->insert($data);
 
-    public function delete($id) {
-        $notorm = $this->getORM($id);
+		return $notorm->insert_id();
+	}
 
-        $table = $this->getTableName($id);
-        return $notorm->where($this->getTableKey($table), $id)->delete();
-    }
+	public function update($id, $data)
+	{
+		$this->formatExtData($data);
 
-    /**
-     * 对LOB的ext_data字段进行格式化(序列化)
-     */
-    protected function formatExtData(&$data) {
-        if (isset($data['ext_data'])) {
-            $data['ext_data'] = json_encode($data['ext_data']);
-        }
-    }
+		$notorm = $this->getORM($id);
 
-    /**
-     * 对LOB的ext_data字段进行解析(反序列化)
-     */
-    protected function parseExtData(&$data) {
-        if (isset($data['ext_data'])) {
-            $data['ext_data'] = json_decode($data['ext_data'], true);
-        }
-    }
+		$table = $this->getTableName($id);
+		return $notorm->where($this->getTableKey($table), $id)->update($data);
+	}
 
-    /**
-     * 根据主键值返回对应的表名，注意分表的情况
-     * 
-     * 默认表名为：[表前缀] + 全部小写的匹配表名
-     *
-     * 在以下场景下，需要重写此方法以指定表名
-     * + 1. 自动匹配的表名与实际表名不符
-     * + 2. 存在分表 
-     * + 3. Model类名不含有Model_
-     */
-    protected function getTableName($id) {
-        $className = get_class($this);
-        $pos = strpos($className, 'Model');
+	public function delete($id)
+	{
+		$notorm = $this->getORM($id);
 
-        $tableName = $pos !== FALSE ? substr($className, $pos + 6) : $className;
-        return strtolower($tableName);
-    }
+		$table = $this->getTableName($id);
+		return $notorm->where($this->getTableKey($table), $id)->delete();
+	}
 
-    /**
-     * 根据表名获取主键名
-     *
-     * - 考虑到配置中的表主键不一定是id，所以这里将默认自动装配数据库配置并匹配对应的主键名
-     * - 如果不希望因自动匹配所带来的性能问题，可以在每个实现子类手工返回对应的主键名
-     * - 注意分表的情况
-     * 
-     * @param string $table 表名/分表名
-     * @return string 主键名
-     */
-    protected function getTableKey($table) {
-        if (empty(static::$tableKeys)) {
-            $this->loadTableKeys();
-        }
+	/**
+	 * 对LOB的ext_data字段进行格式化(序列化)
+	 */
+	protected function formatExtData(&$data)
+	{
+		if (isset($data['ext_data'])) {
+			$data['ext_data'] = json_encode($data['ext_data']);
+		}
+	}
 
-        return isset(static::$tableKeys[$table]) ? static::$tableKeys[$table] : static::$tableKeys['__default__'];
-    }
+	/**
+	 * 对LOB的ext_data字段进行解析(反序列化)
+	 */
+	protected function parseExtData(&$data)
+	{
+		if (isset($data['ext_data'])) {
+			$data['ext_data'] = json_decode($data['ext_data'], true);
+		}
+	}
 
-    /**
-     * 快速获取ORM实例，注意每次获取都是新的实例
-     * @param string/int $id
-     * @return NotORM_Result
-     */
-    protected function getORM($id = NULL) {
-        $table = $this->getTableName($id);
-        return DI()->notorm->$table;
-    }
+	/**
+	 * 根据主键值返回对应的表名，注意分表的情况
+	 *
+	 * 默认表名为：[表前缀] + 全部小写的匹配表名
+	 *
+	 * 在以下场景下，需要重写此方法以指定表名
+	 * + 1. 自动匹配的表名与实际表名不符
+	 * + 2. 存在分表
+	 * + 3. Model类名不含有Model_
+	 */
+	protected function getTableName($id)
+	{
+		$className = get_class($this);
+		$pos = strpos($className, 'Model');
 
-    protected function loadTableKeys() {
-        $tables = DI()->config->get('dbs.tables');
-        if (empty($tables)) {
-            throw new PhalApi_Exception_InternalServerError(T('dbs.tables should not be empty'));
-        }
+		$tableName = $pos !== FALSE ? substr($className, $pos + 6) : $className;
+		return strtolower($tableName);
+	}
 
-        foreach ($tables as $tableName => $tableConfig) {
-            if (isset($tableConfig['start']) && isset($tableConfig['end'])) {
-                for ($i = $tableConfig['start']; $i <= $tableConfig['end']; $i ++) {
-                    static::$tableKeys[$tableName . '_' . $i] = $tableConfig['key'];
-                }
-            } else {
-                static::$tableKeys[$tableName] = $tableConfig['key'];
-            }
-        }
-    }
+	/**
+	 * 根据表名获取主键名
+	 *
+	 * - 考虑到配置中的表主键不一定是id，所以这里将默认自动装配数据库配置并匹配对应的主键名
+	 * - 如果不希望因自动匹配所带来的性能问题，可以在每个实现子类手工返回对应的主键名
+	 * - 注意分表的情况
+	 *
+	 * @param string $table 表名/分表名
+	 * @return string 主键名
+	 */
+	protected function getTableKey($table)
+	{
+		if (empty(static::$tableKeys)) {
+			$this->loadTableKeys();
+		}
+
+		return isset(static::$tableKeys[$table]) ? static::$tableKeys[$table] : static::$tableKeys['__default__'];
+	}
+
+	/**
+	 * 快速获取ORM实例，注意每次获取都是新的实例
+	 * @param string /int $id
+	 * @return NotORM_Result
+	 */
+	protected function getORM($id = NULL)
+	{
+		$table = $this->getTableName($id);
+		return DI()->notorm->$table;
+	}
+
+	protected function loadTableKeys()
+	{
+		$tables = DI()->config->get('dbs.tables');
+		if (empty($tables)) {
+			throw new PhalApi_Exception_InternalServerError(T('dbs.tables should not be empty'));
+		}
+
+		foreach ($tables as $tableName => $tableConfig) {
+			if (isset($tableConfig['start']) && isset($tableConfig['end'])) {
+				for ($i = $tableConfig['start']; $i <= $tableConfig['end']; $i++) {
+					static::$tableKeys[$tableName . '_' . $i] = $tableConfig['key'];
+				}
+			} else {
+				static::$tableKeys[$tableName] = $tableConfig['key'];
+			}
+		}
+	}
 }

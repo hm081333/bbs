@@ -1,0 +1,122 @@
+<h3 class="center"><?php echo T('查询快递'); ?></h3>
+<table>
+	<thead>
+	<tr class="teal darken-3">
+		<th><?php echo T('单号'); ?></th>
+		<th><?php echo T('物流公司'); ?></th>
+		<th><?php echo T('说明'); ?></th>
+		<th><?php echo T('状态'); ?></th>
+		<th><?php echo T('上次查看时间'); ?></th>
+	</tr>
+	</thead>
+	<tbody>
+	<?php foreach ($rows as $key => $row) : ?>
+		<tr class="green accent-1">
+			<td>
+				<a class="brown-text delivery_id" data-id="<?php echo $row['id']; ?>" style="cursor: pointer;">
+					<b><?php echo $row['sn']; ?></b>
+				</a>
+			</td>
+			<td>
+				<?php echo $row['log_name']; ?>
+			</td>
+			<td>
+				<?php echo $row['memo']; ?>
+			</td>
+			<td>
+				<!--0：在途，即货物处于运输过程中；
+				1：揽件，货物已由快递公司揽收并且产生了第一条跟踪信息；
+				2：疑难，货物寄送过程出了问题；
+				3：签收，收件人已签收；
+				4：退签，即货物由于用户拒签、超区等原因退回，而且发件人已经签收；
+				5：派件，即快递正在进行同城派件；
+				6：退回，货物正处于退回发件人的途中；-->
+				<?php
+				switch ($row['state']):
+					case 0:
+						echo '在途';
+						break;
+					case 1:
+						echo '揽件';
+						break;
+					case 2:
+						echo '疑难';
+						break;
+					case 3:
+						echo '签收';
+						break;
+					case 4:
+						echo '退签';
+						break;
+					case 5:
+						echo '派件';
+						break;
+					case 6:
+						echo '退回';
+						break;
+				endswitch;
+				?>
+			</td>
+			<td>
+				<?php echo $row['last_time'] ? date('Y-m-d H:i:s', $row['last_time']) : ''; ?>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+	<tr>
+		<td colspan="5">
+
+			<?php
+			//上一页
+			if ($page > 1) :
+				?>
+				<a class="btn waves-effect waves-light"
+				   href="./?service=Default.deliveryList&page=<?php echo($page - 1) ?>">
+					<i class="material-icons">arrow_back</i></a>
+			<?php else: ?>
+				<a class="disabled btn waves-effect waves-light"><i class="material-icons">arrow_back</i></a>
+			<?php endif;
+			//后一页
+			if (($page * each_page) < $total) :
+				?>
+				<a class="btn waves-effect waves-light"
+				   href="./?service=Default.deliveryList&page=<?php echo($page + 1) ?>">
+					<i class="material-icons">arrow_forward</i></a>
+			<?php else: ?>
+				<a class="disabled btn waves-effect waves-light"><i class="material-icons">arrow_forward</i></a>
+			<?php endif; ?>
+			<button class="btn right waves-effect waves-light" data-target="addDelivery"><?php echo T('添加'); ?></button>
+		</td>
+	</tr>
+	</tbody>
+</table>
+<!-- 物流信息弹框 -->
+<div id="delivery" class="modal"></div>
+<!-- 添加快递弹窗 -->
+<div id="addDelivery" class="modal" style="min-height: 70%;">
+	<div class="modal-content center">
+		<h4>添加查询运单</h4>
+		<p>A bunch of text</p>
+		<form id="Add_Delivery" method="post" onsubmit="return false;">
+			<input type="hidden" name="service" value="Default.addDelivery">
+			<div class="input-field">
+				<select name="code">
+					<option value="" disabled selected>请选择对应的物流公司</option>
+					<?php
+					foreach ($logss as $log):?>
+						<option value="<?php echo $log['code']; ?>"><?php echo $log['name']; ?></option>
+					<?php endforeach; ?>
+				</select>
+				<label>物流选择</label>
+			</div>
+			<div class="input-field">
+				<input id="sn" name="sn" type="text" class="validate">
+				<label for="sn">运单号</label>
+			</div>
+			<div class="input-field">
+				<input id="memo" name="memo" type="text" class="validate">
+				<label for="memo">备注</label>
+			</div>
+			<button type="submit" class="btn waves-effect waves-light"><?php echo T('添加'); ?></button>
+		</form>
+	</div>
+</div>

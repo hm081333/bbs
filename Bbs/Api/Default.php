@@ -17,7 +17,78 @@ class Api_Default extends PhalApi_Api
 			'index' => array(
 				'page' => array('name' => 'page', 'type' => 'int', 'default' => 1, 'min' => 1, 'desc' => '当前页数'),
 			),
+			'deliveryList' => array(
+				'page' => array('name' => 'page', 'type' => 'int', 'default' => 1, 'min' => 1, 'desc' => '当前页数'),
+			),
+			'addDelivery' => array(
+				'code' => array('name' => 'code', 'type' => 'string', 'require' => true, 'desc' => '快递公司代号'),
+				'sn' => array('name' => 'sn', 'type' => 'string', 'require' => true, 'desc' => '快递单号'),
+				'memo' => array('name' => 'memo', 'type' => 'string', 'require' => true, 'desc' => '快递备注'),
+			),
+			'deliveryView' => array(
+				'id' => array('name' => 'id', 'type' => 'int', 'require' => true, 'min' => 1, 'desc' => 'ID'),
+			),
 		);
+	}
+
+	public function deliveryList()
+	{
+		$delivery_model = new Model_Delivery();
+		$delivery_list = $delivery_model->getList((($this->page - 1) * each_page), ($this->page * each_page));
+		$delivery_list['page_total'] = ceil($delivery_list['total'] / each_page);
+		$logistics_model = new Model_Logistics();
+		$logistics = $logistics_model->getListByWhere(array('state' => 1), 'name, code', 'used DESC, sort DESC, id DESC');
+		DI()->view->show('delivery_list', array('rows' => $delivery_list['rows'], 'total' => $delivery_list['total'], 'page' => $this->page, 'logss' => $logistics));
+	}
+
+	public function addDelivery()
+	{
+		$logistics_model = new Model_Logistics();
+		$log = $logistics_model->getInfo(array('code' => $this->code));
+		if ($log === false) {
+			throw  new PhalApi_Exception(T('不存在该快递公司代码，请联系管理员'));
+		}
+		$delivery_model = new Model_Delivery();
+		DI()->notorm->beginTransaction('db_forum');
+		$insert = array();
+		$insert['code'] = $log['code'];
+		$insert['log_name'] = $log['name'];
+		$insert['sn'] = $this->sn;
+		$insert['memo'] = $this->memo;
+		$insert['add_time'] = NOW_TIME;
+		$rs = $delivery_model->insert($insert);
+		unset($insert);
+		$update_log_used = $logistics_model->update($log['id'], array('used' => new NotORM_Literal('used + 1')));
+		if ($rs === false || $update_log_used === false) {
+			DI()->notorm->rollback('db_forum');
+			throw new PhalApi_Exception(T('添加失败'));
+		} else {
+			DI()->notorm->commit('db_forum');
+			DI()->response->setMsg(T('添加成功'));
+			return true;
+		}
+	}
+
+	public function deliveryView()
+	{
+		$delivery_model = new Model_Delivery();
+		$delivery = $delivery_model->get($this->id);
+		$logistics = Common_Function::getLogistics($delivery['code'], $delivery['sn']);
+		if ($logistics['status'] != 200) {
+			throw new PhalApi_Exception(T($logistics['message']));
+		}
+		$update = array();
+		$update['last_time'] = NOW_TIME;
+		if ($delivery['state'] != $logistics['state']) {
+			$update['state'] = $logistics['state'];
+			if ($logistics['state'] == 3) {
+				$update['end_time'] = NOW_TIME;
+			}
+		}
+		$delivery_model->update($delivery['id'], $update);
+		unset($update);
+		//var_dump($logistics);die;
+		return DI()->view->post('delivery_view', array('delivery' => $delivery, 'logistics' => $logistics));
 	}
 
 	/**

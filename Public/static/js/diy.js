@@ -48,6 +48,29 @@ $(document).ready(function () {
 		selectMonths: true, // Creates a dropdown to control month
 		selectYears: 15 // Creates a dropdown of 15 years to control year
 	});
+	$('.collapsible').collapsible();
+	$('select').material_select();
+
+	$.ajax({
+		type: 'POST',
+		url: 'http://ip.chinaz.com/getip.aspx',
+		dataType: 'jsonp',
+		success: function (d) {
+			$('#ip').html(d.ip);
+			$('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + d.ip);
+			$.ajax({
+				type: 'POST',
+				data: {service: 'Public.ip', ip: d.ip},
+				success: function (d) {
+					if (d.ret == 200) {
+						$('#ip_address').text(d.data.country + ' ' + d.data.area + ' ' + d.data.region + ' ' + d.data.city + ' ' + d.data.isp)
+					} else {
+						$('#ip_address').text(d.msg)
+					}
+				}
+			});
+		}
+	});
 });
 
 //上传图片预览
@@ -468,3 +491,37 @@ $('#config').submit(function ()//提交表单
 	});
 });
 
+$('.delivery_id').click(function () {
+	var id = $(this).attr("data-id");
+	$.ajax({
+		type: 'POST',
+		data: {service: 'Default.deliveryView', id: id},
+		success: function (d) {
+			if (d.ret == 200) {
+				$('#delivery').html(d.data);
+				$('.collapsible').collapsible();
+				$('.collapsible').collapsible('open', 0);
+				$('#delivery').modal('open');
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+});
+
+$('#Add_Delivery').submit(function ()//提交表单
+{
+	$.ajax({
+		type: 'POST',
+		data: $("#Add_Delivery").serialize(),
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+});

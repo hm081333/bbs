@@ -92,12 +92,13 @@ class View_Lite
 
 	public function post($name, $param = array())
 	{
-		if (empty($this->type)) {
-			$view = API_ROOT . '/' . $this->item . '/View/inc/' . $name . '.php';
-		} else {
-			$view = API_ROOT . '/' . $this->item . '/View/' . $this->type . '/inc/' . $name . '.php';
-		}
+		//if (empty($this->type)) {
+		//	$view = API_ROOT . '/' . $this->item . '/View/inc/' . $name . '.php';
+		//} else {
+		//	$view = API_ROOT . '/' . $this->item . '/View/' . $this->type . '/inc/' . $name . '.php';
+		//}
 
+		$view = API_ROOT . '/' . $this->item . '/View/' . $name . '.php';
 		//合并参数
 		$param = array_merge($this->param, $param);
 
