@@ -37,7 +37,7 @@ class Api_Default extends PhalApi_Api
 		$delivery_list = $delivery_model->getList((($this->page - 1) * each_page), ($this->page * each_page));
 		$delivery_list['page_total'] = ceil($delivery_list['total'] / each_page);
 		$logistics_model = new Model_Logistics();
-		$logistics = $logistics_model->getListByWhere(array('state' => 1), 'name, code', 'used DESC, sort DESC, id DESC');
+		$logistics = $logistics_model->getListByWhere(array('state' => 1), 'name, code, used', 'used DESC, sort DESC, id DESC');
 		DI()->view->show('delivery_list', array('rows' => $delivery_list['rows'], 'total' => $delivery_list['total'], 'page' => $this->page, 'logss' => $logistics));
 	}
 
