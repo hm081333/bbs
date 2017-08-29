@@ -31,24 +31,6 @@
 				</li>
 			</ul>
 		</div>
-		<!--<script>
-			//$(document).ready(function () {
-				//var ip = returnCitySN['cip'];
-				//$('#ip').html(ip);
-				//$('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + ip);
-				/*$.ajax({
-					type: 'POST',
-					data: {service: 'Public.ip', ip: ip},
-					success: function (d) {
-						if (d.ret == 200) {
-							$('#ip_address').text(d.data.country + ' ' + d.data.area + ' ' + d.data.region + ' ' + d.data.city + ' ' + d.data.isp)
-						} else {
-							$('#ip_address').text(d.msg)
-						}
-					}
-				});*/
-			//})
-		</script>-->
 
 		<div class="col s12 m4">
 			<h5 class="white-text"><?php echo T('联系我'); ?></h5>

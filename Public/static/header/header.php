@@ -13,8 +13,8 @@
 	<link href="./Public/static/css/diy.css" rel="stylesheet"><!--加载自定义样式-->
 </head>
 
-<body><!-- style="background-image:url(./images/bgl.jpg);background-repeat:no-repeat;background-attachment:fixed;" -->
-<!-- 头开始 -->
+<body>
+<!--头开始-->
 <header>
 	<nav class="<!--hoverable--> cyan darken-4"><!--导航栏语句开始-->
 
@@ -26,9 +26,12 @@
 			<?php endif; ?>
 			<a href="./" class="brand-logo">LYiHo</a><!--网页LOGO-->
 			<ul class="right">
-				<!--<li><a class="search_pic" href="#modal1"><i class="material-icons">search</i></a></li>-->
-				<li><a class="dropdown-button" data-activates="language"><i class="material-icons">translate</i></a>
+				<?php if (DI()->config->get('sys.translate')): ?>
+				<li>
+					<a class="dropdown-button" data-activates="language"><i class="material-icons">translate</i>
+					</a>
 				</li>
+				<?php endif; ?>
 				<li><a class="dropdown-button" data-activates="menu"><i class="material-icons">perm_identity</i></a>
 				</li>
 			</ul>
@@ -52,7 +55,7 @@
 			<li><a href="?service=User.login"><?php echo T('登录'); ?></a></li>
 		<?php endif; ?>
 	</ul>
-
+	<?php if (DI()->config->get('sys.translate')): ?>
 	<ul id="language" class="dropdown-content">
 		<li>
 			<a onclick="javascript:set_language('zh_cn')"><?php echo T('简体中文'); ?></a>
@@ -76,40 +79,7 @@
 			<a onclick="javascript:set_language('fr')"><?php echo T('法语'); ?></a>
 		</li>
 	</ul>
-
-	<!-- Modal Structure -->
-	<!--<div id="modal1" class="modal bottom-sheet">
-		<div class="modal-content row" style="text-align: center;">
-			<h4><?php /*echo T('搜索'); */ ?></h4>
-			<form id="search" method="post" onsubmit="return false;" class="col s12">
-				<input type="hidden" name="service" value="public.search"/>
-				<input type="hidden" name="action" value="post"/>
-				<div class="col s12">
-					<div class="input-field">
-						<i class="material-icons prefix">label_outline</i>
-						<input name="keyword" type="text" class="validate">
-						<label for="keyword"><?php /*echo T('关键字'); */ ?></label>
-					</div>
-					<p>搜索条件：</p>
-					<p>
-						<input name="term" type="radio" id="topic" value="topic" class="with-gap" checked/>
-						<label for="topic"><?php /*echo T('标题'); */ ?></label>
-						<input name="term" type="radio" id="detail" value="detail" class="with-gap"/>
-						<label for="detail"><?php /*echo T('正文内容'); */ ?></label>
-						<input name="term" type="radio" id="user_name" value="user_name" class="with-gap"/>
-						<label for="user_name"><?php /*echo T('用户名'); */ ?></label>
-						<input name="term" type="radio" id="real_name" value="real_name" class="with-gap"/>
-						<label for="real_name"><?php /*echo T('姓名'); */ ?></label>
-					</p>
-				</div>
-				<div class="col s12 center">
-					<button type="submit" name="submit"
-							class="btn waves-effect waves-light"><?php /*echo T('搜索'); */ ?></button>
-					<button type="reset" class="btn waves-effect waves-light"><?php /*echo T('重新输入'); */ ?></button>
-				</div>
-			</form>
-		</div>
-	</div>-->
+	<?php endif; ?>
 
 </header>
 <!-- 头结束 -->

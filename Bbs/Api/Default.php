@@ -87,7 +87,6 @@ class Api_Default extends PhalApi_Api
 		}
 		$delivery_model->update($delivery['id'], $update);
 		unset($update);
-		//var_dump($logistics);die;
 		return DI()->view->post('delivery_view', array('delivery' => $delivery, 'logistics' => $logistics));
 	}
 
