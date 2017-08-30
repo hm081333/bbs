@@ -44,11 +44,19 @@ class Api_Public extends PhalApi_Api
 
 	public function ip()
 	{
-		$data = DI()->curl->json_post('http://ip.taobao.com/service/getIpInfo.php', array('ip' => $this->ip));
-		if ($data['code'] !== 0) {
-			throw new PhalApi_Exception_Error(T($data['data']));
+		$ip_model = new Model_Ip();
+		$old_ip = $ip_model->getInfo(array('ip' => $this->ip));
+		if ($old_ip === false) {
+			$data = DI()->curl->json_post('http://ip.taobao.com/service/getIpInfo.php', array('ip' => $this->ip));
+			if ($data['code'] !== 0) {
+				throw new PhalApi_Exception_Error(T($data['data']));
+			}
+			$ip_info = $data['data'];
+			$ip_model->insert(array('ip' => $this->ip, 'info' => serialize($ip_info), 'add_time' => NOW_TIME));
+		} else {
+			$ip_info = unserialize($old_ip['info']);
 		}
-		return $data['data'];
+		return $ip_info;
 	}
 
 	public function checkEmail()

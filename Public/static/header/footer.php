@@ -1,7 +1,6 @@
 </main>
 <!-- 正文内容结束 -->
 <!--<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>-->
-<script src="./Public/static/js/diy.js"></script><!--自定义JS脚本-->
 <!-- 页脚信息 -->
 <footer class="page-footer cyan darken-4">
 
@@ -19,7 +18,7 @@
 				<li>
 					<a class="white-text">
 						<?php echo T('IP：'); ?>
-						<a id="ip" class="white-text"></a>
+						<a id="ip" class="white-text" href="http://www.ip.cn/index.php?ip=<?php echo client_ip ?>"><?php echo client_ip; ?></a>
 					</a>
 				</li>
 				<li>
@@ -63,3 +62,5 @@
 
 </body>
 </html>
+<script src="./Public/static/js/diy.js"></script><!--自定义JS脚本-->
+

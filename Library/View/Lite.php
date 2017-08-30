@@ -116,6 +116,7 @@ class View_Lite
 		//获取当前缓冲区内容
 		//$content = ob_get_contents(); // 仅输出
 		$content = ob_get_clean(); // 输出并清空关闭
+		$content = Common_Function::higrid_compress_html($content);
 		return $content;
 	}
 }

@@ -17,7 +17,6 @@ defined('API_ROOT') || define('API_ROOT', dirname(__FILE__) . '/..');
 defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/Public/');
 defined('PUB_ROOT') || define('PUB_ROOT', dirname(__FILE__) . '/');
 
-
 require_once API_ROOT . '/PhalApi/PhalApi.php';
 require_once API_ROOT . '/Library/upload_image/upload_image.php'; // 简陋的图片上传function
 
@@ -100,6 +99,9 @@ if (isset($_SESSION['Language'])) {
 DI()->curl = function () {
 	return new PhalApi_CUrl();
 };
+
+//客户端IP
+defined('client_ip') || define('client_ip', PhalApi_Tool::getClientIp());
 
 /**
  * // 支持JsonP的返回

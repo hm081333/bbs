@@ -24,54 +24,42 @@ jQuery(document).ready(function ($) {
 	});
 });
 
+//页面DOM加载后
 $(document).ready(function () {
-	// the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
 	$('.modal').modal();
-	/*$('.modal').modal({
-	 dismissible: true, // Modal can be dismissed by clicking outside of the modal
-	 opacity: .5, // Opacity of modal background
-	 inDuration: 300, // Transition in duration
-	 outDuration: 200, // Transition out duration
-	 startingTop: '4%', // Starting top style attribute
-	 endingTop: '10%', // Ending top style attribute
-	 ready: function (modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
-	 alert("Ready");
-	 console.log(modal, trigger);
-	 },
-	 complete: function () {
-	 alert('Closed');
-	 } // Callback for Modal close
-	 }
-	 );*/
-	$('select').material_select();
 	$('.datepicker').pickadate({
 		selectMonths: true, // Creates a dropdown to control month
 		selectYears: 15 // Creates a dropdown of 15 years to control year
 	});
-	$('.collapsible').collapsible();
 	$('select').material_select();
+	$('.collapsible').collapsible();
+	// $(".button-collapse").sideNav();
+});
 
+//页面文档下载后
+window.onload = function () {
+// $.ajax({
+	// 	type: 'POST',
+	// 	url: 'http://ip.chinaz.com/getip.aspx',
+	// 	dataType: 'jsonp',
+	// success: function (d) {
+	// $('#ip').html(d.ip);
+	// $('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + d.ip);
+	var ip = $('#ip').html();
 	$.ajax({
 		type: 'POST',
-		url: 'http://ip.chinaz.com/getip.aspx',
-		dataType: 'jsonp',
+		data: {service: 'Public.ip', ip: ip},
 		success: function (d) {
-			$('#ip').html(d.ip);
-			$('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + d.ip);
-			$.ajax({
-				type: 'POST',
-				data: {service: 'Public.ip', ip: d.ip},
-				success: function (d) {
-					if (d.ret == 200) {
-						$('#ip_address').text(d.data.country + ' ' + d.data.area + ' ' + d.data.region + ' ' + d.data.city + ' ' + d.data.isp)
-					} else {
-						$('#ip_address').text(d.msg)
-					}
-				}
-			});
+			if (d.ret == 200) {
+				$('#ip_address').text(d.data.country + ' ' + d.data.area + ' ' + d.data.region + ' ' + d.data.city + ' ' + d.data.isp)
+			} else {
+				$('#ip_address').text(d.msg)
+			}
 		}
 	});
-});
+	// }
+	// });
+};
 
 //上传图片预览
 function preview(file) {
