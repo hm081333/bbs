@@ -10,6 +10,8 @@ define('IS_JSON',true);
 //echo $_GET['echostr'];
 //die();
 
+$_SERVER["HTTP_ACCEPT_ENCODING"] = ''; // gzip判断
+$GLOBALS['HTTP_RAW_POST_DATA']=file_get_contents("php://input"); // PHP7.0
 if (!isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
 	die('Access denied!');
 }

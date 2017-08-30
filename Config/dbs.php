@@ -8,6 +8,7 @@
 return array(
 	/**
 	 * DB数据库服务器集群
+	 * apt-cache search php7.0
 	 */
 	/*'servers' => array(
 		'db_forum' => array(                         //服务器标记
