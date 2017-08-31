@@ -34,7 +34,7 @@ class Api_Default extends PhalApi_Api
 	public function deliveryList()
 	{
 		$delivery_model = new Model_Delivery();
-		$delivery_list = $delivery_model->getList((($this->page - 1) * each_page), ($this->page * each_page));
+		$delivery_list = $delivery_model->getList((($this->page - 1) * each_page), ($this->page * each_page), array('user_id' => $_SESSION['user_id']));
 		$delivery_list['page_total'] = ceil($delivery_list['total'] / each_page);
 		$logistics_model = new Model_Logistics();
 		$logistics = $logistics_model->getListByWhere(array('state' => 1), 'name, code, used', 'used DESC, sort DESC, id DESC');
@@ -56,6 +56,7 @@ class Api_Default extends PhalApi_Api
 		$insert['sn'] = $this->sn;
 		$insert['memo'] = $this->memo;
 		$insert['add_time'] = NOW_TIME;
+		$insert['user_id'] = $_SESSION['user_id'];
 		$rs = $delivery_model->insert($insert);
 		unset($insert);
 		$update_log_used = $logistics_model->update($log['id'], array('used' => new NotORM_Literal('used + 1')));
@@ -82,7 +83,15 @@ class Api_Default extends PhalApi_Api
 		if ($delivery['state'] != $logistics['state']) {
 			$update['state'] = $logistics['state'];
 			if ($logistics['state'] == 3) {
-				$update['end_time'] = NOW_TIME;
+				$year = ((int)substr($logistics['data'][0]['time'], 0, 4));//取得年份
+				$month = ((int)substr($logistics['data'][0]['time'], 5, 2));//取得月份
+				$day = ((int)substr($logistics['data'][0]['time'], 8, 2));//取得几号
+				$hour = ((int)substr($logistics['data'][0]['time'], 11, 2));//取得小时
+				$min = ((int)substr($logistics['data'][0]['time'], 14, 2));//取得分钟
+				$sec = ((int)substr($logistics['data'][0]['time'], 17, 2));//取得秒
+				//$update['end_time'] = NOW_TIME;
+				$update['end_time'] = mktime($hour, $min, $sec, $month, $day, $year);
+				unset($hour, $min, $sec, $month, $day, $year);
 			}
 		}
 		$delivery_model->update($delivery['id'], $update);
