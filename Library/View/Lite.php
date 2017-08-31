@@ -87,7 +87,8 @@ class View_Lite
 		//$content = ob_get_contents(); // 仅输出
 		//return $content;
 		$content = ob_get_clean(); // 输出并清空关闭
-		$content = Common_Function::higrid_compress_html($content);
+		$content = Common_Function::higrid_compress_html($content); // 正则删除无关代码
+		$content = Common_Function::compress_html($content); // 正则删除无关代码
 		echo $content;
 	}
 

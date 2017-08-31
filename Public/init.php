@@ -100,7 +100,6 @@ DI()->curl = function () {
 	return new PhalApi_CUrl();
 };
 
-//客户端IP
 defined('client_ip') || define('client_ip', PhalApi_Tool::getClientIp());
 
 /**

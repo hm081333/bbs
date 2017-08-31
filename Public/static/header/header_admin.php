@@ -5,17 +5,15 @@
 	<!--识别浏览设备-->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<title><?php echo T('后台DEMO') ?></title>
-	<script type="text/javascript" src="./Public/static/js/jquery/3.2.1/jquery.min.js"></script>
-	<!--加载jQuery-->
-	<script type="text/javascript" src="./Public/static/js/materialize/0.99.0/materialize.min.js"></script>
-	<!--加载框架js-->
-	<link href="./Public/static/css/material-design-icons/3.0.1/material-icons.min.css" rel="stylesheet">
-	<!--加载Material style图标-->
-	<link href="./Public/static/css/materialize/0.99.0/materialize.min.css" type="text/css" rel="stylesheet"
-		  media="screen,projection">
-	<!--加载框架css-->
+	<!--<link href="./Public/static/css/material-design-icons/3.0.1/material-icons.min.css" rel="stylesheet">-->
+	<link href="./Public/static/css/materialize/0.99.0/materialize_nofont.min.css" type="text/css" rel="stylesheet" media="screen,projection">
+	<!--<script type="text/javascript" src="./Public/static/js/jquery/3.2.1/jquery.min.js"></script>-->
+	<!--<script type="text/javascript" src="./Public/static/js/materialize/0.99.0/materialize.min.js"></script>-->
+	<link href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.min.css" rel="stylesheet">
+	<!--<link href="https://cdn.bootcss.com/materialize/0.100.2/css/materialize.min.css" rel="stylesheet" media="screen,projection">-->
+	<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://cdn.bootcss.com/materialize/0.100.2/js/materialize.min.js"></script>
 	<link href="./Public/static/css/diy.css" rel="stylesheet">
-	<!--加载自定义样式-->
 	<script>
 		$(document).ready(function () {
 			$(".button-collapse").sideNav();

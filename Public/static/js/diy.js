@@ -34,17 +34,10 @@ $(document).ready(function () {
 	$('select').material_select();
 	$('.collapsible').collapsible();
 	// $(".button-collapse").sideNav();
-});
 
-//页面文档下载后
-window.onload = function () {
-// $.ajax({
-	// 	type: 'POST',
-	// 	url: 'http://ip.chinaz.com/getip.aspx',
-	// 	dataType: 'jsonp',
-	// success: function (d) {
-	// $('#ip').html(d.ip);
-	// $('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + d.ip);
+	// var ip = returnCitySN['cip'];
+	// $('#ip').html(ip);
+	// $('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + ip);
 	var ip = $('#ip').html();
 	$.ajax({
 		type: 'POST',
@@ -57,9 +50,7 @@ window.onload = function () {
 			}
 		}
 	});
-	// }
-	// });
-};
+});
 
 //上传图片预览
 function preview(file) {
