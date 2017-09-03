@@ -392,7 +392,7 @@ $('#Create_Topic').submit(function ()//提交表单
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
 					// history.back();
-					location.href = '?service=Topic.topic_List';
+					location.href = '?service=Topic.topic&topic_id=' + d.data['topic_id'];
 				});
 			} else {
 				Materialize.toast(d.msg, 2000, 'rounded');

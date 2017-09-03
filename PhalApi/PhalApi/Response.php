@@ -114,9 +114,9 @@ abstract class PhalApi_Response {
             'msg'   => $this->msg,
         );
 
-        if (!empty($this->debug)) {
+        /*if (!empty($this->debug)) {
             $rs['debug'] = $this->debug;
-        }
+        }*/
 
         return $rs;
     }

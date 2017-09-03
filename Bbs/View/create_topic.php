@@ -29,7 +29,7 @@
 					<select name="class_id">
 						<option disabled selected><?php echo T('请选择'); ?></option>
 						<?php foreach ($class as $row) : ?>
-							<option value="<?php /*echo $row['id']; */ ?>"><?php echo T($row['name']); ?></option>
+							<option value="<?php echo $row['id']; ?>"><?php echo T($row['name']); ?></option>
 						<?php endforeach; ?>
 					</select>
 					<label><?php echo T('课程选择'); ?></label>

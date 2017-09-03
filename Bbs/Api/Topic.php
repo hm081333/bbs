@@ -88,10 +88,10 @@ class Api_Topic extends PhalApi_Api
 			$insert_data['email'] = $user['email'];
 			$insert_data['datetime'] = new NotORM_Literal("NOW()");
 			$insert_data['sticky'] = $this->sticky;
-			$rs = $topic_model->insert($insert_data);
-			if ($rs) {
+			$topic_id = $topic_model->insert($insert_data);
+			if ($topic_id) {
 				DI()->response->setMsg(T('发布成功'));
-				return;
+				return array('topic_id' => $topic_id);
 			} else {
 				throw new PhalApi_Exception_InternalServerError(T('发布失败'), 2);// 抛出服务端错误
 			}
