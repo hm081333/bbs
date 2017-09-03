@@ -9,7 +9,7 @@
 		<tr>
 			<td class="center">
 				<?php echo T('用户：') ?><a href="?service=User.user_Info&user_id=<?php echo $topic['user_id']; ?>">
-					<?php echo $topic['name']; ?></a><br/><?php echo $topic['datetime']; ?>
+					<?php echo $topic['name']; ?></a><br/><?php echo date('Y-m-d H:i:s', $topic['add_time']); ?>
 			</td>
 		</tr>
 		<tr>
@@ -44,7 +44,7 @@
 							<dt>
 								<?php echo T('用户：') ?><a
 										href="?service=User.user_Info&user_id=<?php echo $row['user_id']; ?>"><?php echo $row['reply_name']; ?></a>
-								<?php echo $row['reply_datetime']; ?>
+								<?php echo date('Y-m-d H:i:s', $row['add_time']); ?>
 							</dt>
 							<dd>
 								<?php

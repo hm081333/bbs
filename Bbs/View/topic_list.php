@@ -31,7 +31,7 @@
 			</td>
 			<td>
 				<?php
-				echo $row['datetime'];  //日期
+				echo date('Y-m-d H:i:s', $row['add_time']);  //日期
 				?>
 			</td>
 		</tr>
