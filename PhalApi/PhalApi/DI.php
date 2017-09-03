@@ -39,8 +39,9 @@
  * @property PhalApi_DB_NotORM      $notorm     数据库
  * @property PhalApi_Loader         $loader     自动加载
  * @property PhalApi_Helper_Tracer  $tracer     全球追踪器
- * @property PhalApi_CUrl  $curl     全球追踪器
- * @property View_Lite  $view     全球追踪器
+ * @property PhalApi_CUrl           $curl       Curl请求
+ * @property View_Lite              $view       视图控制器
+ * @property PhalApi_Tool           $tool       工具
  *
  * @package     PhalApi\DI
  * @link        http://docs.phalconphp.com/en/latest/reference/di.html 实现统一的资源设置、获取与管理，支持延时加载

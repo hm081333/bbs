@@ -139,4 +139,8 @@ return array (
   123 => '123',
   '修改成功' => 'Successfully modified',
   '语言设置成功，请等待刷新！' => 'Language settings are successful, please wait for refresh!',
+  '查询快递' => 'Inquiry Express',
+  '退出登录' => 'sign out',
+  'IP：' => 'IP:',
+  'IP所在地：' => 'IP Location:',
 );

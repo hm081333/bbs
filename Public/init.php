@@ -100,7 +100,12 @@ DI()->curl = function () {
 	return new PhalApi_CUrl();
 };
 
-defined('client_ip') || define('client_ip', PhalApi_Tool::getClientIp());
+//tool工具
+DI()->tool = function () {
+	return new PhalApi_Tool();
+};
+
+defined('client_ip') || define('client_ip', DI()->tool->getClientIp());
 
 /**
  * // 支持JsonP的返回

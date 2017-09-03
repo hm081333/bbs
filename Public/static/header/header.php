@@ -4,7 +4,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<title><?php echo T('南洋师生交流平台DEMO'); ?></title>
 	<!--<link href="./Public/static/css/material-design-icons/3.0.1/material-icons.min.css" rel="stylesheet">-->
-	<link href="./Public/static/css/materialize/0.99.0/materialize_nofont.min.css" type="text/css" rel="stylesheet" media="screen,projection">
+	<link href="./Public/static/css/materialize/0.99.0/materialize_nofont.min.css" type="text/css" rel="stylesheet"
+		  media="screen,projection">
 	<!--<script src="./Public/static/js/jquery/3.2.1/jquery.min.js"></script>-->
 	<!--<script src="./Public/static/js/materialize/0.99.0/materialize.min.js"></script>-->
 	<link href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.min.css" rel="stylesheet">
@@ -17,8 +18,7 @@
 <body>
 <!--头开始-->
 <header>
-	<nav class="<!--hoverable--> cyan darken-4"><!--导航栏语句开始-->
-
+	<nav class="cyan darken-4"><!--导航栏语句开始-->
 		<div class="nav-wrapper container"><!--导航栏内容开始-->
 			<?php if (!isset($back) && back) : ?>
 				<a href="#" onclick="history.back();" class="button-collapse show-on-large"
@@ -28,12 +28,16 @@
 			<a href="./" class="brand-logo">LYiHo</a><!--网页LOGO-->
 			<ul class="right">
 				<?php if (DI()->config->get('sys.translate')): ?>
-				<li>
-					<a class="dropdown-button" data-activates="language"><i class="material-icons">translate</i>
-					</a>
-				</li>
+					<li>
+						<a class="dropdown-button" data-constrainWidth="false" data-activates="language">
+							<i class="material-icons">translate</i>
+						</a>
+					</li>
 				<?php endif; ?>
-				<li><a class="dropdown-button" data-activates="menu"><i class="material-icons">perm_identity</i></a>
+				<li>
+					<a class="dropdown-button" data-constrainWidth="false" data-activates="menu">
+						<i class="material-icons">perm_identity</i>
+					</a>
 				</li>
 			</ul>
 		</div>
@@ -43,10 +47,21 @@
 		<?php if (isset($_SESSION["user_name"])) : ?>
 			<!-- 用户登录后 -->
 			<li>
-				<a href="?service=User.edit_Member"><?php echo $_SESSION['user_name']; ?></a>
+				<a onClick="location.href='?service=User.edit_Member'">
+					<?php echo $_SESSION['user_name']; ?>
+				</a>
 			</li>
 			<li class="divider"></li>
-			<li><a href="?service=Default.deliveryList"><?php echo T('查询快递'); ?></a></li>
+			<li>
+				<a onClick="location.href='?service=Topic.create_Topic'">
+					<?php echo T('发帖'); ?>
+				</a>
+			</li>
+			<li class="divider"></li>
+			<li>
+				<a onClick="location.href='?service=Default.deliveryList'">
+					<?php echo T('查询快递'); ?></a>
+			</li>
 			<li class="divider"></li>
 			<li><a onclick="logoff()"><?php echo T('退出登录'); ?></a></li>
 		<?php else : ?>
@@ -57,29 +72,29 @@
 		<?php endif; ?>
 	</ul>
 	<?php if (DI()->config->get('sys.translate')): ?>
-	<ul id="language" class="dropdown-content">
-		<li>
-			<a onclick="javascript:set_language('zh_cn')"><?php echo T('简体中文'); ?></a>
-		</li>
-		<li class="divider"></li>
-		<li>
-			<a onclick="javascript:set_language('zh_tw')"><?php echo T('繁体中文'); ?></a>
-		</li>
-		<li class="divider"></li>
-		<li>
-			<a onclick="javascript:set_language('en')"><?php echo T('英语'); ?></a>
-		</li>
-		<li class="divider"></li>
-		<li>
-			<!--de 德标 at 奥地利 ch 瑞士 ru 俄罗斯(欧境)-->
-			<a onclick="javascript:set_language('de')"><?php echo T('德语'); ?></a>
-		</li>
-		<li class="divider"></li>
-		<li>
-			<!--fr 法标 lu 卢森堡-->
-			<a onclick="javascript:set_language('fr')"><?php echo T('法语'); ?></a>
-		</li>
-	</ul>
+		<ul id="language" class="dropdown-content">
+			<li>
+				<a onclick="javascript:set_language('zh_cn')"><?php echo T('简体中文'); ?></a>
+			</li>
+			<li class="divider"></li>
+			<li>
+				<a onclick="javascript:set_language('zh_tw')"><?php echo T('繁体中文'); ?></a>
+			</li>
+			<li class="divider"></li>
+			<li>
+				<a onclick="javascript:set_language('en')"><?php echo T('英语'); ?></a>
+			</li>
+			<li class="divider"></li>
+			<li>
+				<!--de 德标 at 奥地利 ch 瑞士 ru 俄罗斯(欧境)-->
+				<a onclick="javascript:set_language('de')"><?php echo T('德语'); ?></a>
+			</li>
+			<li class="divider"></li>
+			<li>
+				<!--fr 法标 lu 卢森堡-->
+				<a onclick="javascript:set_language('fr')"><?php echo T('法语'); ?></a>
+			</li>
+		</ul>
 	<?php endif; ?>
 
 </header>

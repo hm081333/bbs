@@ -26,6 +26,7 @@ jQuery(document).ready(function ($) {
 
 //页面DOM加载后
 $(document).ready(function () {
+	// $(".button-collapse").sideNav();
 	$('.modal').modal();
 	$('.datepicker').pickadate({
 		selectMonths: true, // Creates a dropdown to control month
@@ -33,7 +34,7 @@ $(document).ready(function () {
 	});
 	$('select').material_select();
 	$('.collapsible').collapsible();
-	// $(".button-collapse").sideNav();
+
 
 	// var ip = returnCitySN['cip'];
 	// $('#ip').html(ip);
