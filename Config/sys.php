@@ -28,6 +28,6 @@ return array(
 		'path' => API_ROOT . '/Runtime'
 	),
 
-	'translate' => false,
+	'translate' => true,
 
 );

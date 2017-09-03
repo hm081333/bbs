@@ -23,10 +23,5 @@
 			<td><?php echo T('回复数量：') ?></td>
 			<td><?php echo $user['reply_count']; ?></td>
 		</tr>
-		<tr>
-			<td colspan="2" class="center">
-				<button class="btn waves-effect waves-light" onclick="history.back()"><?php echo T('返回上一页') ?></button>
-			</td>
-		</tr>
 	</table>
 </fieldset>

@@ -56,6 +56,11 @@ class Api_Public extends PhalApi_Api
 		} else {
 			$ip_info = unserialize($old_ip['info']);
 		}
+		foreach ($ip_info as $key => &$item) {
+			if ((strpos('country,area,region,city,isp', $key)) !== false) {
+				$item = T($item);
+			}
+		}
 		return $ip_info;
 	}
 
