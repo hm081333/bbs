@@ -43,29 +43,46 @@
 		</td>
 	</tr>
 	<?php endforeach; //退出while循环?>
-
-
-	<tr>
-		<td colspan="4">
-			<?php if ($page > 1) ://上一页
-				?>
-				<a class="btn waves-effect waves-light"
-				   href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo($page - 1) ?>">
-					<i class="material-icons">arrow_back</i></a>
-			<?php else: ?>
-				<a class="disabled btn waves-effect waves-light"><i class="material-icons">arrow_back</i></a>
-			<?php endif;
-			if (($page * each_page) < $total) ://后一页
-				?>
-				<a class="btn waves-effect waves-light"
-				   href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo($page + 1) ?>">
-					<i class="material-icons">arrow_forward</i></a>
-			<?php else: ?>
-				<a class="disabled btn waves-effect waves-light"><i class="material-icons">arrow_forward</i></a>
-			<?php endif; ?>
-			<a class="btn right waves-effect waves-light"
-			   onClick="location.href='?service=Topic.create_Topic'"><?php echo T('发帖'); ?></a>
-		</td>
-	</tr>
 	</tbody>
 </table>
+<ul class="pagination">
+	<?php if ($page > 1) : //上一页 ?>
+		<li class="waves-effect">
+			<a href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo($page - 1); ?>">
+				<i class="material-icons">chevron_left</i>
+			</a>
+		</li>
+	<?php else: ?>
+		<li class="disabled">
+			<a href="#!">
+				<i class="material-icons">chevron_left</i>
+			</a>
+		</li>
+	<?php endif; ?>
+	<?php $total_page = ceil($total / each_page); ?>
+	<?php for ($i = 1; $i <= $total_page; $i++): ?>
+		<?php if ($i == $page): ?>
+			<li class="active">
+			<a href="#!">
+		<?php else: ?>
+			<li class="waves-effect">
+			<a href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo $i; ?>">
+		<?php endif; ?>
+		<?php echo $i; ?>
+		</a>
+		</li>
+	<?php endfor; ?>
+	<?php if (($page * each_page) < $total) : //后一页 ?>
+		<li class="waves-effect">
+			<a href="?service=Topic.topic_List&class_id=<?php echo $class['id']; ?>&page=<?php echo($page + 1); ?>">
+				<i class="material-icons">chevron_right</i>
+			</a>
+		</li>
+	<?php else: ?>
+		<li class="disabled">
+			<a href="#!">
+				<i class="material-icons">chevron_right</i>
+			</a>
+		</li>
+	<?php endif; ?>
+</ul>

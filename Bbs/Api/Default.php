@@ -113,18 +113,6 @@ class Api_Default extends PhalApi_Api
 		$class_list['page_total'] = ceil($class_list['total'] / each_page);
 		DI()->view->show('index', array('rows' => $class_list['rows'], 'total' => $class_list['total'], 'page' => $this->page, 'back' => 0));
 	}
-	/*public function index()
-	{
-		DI()->view->show('main');
-	}
 
-	public function main()
-	{
-		$class_domain = new Domain_Class();
-		$class_list = $class_domain->getClassList((($this->page - 1) * each_page), ($this->page * each_page));
-		$class_list['page_total'] = ceil($class_list['total'] / each_page);
-		$html = DI()->view->post('index', array('rows' => $class_list['rows'], 'total' => $class_list['total'], 'page' => $this->page, 'back' => 0));
-		$html = Common_Function::higrid_compress_html($html);
-		return $html;
-	}*/
+
 }

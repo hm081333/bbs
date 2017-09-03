@@ -1,5 +1,5 @@
-<h3 class="center"><?php echo T('南洋交流平台'); ?></h3>
-<table>
+<h3 class="center-align"><?php echo T('南洋交流平台'); ?></h3>
+<table style="table-layout: fixed;">
 	<thead>
 	<tr class="teal darken-3">
 		<th width="40%"><?php echo T('课程'); ?></th>
@@ -10,18 +10,20 @@
 	<?php foreach ($rows as $key => $row) : ?>
 		<tr class="green accent-1">
 			<td>
-				<i class="material-icons">label</i><a class="brown-text"
-													  href="?service=Topic.topic_List&class_id=<?php echo $row['id']; ?>&page=1"><b><?php echo T($row['name']); ?></b></a>
+				<i class="material-icons">label</i>
+				<a class="brown-text" href="?service=Topic.topic_List&class_id=<?php echo $row['id']; ?>&page=1">
+					<b><?php echo T($row['name']); ?></b>
+				</a>
 			</td>
 			<td>
-				<?php echo T($row['tips']); ?>
+				<span class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php echo T($row['tips']); ?>">
+					<?php echo T($row['tips']); ?>
+				</span>
 			</td>
 		</tr>
 	<?php endforeach; ?>
 	</tbody>
 </table>
-
-<!--<div class="valign-wrapper">-->
 <ul class="pagination">
 	<?php if ($page > 1) : //上一页 ?>
 		<li class="waves-effect">
@@ -63,4 +65,3 @@
 		</li>
 	<?php endif; ?>
 </ul>
-<!--</div>-->

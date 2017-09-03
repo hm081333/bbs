@@ -62,33 +62,57 @@
 			</td>
 		</tr>
 	<?php endforeach; ?>
-	<tr>
-		<td colspan="5">
-
-			<?php
-			//上一页
-			if ($page > 1) :
-				?>
-				<a class="btn waves-effect waves-light"
-				   href="./?service=Default.deliveryList&page=<?php echo($page - 1) ?>">
-					<i class="material-icons">arrow_back</i></a>
-			<?php else: ?>
-				<a class="disabled btn waves-effect waves-light"><i class="material-icons">arrow_back</i></a>
-			<?php endif;
-			//后一页
-			if (($page * each_page) < $total) :
-				?>
-				<a class="btn waves-effect waves-light"
-				   href="./?service=Default.deliveryList&page=<?php echo($page + 1) ?>">
-					<i class="material-icons">arrow_forward</i></a>
-			<?php else: ?>
-				<a class="disabled btn waves-effect waves-light"><i class="material-icons">arrow_forward</i></a>
-			<?php endif; ?>
-			<button class="btn right waves-effect waves-light" data-target="addDelivery"><?php echo T('添加'); ?></button>
-		</td>
-	</tr>
 	</tbody>
 </table>
+<div class="row valign-wrapper">
+	<div class="col s8">
+		<ul class="pagination">
+			<?php if ($page > 1) : //上一页 ?>
+				<li class="waves-effect">
+					<a href="./?service=Default.deliveryList&page=<?php echo($page - 1); ?>">
+						<i class="material-icons">chevron_left</i>
+					</a>
+				</li>
+			<?php else: ?>
+				<li class="disabled">
+					<a href="#!">
+						<i class="material-icons">chevron_left</i>
+					</a>
+				</li>
+			<?php endif; ?>
+			<?php $total_page = ceil($total / each_page); ?>
+			<?php for ($i = 1; $i <= $total_page; $i++): ?>
+				<?php if ($i == $page): ?>
+					<li class="active">
+					<a href="#!">
+				<?php else: ?>
+					<li class="waves-effect">
+					<a href="./?service=Default.deliveryList&page=<?php echo $i; ?>">
+				<?php endif; ?>
+				<?php echo $i; ?>
+				</a>
+				</li>
+			<?php endfor; ?>
+			<?php if (($page * each_page) < $total) : //后一页 ?>
+				<li class="waves-effect">
+					<a href="./?service=Default.deliveryList&page=<?php echo($page + 1); ?>">
+						<i class="material-icons">chevron_right</i>
+					</a>
+				</li>
+			<?php else: ?>
+				<li class="disabled">
+					<a href="#!">
+						<i class="material-icons">chevron_right</i>
+					</a>
+				</li>
+			<?php endif; ?>
+		</ul>
+	</div>
+	<div class="col s4">
+		<button class="btn right waves-effect waves-light" data-target="addDelivery"><?php echo T('添加'); ?></button>
+	</div>
+</div>
+
 <!-- 物流信息弹框 -->
 <div id="delivery" class="modal"></div>
 <!-- 添加快递弹窗 -->
