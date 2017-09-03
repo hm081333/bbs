@@ -11,7 +11,7 @@ class Domain_Reply {
 	public function add_Reply($topic_id, $user_id, $reply_detail) {
 		$reback = '';
 		if (!empty($_FILES['reply_pics']['tmp_name'])) {
-			$reback = uppic($_FILES['reply_pics']);
+			$reback = DI()->tool->uppic($_FILES['reply_pics']);
 			if($reback === false){
 				throw new PhalApi_Exception_InternalServerError(T('图片上传失败'), 2);// 抛出服务端错误
 			}

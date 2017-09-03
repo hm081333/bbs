@@ -73,7 +73,7 @@ class Api_Topic extends PhalApi_Api
 			} elseif (empty($this->class_id)) {
 				throw new PhalApi_Exception_Error(T('请选择课程'), 1);// 抛出普通错误 T标签翻译
 			} elseif (!empty($_FILES['pics']['tmp_name'])) {
-				$reback = uppic($_FILES['pics']);
+				$reback = DI()->tool->uppic($_FILES['pics']);
 				if($reback === false){
 					throw new PhalApi_Exception_InternalServerError(T('图片上传失败'), 2);// 抛出服务端错误
 				}

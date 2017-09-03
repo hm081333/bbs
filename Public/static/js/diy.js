@@ -378,7 +378,7 @@ $('#add_Class').submit(function ()//提交表单
 
 $('#Create_Topic').submit(function ()//提交表单
 {
-	if ($('input[type="checkbox"]')[0]['checked'] == false) {
+	if ($('input[type="checkbox"]')[0]['checked'] == true) {
 		$('input[name="sticky"]').attr('value', 1);
 	} else {
 		$('input[name="sticky"]').attr('value', 0);

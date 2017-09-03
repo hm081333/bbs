@@ -18,7 +18,6 @@ defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === 
 defined('PUB_ROOT') || define('PUB_ROOT', dirname(__FILE__) . '/');
 
 require_once API_ROOT . '/PhalApi/PhalApi.php';
-require_once API_ROOT . '/Library/upload_image/upload_image.php'; // 简陋的图片上传function
 
 session_start();
 
