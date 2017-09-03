@@ -3,7 +3,7 @@
 	<table>
 		<tr>
 			<td class="center">
-				<h4><?php echo T('主题：' . $topic['topic']); ?></h4>
+				<h4><?php echo T($topic['topic']); ?></h4>
 			</td>
 		</tr>
 		<tr>
@@ -66,10 +66,9 @@
 
 	<!--内容回复表单，开始-->
 
-	<div class="replyText"><?php
-		//判断用户是否已经注册
-		if (!isset($_SESSION['user_name'])) :
-			?>
+	<div class="replyText">
+		<!--判断用户是否登陆-->
+		<?php if (!isset($_SESSION['user_name'])) : ?>
 			<p class="center">
 				<a class="btn waves-effect waves-light" href="?service=User.register"><?php echo T('注册') ?></a><br/>
 				<?php echo T('或') ?><br/>
@@ -106,7 +105,8 @@
 				</tr>
 				<tr>
 					<td class="center">
-						<button type="submit" name="submit" class="btn waves-effect waves-light"><?php echo T('回复该帖') ?></button>
+						<button type="submit" name="submit"
+								class="btn waves-effect waves-light"><?php echo T('回复该帖') ?></button>
 					</td>
 				</tr>
 			</form>
@@ -115,13 +115,11 @@
 	</div>
 	<br>
 	<!--内容回复表单，结束-->
-
-	<?php if ($_SESSION['user_auth'] == 1) ://如果是管理员用户，则输出“置顶”、“锁定”和“删除”按钮 ?>
+	<!--如果是管理员用户，则输出“置顶”、“锁定”和“删除”按钮-->
+	<?php if ($_SESSION['user_auth'] == 1) : ?>
 		<!--管理员操作表单，开始-->
 		<div class="center">
 			<p><?php echo T('管理员操作') ?></p>
-
-
 			<!--显示置顶操作按钮-->
 			<?php if ($topic['sticky'] == 0) : ?>
 				<button onclick="stick_topic(<?php echo $topic['id']; ?>)"
