@@ -24,7 +24,7 @@
 
 <body>
 <header>
-	<nav class="<!--hoverable--> cyan darken-4">
+	<nav class="cyan darken-4">
 		<!--导航栏语句开始-->
 		<div class="nav-wrapper container">
 			<!--导航栏内容开始-->
