@@ -3,16 +3,16 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8;" charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<title><?php echo T('南洋师生交流平台DEMO'); ?></title>
-	<!--<link href="./Public/static/css/material-design-icons/3.0.1/material-icons.min.css" rel="stylesheet">-->
-	<link href="./Public/static/css/materialize/0.99.0/materialize_nofont.min.css" type="text/css" rel="stylesheet"
+	<!--<link href="<?php echo URL_ROOT; ?>static/css/material-design-icons/3.0.1/material-icons.min.css" rel="stylesheet">-->
+	<link href="<?php echo URL_ROOT; ?>static/css/materialize/0.99.0/materialize_nofont.min.css" type="text/css" rel="stylesheet"
 		  media="screen,projection">
-	<!--<script src="./Public/static/js/jquery/3.2.1/jquery.min.js"></script>-->
-	<!--<script src="./Public/static/js/materialize/0.99.0/materialize.min.js"></script>-->
+	<!--<script src="<?php echo URL_ROOT; ?>static/js/jquery/3.2.1/jquery.min.js"></script>-->
+	<!--<script src="<?php echo URL_ROOT; ?>static/js/materialize/0.99.0/materialize.min.js"></script>-->
 	<link href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.min.css" rel="stylesheet">
 	<!--<link href="https://cdn.bootcss.com/materialize/0.100.2/css/materialize.min.css" rel="stylesheet" media="screen,projection">-->
 	<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 	<script src="https://cdn.bootcss.com/materialize/0.100.2/js/materialize.min.js"></script>
-	<link href="./Public/static/css/diy.css" rel="stylesheet">
+	<link href="<?php echo URL_ROOT; ?>static/css/diy.css" rel="stylesheet">
 </head>
 
 <body>
