@@ -88,7 +88,7 @@ class Api_Topic extends PhalApi_Api
 			$insert_data['pics'] = $reback;
 			$insert_data['name'] = '管理员';
 			$insert_data['email'] = '';
-			$insert_data['datetime'] = new NotORM_Literal("NOW()");
+			$insert_data['add_time'] = NOW_TIME;
 			$insert_data['sticky'] = $this->sticky;
 			$rs = $topic_model->insert($insert_data);
 			if ($rs) {

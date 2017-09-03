@@ -29,7 +29,7 @@ class Domain_Reply {
 		$reply_data['reply_email'] = $user['email'];
 		$reply_data['reply_detail'] = $reply_detail;
 		$reply_data['reply_pics'] = $reback;
-		$reply_data['reply_datetime'] = new NotORM_Literal("NOW()");
+		$reply_data['add_time'] = NOW_TIME;
 		$rs = $reply_model->insert($reply_data);
 		return $rs;
 	}

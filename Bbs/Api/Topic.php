@@ -86,7 +86,7 @@ class Api_Topic extends PhalApi_Api
 			$insert_data['user_id'] = $user['id'];
 			$insert_data['name'] = $user['user_name'];
 			$insert_data['email'] = $user['email'];
-			$insert_data['datetime'] = new NotORM_Literal("NOW()");
+			$insert_data['add_time'] = NOW_TIME;
 			$insert_data['sticky'] = $this->sticky;
 			$topic_id = $topic_model->insert($insert_data);
 			if ($topic_id) {

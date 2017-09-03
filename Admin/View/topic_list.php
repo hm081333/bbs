@@ -11,56 +11,51 @@
 		<th width="5%"><?php echo T('操作'); ?></th>
 	</tr>
 	</thead>
-
-	<?php foreach ($rows
-
-	as $key => $row) : ?>
-
 	<tbody>
-	<tr class="green accent-1">
-		<td>
+	<?php foreach ($rows as $key => $row) : ?>
+		<tr class="green accent-1">
+			<td>
 
-			<?php
-			//如果是“置顶”的记录
-			if ($row['sticky'] == "1") {
-				?><i class="material-icons">stars</i><?php
-			}
-			?>
-			<a href="?service=Topic.topic&topic_id=<?php echo $row['id']; ?>"><?php echo T($row['topic']); ?></a><br/><?php echo T('发帖者: ') . $row['name'] ?>
-		</td>
-		<td>
-			<?php
-			echo T($row['class_name']);
-			?>
-		</td>
-		<td>
-			<?php
-			echo $row['view'];  //浏览量
-			?>
-		</td>
-		<td>
-			<?php
-			echo $row['reply'];  //回复量
-			?>
-		</td>
-		<td>
-			<?php
-			echo $row['datetime'];  //日期
-			?>
-		</td>
-		<td>
-			<!--显示置顶操作按钮-->
-			<?php if ($row['sticky'] == 0) : ?>
-				<button onclick="stick_topic(<?php echo $row['id']; ?>)"
-						class="btn-floating waves-effect waves-light"><i class="material-icons">publish</i></button>
-			<?php else: ?>
-				<button onclick="unstick_topic(<?php echo $row['id']; ?>)"
-						class="btn-floating waves-effect waves-light"><i class="material-icons">stars</i></button>
-			<?php endif; ?>
-			<button onclick="delete_topic(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light">
-				<i class="material-icons">delete</i></button>
-		</td>
-	</tr>
+				<?php
+				//如果是“置顶”的记录
+				if ($row['sticky'] == "1") : ?>
+					<i class="material-icons">stars</i>
+				<?php endif; ?>
+				<a href="?service=Topic.topic&topic_id=<?php echo $row['id']; ?>"><?php echo T($row['topic']); ?></a><br/><?php echo T('发帖者: ') . $row['name'] ?>
+			</td>
+			<td>
+				<?php
+				echo T($row['class_name']);
+				?>
+			</td>
+			<td>
+				<?php
+				echo $row['view'];  //浏览量
+				?>
+			</td>
+			<td>
+				<?php
+				echo $row['reply'];  //回复量
+				?>
+			</td>
+			<td>
+				<?php
+				echo date('Y-m-d H:i:s', $row['add_time']);  //日期
+				?>
+			</td>
+			<td>
+				<!--显示置顶操作按钮-->
+				<?php if ($row['sticky'] == 0) : ?>
+					<button onclick="stick_topic(<?php echo $row['id']; ?>)"
+							class="btn-floating waves-effect waves-light"><i class="material-icons">publish</i></button>
+				<?php else: ?>
+					<button onclick="unstick_topic(<?php echo $row['id']; ?>)"
+							class="btn-floating waves-effect waves-light"><i class="material-icons">stars</i></button>
+				<?php endif; ?>
+				<button onclick="delete_topic(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light">
+					<i class="material-icons">delete</i></button>
+			</td>
+		</tr>
 	<?php endforeach; ?>
 	<tr>
 		<td colspan="6">
