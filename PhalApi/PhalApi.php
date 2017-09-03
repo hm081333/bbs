@@ -53,7 +53,6 @@ class PhalApi {
             $api    = PhalApi_ApiFactory::generateService(); 
             $action = DI()->request->getServiceAction();
             $data   = call_user_func(array($api, $action));
-
             $rs->setData($data);
         } catch (PhalApi_Exception $ex) {
             // 框架或项目可控的异常
@@ -71,9 +70,8 @@ class PhalApi {
                 throw $ex;
             }
         }
-
-        $rs->setDebug('stack', DI()->tracer->getStack());
-        $rs->setDebug('sqls', DI()->tracer->getSqls());
+        //$rs->setDebug('stack', DI()->tracer->getStack());
+        //$rs->setDebug('sqls', DI()->tracer->getSqls());
 
         return $rs;
     }

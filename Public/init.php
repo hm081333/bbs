@@ -37,7 +37,7 @@ DI()->config->get('constant'); // 常量
 DI()->debug = !empty($_GET['__debug__']) ? true : DI()->config->get('sys.debug');
 
 if (DI()->debug) {
-	DI()->tracer->mark();// 启动追踪器
+	//DI()->tracer->mark();// 启动追踪器
 	error_reporting(E_ALL);
 	ini_set('display_errors', 1);//正式部署的时候请关闭
 } else {
@@ -48,8 +48,8 @@ if (DI()->debug) {
 DI()->logger = new PhalApi_Logger_File(API_ROOT . '/Runtime', PhalApi_Logger::LOG_LEVEL_DEBUG | PhalApi_Logger::LOG_LEVEL_INFO | PhalApi_Logger::LOG_LEVEL_ERROR);
 
 // 数据操作 - 基于NotORM
-//DI()->notorm = new PhalApi_DB_NotORM(DI()->config->get('dbs'), DI()->debug);
-DI()->notorm = new PhalApi_DB_NotORM(DI()->config->get('dbs'), !empty($_GET['__sql__']));
+DI()->notorm = new PhalApi_DB_NotORM(DI()->config->get('dbs'), DI()->debug);
+//DI()->notorm = new PhalApi_DB_NotORM(DI()->config->get('dbs'), !empty($_GET['__sql__']));
 
 if (!defined('IS_JSON')) {
 	$accept = DI()->request->getHeader('Accept');
