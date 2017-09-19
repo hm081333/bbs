@@ -18,6 +18,11 @@ class PhalApi_Model_NotORM implements PhalApi_Model
 
 	protected static $tableKeys = array();
 
+	/**
+	 * @param int $id
+	 * @param string $fields
+	 * @return mixed
+	 */
 	public function get($id, $fields = '*')
 	{
 		$needFields = is_array($fields) ? implode(',', $fields) : $fields;
@@ -92,6 +97,18 @@ class PhalApi_Model_NotORM implements PhalApi_Model
 
 		$table = $this->getTableName($id);
 		return $notorm->where($this->getTableKey($table), $id)->delete();
+	}
+
+	public function deleteByWhere($where)
+	{
+		$notorm = $this->getORM(NULL);
+		return $notorm->where($where)->delete();
+	}
+
+	public function queryAll($sql, $parmas = array())
+	{
+		$notorm = $this->getORM(NULL);
+		return $notorm->queryAll($sql, $parmas);
 	}
 
 	/**

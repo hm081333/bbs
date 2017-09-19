@@ -30,17 +30,6 @@
 
 			<div class="col s12">
 				<div class="input-field">
-					<i class="material-icons prefix">vpn_key</i>
-					<input id="password" name="password" type="password" class="validate" disabled="">
-					<label for="password"><?php echo T('确认密码'); ?></label>
-				</div>
-				<div>
-					<p class="msg right"><?php echo T('两次密码应当一致'); ?></p>
-				</div>
-			</div>
-
-			<div class="col s12">
-				<div class="input-field">
 					<i class="material-icons prefix">email</i>
 					<input id="email" name="email" type="email" class="validate">
 					<label for="email">E-mail</label>

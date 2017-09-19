@@ -24,7 +24,7 @@ class Api_Topic extends PhalApi_Api
 				'detail' => array('name' => 'detail', 'type' => 'string', 'require' => false, 'desc' => '正文内容'),
 				'class_id' => array('name' => 'class_id', 'type' => 'int', 'require' => false, 'desc' => '课程'),
 //				'pics' => array('name' => 'pics', 'type' => 'file', 'range' => array('image/jpeg', 'image/png', 'image/gif', 'image/bmp'), 'ext' => array('jpg', 'jpeg', 'png', 'gif', 'bmp'), 'desc' => '图片'),
-				'sticky' => array('name' => 'sticky', 'type' => 'int', 'default' => 0, 'require' => false, 'desc' => '顶置')
+				'sticky' => array('name' => 'sticky', 'type' => 'string', 'default' => 'off', 'desc' => '顶置')
 			),
 			'stick_Topic' => array(
 				'topic_id' => array('name' => 'topic_id', 'type' => 'int', 'default' => 0, 'min' => 0, 'require' => true, 'desc' => 'ID')
@@ -87,7 +87,9 @@ class Api_Topic extends PhalApi_Api
 			$insert_data['name'] = $user['user_name'];
 			$insert_data['email'] = $user['email'];
 			$insert_data['add_time'] = NOW_TIME;
-			$insert_data['sticky'] = $this->sticky;
+			if ($this->sticky == 'on') {
+				$insert_data['sticky'] = 1;
+			}
 			$topic_id = $topic_model->insert($insert_data);
 			if ($topic_id) {
 				DI()->response->setMsg(T('发布成功'));

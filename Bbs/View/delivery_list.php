@@ -84,14 +84,17 @@
 			<?php for ($i = 1; $i <= $total_page; $i++): ?>
 				<?php if ($i == $page): ?>
 					<li class="active">
-					<a href="#!">
+						<a href="#!">
+							<?php echo $i; ?>
+						</a>
+					</li>
 				<?php else: ?>
 					<li class="waves-effect">
-					<a href="./?service=Default.deliveryList&page=<?php echo $i; ?>">
+						<a href="./?service=Default.deliveryList&page=<?php echo $i; ?>">
+							<?php echo $i; ?>
+						</a>
+					</li>
 				<?php endif; ?>
-				<?php echo $i; ?>
-				</a>
-				</li>
 			<?php endfor; ?>
 			<?php if (($page * each_page) < $total) : //后一页 ?>
 				<li class="waves-effect">
@@ -109,7 +112,9 @@
 		</ul>
 	</div>
 	<div class="col s4">
-		<button class="btn right waves-effect waves-light" data-target="addDelivery"><?php echo T('添加'); ?></button>
+		<button class="btn right waves-effect waves-light modal-trigger" data-target="addDelivery">
+			<?php echo T('添加'); ?>
+		</button>
 	</div>
 </div>
 
@@ -119,7 +124,7 @@
 <div id="addDelivery" class="modal" style="min-height: 70%;">
 	<div class="modal-content center">
 		<h4>添加查询运单</h4>
-		<p>A bunch of text</p>
+		<p>测试功能</p>
 		<form id="Add_Delivery" method="post" onsubmit="return false;">
 			<input type="hidden" name="service" value="Default.addDelivery">
 			<div class="input-field">

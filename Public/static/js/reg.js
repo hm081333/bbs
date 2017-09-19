@@ -132,20 +132,24 @@ window.onload = function () {
 	});*/
 
 
-	/*$("#Reg").click(function () {
+	$('#Register').submit(function ()//提交表单
+	{
 		$.ajax({
 			type: 'POST',
 			data: $("#Register").serialize(),
 			success: function (d) {
 				if (d.ret == 200) {
 					Materialize.toast(d.msg, 2000, 'rounded', function () {
-						// location.href = './';
-						history.back();
+						if (d.data == 'admin') {
+							location.reload();
+						} else {
+							history.back();
+						}
 					});
 				} else {
 					Materialize.toast(d.msg, 2000, 'rounded');
 				}
 			}
 		});
-	});*/
+	});
 };

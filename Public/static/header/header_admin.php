@@ -129,6 +129,10 @@
 											<a class="waves-effect waves-teal"
 											   href="?service=Default.smsbao_config"><?php echo T('配置短信宝') ?></a>
 										</li>
+										<li>
+											<a class="waves-effect waves-teal"
+											   href="?service=System.restore"><?php echo T('重置系统') ?></a>
+										</li>
 									</ul>
 								</div>
 							</li>

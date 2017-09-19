@@ -152,7 +152,7 @@ class Api_User extends PhalApi_Api
 			if ($user !== false) {
 				throw new PhalApi_Exception_Error(T('用户名已注册'), 1);// 抛出普通错误 T标签翻译
 			} elseif (strlen($this->password) < 6) {
-				throw new PhalApi_Exception_Error(T('请输入6位长度密码'), 1);// 抛出普通错误 T标签翻译
+				throw new PhalApi_Exception_Error(T('请输入6位或以上长度密码'), 1);// 抛出普通错误 T标签翻译
 			} elseif ((Domain_Common::checkEmail($this->email)) === false) {
 				throw new PhalApi_Exception_Error(T('邮箱格式不正确'), 1);// 抛出普通错误 T标签翻译
 			}
@@ -167,7 +167,6 @@ class Api_User extends PhalApi_Api
 			$insert_data['password'] = Domain_Common::hash($this->password);
 			$insert_data['email'] = $this->email;
 			$insert_data['real_name'] = $this->real_name;
-			//$insert_data['regdate'] = new NotORM_Literal("NOW()");
 			$insert_data['reg_time'] = NOW_TIME;
 			$insert_data['birth_time'] = $birth_time;
 			$rs = $user_model->insert($insert_data);

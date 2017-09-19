@@ -143,4 +143,5 @@ return array (
   '退出登录' => 'sign out',
   'IP：' => 'IP:',
   'IP所在地：' => 'IP Location:',
+	'随意灌水区，随便灌水的地方。。。写个长一点儿的说明试一下css省略效果。感觉有点爆炸' => 'Free irrigation area, casually irrigation place ... write a little bit of the instructions try CSS omitted effect. Feeling a little bit of explosion',
 );

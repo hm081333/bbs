@@ -36,10 +36,10 @@ $(document).ready(function () {
 	$('.collapsible').collapsible();
 
 
-	// var ip = returnCitySN['cip'];
-	// $('#ip').html(ip);
-	// $('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + ip);
-	var ip = $('#ip').html();
+	var ip = returnCitySN['cip'];
+	$('#ip').html(ip);
+	$('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + ip);
+	// var ip = $('#ip').html();
 	$.ajax({
 		type: 'POST',
 		data: {service: 'Public.ip', ip: ip},
@@ -378,11 +378,6 @@ $('#add_Class').submit(function ()//提交表单
 
 $('#Create_Topic').submit(function ()//提交表单
 {
-	if ($('input[type="checkbox"]')[0]['checked'] == true) {
-		$('input[name="sticky"]').attr('value', 1);
-	} else {
-		$('input[name="sticky"]').attr('value', 0);
-	}
 	$.ajax({
 		type: 'POST',
 		data: new FormData($('#Create_Topic')[0]),
@@ -505,3 +500,29 @@ $('#Add_Delivery').submit(function ()//提交表单
 		}
 	});
 });
+
+$('#Restore').submit(function ()//提交表单
+{
+	$.ajax({
+		type: 'POST',
+		data: $(this).serialize(),
+		success: function (d) {
+			console.log(d);
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+});
+
+/**
+ * 点击跳转按钮
+ */
+/*$('.url').click(function () {
+	var url = $(this).attr('data-url');
+	console.log(url);
+});*/

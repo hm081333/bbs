@@ -13,9 +13,10 @@ if (!headers_sent() && extension_loaded("zlib") && strstr($_SERVER["HTTP_ACCEPT_
 
 date_default_timezone_set('Asia/Shanghai');
 
-defined('API_ROOT') || define('API_ROOT', dirname(__FILE__) . '/..');
-defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/Public/');
 defined('PUB_ROOT') || define('PUB_ROOT', dirname(__FILE__) . '/');
+defined('API_ROOT') || define('API_ROOT', dirname(__FILE__) . '/..');
+defined('URL') || define('URL', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/');
+defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/Public/');
 
 require_once API_ROOT . '/PhalApi/PhalApi.php';
 

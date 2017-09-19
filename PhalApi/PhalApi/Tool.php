@@ -116,6 +116,27 @@ class PhalApi_Tool
 	}
 
 	/**
+	 * 清空目录以及子目录等所有文件--不删除目录
+	 * @param $path
+	 */
+	public function emptyDir($path)
+	{
+
+		$dir = opendir($path);
+		while (false !== ($file = readdir($dir))) {
+			if (($file != '.') && ($file != '..')) {
+				$full = $path . '/' . $file;
+				if (is_dir($full)) {
+					$this->deleteDir($full);
+				} else {
+					unlink($full);
+				}
+			}
+		}
+		closedir($dir);
+	}
+
+	/**
 	 * 数组转XML格式
 	 *
 	 * @param array $arr 数组
