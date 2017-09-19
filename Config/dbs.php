@@ -47,7 +47,7 @@ return array(
 	'tables' => array(
 		//通用路由
 		'__default__' => array(
-			'prefix' => 'forum_',
+			'prefix' => 'ly_',
 			'key' => 'id',
 			'map' => array(
 				array('db' => 'db_forum'),
