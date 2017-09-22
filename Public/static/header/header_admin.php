@@ -131,7 +131,11 @@
 										</li>
 										<li>
 											<a class="waves-effect waves-teal"
-											   href="?service=System.restore"><?php echo T('重置系统') ?></a>
+											   href="?service=System.backup"><?php echo T('备份还原') ?></a>
+										</li>
+										<li>
+											<a class="waves-effect waves-teal"
+											   href="?service=System.reset"><?php echo T('重置系统') ?></a>
 										</li>
 									</ul>
 								</div>

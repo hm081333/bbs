@@ -3,9 +3,9 @@
 <fieldset>
 	<legend><?php echo T('系统重置') ?></legend>
 	<div class="row">
-		<form id="Restore" method="post" onsubmit="return false;" class="col s12">
+		<form id="Reset" method="post" onsubmit="return false;" class="col s12">
 			<input name="action" value="post" type="hidden">
-			<input name="service" value="System.restore" type="hidden">
+			<input name="service" value="System.reset" type="hidden">
 			<div class="col s12">
 				<div class="input-field">
 					<i class="material-icons prefix">vpn_key</i>

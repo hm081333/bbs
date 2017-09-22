@@ -216,7 +216,7 @@ function update_admin(admin_id) {
 function delete_admin(admin_id) {
 	$.ajax({
 		type: 'POST',
-		data: {service: 'User.delete_User', admin_id: admin_id},
+		data: {service: 'User.delete_Admin', admin_id: admin_id},
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -501,13 +501,29 @@ $('#Add_Delivery').submit(function ()//提交表单
 	});
 });
 
-$('#Restore').submit(function ()//提交表单
+$('#Reset').submit(function ()//提交表单
 {
 	$.ajax({
 		type: 'POST',
 		data: $(this).serialize(),
 		success: function (d) {
-			console.log(d);
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+});
+
+$('#Backup').submit(function ()//提交表单
+{
+	$.ajax({
+		type: 'POST',
+		data: $(this).serialize(),
+		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
 					location.reload();
