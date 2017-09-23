@@ -38,7 +38,7 @@ class PhalApi_CUrl
 	protected $retryTimes;
 
 	protected $header = array();
-
+	protected $cookie = array();
 	protected $option = array();
 
 	/**
@@ -74,11 +74,20 @@ class PhalApi_CUrl
 		return $this;
 	}
 
+	public function setCookie($cookie)
+	{
+		$this->cookie = array_merge($this->cookie, $cookie);
+		return $this;
+	}
+
 	/**
 	 * @param int $retryTimes 超时重试次数，默认为1
 	 */
 	public function __construct($retryTimes = 1)
 	{
+		if (!function_exists('curl_exec')) {
+			throw new PhalApi_Exception_InternalServerError('服务器不支持cURL');
+		}
 		$this->retryTimes = $retryTimes < static::MAX_RETRY_TIMES
 			? $retryTimes : static::MAX_RETRY_TIMES;
 	}
@@ -117,6 +126,18 @@ class PhalApi_CUrl
 	}
 
 	/**
+	 * 获取文件
+	 * @param $url
+	 * @param int $timeoutMs
+	 * @return string
+	 */
+	public function getFile($url, $fileName, $timeoutMs = 3000)
+	{
+		$fileName = API_ROOT . '/Public/static/upload/wechat/' . $fileName . '.jpg';
+		return $this->request($url, array('path' => $fileName), $timeoutMs);
+	}
+
+	/**
 	 *
 	 * @return array
 	 */
@@ -127,6 +148,19 @@ class PhalApi_CUrl
 			$arrHeaders[] = $key . ':' . $val;
 		}
 		return $arrHeaders;
+	}
+
+	protected function getCookies()
+	{
+		$arrCookies = array();
+		if (is_array($this->cookie)) {
+			foreach ($this->cookie as $key => $val) {
+				$arrCookies .= "{$key}={$val}; ";
+			}
+		} else {
+			$arrCookies = $this->cookie;
+		}
+		return $arrCookies;
 	}
 
 	/**
@@ -140,21 +174,32 @@ class PhalApi_CUrl
 	{
 		$options = array(
 			CURLOPT_URL => $url,
-			CURLOPT_RETURNTRANSFER => TRUE,
+			CURLOPT_RETURNTRANSFER => TRUE, //将curl获取的信息以文件流的形式返回，而不是直接输出
 			CURLOPT_HEADER => 0,
 			CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs,
 			CURLOPT_HTTPHEADER => $this->getHeaders(),
 		);
+		if (!empty($this->cookie)) {
+			$options += array(CURLOPT_COOKIE => $this->getCookies());
+		}
+		//用setOption
+		if (!empty($data) && isset($data['path'])) {
+			$fp = fopen($data['path'], 'wb');
+			$options += array(CURLOPT_FILE => $fp, CURLOPT_FOLLOWLOCATION => TRUE);
+			unset($data['path']);
+		}
 
 		if (!empty($data)) {
 			$options[CURLOPT_POST] = 1;
-			//$options[CURLOPT_POSTFIELDS] = $data;
 			$options[CURLOPT_POSTFIELDS] = http_build_query($data);//使用给出的关联（或下标）数组生成一个经过 URL-encode 的请求字符串
 		}
 
 		$options = $this->option + $options;//$this->>option优先
 
 		$ch = curl_init();
+		if ($ch === FALSE) {
+			throw new PhalApi_Exception_InternalServerError('初始化cURL失败');
+		}
 		curl_setopt_array($ch, $options);
 		$curRetryTimes = $this->retryTimes;
 		do {

@@ -352,10 +352,10 @@ class PhalApi_Tool
 		return $higrid_uncompress_html_source;
 	}
 
-	/*
-	 *判断文件后缀
-	 *$f_type：允许文件的后缀类型
-	 *$f_upfiles：上传文件名
+	/**
+	 * 判断文件后缀
+	 * $f_type：允许文件的后缀类型
+	 * $f_upfiles：上传文件名
 	 */
 	public function f_postfix($f_type, $f_upfiles)
 	{
@@ -367,10 +367,10 @@ class PhalApi_Tool
 		return $is_pass;
 	}
 
-	/*
-	 *	上传图片
-	 *	参数$fileinfo为上传图片信息
-	 *	$picture_path为上传的图片地址。要保存到数据库中的
+	/**
+	 * 上传图片
+	 * 参数$fileinfo为上传图片信息
+	 * $picture_path为上传的图片地址。要保存到数据库中的
 	 */
 	public function uppic($fileinfo, $picture_path = './Public/static/upload/pics/')
 	{
@@ -391,6 +391,30 @@ class PhalApi_Tool
 			throw new PhalApi_Exception_Error(T('图片超过19M'), 1);// 抛出普通错误 T标签翻译
 		}
 		return $reback;
+	}
+
+	/**
+	 * 使用反斜线引用字符串或数组以便于SQL查询
+	 * 只引用'和\
+	 * @param string|array $s 需要转义的
+	 * @return string|array 转义结果
+	 */
+	Public function sqlAdds($s)
+	{
+		if (is_array($s)) {
+			$r = array();
+			foreach ($s as $key => $value) {
+				$k = str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value));
+				if (!is_array($value)) {
+					$r[$k] = str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value));
+				} else {
+					$r[$k] = sqladds($value);
+				}
+			}
+			return $r;
+		} else {
+			return str_replace('\'', '\\\'', str_replace('\\', '\\\\', $s));
+		}
 	}
 
 }

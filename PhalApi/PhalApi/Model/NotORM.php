@@ -64,6 +64,13 @@ class PhalApi_Model_NotORM implements PhalApi_Model
 		return $rs;
 	}
 
+	public function count($condition)
+	{
+		$notorm = $this->getORM(NULL);
+		$num = $notorm->where($condition)->count();
+		return intval($num);
+	}
+
 	public function updateByWhere($where, $data)
 	{
 		$this->formatExtData($data);
