@@ -136,6 +136,20 @@ class PhalApi_Tool
 		closedir($dir);
 	}
 
+	/**
+	 * 遍历目录。。。无限遍历--注意超时！
+	 * @param $path
+	 * @param string $dir_name
+	 * @param int $i
+	 * @param array $all
+	 * @return array
+	 *      sort() 函数用于对数组单元从低到高进行排序。
+	 *      rsort() 函数用于对数组单元从高到低进行排序。
+	 *      asort() 函数用于对数组单元从低到高进行排序并保持索引关系。
+	 *      arsort() 函数用于对数组单元从高到低进行排序并保持索引关系。
+	 *      ksort() 函数用于对数组单元按照键名从低到高进行排序。
+	 *      krsort() 函数用于对数组单元按照键名从高到低进行排序。
+	 */
 	Public function dirFile($path, $dir_name = '', $i = 0, $all = array())
 	{
 		$dir = opendir($path);//打开目录

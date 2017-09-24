@@ -4,8 +4,10 @@
 	<div class="row">
 		<div class="col s12 center">
 			<ul class="collapsible" data-collapsible="accordion">
+				<?php krsort($files); ?>
 				<?php foreach ($files as $key => $file): ?>
 					<?php if (is_array($file)): ?>
+						<?php rsort($file); ?>
 						<li>
 							<div class="collapsible-header">
 								<?php echo $key; ?>
@@ -51,7 +53,7 @@
 				</div>
 			</div>
 			<button type="submit" class="btn waves-effect waves-light"><?php echo T('确定'); ?></button>
-			<button onclick="$('#BackupModal').modal('close')"
+			<button type="reset" onclick="$('#BackupModal').modal('close')"
 					class="btn waves-effect waves-light"><?php echo T('取消'); ?></button>
 		</form>
 	</div>
