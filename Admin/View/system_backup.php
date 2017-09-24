@@ -48,8 +48,8 @@
 			<div class="col s12">
 				<div class="input-field">
 					<i class="material-icons prefix">vpn_key</i>
-					<input id="password" name="password" type="password">
-					<label for="password"><?php echo T('请输入密码') ?></label>
+					<input id="backup_password" name="password" type="password">
+					<label for="backup_password"><?php echo T('请输入密码') ?></label>
 				</div>
 			</div>
 			<button type="submit" class="btn waves-effect waves-light"><?php echo T('确定'); ?></button>
@@ -69,8 +69,8 @@
 			<div class="col s12">
 				<div class="input-field">
 					<i class="material-icons prefix">vpn_key</i>
-					<input id="password" name="password" type="password">
-					<label for="password"><?php echo T('请输入密码') ?></label>
+					<input id="restore_password" name="password" type="password">
+					<label for="restore_password"><?php echo T('请输入密码') ?></label>
 				</div>
 			</div>
 			<button type="submit" class="btn waves-effect waves-light"><?php echo T('确定'); ?></button>
