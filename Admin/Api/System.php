@@ -71,7 +71,7 @@ class Api_System extends PhalApi_Api
 			set_time_limit(0);
 			ignore_user_abort(true);
 			$dbs = DI()->config->get('dbs.servers');
-			$db = $dbs['db_forum'];
+			$db = $dbs[DB];
 			$dir = API_ROOT . '/Data/' . date('Ym', NOW_TIME) . '/';
 			if (!file_exists($dir)) {
 				DI()->tool->createDir($dir);
@@ -102,7 +102,7 @@ class Api_System extends PhalApi_Api
 		set_time_limit(0);
 		ignore_user_abort(true);
 		$dbs = DI()->config->get('dbs.servers');
-		$db = $dbs['db_forum'];
+		$db = $dbs[DB];
 		$dir = API_ROOT . "/Data/";
 		$path = $this->name;
 		$file = $dir . $path;

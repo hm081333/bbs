@@ -5,6 +5,7 @@
  * Date: 2017/5/29
  * Time: 下午 1:30
  */
+defined('DB') || define('DB', 'db_forum');
 defined('each_page') || define('each_page', 8);
 defined('NOW_TIME') || define('NOW_TIME', isset($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time());
 defined('back') || define('back', TRUE);
