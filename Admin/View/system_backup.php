@@ -72,7 +72,7 @@
 				</div>
 			</div>
 			<button type="submit" class="btn waves-effect waves-light"><?php echo T('确定'); ?></button>
-			<button onclick="$('#RestoreModal').modal('close')"
+			<button type="reset" onclick="$('#RestoreModal').modal('close')"
 					class="btn waves-effect waves-light"><?php echo T('取消'); ?></button>
 		</form>
 	</div>
