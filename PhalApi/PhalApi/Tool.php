@@ -372,17 +372,17 @@ class PhalApi_Tool
 	 * 参数$fileinfo为上传图片信息
 	 * $picture_path为上传的图片地址。要保存到数据库中的
 	 */
-	public function uppic($fileinfo, $picture_path = './Public/static/upload/pics/')
+	public function uppic($fileinfo, $path = 'pics')
 	{
 		$p_type = array("jpg", "jpeg", "bmp", "gif", "png");
-		//$picture_path = './Public/static/upload/pics/';
-		$reback = false;
 		if ($fileinfo['size'] > 0 and $fileinfo['size'] < 2000000) {
 			if (($postf = $this->f_postfix($p_type, $fileinfo['name'])) != false) {
-				$picture_path .= time() . "." . $postf;
+				$path .= "/" . time() . "." . $postf;
+				$upload_path = PUB_ROOT . 'static/upload/';
+				$file = $upload_path . $path;
 				if ($fileinfo['tmp_name']) {
-					move_uploaded_file($fileinfo['tmp_name'], $picture_path);
-					$reback = "pics/" . time() . "." . $postf;
+					move_uploaded_file($fileinfo['tmp_name'], $file);
+					return $path;
 				}
 			} else {
 				throw new PhalApi_Exception_Error(T('图片格式不支持'), 1);// 抛出普通错误 T标签翻译
@@ -390,7 +390,6 @@ class PhalApi_Tool
 		} else {
 			throw new PhalApi_Exception_Error(T('图片超过19M'), 1);// 抛出普通错误 T标签翻译
 		}
-		return $reback;
 	}
 
 	/**

@@ -518,7 +518,32 @@ $('#Reset').submit(function ()//提交表单
 	});
 });
 
-$('#Backup').submit(function ()//提交表单
+$('#BackupModal form').submit(function ()//提交表单
+{
+	$.ajax({
+		type: 'POST',
+		data: $(this).serialize(),
+		success: function (d) {
+			if (d.ret == 200) {
+				Materialize.toast(d.msg, 2000, 'rounded', function () {
+					location.reload();
+				});
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		}
+	});
+});
+
+$('a[restore]').click(function (event) {
+	/* Act on the event */
+	console.log($(this).data());
+	var file_name = $(this).data();
+	$('#RestoreModal input[name="name"]').val(file_name['name']);
+	$('#RestoreModal').modal('open');
+});
+
+$('#RestoreModal form').submit(function ()//提交表单
 {
 	$.ajax({
 		type: 'POST',

@@ -12,7 +12,8 @@
 							</div>
 							<div class="collapsible-body" style="padding: 0;">
 								<?php foreach ($file as $min): ?>
-									<a style="display: block; padding: 0.6rem;">
+									<a restore data-name="<?php echo $key . '/' . $min; ?>" href="javascript:;"
+									   style="display: block; padding: 0.6rem;">
 										<?php echo $min; ?>
 									</a>
 								<?php endforeach; ?>
@@ -20,7 +21,7 @@
 						</li>
 					<?php else: ?>
 						<li style="height: 3rem; line-height: 3rem; padding: 0 1rem;">
-							<a>
+							<a restore data-name="<?php echo $file; ?>" href="javascript:;">
 								<?php echo $file; ?>
 							</a>
 						</li>
@@ -39,7 +40,7 @@
 	<div class="modal-content center">
 		<h4>备份数据库</h4>
 		<p>备份说明</p>
-		<form id="Backup" method="post" onsubmit="return false;">
+		<form method="post" onsubmit="return false;">
 			<input type="hidden" name="service" value="System.backup">
 			<input type="hidden" name="action" value="post">
 			<div class="col s12">
@@ -51,6 +52,27 @@
 			</div>
 			<button type="submit" class="btn waves-effect waves-light"><?php echo T('确定'); ?></button>
 			<button onclick="$('#BackupModal').modal('close')"
+					class="btn waves-effect waves-light"><?php echo T('取消'); ?></button>
+		</form>
+	</div>
+</div>
+
+<div id="RestoreModal" class="modal">
+	<div class="modal-content center">
+		<h4>恢复数据</h4>
+		<p>恢复说明</p>
+		<form method="post" onsubmit="return false;">
+			<input type="hidden" name="service" value="System.restore">
+			<input type="hidden" name="name" value="">
+			<div class="col s12">
+				<div class="input-field">
+					<i class="material-icons prefix">vpn_key</i>
+					<input id="password" name="password" type="password">
+					<label for="password"><?php echo T('请输入密码') ?></label>
+				</div>
+			</div>
+			<button type="submit" class="btn waves-effect waves-light"><?php echo T('确定'); ?></button>
+			<button onclick="$('#RestoreModal').modal('close')"
 					class="btn waves-effect waves-light"><?php echo T('取消'); ?></button>
 		</form>
 	</div>
