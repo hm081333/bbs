@@ -101,8 +101,8 @@ class Common_Function
 			throw new PhalApi_Exception(T('您的 BDUSS Cookie 信息有误，请核验后重新绑定'));
 		}
 		//doAction('baiduid_set_2');
-		//$baiduid_model
-		//$baiduid_model->insert(array('uid' => $user_id, 'bduss' => $bduss, 'name' => $baidu_name));
+		$baiduid_model = new Model_BaiduId();
+		$baiduid_model->insert(array('user_id' => $user_id, 'bduss' => $bduss, 'name' => $baidu_name));
 	}
 
 	/**
@@ -112,11 +112,14 @@ class Common_Function
 	 */
 	public static function getBaiduId($bduss)
 	{
-		$c = new wcurl('http://wapp.baidu.com/');
-		$c->addCookie(array('BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(time()))));
-		$data = $c->get();
-		$c->close();
-		return urldecode(textMiddle($data, 'i?un=', '">'));
+		//$c = new wcurl('http://wapp.baidu.com/');
+		//$c->addCookie(array('BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(time()))));
+		//$data = $c->get();
+		//$c->close();
+		$url = 'http://wapp.baidu.com/';
+		DI()->curl->setCookie(array('BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(time()))));
+		$data = DI()->curl->get($url);
+		return urldecode(DI()->tool->textMiddle($data, 'i?un=', '">'));
 	}
 
 	/**
@@ -126,8 +129,7 @@ class Common_Function
 	public static function scanTiebaByUser($user_id = '')
 	{
 		//global $i;
-		//$tieba_model = new Model_Tieba();
-		//$baiduid_model
+		$baiduid_model = new Model_BaiduId();
 		set_time_limit(0);
 		//if (empty($user_id)) {
 		//	$bduss = $i['user']['bduss'];
@@ -149,10 +151,11 @@ class Common_Function
 	 */
 	public static function scanTiebaByPid($pid)
 	{
-		//$baiduid_model
+		$baiduid_model = new Model_BaiduId();
+		//baidu_id
 		$cma = $baiduid_model->get($pid);
 		$user_id = $cma['user_id'];
-		//$tieba_model
+		$tieba_model = new Model_Tieba();
 		$tb_sl = $tieba_model->count(array('user_id' => $user_id));
 		$bduss = $cma['bduss'];
 		$pid = $cma['id'];
@@ -168,10 +171,10 @@ class Common_Function
 			}
 			foreach ($ngf as $v) {
 				$vn = addslashes(htmlspecialchars($v['name']));
-				$ist = $tieba_model->count(array('pid' => $pid, 'tieba' => $vn));
+				$ist = $tieba_model->count(array('baidu_id' => $pid, 'tieba' => $vn));
 				if ($ist['c'] == 0) {
 					$a++;
-					$tieba_model->insert(array('pid' => $pid, 'fid' => $v['id'], 'uid' => $user_id, 'tieba' => $vn));
+					$tieba_model->insert(array('baidu_id' => $pid, 'fid' => $v['id'], 'user_id' => $user_id, 'tieba' => $vn));
 				}
 			}
 			if ((count($ngf) < 1)) break;
@@ -196,7 +199,7 @@ class Common_Function
 	 */
 	public static function getUserid($pid)
 	{
-		//$baiduid_model
+		$baiduid_model = new Model_BaiduId();
 		$ub = $baiduid_model->get($pid);
 		$url = "http://tieba.baidu.com/home/get/panel?ie=utf-8&un={$ub['name']}";
 		$ur = DI()->curl->json_get($url);

@@ -430,4 +430,25 @@ class PhalApi_Tool
 		}
 	}
 
+	/**
+	 * 获取两段文本之间的文本
+	 * @param string $text 完整的文本
+	 * @param string $left 左边文本
+	 * @param string $right 右边文本
+	 * @return string “左边文本”与“右边文本”之间的文本
+	 */
+	Public function textMiddle($text, $left, $right)
+	{
+		$loc1 = stripos($text, $left);
+		if (is_bool($loc1)) {
+			return "";
+		}
+		$loc1 += strlen($left);
+		$loc2 = stripos($text, $right, $loc1);
+		if (is_bool($loc2)) {
+			return "";
+		}
+		return substr($text, $loc1, $loc2 - $loc1);
+	}
+
 }
