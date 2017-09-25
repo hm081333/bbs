@@ -4,6 +4,7 @@
  */
 
 define('admin', true);
+defined('site') || define('site', 'admin');
 
 require_once dirname(__FILE__) . '/Public/init.php';
 
@@ -17,7 +18,7 @@ DI()->view = new View_Lite('Admin');
 
 //过滤后台未登陆的操作
 if (empty($_SESSION['admin_id']) && !empty($_GET['service']) && $_GET['service'] != 'Public.setLanguage') {
-	echo("<script>alert('".T('未登录')."');window.location.href='./admin.php'</script>");
+	echo("<script>alert('" . T('未登录') . "');window.location.href='./admin.php'</script>");
 	exit;
 }
 

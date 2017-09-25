@@ -76,12 +76,18 @@ class View_Lite
 		ob_start();
 		ob_implicit_flush(false);
 
-		defined('index') ? require PUB_ROOT . 'static/header/header.php' : require PUB_ROOT . 'static/header/header_admin.php';
+		if (defined('index')) {
+			require PUB_ROOT . 'static/header/header.php';
+		} else if (defined('admin')) {
+			require PUB_ROOT . 'static/header/header_admin.php';
+		} else if (defined('tieba')) {
+			require PUB_ROOT . 'static/header/header_tieba.php';
+		}
 
 		//检查文件是否存在
 		file_exists($view) ? require $view : exit($view . ' 模板文件不存在');
 
-		require PUB_ROOT.'static/header/footer.php';
+		require PUB_ROOT . 'static/header/footer.php';
 
 		//获取当前缓冲区内容
 		//$content = ob_get_contents(); // 仅输出

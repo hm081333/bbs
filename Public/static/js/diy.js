@@ -327,11 +327,21 @@ $('#Login_in').submit(function ()//提交表单
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					if (d.data == 'admin') {
+					switch (d.data) {
+						case 'user':
+							history.back();
+							break;
+						default:
+							location.reload();
+							break;
+					}
+					/*if (d.data == 'admin') {
 						location.reload();
 					} else if (d.data == 'user') {
 						history.back();
-					}
+					} else if (d.data == 'tieba') {
+						location.reload();
+					}*/
 				});
 			} else {
 				Materialize.toast(d.msg, 2000, 'rounded');
