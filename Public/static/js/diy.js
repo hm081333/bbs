@@ -36,10 +36,10 @@ $(document).ready(function () {
 	$('.collapsible').collapsible();
 
 
-	var ip = returnCitySN['cip'];
-	$('#ip').html(ip);
-	$('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + ip);
-	// var ip = $('#ip').html();
+	// var ip = returnCitySN['cip'];
+	// $('#ip').html(ip);
+	// $('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + ip);
+	var ip = $('#ip').html();
 	$.ajax({
 		type: 'POST',
 		data: {service: 'Public.ip', ip: ip},
