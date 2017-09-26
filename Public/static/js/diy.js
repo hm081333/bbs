@@ -36,13 +36,14 @@ $(document).ready(function () {
 	$('.collapsible').collapsible();
 
 
-	// var ip = returnCitySN['cip'];
-	// $('#ip').html(ip);
-	// $('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + ip);
+	var ip = returnCitySN['cip'];
+	$('#ip').html(ip);
+	$('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + ip);
 	var ip = $('#ip').html();
 	$.ajax({
 		type: 'POST',
 		data: {service: 'Public.ip', ip: ip},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				$('#ip_address').text(d.data.country + ' ' + d.data.area + ' ' + d.data.region + ' ' + d.data.city + ' ' + d.data.isp)
@@ -80,6 +81,7 @@ function stick_topic(topic_id) {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'Topic.stick_Topic', topic_id: topic_id},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -96,6 +98,7 @@ function unstick_topic(topic_id) {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'Topic.unstick_Topic', topic_id: topic_id},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -112,6 +115,7 @@ function delete_topic(topic_id) {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'Topic.delete_Topic', topic_id: topic_id},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -142,6 +146,7 @@ function update_user(user_id) {
 	$.ajax({
 		type: 'POST',
 		data: {
+			dataType: 'json',
 			service: 'User.edit_Member', action: 'post', user_id: user_id, auth: auth, email: email,
 			real_name: real_name,
 			password: password
@@ -162,6 +167,7 @@ function delete_user(user_id) {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'User.delete_User', user_id: user_id},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -178,6 +184,7 @@ function logoff() {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'User.logoff'},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -201,6 +208,7 @@ function update_admin(admin_id) {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'User.admin_list', action: 'post', admin_id: admin_id, auth: auth, password: password},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -217,6 +225,7 @@ function delete_admin(admin_id) {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'User.delete_Admin', admin_id: admin_id},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -235,6 +244,7 @@ function update_Class(class_id) {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'Class.update_Class', action: 'post', name: name, tips: tips, class_id: class_id},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -251,6 +261,7 @@ function delete_Class(class_id) {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'Class.delete_Class', class_id: class_id},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -267,6 +278,7 @@ function set_language(language) {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'Public.setLanguage', language: language},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -285,6 +297,7 @@ function check_google_auth(language) {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'Public.verify_Google_Auth_Code', code: code, secret: secret},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -303,6 +316,7 @@ $('#Register').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: $("#Register").serialize(),
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -324,6 +338,7 @@ $('#Login_in').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: $("#Login_in").serialize(),
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -356,6 +371,7 @@ $('#forget').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: $("#forget").serialize(),
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -374,6 +390,7 @@ $('#add_Class').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: $("#add_Class").serialize(),
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -391,6 +408,7 @@ $('#Create_Topic').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: new FormData($('#Create_Topic')[0]),
+		dataType: 'json',
 		processData: false,
 		contentType: false,
 		success: function (d) {
@@ -411,6 +429,7 @@ $('#Reply_Topic').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: new FormData($('#Reply_Topic')[0]),
+		dataType: 'json',
 		processData: false,
 		contentType: false,
 		success: function (d) {
@@ -430,6 +449,7 @@ $('#edit_member').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: $("#edit_member").serialize(),
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -447,6 +467,7 @@ $('#search').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: $("#search").serialize(),
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -464,6 +485,7 @@ $('#config').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: $("#config").serialize(),
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -481,6 +503,7 @@ $('.delivery_id').click(function () {
 	$.ajax({
 		type: 'POST',
 		data: {service: 'Default.deliveryView', id: id},
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				$('#delivery').html(d.data);
@@ -499,6 +522,7 @@ $('#Add_Delivery').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: $("#Add_Delivery").serialize(),
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -516,6 +540,7 @@ $('#Reset').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: $(this).serialize(),
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -533,6 +558,7 @@ $('#BackupModal form').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: $(this).serialize(),
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -558,6 +584,7 @@ $('#RestoreModal form').submit(function ()//提交表单
 	$.ajax({
 		type: 'POST',
 		data: $(this).serialize(),
+		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {

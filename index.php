@@ -4,7 +4,7 @@
  */
 
 define('index', true);
-defined('site') || define('site', 'index');
+defined('website') || define('website', 'index');
 
 require_once dirname(__FILE__) . '/Public/init.php';
 

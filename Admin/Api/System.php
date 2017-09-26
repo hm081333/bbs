@@ -98,7 +98,6 @@ class Api_System extends PhalApi_Api
 		if (!Domain_Common::verify($this->password, $admin['password'])) {
 			throw new PhalApi_Exception_Error(T('密码错误'), 1);// 抛出客户端错误 T标签翻译
 		}
-		//mysqldump -u用户名 -p密码 -h主机 数据库 < 路径
 		set_time_limit(0);
 		ignore_user_abort(true);
 		$dbs = DI()->config->get('dbs.servers');

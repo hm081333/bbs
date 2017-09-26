@@ -4,7 +4,7 @@
  */
 
 define('tieba', true);
-defined('site') || define('site', 'tieba');
+defined('website') || define('website', 'tieba');
 
 require_once dirname(__FILE__) . '/Public/init.php';
 

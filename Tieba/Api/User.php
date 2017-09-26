@@ -73,7 +73,7 @@ class Api_User extends PhalApi_Api
 				} elseif (defined('tieba')) {
 					return 'tieba';
 				}*/
-				return site;
+				return website;
 			}
 		} else {
 			DI()->view->show('login');

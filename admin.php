@@ -4,7 +4,7 @@
  */
 
 define('admin', true);
-defined('site') || define('site', 'admin');
+defined('website') || define('website', 'admin');
 
 require_once dirname(__FILE__) . '/Public/init.php';
 

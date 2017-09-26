@@ -56,13 +56,21 @@ if (!defined('IS_JSON')) {
 	$accept = DI()->request->getHeader('Accept');
 	$accept = explode(',', $accept);
 	$accept = $accept[0];
-	if ($accept == 'text/html' || $accept == 'text/plain') {
+	/*复制*/
+	if ($accept == 'application/json') {
+		defined('IS_JSON') || define('IS_JSON', true);
+	} else {
+		defined('IS_JSON') || define('IS_JSON', false);
+		DI()->response = 'PhalApi_Response_Explorer';
+	}
+	/*默认*/
+	/*if ($accept == 'text/html' || $accept == 'text/plain') {
 		defined('IS_JSON') || define('IS_JSON', false);
 		DI()->response = 'PhalApi_Response_Explorer';
 	} elseif ($accept == 'application/json') {
 		defined('IS_JSON') || define('IS_JSON', true);
 		DI()->response = 'PhalApi_Response_Json';
-	}
+	}*/
 }
 
 // 翻译语言包设定
@@ -84,16 +92,16 @@ if (isset($_SESSION['Language'])) {
  */
 
 //缓存 - Memcache/Memcached
-/*DI()->cache = function () {
+DI()->cache = function () {
 	return new PhalApi_Cache_File(DI()->config->get('sys.file'));
 //    return new PhalApi_Cache_Memcache(DI()->config->get('sys.mc'));
-};*/
+};
 
-/*DI()->cookie = function () {
+DI()->cookie = function () {
 	$config = array();
 	$config['path'] = '/';
 	return new  PhalApi_Cookie($config);
-};*/
+};
 
 //curl请求
 DI()->curl = function () {
