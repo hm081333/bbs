@@ -68,68 +68,68 @@ function preview(file) {
 	}
 }
 
-// 打开url（未实现）
-function open_url(service) {
-	$.ajax({
-		type: 'GET',
-		data: {service: service, action: 'view'}
-	});
+function SuccessMsg(data, CallBack) {
+	var msg = data.msg || data || '';
+	var back = data.back || false;
+	var url = data.data ? data.data.url : null;
+	var fuc = CallBack && typeof(CallBack) == "object" ? CallBack : function () {
+		if (url) {
+			location.href = url
+		} else if (back) {
+			history.back();
+		} else {
+			location.reload()
+		}
+	};
+	if (data.ret == 200) {
+		Materialize.toast(msg, 2000, 'rounded', fuc);
+	} else {
+		Materialize.toast(msg, 2000, 'rounded');
+	}
+}
+
+function alertMsg(msg) {
+	Materialize.toast(msg, 2000, 'rounded');
+}
+
+function Ajax(data, SuccessCallback, file) {
+	var fuc = SuccessCallback || SuccessMsg;
+	if (file) {
+		$.ajax({
+			type: 'POST',
+			data: data,
+			processData: false,
+			contentType: false,
+			dataType: 'json',
+			success: fuc,
+			error: function (XMLHttpRequest, textStatus, errorThrown) {
+				alertMsg(textStatus)
+			}
+		});
+	} else {
+		$.ajax({
+			type: 'POST',
+			data: data,
+			dataType: 'json',
+			success: fuc,
+			error: function (XMLHttpRequest, textStatus, errorThrown) {
+				alertMsg(textStatus)
+			}
+		});
+	}
 }
 
 // 帖子操作
 function stick_topic(topic_id) {
-	$.ajax({
-		type: 'POST',
-		data: {service: 'Topic.stick_Topic', topic_id: topic_id},
-		dataType: 'json',
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					location.reload();
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
+	Ajax({service: 'Topic.stick_Topic', topic_id: topic_id});
 }
 
 function unstick_topic(topic_id) {
-	$.ajax({
-		type: 'POST',
-		data: {service: 'Topic.unstick_Topic', topic_id: topic_id},
-		dataType: 'json',
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					location.reload();
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
+	Ajax({service: 'Topic.unstick_Topic', topic_id: topic_id});
 }
 
 function delete_topic(topic_id) {
-	$.ajax({
-		type: 'POST',
-		data: {service: 'Topic.delete_Topic', topic_id: topic_id},
-		dataType: 'json',
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					if (d.data == 'admin') {
-						location.reload();
-					} else {
-						history.back();
-					}
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
+	Ajax({service: 'Topic.delete_Topic', topic_id: topic_id});
 }
 
 // 会员操作
@@ -275,20 +275,7 @@ function delete_Class(class_id) {
 }
 
 function set_language(language) {
-	$.ajax({
-		type: 'POST',
-		data: {service: 'Public.setLanguage', language: language},
-		dataType: 'json',
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					location.reload();
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
+	Ajax({service: 'Public.setLanguage', language: language});
 }
 
 function check_google_auth(language) {
@@ -313,56 +300,12 @@ function check_google_auth(language) {
 
 $('#Register').submit(function ()//提交表单
 {
-	$.ajax({
-		type: 'POST',
-		data: $("#Register").serialize(),
-		dataType: 'json',
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					if (d.data == 'admin') {
-						location.reload();
-					} else {
-						history.back();
-					}
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
+	Ajax($("#Register").serialize());
 });
 
 $('#Login_in').submit(function ()//提交表单
 {
-	$.ajax({
-		type: 'POST',
-		data: $("#Login_in").serialize(),
-		dataType: 'json',
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					switch (d.data) {
-						case 'user':
-							history.back();
-							break;
-						default:
-							location.reload();
-							break;
-					}
-					/*if (d.data == 'admin') {
-						location.reload();
-					} else if (d.data == 'user') {
-						history.back();
-					} else if (d.data == 'tieba') {
-						location.reload();
-					}*/
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
+	Ajax($("#Login_in").serialize());
 });
 
 // 谷歌身份认证登录
@@ -387,79 +330,30 @@ $('#forget').submit(function ()//提交表单
 
 $('#add_Class').submit(function ()//提交表单
 {
-	$.ajax({
-		type: 'POST',
-		data: $("#add_Class").serialize(),
-		dataType: 'json',
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					location.reload();
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
+	Ajax($("#add_Class").serialize());
 });
 
 $('#Create_Topic').submit(function ()//提交表单
 {
-	$.ajax({
-		type: 'POST',
-		data: new FormData($('#Create_Topic')[0]),
-		dataType: 'json',
-		processData: false,
-		contentType: false,
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					// history.back();
-					location.href = '?service=Topic.topic&topic_id=' + d.data['topic_id'];
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
+	Ajax(new FormData($('#Create_Topic')[0]), function (d) {
+		if (d.ret == 200) {
+			Materialize.toast(d.msg, 2000, 'rounded', function () {
+				location.href = '?service=Topic.topic&topic_id=' + d.data['topic_id'];
+			});
+		} else {
+			Materialize.toast(d.msg, 2000, 'rounded');
 		}
-	});
+	}, true);
 });
 
 $('#Reply_Topic').submit(function ()//提交表单
 {
-	$.ajax({
-		type: 'POST',
-		data: new FormData($('#Reply_Topic')[0]),
-		dataType: 'json',
-		processData: false,
-		contentType: false,
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					location.reload();
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
+	Ajax(new FormData($('#Reply_Topic')[0]), false, true);
 });
 
 $('#edit_member').submit(function ()//提交表单
 {
-	$.ajax({
-		type: 'POST',
-		data: $("#edit_member").serialize(),
-		dataType: 'json',
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					location.reload();
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
+	Ajax($("#edit_member").serialize());
 });
 
 $('#search').submit(function ()//提交表单
@@ -482,20 +376,7 @@ $('#search').submit(function ()//提交表单
 
 $('#config').submit(function ()//提交表单
 {
-	$.ajax({
-		type: 'POST',
-		data: $("#config").serialize(),
-		dataType: 'json',
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					location.reload();
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
+	Ajax($("#config").serialize());
 });
 
 $('.delivery_id').click(function () {
@@ -519,38 +400,12 @@ $('.delivery_id').click(function () {
 
 $('#Add_Delivery').submit(function ()//提交表单
 {
-	$.ajax({
-		type: 'POST',
-		data: $("#Add_Delivery").serialize(),
-		dataType: 'json',
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					location.reload();
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
+	Ajax($("#Add_Delivery").serialize());
 });
 
 $('#Reset').submit(function ()//提交表单
 {
-	$.ajax({
-		type: 'POST',
-		data: $(this).serialize(),
-		dataType: 'json',
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					location.reload();
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
+	Ajax($(this).serialize());
 });
 
 $('#BackupModal form').submit(function ()//提交表单

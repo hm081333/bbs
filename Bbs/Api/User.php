@@ -65,6 +65,7 @@ class Api_User extends PhalApi_Api
 				$_SESSION['user_name'] = $user['user_name'];
 				$_SESSION['user_auth'] = $user['auth'];
 				DI()->response->setMsg(T('登陆成功'));
+				DI()->response->setBack();
 				return 'user';
 			}
 		} else {
@@ -176,6 +177,7 @@ class Api_User extends PhalApi_Api
 				$_SESSION['user_name'] = $this->user_name;
 				$_SESSION['user_auth'] = 0;
 				DI()->response->setMsg(T('注册成功'));
+				DI()->response->setBack();
 				return 'user';
 			} else {
 				throw new PhalApi_Exception_InternalServerError(T('注册失败'), 2);// 抛出服务端错误
