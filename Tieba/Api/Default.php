@@ -12,8 +12,6 @@ class Api_Default extends PhalApi_Api
 	{
 		return array(
 			'index' => array(
-				// 'limit' => array('name' => 'limit', 'type' => 'int', 'default' => 0, 'min' => 0, 'require' => false, 'desc' => ''),
-				// 'offset' => array('name' => 'offset', 'type' => 'int', 'default' => each_page, 'min' => 0, 'require' => false, 'desc' => ''),
 				'page' => array('name' => 'page', 'type' => 'int', 'default' => 1, 'min' => 1, 'require' => false, 'desc' => '当前页数'),
 			),
 			'email_config' => array(

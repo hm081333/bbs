@@ -152,15 +152,15 @@ class PhalApi_CUrl
 
 	protected function getCookies()
 	{
-		$arrCookies = array();
+		$cookies = '';
 		if (is_array($this->cookie)) {
 			foreach ($this->cookie as $key => $val) {
-				$arrCookies .= "{$key}={$val}; ";
+				$cookies .= "{$key}={$val}; ";
 			}
 		} else {
-			$arrCookies = $this->cookie;
+			$cookies = $this->cookie;
 		}
-		return $arrCookies;
+		return $cookies;
 	}
 
 	/**

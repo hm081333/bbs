@@ -34,6 +34,7 @@ $(document).ready(function () {
 	});
 	$('select').material_select();
 	$('.collapsible').collapsible();
+	$('ul.tabs').tabs();
 
 
 	var ip = returnCitySN['cip'];
@@ -450,6 +451,11 @@ $('#RestoreModal form').submit(function ()//提交表单
 			}
 		}
 	});
+});
+
+$('#add_bduss').submit(function ()//提交表单
+{
+	Ajax($(this).serialize());
 });
 
 /**

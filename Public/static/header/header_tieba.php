@@ -54,21 +54,21 @@
 						</ul>
 						<ul class="collapsible collapsible-accordion">
 							<li>
-								<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('会员管理') ?><i
+								<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('贴吧签到管理') ?><i
 											class="material-icons">arrow_drop_down</i></a>
 								<div class="collapsible-body">
 									<ul>
 										<li>
 											<a class="waves-effect waves-teal"
-											   href="?service=User.register"><?php echo T('添加用户') ?></a>
+											   href="?service=Default.Index"><?php echo T('BDUSS列表') ?></a>
 										</li>
 										<li>
 											<a class="waves-effect waves-teal"
-											   href="?service=Default.Index"><?php echo T('管理用户') ?></a>
+											   href="?service=Tieba.AddBduss"><?php echo T('添加BUDUSS') ?></a>
 										</li>
 										<li>
 											<a class="waves-effect waves-teal"
-											   href="?service=User.create_admin"><?php echo T('添加管理员') ?></a>
+											   href="?service=Tieba.TiebaList"><?php echo T('贴吧列表') ?></a>
 										</li>
 										<li>
 											<a class="waves-effect waves-teal"

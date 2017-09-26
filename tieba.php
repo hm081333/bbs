@@ -17,11 +17,9 @@ DI()->view = new View_Lite('Tieba');
 /** ---------------- 响应接口请求 ---------------- **/
 
 //过滤前台未登陆的操作
-/*if (empty($_SESSION['user_id']) && !empty($_GET['service'])) {
-	if (empty($_SESSION['admin_id'])) {
-		echo("<script>alert('".T('未登录')."');window.location.href='./admin.php'</script>");
-	}
-}*/
+if (empty($_SESSION['user_id']) && !empty($_GET['service'])) {
+	echo("<script>alert('" . T('未登录') . "');window.location.href='./tieba.php'</script>");
+}
 
 $api = new PhalApi();
 $rs = $api->response();
