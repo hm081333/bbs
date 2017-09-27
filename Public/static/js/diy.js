@@ -120,6 +120,10 @@ function Ajax(data, SuccessCallback, file) {
 	}
 }
 
+function refresh_tieba(baidu_id) {
+	Ajax({service: 'Tieba.RefreshTieba', baidu_id: baidu_id})
+}
+
 // 帖子操作
 function stick_topic(topic_id) {
 	Ajax({service: 'Topic.stick_Topic', topic_id: topic_id});

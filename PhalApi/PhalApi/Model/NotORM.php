@@ -88,6 +88,13 @@ class PhalApi_Model_NotORM implements PhalApi_Model
 		return $notorm->insert_id();
 	}
 
+	public function insert_update($unique, $insert, $update, $id = NULL)
+	{
+		//$this->formatExtData($data);
+		$notorm = $this->getORM($id);
+		return $notorm->insert_update($unique, $insert, $update);
+	}
+
 	public function update($id, $data)
 	{
 		$this->formatExtData($data);

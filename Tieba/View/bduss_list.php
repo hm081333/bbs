@@ -9,11 +9,9 @@
 	<tbody>
 	<?php foreach ($rows as $key => $row) : ?>
 		<tr class="green accent-1">
-			<td>
-				<span class="truncate tooltipped" data-position="bottom" data-delay="50"
-					  data-tooltip="<?php echo T($row['bduss']); ?>">
-					<?php echo T($row['bduss']); ?>
-				</span>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="<?php echo T($row['bduss']); ?>">
+				<?php echo T($row['bduss']); ?>
 			</td>
 			<td>
 				<span class="truncate tooltipped" data-position="bottom" data-delay="50"
