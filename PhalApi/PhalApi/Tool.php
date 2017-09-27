@@ -421,7 +421,7 @@ class PhalApi_Tool
 				if (!is_array($value)) {
 					$r[$k] = str_replace('\'', '\\\'', str_replace('\\', '\\\\', $value));
 				} else {
-					$r[$k] = sqladds($value);
+					$r[$k] = $this->sqlAdds($value);
 				}
 			}
 			return $r;
@@ -450,5 +450,6 @@ class PhalApi_Tool
 		}
 		return substr($text, $loc1, $loc2 - $loc1);
 	}
+
 
 }

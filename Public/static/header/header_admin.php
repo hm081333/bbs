@@ -123,19 +123,33 @@
 									<ul>
 										<li>
 											<a class="waves-effect waves-teal"
-											   href="?service=Default.email_config"><?php echo T('配置邮箱') ?></a>
+											   href="?service=System.Tz">
+												<?php echo T('探针') ?>
+											</a>
 										</li>
 										<li>
 											<a class="waves-effect waves-teal"
-											   href="?service=Default.smsbao_config"><?php echo T('配置短信宝') ?></a>
+											   href="?service=Default.email_config">
+												<?php echo T('配置邮箱') ?>
+											</a>
 										</li>
 										<li>
 											<a class="waves-effect waves-teal"
-											   href="?service=System.backup"><?php echo T('备份还原') ?></a>
+											   href="?service=Default.smsbao_config">
+												<?php echo T('配置短信宝') ?>
+											</a>
 										</li>
 										<li>
 											<a class="waves-effect waves-teal"
-											   href="?service=System.reset"><?php echo T('重置系统') ?></a>
+											   href="?service=System.backup">
+												<?php echo T('备份还原') ?>
+											</a>
+										</li>
+										<li>
+											<a class="waves-effect waves-teal"
+											   href="?service=System.reset">
+												<?php echo T('重置系统') ?>
+											</a>
 										</li>
 									</ul>
 								</div>

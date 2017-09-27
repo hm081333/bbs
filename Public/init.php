@@ -100,7 +100,7 @@ DI()->cache = function () {
 DI()->cookie = function () {
 	$config = array();
 	$config['path'] = '/';
-	return new  PhalApi_Cookie($config);
+	return new PhalApi_Cookie($config);
 };
 
 //curl请求

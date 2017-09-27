@@ -117,5 +117,12 @@ class Api_System extends PhalApi_Api
 		return;
 	}
 
+	public function tz()
+	{
+		$sys_info = Domain_Tz::getSysInfo();
+		DI()->view->assign(array('sysInfo' => $sys_info['sysInfo'], 'sysReShow' => $sys_info['sysReShow']));
+		DI()->view->show('tz');
+	}
+
 
 }

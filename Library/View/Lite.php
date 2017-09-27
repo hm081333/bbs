@@ -76,13 +76,7 @@ class View_Lite
 		ob_start();
 		ob_implicit_flush(false);
 
-		if (defined('index')) {
-			require PUB_ROOT . 'static/header/header.php';
-		} else if (defined('admin')) {
-			require PUB_ROOT . 'static/header/header_admin.php';
-		} else if (defined('tieba')) {
-			require PUB_ROOT . 'static/header/header_tieba.php';
-		}
+		require website == 'index' ? PUB_ROOT . 'static/header/header.php' : PUB_ROOT . 'static/header/header_' . website . '.php';
 
 		//检查文件是否存在
 		file_exists($view) ? require $view : exit($view . ' 模板文件不存在');
@@ -123,8 +117,8 @@ class View_Lite
 		//获取当前缓冲区内容
 		//$content = ob_get_contents(); // 仅输出
 		$content = ob_get_clean(); // 输出并清空关闭
-		$content = DI()->tool->higrid_compress_html($content);
-		$content = DI()->tool->compress_html($content);
+		$content = DI()->tool->higrid_compress_html($content); // 正则删除无关代码
+		$content = DI()->tool->compress_html($content); // 正则删除无关代码
 		return $content;
 	}
 }
