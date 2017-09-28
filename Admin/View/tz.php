@@ -141,7 +141,7 @@
 			<td>CPU使用状况</td>
 			<td>
 				<?php if ('/' == DIRECTORY_SEPARATOR) {
-					echo $cpu_Domain_Tz::show . " | <a href='" . $phpSelf . "?act=cpu_percentage' target='_blank' class='static'>查看图表</a>";
+					echo $cpu_show . " | <a href='" . $phpSelf . "?act=cpu_percentage' target='_blank' class='static'>查看图表</a>";
 				} else {
 					echo "暂时只支持Linux系统";
 				} ?>
@@ -259,7 +259,6 @@
 			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PHP信息（phpinfo）">PHP信息（phpinfo）：</td>
 			<td width="30%">
 				<?php
-				$phpSelf = $_SERVER[PHP_SELF] ? $_SERVER[PHP_SELF] : $_SERVER[SCRIPT_NAME];
 				$disFuns = get_cfg_var("disable_functions");
 				?>
 				<?php echo (false !== preg_match("phpinfo", $disFuns)) ? '<font color="red">×</font>' : "<a href='$phpSelf?act=phpinfo' target='_blank'>PHPINFO</a>"; ?>
@@ -411,23 +410,23 @@
 		</tr>
 		<tr>
 			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="被禁用的函数（disable_functions）">被禁用的函数（disable_functions）：</td>
-			<td>
+			<td><a href='#' target='_blank' class='static'>查看</a></td>
+			<!--<td>
 				<?php
-				$disFuns = get_cfg_var("disable_functions");
-				if (empty($disFuns)) {
-					echo '<font color=red>×</font>';
-				} else {
-					$disFuns_array = explode(',', $disFuns);
-					foreach ($disFuns_array as $key => $value) {
-						if ($key != 0 && $key % 5 == 0) {
-							echo '<br />';
-						}
-						echo "$value&nbsp;&nbsp;";
-					}
-				}
-
-				?>
-			</td>
+			/*				$disFuns = get_cfg_var("disable_functions");
+							if (empty($disFuns)) {
+								echo '<font color=red>×</font>';
+							} else {
+								$disFuns_array = explode(',', $disFuns);
+								foreach ($disFuns_array as $key => $value) {
+									if ($key != 0 && $key % 5 == 0) {
+										echo '<br />';
+									}
+									echo "$value&nbsp;&nbsp;";
+								}
+							}
+							*/ ?>
+			</td>-->
 		</tr>
 
 	</table>
