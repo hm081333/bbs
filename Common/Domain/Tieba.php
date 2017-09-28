@@ -71,45 +71,53 @@ class Domain_Tieba
 	public static function scanTiebaByPid($pid)
 	{
 		$baiduid_model = new Model_BaiduId();
-		//baidu_id
 		$cma = $baiduid_model->get($pid);
-		$user_id = $cma['user_id'];
 		$tieba_model = new Model_Tieba();
-		$tb_sl = $tieba_model->count(array('user_id' => $user_id));
+		//$tb_sl = $tieba_model->count(array('user_id' => $user_id));
+		//$ptb_sl = $tieba_model->count(array('user_id' => $user_id, 'baidu_id' => $pid));
+		$user_id = $cma['user_id'];
 		$bduss = $cma['bduss'];
+		$bname = $cma['name'];
 		$pid = $cma['id'];
-		$bid = self::getUserid($pid);
+		unset($cma);
+		$bid = self::getUserid($bname);
 		$pn = 1;
 		$a = 0;
 		while (true) {
 			if (empty($bid)) break;
 			$rc = self::getTieba($bid, $bduss, $pn);
 			$ngf = $rc['forum_list']['non-gconforum'];
-			foreach ($rc['forum_list']['gconforum'] as $v) {
-				$ngf[] = $v;
-			}
-			foreach ($ngf as $v) {
-				$vn = addslashes(htmlspecialchars($v['name']));
-				$ist = $tieba_model->count(array('baidu_id' => $pid, 'tieba' => $vn));
-				if ($ist['c'] == 0) {
-					$a++;
-					$tieba_model->insert(array('baidu_id' => $pid, 'fid' => $v['id'], 'user_id' => $user_id, 'tieba' => $vn));
+			if (!empty($rc['forum_list']['gconforum'])) {
+				foreach ($rc['forum_list']['gconforum'] as $v) {
+					$ngf[] = $v;
 				}
 			}
-			if ((count($ngf) < 1)) break;
+			if (!empty($ngf) && is_array($ngf)) {
+				$refresh_time = $rc['time'];
+				$baiduid_model->update($pid, array('refresh_time' => $refresh_time));
+				foreach ($ngf as $v) {
+					$vn = addslashes(htmlspecialchars($v['name']));
+					$ist = $tieba_model->count(array('baidu_id' => $pid, 'tieba' => $vn));
+					if ($ist == 0) {
+						$a++;
+						$tieba_model->insert(array('baidu_id' => $pid, 'fid' => $v['id'], 'user_id' => $user_id, 'tieba' => $vn, 'refresh_time' => $refresh_time));
+					}
+				}
+			}
+			if ((count($ngf) < 1)) {
+				break;
+			}
 			$pn++;
 		}
 	}
 
 	/**
 	 * 获取贴吧用户id
-	 * 获取指定pid用户userid
+	 * 获取指定pid用户userid--根据贴吧用户名找
 	 */
-	public static function getUserid($pid)
+	public static function getUserid($name)
 	{
-		$baiduid_model = new Model_BaiduId();
-		$ub = $baiduid_model->get($pid);
-		$url = "http://tieba.baidu.com/home/get/panel?ie=utf-8&un={$ub['name']}";
+		$url = "http://tieba.baidu.com/home/get/panel?ie=utf-8&un={$name}";
 		$ur = DI()->curl->json_get($url);
 		$userid = $ur['data']['id'];
 		return $userid;

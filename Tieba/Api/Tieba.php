@@ -14,8 +14,9 @@ class Api_Tieba extends PhalApi_Api
 			'addBdussAC' => array(
 				'bduss' => array('name' => 'bduss', 'type' => 'string', 'require' => true, 'desc' => 'BDUSS'),
 			),
-			'tiebaList' => array(
-				'page' => array('name' => 'page', 'type' => 'int', 'default' => 1, 'min' => 1, 'require' => false, 'desc' => '当前页数'),
+			'tiebaList' => array(),
+			'refreshTieba' => array(
+				'baidu_id' => array('name' => 'baidu_id', 'type' => 'int', 'require' => true, 'desc' => 'baiduid表的ID'),
 			),
 		);
 	}
@@ -45,13 +46,28 @@ class Api_Tieba extends PhalApi_Api
 		foreach ($baiduids as $baiduid) {
 			//$tiebas[$baiduid['id']] = array();
 			$tiebas[$baiduid['id']]['name'] = $baiduid['name'];
-			$tiebas[$baiduid['id']]['tieba'] = array();
+			$tiebas[$baiduid['id']]['tieba'] = $tieba_model->getListByWhere(array('user_id' => $user_id, 'baidu_id' => $baiduid['id']));
 		}
-		var_dump($baiduids);
-		$tieba_list = $tieba_model->getList((($this->page - 1) * each_page), ($this->page * each_page));
-		$tieba_list['page_total'] = ceil($tieba_list['total'] / each_page);
-		DI()->view->assign(array('rows' => $tieba_list['rows'], 'total' => $tieba_list['total'], 'page' => $this->page));
+		//$tieba_list = $tieba_model->getList((($this->page - 1) * each_page), ($this->page * each_page));
+		//$tieba_list['page_total'] = ceil($tieba_list['total'] / each_page);
+		//DI()->view->assign(array('rows' => $tieba_list['rows'], 'total' => $tieba_list['total'], 'page' => $this->page));
+		DI()->view->assign(array('tiebas' => $tiebas));
 		DI()->view->show('tieba_list');
+	}
+
+	public function refreshTieba()
+	{
+		$result = Domain_Tieba::scanTiebaByPid($this->baidu_id);
+		DI()->response->setMsg(T('刷新成功'));
+		return true;
+	}
+
+	public function refreshAllTieba()
+	{
+		$user_id = $_SESSION['user_id'];
+		Domain_Tieba::scanTiebaByUser($user_id);
+		DI()->response->setMsg(T('刷新成功'));
+		return true;
 	}
 
 }
