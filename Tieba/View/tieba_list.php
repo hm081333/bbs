@@ -13,39 +13,61 @@
 			<table style="table-layout: fixed;">
 				<thead>
 				<tr class="teal darken-3">
-					<th><?php echo T('ID'); ?></th>
+					<!--<th>--><?php //echo T('ID'); ?><!--</th>-->
 					<th><?php echo T('贴吧'); ?></th>
+					<th><?php echo T('状态'); ?></th>
+					<th><?php echo T('忽略'); ?></th>
+					<th<!-- style="width: 3.5rem;"-->><?php echo T('删除'); ?></th>
 				</tr>
 				</thead>
 				<tbody>
 				<?php if (empty($item['tieba'])) : ?>
 					<tr class="green accent-1">
-						<td>
-							暂无
-						</td>
-						<td>
+						<td colspan="4" class="center">
 							暂无
 						</td>
 					</tr>
 				<?php else: ?>
 					<?php foreach ($item['tieba'] as $index => $row) : ?>
 						<tr class="green accent-1">
+							<!--<td>
+								<?php /*echo $row['fid']; */ ?>
+							</td>-->
 							<td>
-								<?php echo $row['fid']; ?>
+								<span class="truncate tooltipped" data-position="bottom" data-delay="50"
+									  data-tooltip="<?php echo T($row['tieba']); ?>">
+									<?php echo T($row['tieba']); ?>
+								</span>
 							</td>
 							<td>
-							<span class="truncate tooltipped" data-position="bottom" data-delay="50"
-								  data-tooltip="<?php echo T($row['tieba']); ?>">
-								<?php echo T($row['tieba']); ?>
-							</span>
+								<?php if ($row['status'] == 0): ?>
+									<span style="color: blue;">正常</span>
+								<?php else: ?>
+									<span style="color: red;">异常</span>
+								<?php endif; ?>
+							</td>
+							<td>
+								<div class="switch">
+									<label>
+										<input id="no_sign<?php echo $row['id']; ?>"
+											   onclick="no_sign(<?php echo $row['id']; ?>)"
+											   type="checkbox" <?php echo $row['no'] ? 'checked' : ''; ?>>
+										<span class="lever"></span>
+									</label>
+								</div>
+							</td>
+							<td>
+								<button onclick="delete_tieba(<?php echo $row['id']; ?>)"
+										class="btn-floating waves-effect waves-light"><i
+											class="material-icons">delete</i></button>
 							</td>
 						</tr>
 					<?php endforeach; ?>
 				<?php endif; ?>
 				<tr>
-					<td colspan="2">
-						<button class="btn waves-effect waves-light right" onclick="refresh_tieba(<?php echo $key; ?>)">
-							刷新
+					<td colspan="4" class="center">
+						<button class="btn waves-effect waves-light" onclick="refresh_tieba(<?php echo $key; ?>)">
+							刷新列表
 						</button>
 					</td>
 				</tr>

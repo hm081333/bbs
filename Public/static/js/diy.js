@@ -124,6 +124,21 @@ function refresh_tieba(baidu_id) {
 	Ajax({service: 'Tieba.RefreshTieba', baidu_id: baidu_id})
 }
 
+function delete_tieba(tieba_id) {
+	Ajax({service: 'Tieba.DeleteTieba', tieba_id: tieba_id})
+}
+
+function no_sign(tieba_id) {
+	var no_status = $('#no_sign' + tieba_id)[0]['checked'];
+	Ajax({service: 'Tieba.NoSignTieba', tieba_id: tieba_id, no: no_status}, function (d) {
+		if (d.ret == 200) {
+			Materialize.toast(d.msg, 2000, 'rounded');
+		} else {
+			Materialize.toast(d.msg, 2000, 'rounded');
+		}
+	})
+}
+
 // 帖子操作
 function stick_topic(topic_id) {
 	Ajax({service: 'Topic.stick_Topic', topic_id: topic_id});
@@ -432,8 +447,6 @@ $('#BackupModal form').submit(function ()//提交表单
 });
 
 $('a[restore]').click(function (event) {
-	/* Act on the event */
-	console.log($(this).data());
 	var file_name = $(this).data();
 	$('#RestoreModal input[name="name"]').val(file_name['name']);
 	$('#RestoreModal').modal('open');
