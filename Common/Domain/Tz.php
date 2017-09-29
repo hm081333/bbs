@@ -215,6 +215,10 @@ class Domain_Tz
 		return (false !== function_exists($funName)) ? '<font color="green">√</font>' : '<font color="red">×</font>';
 	}
 
+	/**
+	 * CPU核心详情
+	 * @return array
+	 */
 	public static function GetCoreInformation()
 	{
 		$data = file('/proc/stat');
@@ -228,6 +232,12 @@ class Domain_Tz
 		return $cores;
 	}
 
+	/**
+	 * CPU使用率详情
+	 * @param $stat1
+	 * @param $stat2
+	 * @return array|void
+	 */
 	public static function GetCpuPercentages($stat1, $stat2)
 	{
 		if (count($stat1) !== count($stat2)) {
@@ -249,6 +259,104 @@ class Domain_Tz
 			$cpus['cpu' . $i] = $cpu;
 		}
 		return $cpus;
+	}
+
+	/**
+	 * 单位转换
+	 * @param $size
+	 * @return string
+	 */
+	public static function formatsize($size)
+	{
+		$danwei = array(' B ', ' K ', ' M ', ' G ', ' T ');
+		$allsize = array();
+		$fsize = '';
+		$i = 0;
+		for ($i = 0; $i < 5; $i++) {
+			if (floor($size / pow(1024, $i)) == 0) {
+				break;
+			}
+		}
+		for ($l = $i - 1; $l >= 0; $l--) {
+			$allsize1[$l] = floor($size / pow(1024, $l));
+			$allsize[$l] = $allsize1[$l] - $allsize1[$l + 1] * 1024;
+		}
+		$len = count($allsize);
+		for ($j = $len - 1; $j >= 0; $j--) {
+			$fsize = $fsize . $allsize[$j] . $danwei[$j];
+		}
+		return $fsize;
+	}
+
+	/**
+	 * 整数运算能力测试
+	 * @return int|string
+	 */
+	public static function testInt()
+	{
+		$timeStart = gettimeofday();
+		for ($i = 0; $i < 3000000; $i++) {
+			$t = 1 + 1;
+		}
+		$timeEnd = gettimeofday();
+		$time = ($timeEnd["usec"] - $timeStart["usec"]) / 1000000 + $timeEnd["sec"] - $timeStart["sec"];
+		$time = round($time, 3) . "秒";
+		return $time;
+	}
+
+	/**
+	 * 浮点运算能力测试
+	 * @return int|string
+	 */
+	public static function testFloat()
+	{
+		//得到圆周率值
+		$t = pi();
+		$timeStart = gettimeofday();
+		for ($i = 0; $i < 3000000; $i++) {
+			//开平方
+			sqrt($t);
+		}
+		$timeEnd = gettimeofday();
+		$time = ($timeEnd["usec"] - $timeStart["usec"]) / 1000000 + $timeEnd["sec"] - $timeStart["sec"];
+		$time = round($time, 3) . "秒";
+		return $time;
+	}
+
+	/**
+	 * IO能力测试
+	 * @return string
+	 */
+	public static function testIo()
+	{
+		$fp = @fopen(PHPSELF, "r");
+		$timeStart = gettimeofday();
+		for ($i = 0; $i < 10000; $i++) {
+			@fread($fp, 10240);
+			@rewind($fp);
+		}
+		$timeEnd = gettimeofday();
+		@fclose($fp);
+		$time = ($timeEnd["usec"] - $timeStart["usec"]) / 1000000 + $timeEnd["sec"] - $timeStart["sec"];
+		$time = round($time, 3) . "秒";
+		return $time;
+	}
+
+	public static function testSpeed()
+	{
+		$kb = 10240;
+		echo "streaming $kb Kb...<!-";
+		flush();
+		$time = explode(" ", microtime());
+		$start = $time[0] + $time[1];
+		for ($x = 0; $x < $kb; $x++) {
+			echo str_pad('', 1024, '.');
+			flush();
+		}
+		$time = explode(" ", microtime());
+		$finish = $time[0] + $time[1];
+		$deltat = $finish - $start;
+		echo "-> Test finished in $deltat seconds. Your speed is " . round($kb / $deltat, 3) . "Kb/s";
 	}
 
 

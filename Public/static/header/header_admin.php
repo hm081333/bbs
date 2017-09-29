@@ -13,6 +13,7 @@
 	<link href="https://cdn.bootcss.com/materialize/0.100.2/css/materialize.min.css" rel="stylesheet" media="screen,projection">
 	<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 	<script src="https://cdn.bootcss.com/materialize/0.100.2/js/materialize.min.js"></script>
+	<script src="https://cdn.bootcss.com/echarts/3.7.1/echarts.min.js"></script>
 	<link href="<?php echo URL_ROOT; ?>static/css/diy.css" rel="stylesheet">
 	<script>
 		$(document).ready(function () {
@@ -109,6 +110,28 @@
 										<li>
 											<a class="waves-effect waves-teal"
 											   href="?service=Class.class_List"><?php echo T('管理分类') ?></a>
+										</li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+						<ul class="collapsible collapsible-accordion">
+							<li>
+								<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('探针') ?><i
+											class="material-icons">arrow_drop_down</i></a>
+								<div class="collapsible-body">
+									<ul>
+										<li>
+											<a class="waves-effect waves-teal"
+											   href="?service=Tz.Info">
+												<?php echo T('服务器信息') ?>
+											</a>
+										</li>
+										<li>
+											<a class="waves-effect waves-teal"
+											   href="?service=Tz.Test">
+												<?php echo T('服务器测试') ?>
+											</a>
 										</li>
 									</ul>
 								</div>

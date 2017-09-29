@@ -2,14 +2,73 @@
 	table {
 		table-layout: fixed;
 	}
+
+	.bar {
+		border: 1px solid #999999;
+		background: #FFFFFF;
+		height: 5px;
+		font-size: 2px;
+		width: 100%;
+		margin: 2px 0 5px 0;
+		padding: 1px;
+		overflow: hidden;
+	}
+
+	.bar_1 {
+		border: 1px dotted #999999;
+		background: #FFFFFF;
+		height: 5px;
+		font-size: 2px;
+		width: 100%;
+		margin: 2px 0 5px 0;
+		padding: 1px;
+		overflow: hidden;
+	}
+
+	.barli_red {
+		background: #ff6600;
+		height: 5px;
+		margin: 0px;
+		padding: 0;
+	}
+
+	.barli_blue {
+		background: #0099FF;
+		height: 5px;
+		margin: 0px;
+		padding: 0;
+	}
+
+	.barli_green {
+		background: #36b52a;
+		height: 5px;
+		margin: 0px;
+		padding: 0;
+	}
+
+	.barli_black {
+		background: #333;
+		height: 5px;
+		margin: 0px;
+		padding: 0;
+	}
+
+	.barli_1 {
+		background: #999999;
+		height: 5px;
+		margin: 0px;
+		padding: 0;
+	}
 </style>
 
 <ul class="tabs">
 	<li class="tab"><a href="#p1">服务器参数</a></li>
 	<li class="tab"><a href="#p2">服务器实时数据</a></li>
-	<li class="tab"><a href="#p3">PHP已编译模块检测</a></li>
-	<li class="tab"><a href="#p4">PHP相关参数</a></li>
-	<li class="tab"><a href="#p5">组件支持</a></li>
+	<li class="tab"><a href="#p3">网络使用状况</a></li>
+	<li class="tab"><a href="#p4">PHP已编译模块检测</a></li>
+	<li class="tab"><a href="#p5">PHP相关参数</a></li>
+	<li class="tab"><a href="#p6">组件支持</a></li>
+	<li class="tab"><a href="#p7">第三方组件</a></li>
 </ul>
 
 <!--
@@ -123,14 +182,58 @@
 </div>
 
 <!--服务器实时数据-->
-<div id="p2" class="red">
+<div id="p2" class="teal">
+	<?php
+	$uptime = $sysInfo['uptime']; //在线时间
+	$stime = date('Y-m-d H:i:s', NOW_TIME); //系统当前时间
+	//硬盘
+	$dt = round(@disk_total_space(".") / (1024 * 1024 * 1024), 3); //总
+	$df = round(@disk_free_space(".") / (1024 * 1024 * 1024), 3); //可用
+	$du = $dt - $df; //已用
+	$hdPercent = (floatval($dt) != 0) ? round($du / $dt * 100, 2) : 0;
+	$load = $sysInfo['loadAvg'];    //系统负载
+	//判断内存如果小于1G，就显示M，否则显示G单位
+	if ($sysInfo['memTotal'] < 1024) {
+		$memTotal = $sysInfo['memTotal'] . " M";
+		$mt = $sysInfo['memTotal'] . " M";
+		$mu = $sysInfo['memUsed'] . " M";
+		$mf = $sysInfo['memFree'] . " M";
+		$mc = $sysInfo['memCached'] . " M";    //cache化内存
+		$mb = $sysInfo['memBuffers'] . " M";    //缓冲
+		$st = $sysInfo['swapTotal'] . " M";
+		$su = $sysInfo['swapUsed'] . " M";
+		$sf = $sysInfo['swapFree'] . " M";
+		$swapPercent = $sysInfo['swapPercent'];
+		$memRealUsed = $sysInfo['memRealUsed'] . " M"; //真实内存使用
+		$memRealFree = $sysInfo['memRealFree'] . " M"; //真实内存空闲
+		$memRealPercent = $sysInfo['memRealPercent']; //真实内存使用比率
+		$memPercent = $sysInfo['memPercent']; //内存总使用率
+		$memCachedPercent = $sysInfo['memCachedPercent']; //cache内存使用率
+	} else {
+		$memTotal = round($sysInfo['memTotal'] / 1024, 3) . " G";
+		$mt = round($sysInfo['memTotal'] / 1024, 3) . " G";
+		$mu = round($sysInfo['memUsed'] / 1024, 3) . " G";
+		$mf = round($sysInfo['memFree'] / 1024, 3) . " G";
+		$mc = round($sysInfo['memCached'] / 1024, 3) . " G";
+		$mb = round($sysInfo['memBuffers'] / 1024, 3) . " G";
+		$st = round($sysInfo['swapTotal'] / 1024, 3) . " G";
+		$su = round($sysInfo['swapUsed'] / 1024, 3) . " G";
+		$sf = round($sysInfo['swapFree'] / 1024, 3) . " G";
+		$swapPercent = $sysInfo['swapPercent'];
+		$memRealUsed = round($sysInfo['memRealUsed'] / 1024, 3) . " G"; //真实内存使用
+		$memRealFree = round($sysInfo['memRealFree'] / 1024, 3) . " G"; //真实内存空闲
+		$memRealPercent = $sysInfo['memRealPercent']; //真实内存使用比率
+		$memPercent = $sysInfo['memPercent']; //内存总使用率
+		$memCachedPercent = $sysInfo['memCachedPercent']; //cache内存使用率
+	}
+	?>
 	<table class="bordered highlight">
 		<tr>
-			<td>服务器当前时间</td>
+			<td width="30%">服务器时间</td>
 			<td><span id="stime"><?php echo $stime; ?></span></td>
 		</tr>
 		<tr>
-			<td>服务器已运行时间</td>
+			<td>服务器运行时间</td>
 			<td><span id="uptime"><?php echo $uptime; ?></span></td>
 		</tr>
 		<tr>
@@ -141,7 +244,7 @@
 			<td>CPU使用状况</td>
 			<td>
 				<?php if ('/' == DIRECTORY_SEPARATOR) {
-					echo $cpu_show . " | <a href='" . $phpSelf . "?act=cpu_percentage' target='_blank' class='static'>查看图表</a>";
+					echo $cpu_show . " | <a href='?service=Tz.CpuPercentage' style='color: #CC0000;'>查看图表</a>";
 				} else {
 					echo "暂时只支持Linux系统";
 				} ?>
@@ -236,8 +339,36 @@
 	</table>
 </div>
 
+<!--网络使用状况-->
+<div id="p3" class="light-green">
+	<?php
+	//网卡流量
+	$strs = @file("/proc/net/dev");
+	for ($i = 2; $i < count($strs); $i++) :
+		preg_match_all("/([^\s]+):[\s]{0,}(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/", $strs[$i], $info);
+		$NetOutSpeed[$i] = $info[10][0];
+		$NetInputSpeed[$i] = $info[2][0];
+		$NetInput[$i] = Domain_Tz::formatsize($info[2][0]);
+		$NetOut[$i] = Domain_Tz::formatsize($info[10][0]);
+	endfor; ?>
+	<?php if (false !== ($strs = @file("/proc/net/dev"))) : ?>
+		<table class="bordered highlight">
+			<?php for ($i = 2; $i < count($strs); $i++) : ?>
+				<?php preg_match_all("/([^\s]+):[\s]{0,}(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/", $strs[$i], $info); ?>
+				<tr>
+					<td width="13%"><?php echo $info[1][0] ?> :</td>
+					<td width="29%">入网: <font color='#CC0000'><span id="NetInput<?php echo $i ?>"><?php echo $NetInput[$i] ?></span></font></td>
+					<td width="14%">实时: <font color='#CC0000'><span id="NetInputSpeed<?php echo $i ?>">0B/s</span></font></td>
+					<td width="29%">出网: <font color='#CC0000'><span id="NetOut<?php echo $i ?>"><?php echo $NetOut[$i] ?></span></font></td>
+					<td width="14%">实时: <font color='#CC0000'><span id="NetOutSpeed<?php echo $i ?>">0B/s</span></font></td>
+				</tr>
+			<?php endfor; ?>
+		</table>
+	<?php endif; ?>
+</div>
+
 <!--PHP已编译模块检测-->
-<div id="p3" class="green">
+<div id="p4" class="green">
 	<?php $able = get_loaded_extensions(); ?>
 	<table class="bordered highlight centered">
 		<?php foreach ($able as $key => $value) : ?>
@@ -253,11 +384,11 @@
 </div>
 
 <!--PHP相关参数-->
-<div id="p4" class="cyan">
+<div id="p5" class="cyan">
 	<table class="bordered highlight">
 		<tr>
 			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PHP信息（phpinfo）">PHP信息（phpinfo）：</td>
-			<td width="30%">
+			<td width="50%">
 				<?php
 				$disFuns = get_cfg_var("disable_functions");
 				?>
@@ -266,11 +397,16 @@
 		</tr>
 		<tr>
 			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PHP版本（php_version）">PHP版本（php_version）：</td>
-			<td><?php echo PHP_VERSION; ?></td>
+			<td>
+				<span class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php echo PHP_VERSION; ?>"><?php echo PHP_VERSION; ?></span>
+			</td>
 		</tr>
 		<tr>
 			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PHP运行方式">PHP运行方式：</td>
-			<td><?php echo strtoupper(php_sapi_name()); ?></td>
+			<td>
+				<span class="truncate tooltipped" data-position="bottom" data-delay="50"
+					  data-tooltip="<?php echo strtoupper(php_sapi_name()); ?>"><?php echo strtoupper(php_sapi_name()); ?></span>
+			</td>
 		</tr>
 		<tr>
 			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="脚本占用最大内存（memory_limit）">脚本占用最大内存（memory_limit）：</td>
@@ -433,7 +569,7 @@
 </div>
 
 <!--组件支持-->
-<div id="p5" class="light-blue">
+<div id="p6" class="light-blue">
 	<table class="bordered highlight">
 		<tr>
 			<td width="32%">FTP支持：</td>
@@ -500,3 +636,170 @@
 		</tr>
 	</table>
 </div>
+
+<!--第三方组件-->
+<div id="p7" class="deep-purple lighten-2">
+	<table class="bordered highlight">
+		<tr>
+			<td width="32%">Zend版本</td>
+			<td width="18%"><?php $zend_version = zend_version();
+				if (empty($zend_version)) {
+					echo '<font color=red>×</font>';
+				} else {
+					echo $zend_version;
+				} ?></td>
+			<td width="32%">
+				<?php
+				$PHP_VERSION = PHP_VERSION;
+				$PHP_VERSION = substr($PHP_VERSION, 2, 1);
+				if ($PHP_VERSION > 2) {
+					echo "ZendGuardLoader[启用]";
+				} else {
+					echo "Zend Optimizer";
+				}
+				?>
+			</td>
+			<td width="18%"><?php if ($PHP_VERSION > 2) {
+					echo (get_cfg_var("zend_loader.enable")) ? '<font color=green>√</font>' : '<font color=red>×</font>';
+				} else {
+					if (function_exists('zend_optimizer_version')) {
+						echo zend_optimizer_version();
+					} else {
+						echo (get_cfg_var("zend_optimizer.optimization_level") || get_cfg_var("zend_extension_manager.optimizer_ts") || get_cfg_var("zend.ze1_compatibility_mode") || get_cfg_var("zend_extension_ts")) ? '<font color=green>√</font>' : '<font color=red>×</font>';
+					}
+				} ?></td>
+		</tr>
+		<tr>
+			<td>eAccelerator</td>
+			<td><?php if ((phpversion('eAccelerator')) != '') {
+					echo phpversion('eAccelerator');
+				} else {
+					echo "<font color=red>×</font>";
+				} ?></td>
+			<td>ioncube</td>
+			<td><?php if (extension_loaded('ionCube Loader')) {
+					$ys = ioncube_loader_iversion();
+					$gm = "." . (int)substr($ys, 3, 2);
+					echo ionCube_Loader_version() . $gm;
+				} else {
+					echo "<font color=red>×</font>";
+				} ?></td>
+		</tr>
+		<tr>
+			<td>XCache</td>
+			<td><?php if ((phpversion('XCache')) != '') {
+					echo phpversion('XCache');
+				} else {
+					echo "<font color=red>×</font>";
+				} ?></td>
+			<td>APC</td>
+			<td><?php if ((phpversion('APC')) != '') {
+					echo phpversion('APC');
+				} else {
+					echo "<font color=red>×</font>";
+				} ?></td>
+		</tr>
+	</table>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		console.log('ready');
+		getJSONData();
+	});
+
+	var OutSpeed2 =<?php echo floor($NetOutSpeed[2]) ?>;
+	var OutSpeed3 =<?php echo floor($NetOutSpeed[3]) ?>;
+	var OutSpeed4 =<?php echo floor($NetOutSpeed[4]) ?>;
+	var OutSpeed5 =<?php echo floor($NetOutSpeed[5]) ?>;
+	var InputSpeed2 =<?php echo floor($NetInputSpeed[2]) ?>;
+	var InputSpeed3 =<?php echo floor($NetInputSpeed[3]) ?>;
+	var InputSpeed4 =<?php echo floor($NetInputSpeed[4]) ?>;
+	var InputSpeed5 =<?php echo floor($NetInputSpeed[5]) ?>;
+
+	function getJSONData() {
+		console.log('getJSONData');
+		setTimeout("getJSONData()", 1000);
+		Ajax({service: 'Tz.GetInfo'}, displayData)
+	}
+
+	function ForDight(Dight, How) {
+		if (Dight < 0) {
+			var Last = 0 + "B/s";
+		} else if (Dight < 1024) {
+			var Last = Math.round(Dight * Math.pow(10, How)) / Math.pow(10, How) + "B/s";
+		} else if (Dight < 1048576) {
+			Dight = Dight / 1024;
+			var Last = Math.round(Dight * Math.pow(10, How)) / Math.pow(10, How) + "K/s";
+		} else {
+			Dight = Dight / 1048576;
+			var Last = Math.round(Dight * Math.pow(10, How)) / Math.pow(10, How) + "M/s";
+		}
+		return Last;
+	}
+
+	function displayData(dataJSON) {
+		dataJSON = dataJSON.data;
+		$("#useSpace").html(dataJSON.useSpace);
+		$("#freeSpace").html(dataJSON.freeSpace);
+		$("#hdPercent").html(dataJSON.hdPercent);
+		$("#barhdPercent").width(dataJSON.barhdPercent);
+		$("#TotalMemory").html(dataJSON.TotalMemory);
+		$("#UsedMemory").html(dataJSON.UsedMemory);
+		$("#FreeMemory").html(dataJSON.FreeMemory);
+		$("#CachedMemory").html(dataJSON.CachedMemory);
+		$("#Buffers").html(dataJSON.Buffers);
+		$("#TotalSwap").html(dataJSON.TotalSwap);
+		$("#swapUsed").html(dataJSON.swapUsed);
+		$("#swapFree").html(dataJSON.swapFree);
+		$("#swapPercent").html(dataJSON.swapPercent);
+		$("#loadAvg").html(dataJSON.loadAvg);
+		$("#uptime").html(dataJSON.uptime);
+		/*$("#freetime").html(dataJSON.freetime);*/
+		$("#stime").html(dataJSON.stime);
+		$("#bjtime").html(dataJSON.bjtime);
+		$("#memRealUsed").html(dataJSON.memRealUsed);
+		$("#memRealFree").html(dataJSON.memRealFree);
+		$("#memRealPercent").html(dataJSON.memRealPercent);
+		$("#memPercent").html(dataJSON.memPercent);
+		$("#barmemPercent").width(dataJSON.memPercent);
+		$("#barmemRealPercent").width(dataJSON.barmemRealPercent);
+		$("#memCachedPercent").html(dataJSON.memCachedPercent);
+		$("#barmemCachedPercent").width(dataJSON.barmemCachedPercent);
+		$("#barswapPercent").width(dataJSON.barswapPercent);
+		$("#NetOut2").html(dataJSON.NetOut2);
+		$("#NetOut3").html(dataJSON.NetOut3);
+		$("#NetOut4").html(dataJSON.NetOut4);
+		$("#NetOut5").html(dataJSON.NetOut5);
+		$("#NetOut6").html(dataJSON.NetOut6);
+		$("#NetOut7").html(dataJSON.NetOut7);
+		$("#NetOut8").html(dataJSON.NetOut8);
+		$("#NetOut9").html(dataJSON.NetOut9);
+		$("#NetOut10").html(dataJSON.NetOut10);
+		$("#NetInput2").html(dataJSON.NetInput2);
+		$("#NetInput3").html(dataJSON.NetInput3);
+		$("#NetInput4").html(dataJSON.NetInput4);
+		$("#NetInput5").html(dataJSON.NetInput5);
+		$("#NetInput6").html(dataJSON.NetInput6);
+		$("#NetInput7").html(dataJSON.NetInput7);
+		$("#NetInput8").html(dataJSON.NetInput8);
+		$("#NetInput9").html(dataJSON.NetInput9);
+		$("#NetInput10").html(dataJSON.NetInput10);
+		$("#NetOutSpeed2").html(ForDight((dataJSON.NetOutSpeed2 - OutSpeed2), 3));
+		OutSpeed2 = dataJSON.NetOutSpeed2;
+		$("#NetOutSpeed3").html(ForDight((dataJSON.NetOutSpeed3 - OutSpeed3), 3));
+		OutSpeed3 = dataJSON.NetOutSpeed3;
+		$("#NetOutSpeed4").html(ForDight((dataJSON.NetOutSpeed4 - OutSpeed4), 3));
+		OutSpeed4 = dataJSON.NetOutSpeed4;
+		$("#NetOutSpeed5").html(ForDight((dataJSON.NetOutSpeed5 - OutSpeed5), 3));
+		OutSpeed5 = dataJSON.NetOutSpeed5;
+		$("#NetInputSpeed2").html(ForDight((dataJSON.NetInputSpeed2 - InputSpeed2), 3));
+		InputSpeed2 = dataJSON.NetInputSpeed2;
+		$("#NetInputSpeed3").html(ForDight((dataJSON.NetInputSpeed3 - InputSpeed3), 3));
+		InputSpeed3 = dataJSON.NetInputSpeed3;
+		$("#NetInputSpeed4").html(ForDight((dataJSON.NetInputSpeed4 - InputSpeed4), 3));
+		InputSpeed4 = dataJSON.NetInputSpeed4;
+		$("#NetInputSpeed5").html(ForDight((dataJSON.NetInputSpeed5 - InputSpeed5), 3));
+		InputSpeed5 = dataJSON.NetInputSpeed5;
+	}
+</script>

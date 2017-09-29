@@ -117,18 +117,4 @@ class Api_System extends PhalApi_Api
 		return;
 	}
 
-	public function tz()
-	{
-		$sys_info = Domain_Tz::getSysInfo();
-		$phpSelf = $_SERVER[PHP_SELF] ? $_SERVER[PHP_SELF] : $_SERVER[SCRIPT_NAME];
-		$stat1 = Domain_Tz::GetCoreInformation();
-		sleep(1);
-		$stat2 = Domain_Tz::GetCoreInformation();
-		$data = Domain_Tz::GetCpuPercentages($stat1, $stat2);
-		$cpu_show = $data['cpu0']['user'] . "%us,  " . $data['cpu0']['sys'] . "%sy,  " . $data['cpu0']['nice'] . "%ni, " . $data['cpu0']['idle'] . "%id,  " . $data['cpu0']['iowait'] . "%wa,  " . $data['cpu0']['irq'] . "%irq,  " . $data['cpu0']['softirq'] . "%softirq";
-		DI()->view->assign(array('sysInfo' => $sys_info['sysInfo'], 'sysReShow' => $sys_info['sysReShow'], 'phpSelf' => $phpSelf, 'cpu_show' => $cpu_show));
-		DI()->view->show('tz');
-	}
-
-
 }

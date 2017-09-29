@@ -120,6 +120,23 @@ function Ajax(data, SuccessCallback, file) {
 	}
 }
 
+$(".get_modal").click(function () {
+	var $this = $(this);
+	var data = $this.data();
+	var modal_id = data.modal_id;
+	Ajax(data, function (d) {
+		if (d.ret == 200) {
+			var html = d.data.html;
+			console.log(html);
+			$(modal_id + ' .modal-content').html(html);
+			$(modal_id).modal('open');
+		} else {
+			Materialize.toast(d.msg, 2000, 'rounded');
+		}
+	});
+	// $(modal_id).modal('open');
+});
+
 function refresh_tieba(baidu_id) {
 	Ajax({service: 'Tieba.RefreshTieba', baidu_id: baidu_id})
 }
