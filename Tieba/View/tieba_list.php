@@ -44,6 +44,7 @@
 									<span style="color: blue;">正常</span>
 								<?php else: ?>
 									<span style="color: red;">异常</span>
+									<span style="color: red;"><?php echo $row['last_error']; ?></span>
 								<?php endif; ?>
 							</td>
 							<td>
@@ -66,6 +67,9 @@
 				<?php endif; ?>
 				<tr>
 					<td colspan="4" class="center">
+						<button class="btn waves-effect waves-light" onclick="refresh_tieba(<?php echo $key; ?>)">
+							签到当前贴吧
+						</button>
 						<button class="btn waves-effect waves-light" onclick="refresh_tieba(<?php echo $key; ?>)">
 							刷新列表
 						</button>

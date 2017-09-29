@@ -200,7 +200,8 @@ class Domain_Tieba
 	 */
 	public static function getFid($kw)
 	{
-		$url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw), array('User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded', 'Cookie:BAIDUID=' . strtoupper(md5(time())));
+		$url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw);
+		DI()->curl->setHeader(array('User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded', 'Cookie:BAIDUID=' . strtoupper(md5(time()))));
 		$s = DI()->curl->get($url);
 		$x = DI()->tool->easy_match('<input type="hidden" name="fid" value="*"/>', $s);
 		if (isset($x[1])) {
@@ -222,44 +223,102 @@ class Domain_Tieba
 	}*/
 
 	/**
-	 * 执行全部签到任务
-	 * @param string $table 表
+	 * 执行全部贴吧用户的签到任务
 	 */
-	public static function doSign($table)
+	public static function doSignAll()
 	{
+		set_time_limit(0);
 		$day_time = DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
-
 		//处理所有未签到的贴吧
-		$q = array();
 		$tieba_model = new Model_Tieba();
 		$where = array();
-		$where['no = ?'] = 0;
-		$where['latest < ?'] = $day_time['begin'];
-		$qs = $tieba_model->getListByWhere($where);
-		foreach ($qs as $index => $qss) {
-			$q[] = array(
-				'id' => $qss['id'],
-				'user_id' => $qss['user_id'],
-				'baidu_id' => $qss['baidu_id'],
-				'fid' => $qss['fid'],
-				'tieba' => $qss['tieba'],
-				'no' => $qss['no'],
-				'status' => $qss['status'],
-				'latest' => $qss['latest'],
-				'last_error' => $qss['last_error']
-			);
+		$where['no = ?'] = 0; // 不忽略签到
+		$where['latest < ?'] = $day_time['begin']; // 今天没有签到
+		$total_sign_tieba = $tieba_model->count($where); // 该条件下所有贴吧数量
+		$limit = 100; // 100条100条循环拿
+		$count = ceil($total_sign_tieba / $limit); // 循环100条的次数
+		$else = 0; // 已遍历的数量
+		for ($i = 1; $i <= $count; $i++) {
+			$qs = $tieba_model->getList($limit, 0, $where, '*', 'id asc');
+			$else += $qs['total'];
+			$q = array();
+			foreach ($qs['rows'] as $index => $qss) {
+				$q[] = array(
+					'id' => $qss['id'],
+					//'user_id' => $qss['user_id'],
+					'baidu_id' => $qss['baidu_id'],
+					'fid' => $qss['fid'],
+					'tieba' => $qss['tieba'],
+					//'no' => $qss['no'],
+					//'status' => $qss['status'],
+					//'latest' => $qss['latest'],
+					//'last_error' => $qss['last_error']
+				);
+			}
+			shuffle($q);
+			foreach ($q as $x) {
+				self::DoSign_All($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
+			}
 		}
-		shuffle($q);
+	}
 
-		foreach ($q as $x) {
-			self::DoSign_All($x['user_id'], $x['tieba'], $x['id'], $sign_mode, $x['baidu_id'], $x['fid']);
+	/**
+	 * 执行一个贴吧用户的签到
+	 */
+	public static function doSignByBaiduId($baidu_id)
+	{
+	}
+
+	/**
+	 * 执行一个会员的签到
+	 */
+	public static function doSignByUserId($user_id)
+	{
+		set_time_limit(0);
+		$day_time = DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
+		//处理所有未签到的贴吧
+		$tieba_model = new Model_Tieba();
+		$where = array();
+		$where['b.user_id = ?'] = $user_id; // 该会员
+		$where['t.no = ?'] = 0; // 不忽略签到
+		$where['t.latest < ?'] = $day_time['begin']; // 今天没有签到
+		$total_sign_tieba = $tieba_model->getTiebasByJoinCount($where)[0]['c']; // 该条件下所有贴吧数量
+		$limit = 100; // 100条100条循环拿
+		$count = ceil($total_sign_tieba / $limit); // 循环100条的次数
+		$else = 0; // 已遍历的数量
+		for ($i = 1; $i <= $count; $i++) {
+			$qs = $tieba_model->getTiebasByJoin($limit, 0, $where, '*', 't.id asc');
+			$else += $qs['total'];
+			$q = array();
+			foreach ($qs['rows'] as $index => $qss) {
+				$q[] = array(
+					'id' => $qss['id'],
+					'baidu_id' => $qss['baidu_id'],
+					'fid' => $qss['fid'],
+					'tieba' => $qss['tieba'],
+				);
+			}
+			shuffle($q);
+			foreach ($q as $x) {
+				self::DoSign_All($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
+			}
 		}
+	}
+
+	/**
+	 * 执行一个贴吧的签到
+	 */
+	public static function doSignByTiebaId($tieba_id)
+	{
+		$tieba_model = new Model_Tieba();
+		$x = $tieba_model->get($tieba_id);
+		self::DoSign_All($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
 	}
 
 	/**
 	 * 对一个贴吧执行完整的签到任务
 	 */
-	public static function DoSign_All($user_id, $kw, $id, $sign_mode, $baidu_id, $fid)
+	public static function DoSign_All($kw, $id, $baidu_id, $fid)
 	{
 		$again_error_id = 160002; //重复签到错误代码
 		$again_error_id_2 = 1101; //特殊的重复签到错误代码！！！签到过快=已签到
@@ -270,15 +329,18 @@ class Domain_Tieba
 		$bdid = $baiduid_model->get($baidu_id, 'bduss');
 		$ck = $bdid['bduss'];
 		$kw = addslashes($kw);
+		$tieba_model = new Model_Tieba();
 
 		if (empty($fid)) {
 			$fid = self::getFid($kw);
-			$tieba_model = new Model_Tieba();
 			$tieba_model->update($id, array('fid' => $fid));
 		}
 
-		if (!empty($sign_mode) && in_array('1', $sign_mode) && $status_succ === false) {
-			$r = self::DoSign_Client($user_id, $kw, $id, $baidu_id, $fid, $ck);
+		//三种签到方式依次尝试
+		$tbs = self::getTbs($ck);
+		//客户端
+		if ($status_succ === false) {
+			$r = self::DoSign_Client($kw, $fid, $ck, $tbs);
 			$v = json_decode($r, true);
 			if ($v != $r && $v != NULL) {//decode失败时会直接返回原文或NULL
 				if (empty($v['error_code']) || $v['error_code'] == $again_error_id) {
@@ -290,8 +352,9 @@ class Domain_Tieba
 			}
 		}
 
-		if (!empty($sign_mode) && in_array('3', $sign_mode) && $status_succ === false) {
-			$r = self::DoSign_Mobile($user_id, $kw, $id, $baidu_id, $fid, $ck);
+		//手机网页
+		if ($status_succ === false) {
+			$r = self::DoSign_Mobile($kw, $fid, $ck, $tbs);
 			$v = json_decode($r, true);
 			if ($v != $r && $v != NULL) {//decode失败时会直接返回原文或NULL
 				if (empty($v['no']) || $v['no'] == $again_error_id_2 || $v['no'] == $again_error_id_3) {
@@ -303,8 +366,9 @@ class Domain_Tieba
 			}
 		}
 
-		if (!empty($sign_mode) && in_array('2', $sign_mode) && $status_succ === false) {
-			if (self::DoSign_Default($user_id, $kw, $id, $baidu_id, $fid, $ck) === true) {
+		//网页---尽量不用
+		if ($status_succ === false) {
+			if (self::DoSign_Default($kw, $fid, $ck) === true) {
 				$status_succ = true;
 			}
 		}
@@ -314,21 +378,41 @@ class Domain_Tieba
 		} else {
 			$tieba_model->update($id, array('latest' => NOW_TIME, 'status' => $error_code, 'last_error' => $error_msg));
 		}
+	}
 
-		//usleep(option::get('sign_sleep') * 1000);
+	/**
+	 * 得到BDUSS
+	 * @param int|string $baidu_id 贴吧用户PID
+	 */
+	/*public static function getCookie($baidu_id)
+	{
+		if (empty($baidu_id)) {
+			return false;
+		}
+		$baiduid_model = new Model_BaiduId();
+		$temp = $baiduid_model->get($baidu_id);
+		return $temp['bduss'];
+	}*/
+
+	/**
+	 * 得到TBS
+	 */
+	public static function getTbs($bduss)
+	{
+		$url = 'http://tieba.baidu.com/dc/common/tbs';
+		DI()->curl->setHeader(array('User-Agent: fuck phone', 'Referer: http://tieba.baidu.com/', 'X-Forwarded-For: 115.28.1.' . mt_rand(1, 255)));
+		DI()->curl->setCookie(array("BDUSS" => $bduss));
+		$x = DI()->curl->json_get($url);
+		return $x['tbs'];
 	}
 
 	/**
 	 * 客户端签到
 	 */
-	public static function DoSign_Client($uid, $kw, $id, $pid, $fid, $ck)
+	public static function DoSign_Client($kw, $fid, $ck, $tbs)
 	{
-		var_dump($uid, $kw, $id, $pid, $fid, $ck);
-		exit;
-		$ch = new wcurl('http://c.tieba.baidu.com/c/c/forum/sign', array('Content-Type: application/x-www-form-urlencoded', 'User-Agent: Fucking iPhone/1.0 BadApple/99.1'));
-		$ch->addcookie("BDUSS=" . $ck);
 		$temp = array(
-			'BDUSS' => misc::getCookie($pid),
+			'BDUSS' => $ck,
 			'_client_id' => '03-00-DA-59-05-00-72-96-06-00-01-00-04-00-4C-43-01-00-34-F4-02-00-BC-25-09-00-4E-36',
 			'_client_type' => '4',
 			'_client_version' => '1.2.1.17',
@@ -336,15 +420,56 @@ class Domain_Tieba
 			'fid' => $fid,
 			'kw' => $kw,
 			'net_type' => '3',
-			'tbs' => misc::getTbs($uid, $ck)
+			'tbs' => $tbs
 		);
 		$x = '';
 		foreach ($temp as $k => $v) {
-			// var_dump($k);
 			$x .= $k . '=' . $v;
 		}
 		$temp['sign'] = strtoupper(md5($x . 'tiebaclient!!!'));
-		return $ch->post($temp);
+		$url = 'http://c.tieba.baidu.com/c/c/forum/sign';
+		DI()->curl->setHeader(array('Content-Type: application/x-www-form-urlencoded', 'User-Agent: Fucking iPhone/1.0 BadApple/99.1'));
+		DI()->curl->setCookie(array("BDUSS" => $ck));
+		return DI()->curl->post($url, $temp);
 	}
+
+	/**
+	 * 手机网页签到
+	 */
+	public static function DoSign_Mobile($kw, $fid, $ck, $tbs)
+	{
+		$url = 'http://tieba.baidu.com/mo/q/sign?tbs=' . $tbs . '&kw=' . urlencode($kw) . '&is_like=1&fid=' . $fid;
+		DI()->curl->setHeader(array('User-Agent: fuck phone', 'Referer: http://tieba.baidu.com/f?kw=' . $kw, 'Host: tieba.baidu.com', 'X-Forwarded-For: 115.28.1.' . mt_rand(1, 255), 'Origin: http://tieba.baidu.com', 'Connection: Keep-Alive'));
+		DI()->curl->setCookie(array('BDUSS' => $ck));
+		return DI()->curl->get($url);
+	}
+
+	/**
+	 * 网页签到
+	 */
+	public static function DoSign_Default($kw, $fid, $ck)
+	{
+		$url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw) . '&fid=' . $fid;
+		DI()->curl->setHeader(array('User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded'));
+		DI()->curl->setCookie(array('BDUSS' => $ck));
+		$s = DI()->curl->get($url);
+		preg_match('/\<td style=\"text-align:right;\"\>\<a href=\"(.*)\"\>签到\<\/a\>\<\/td\>\<\/tr\>/', $s, $s);
+		if (isset($s[1])) {
+			$url = 'http://tieba.baidu.com' . $s[1];
+			DI()->curl->setHeader(array('Accept: text/html, application/xhtml+xml, */*', 'Accept-Language: zh-Hans-CN,zh-Hans;q=0.8,en-US;q=0.5,en;q=0.3', 'User-Agent: Fucking Phone'));
+			DI()->curl->setCookie(array('BDUSS' => $ck));
+			DI()->curl->get($url);
+			//临时判断解决方案
+			$url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw) . '&fid=' . $fid;
+			DI()->curl->setHeader(array('User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded'));
+			DI()->curl->setCookie(array('BDUSS' => $ck));
+			$s = DI()->curl->get($url);
+			//如果找不到这段html则表示没有签到则stripos()返回false，同时is_bool()返回true，最终返回false
+			return !is_bool(stripos($s, '<td style="text-align:right;"><span >已签到</span></td>'));
+		} else {
+			return true;
+		}
+	}
+
 
 }

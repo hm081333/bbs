@@ -65,7 +65,7 @@ class PhalApi {
             if (DI()->debug) {
                 $rs->setRet($ex->getCode());
                 $rs->setMsg($ex->getMessage());
-                $rs->setDebug('exception', $ex->getTrace());
+	            //$rs->setDebug('exception', $ex->getTrace());
             } else {
                 throw $ex;
             }

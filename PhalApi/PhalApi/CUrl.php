@@ -74,6 +74,10 @@ class PhalApi_CUrl
 		return $this;
 	}
 
+	/**
+	 * @param array $cookie
+	 * @return $this
+	 */
 	public function setCookie($cookie)
 	{
 		$this->cookie = array_merge($this->cookie, $cookie);
@@ -208,7 +212,9 @@ class PhalApi_CUrl
 		} while ($rs === FALSE && $curRetryTimes >= 0);
 
 		curl_close($ch);
-
+		$this->header = array();
+		$this->cookie = array();
+		$this->option = array();
 		return $rs;
 	}
 }

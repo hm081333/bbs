@@ -487,5 +487,32 @@ class PhalApi_Tool
 		return $r;
 	}
 
+	/**
+	 * 拼接联合查询sql语句条件
+	 * @param $conditions 查询条件 例如 $where['u.id=?']=1;$where['type>=?']=1
+	 * @param bool $where_flag 是否拼接 sql where条件
+	 * @return array 返回sql 语句和查询条件 返回结果例如 array('sql'=>' u.id=? and type>=?','params'=>array(1,1))
+	 */
+	public function parseSearchWhere($conditions, $where_flag = false, $trim = true)
+	{
+		$where = array();
+		$where['sql'] = '';
+		$where['params'] = array();
+		$keys = '';
+
+		foreach ($conditions as $key => $condition) {//循环拼接sql语句
+			$keys .= $key . ' and ';
+			$where['params'][] = $condition;
+		}
+		if ($trim) {
+			$keys = trim($keys, 'and ');
+		}
+		if ($where_flag && $keys) {//判断查询条件是否需要where语句，需要加上where
+			$where['sql'] = ' where ';
+		}
+		$where['sql'] .= $keys;
+		return $where;
+	}
+
 
 }

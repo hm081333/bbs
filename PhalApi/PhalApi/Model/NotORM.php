@@ -17,6 +17,7 @@ class PhalApi_Model_NotORM implements PhalApi_Model
 {
 
 	protected static $tableKeys = array();
+	protected $prefix = PREFIX;
 
 	/**
 	 * @param int $id
