@@ -29,11 +29,11 @@ class Api_Tieba extends PhalApi_Api
 			'doSignByBaiduId' => array(
 				'baidu_id' => array('name' => 'baidu_id', 'type' => 'int', 'require' => true, 'desc' => 'baiduid表的ID--签到该bduss所有贴吧'),
 			),
-			'doSignByUserId' => array(
-				'user_id' => array('name' => 'user_id', 'type' => 'int', 'require' => true, 'desc' => '会员的ID--签到会员所有贴吧'),
-			),
 			'doSignByTiebaId' => array(
 				'tieba_id' => array('name' => 'tieba_id', 'type' => 'int', 'require' => true, 'desc' => '贴吧的ID--单独签到一个吧'),
+			),
+			'doSignByUserId' => array(
+				'user_id' => array('name' => 'user_id', 'type' => 'int', 'require' => true, 'desc' => '会员的ID--签到会员所有贴吧'),
 			),
 		);
 	}
@@ -113,15 +113,15 @@ class Api_Tieba extends PhalApi_Api
 		DI()->response->setMsg(T('签到成功'));
 	}
 
-	public function doSignByUserId()
-	{
-		Domain_Tieba::doSignByUserId($this->user_id);
-		DI()->response->setMsg(T('签到成功'));
-	}
-
 	public function doSignByTiebaId()
 	{
 		Domain_Tieba::doSignByTiebaId($this->tieba_id);
+		DI()->response->setMsg(T('签到成功'));
+	}
+
+	public function doSignByUserId()
+	{
+		Domain_Tieba::doSignByUserId($this->user_id);
 		DI()->response->setMsg(T('签到成功'));
 	}
 

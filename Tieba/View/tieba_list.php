@@ -17,13 +17,14 @@
 					<th><?php echo T('贴吧'); ?></th>
 					<th><?php echo T('状态'); ?></th>
 					<th><?php echo T('忽略'); ?></th>
+					<th><?php echo T('上次签到'); ?></th>
 					<th<!-- style="width: 3.5rem;"-->><?php echo T('删除'); ?></th>
 				</tr>
 				</thead>
 				<tbody>
 				<?php if (empty($item['tieba'])) : ?>
 					<tr class="green accent-1">
-						<td colspan="4" class="center">
+						<td colspan="5" class="center">
 							暂无
 						</td>
 					</tr>
@@ -44,6 +45,7 @@
 									<span style="color: blue;">正常</span>
 								<?php else: ?>
 									<span style="color: red;">异常</span>
+									<br/>
 									<span style="color: red;"><?php echo $row['last_error']; ?></span>
 								<?php endif; ?>
 							</td>
@@ -58,16 +60,22 @@
 								</div>
 							</td>
 							<td>
-								<button onclick="delete_tieba(<?php echo $row['id']; ?>)"
-										class="btn-floating waves-effect waves-light"><i
-											class="material-icons">delete</i></button>
+								<?php echo date('Y-m-d H:i:s', $row['latest']); ?>
+							</td>
+							<td>
+								<button onclick="sign_tieba(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light">
+									<i class="material-icons">refresh</i>
+								</button>
+								<button onclick="delete_tieba(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light">
+									<i class="material-icons">delete</i>
+								</button>
 							</td>
 						</tr>
 					<?php endforeach; ?>
 				<?php endif; ?>
 				<tr>
-					<td colspan="4" class="center">
-						<button class="btn waves-effect waves-light" onclick="refresh_tieba(<?php echo $key; ?>)">
+					<td colspan="5" class="center">
+						<button class="btn waves-effect waves-light" onclick="sign_baiduid(<?php echo $key; ?>)">
 							签到当前贴吧
 						</button>
 						<button class="btn waves-effect waves-light" onclick="refresh_tieba(<?php echo $key; ?>)">

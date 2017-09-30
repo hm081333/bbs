@@ -39,7 +39,7 @@ $(document).ready(function () {
 
 	var ip = returnCitySN['cip'];
 	$('#ip').html(ip);
-	$('#ip').attr('href', 'http://www.ip.cn/index.php?ip=' + ip);
+	$('#ip').attr('href', 'http://www.ip138.com/ips138.asp?ip=' + ip);
 	var ip = $('#ip').html();
 	$.ajax({
 		type: 'POST',
@@ -136,6 +136,14 @@ $(".get_modal").click(function () {
 	});
 	// $(modal_id).modal('open');
 });
+
+function sign_tieba(tieba_id) {
+	Ajax({service: 'Tieba.DoSignByTiebaId', tieba_id: tieba_id})
+}
+
+function sign_baiduid(baidu_id) {
+	Ajax({service: 'Tieba.DoSignByBaiduId', baidu_id: baidu_id})
+}
 
 function refresh_tieba(baidu_id) {
 	Ajax({service: 'Tieba.RefreshTieba', baidu_id: baidu_id})

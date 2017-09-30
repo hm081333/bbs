@@ -267,6 +267,35 @@ class Domain_Tieba
 	 */
 	public static function doSignByBaiduId($baidu_id)
 	{
+		set_time_limit(0);
+		$day_time = DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
+		//处理所有未签到的贴吧
+		$tieba_model = new Model_Tieba();
+		$where = array();
+		$where['baidu_id = ?'] = $baidu_id; // 该贴吧用户
+		$where['no = ?'] = 0; // 不忽略签到
+		$where['latest < ?'] = $day_time['begin']; // 今天没有签到
+		$total_sign_tieba = $tieba_model->count($where); // 该条件下所有贴吧数量
+		$limit = 100; // 100条100条循环拿
+		$count = ceil($total_sign_tieba / $limit); // 循环100条的次数
+		$else = 0; // 已遍历的数量
+		for ($i = 1; $i <= $count; $i++) {
+			$qs = $tieba_model->getList($limit, 0, $where, '*', 'id asc');
+			$else += $qs['total'];
+			$q = array();
+			foreach ($qs['rows'] as $index => $qss) {
+				$q[] = array(
+					'id' => $qss['id'],
+					'baidu_id' => $qss['baidu_id'],
+					'fid' => $qss['fid'],
+					'tieba' => $qss['tieba']
+				);
+			}
+			shuffle($q);
+			foreach ($q as $x) {
+				self::DoSign_All($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
+			}
+		}
 	}
 
 	/**
@@ -295,7 +324,7 @@ class Domain_Tieba
 					'id' => $qss['id'],
 					'baidu_id' => $qss['baidu_id'],
 					'fid' => $qss['fid'],
-					'tieba' => $qss['tieba'],
+					'tieba' => $qss['tieba']
 				);
 			}
 			shuffle($q);
@@ -343,6 +372,7 @@ class Domain_Tieba
 			$r = self::DoSign_Client($kw, $fid, $ck, $tbs);
 			$v = json_decode($r, true);
 			if ($v != $r && $v != NULL) {//decode失败时会直接返回原文或NULL
+				$time = $v['time'];
 				if (empty($v['error_code']) || $v['error_code'] == $again_error_id) {
 					$status_succ = true;
 				} else {
@@ -352,7 +382,7 @@ class Domain_Tieba
 			}
 		}
 
-		//手机网页
+		/*//手机网页
 		if ($status_succ === false) {
 			$r = self::DoSign_Mobile($kw, $fid, $ck, $tbs);
 			$v = json_decode($r, true);
@@ -371,12 +401,12 @@ class Domain_Tieba
 			if (self::DoSign_Default($kw, $fid, $ck) === true) {
 				$status_succ = true;
 			}
-		}
+		}*/
 
 		if ($status_succ === true) {
-			$tieba_model->update($id, array('latest' => NOW_TIME, 'status' => 0, 'last_error' => ''));
+			$tieba_model->update($id, array('latest' => $time, 'status' => 0, 'last_error' => ''));
 		} else {
-			$tieba_model->update($id, array('latest' => NOW_TIME, 'status' => $error_code, 'last_error' => $error_msg));
+			$tieba_model->update($id, array('latest' => $time, 'status' => $error_code, 'last_error' => $error_msg));
 		}
 	}
 
