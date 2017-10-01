@@ -16,13 +16,12 @@
 			<td class="cyan lighten-3">
 				<?php
 				//输出整理好的内容
-				echo T(nl2br(htmlspecialchars($topic['detail'])));
+				echo nl2br(htmlspecialchars($topic['detail']));
 				echo '</br>';
 				?>
-
 				<?php if (!empty($topic['pics'])) : ?>
-					<img class="materialboxed" width="40%" src="<?php echo DI()->tool->staticPath($topic['pics']); ?>>">
-				<?php endif; ?>>
+					<img class="materialboxed" width="40%" src="<?php echo DI()->tool->staticPath($topic['pics']); ?>"/>
+				<?php endif; ?>
 			</td>
 		</tr>
 		<tr>
