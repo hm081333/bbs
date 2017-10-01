@@ -130,7 +130,6 @@ class Domain_Tieba
 			}
 			if (!empty($ngf) && is_array($ngf)) {
 				$refresh_time = $rc['time'];
-				$baiduid_model->update($pid, array('refresh_time' => $refresh_time));
 				foreach ($ngf as $v) {
 					$vn = addslashes(htmlspecialchars($v['name']));
 					$ist = $tieba_model->count(array('baidu_id' => $pid, 'tieba' => $vn));
@@ -138,6 +137,9 @@ class Domain_Tieba
 						$a++;
 						$tieba_model->insert(array('baidu_id' => $pid, 'fid' => $v['id'], 'user_id' => $user_id, 'tieba' => $vn, 'refresh_time' => $refresh_time));
 					}
+				}
+				if ($a > 0) {
+					$baiduid_model->update($pid, array('refresh_time' => $refresh_time));
 				}
 			}
 			if ((count($ngf) < 1)) {
