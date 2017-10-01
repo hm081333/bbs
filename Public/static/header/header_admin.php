@@ -145,12 +145,6 @@
 									<ul>
 										<li>
 											<a class="waves-effect waves-teal"
-											   href="?service=System.Tz">
-												<?php echo T('探针') ?>
-											</a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
 											   href="?service=Default.email_config">
 												<?php echo T('配置邮箱') ?>
 											</a>
