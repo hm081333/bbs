@@ -69,7 +69,7 @@ class Api_Topic extends PhalApi_Api
 				throw new PhalApi_Exception_Error(T('请输入正文内容'), 1);// 抛出普通错误 T标签翻译
 			} elseif (empty($this->class_id)) {
 				throw new PhalApi_Exception_Error(T('请选择课程'), 1);// 抛出普通错误 T标签翻译
-			} elseif (!empty($_FILES['pics'])) {
+			} elseif (!empty($_FILES['pics']['tmp_name'])) {
 				$reback = DI()->tool->upLoadImage('pics');
 				if (is_array($reback)) {
 					$pic_path = $reback['url'];

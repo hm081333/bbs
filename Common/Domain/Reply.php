@@ -10,7 +10,7 @@ class Domain_Reply {
 
 	public function add_Reply($topic_id, $user_id, $reply_detail) {
 		$pic_path = '';
-		if (!empty($_FILES['reply_pics'])) {
+		if (!empty($_FILES['reply_pics']['tmp_name'])) {
 			$reback = DI()->tool->upLoadImage('reply_pics');
 			if (is_array($reback)) {
 				$pic_path = $reback['url'];
