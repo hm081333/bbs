@@ -17,10 +17,10 @@
 				<li>
 					<a class="white-text">
 						<?php echo T('IP：'); ?>
-						<!--<a id="ip" class="white-text" href="http://www.ip.cn/index.php?ip=-->
-						<?php //echo client_ip ?><!--">--><?php //echo client_ip; ?><!--</a>-->
-						<a id="ip" class="white-text">
-						</a>
+						<a id="ip" class="white-text"
+						   href="http://www.ip138.com/ips138.asp?ip=<?php echo client_ip ?>"><?php echo client_ip; ?></a>
+						<!--<a id="ip" class="white-text">-->
+						<!--</a>-->
 					</a>
 				</li>
 				<li>

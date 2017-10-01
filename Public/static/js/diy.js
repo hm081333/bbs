@@ -37,9 +37,9 @@ $(document).ready(function () {
 	$('ul.tabs').tabs();
 
 
-	var ip = returnCitySN['cip'];
-	$('#ip').html(ip);
-	$('#ip').attr('href', 'http://www.ip138.com/ips138.asp?ip=' + ip);
+	// var ip = returnCitySN['cip'];
+	// $('#ip').html(ip);
+	// $('#ip').attr('href', 'http://www.ip138.com/ips138.asp?ip=' + ip);
 	var ip = $('#ip').html();
 	$.ajax({
 		type: 'POST',

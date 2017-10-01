@@ -118,9 +118,11 @@ class Domain_Tieba
 		$pn = 1;
 		$a = 0;
 		while (true) {
-			if (empty($bid)) break;
+			if (empty($bid)) {
+				break;
+			}
 			$rc = self::getTieba($bid, $bduss, $pn);
-			$ngf = $rc['forum_list']['non-gconforum'];
+			$ngf = isset($rc["forum_list"]["non-gconforum"]) ? $rc["forum_list"]["non-gconforum"] : array();
 			if (!empty($rc['forum_list']['gconforum'])) {
 				foreach ($rc['forum_list']['gconforum'] as $v) {
 					$ngf[] = $v;
@@ -257,7 +259,7 @@ class Domain_Tieba
 			}
 			shuffle($q);
 			foreach ($q as $x) {
-				self::DoSign_All($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
+				self::doSign($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
 			}
 		}
 	}
@@ -293,7 +295,7 @@ class Domain_Tieba
 			}
 			shuffle($q);
 			foreach ($q as $x) {
-				self::DoSign_All($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
+				self::doSign($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
 			}
 		}
 	}
@@ -329,7 +331,7 @@ class Domain_Tieba
 			}
 			shuffle($q);
 			foreach ($q as $x) {
-				self::DoSign_All($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
+				self::doSign($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
 			}
 		}
 	}
@@ -341,13 +343,13 @@ class Domain_Tieba
 	{
 		$tieba_model = new Model_Tieba();
 		$x = $tieba_model->get($tieba_id);
-		self::DoSign_All($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
+		self::doSign($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
 	}
 
 	/**
 	 * 对一个贴吧执行完整的签到任务
 	 */
-	public static function DoSign_All($kw, $id, $baidu_id, $fid)
+	public static function doSign($kw, $id, $baidu_id, $fid)
 	{
 		$again_error_id = 160002; //重复签到错误代码
 		$again_error_id_2 = 1101; //特殊的重复签到错误代码！！！签到过快=已签到
