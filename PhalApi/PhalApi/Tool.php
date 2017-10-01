@@ -409,7 +409,7 @@ class PhalApi_Tool
 
 	public function staticPath($path)
 	{
-		return URL_ROOT . $path;
+		return URL_ROOT . 'static' . $path;
 	}
 
 	/**
