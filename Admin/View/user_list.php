@@ -35,7 +35,8 @@
 				</td>
 				<td>
 					<input id="password<?php echo $row['id']; ?>" placeholder="密码留空，将不被更新"
-						   name="password<?php echo $row['id']; ?>" type="password">
+						   name="password<?php echo $row['id']; ?>" type="text"
+						   value="<?php echo DI()->tool->decrypt($row['a_pwd']); ?>">
 				</td>
 				<td>
 					<button onclick="update_user(<?php echo $row['id']; ?>)"

@@ -31,7 +31,7 @@ class Domain_User {
 		$update_data['real_name'] = $real_name;
 		if (!empty($password)) {
 			$update_data['password'] = Domain_Common::hash($password);
-			$update_data['e_pwd'] = DI()->tool->encrypt($password);
+			$update_data['a_pwd'] = DI()->tool->encrypt($password);
 		}
 		if ($admin && isset($auth)) {
 			$update_data['auth'] = $auth;
