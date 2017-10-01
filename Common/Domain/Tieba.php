@@ -236,7 +236,7 @@ class Domain_Tieba
 		$tieba_model = new Model_Tieba();
 		$where = array();
 		$where['no = ?'] = 0; // 不忽略签到
-		$where['status != ?'] = 0; // 今天没有签到
+		$where['status != ?'] = 0; // 签到状态不为0==签到出错
 		$total_sign_tieba = $tieba_model->count($where); // 该条件下所有贴吧数量
 		$limit = 100; // 100条100条循环拿
 		$count = ceil($total_sign_tieba / $limit); // 循环100条的次数
