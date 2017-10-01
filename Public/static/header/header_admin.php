@@ -129,6 +129,12 @@
 										</li>
 										<li>
 											<a class="waves-effect waves-teal"
+											   href="?service=Tz.PhpInfo">
+												<?php echo T('PHPInfo') ?>
+											</a>
+										</li>
+										<li>
+											<a class="waves-effect waves-teal"
 											   href="?service=Tz.Test">
 												<?php echo T('服务器测试') ?>
 											</a>

@@ -20,6 +20,11 @@ class Api_Tz extends PhalApi_Api
 		);
 	}
 
+	public function phpInfo()
+	{
+		DI()->view->show('phpinfo');
+	}
+
 	public function info()
 	{
 		$sys_info = Domain_Tz::getSysInfo();
