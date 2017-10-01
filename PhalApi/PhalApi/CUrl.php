@@ -187,11 +187,11 @@ class PhalApi_CUrl
 			$options += array(CURLOPT_COOKIE => $this->getCookies());
 		}
 		//用setOption
-		if (!empty($data) && isset($data['path'])) {
+		/*if (!empty($data) && isset($data['path'])) {
 			$fp = fopen($data['path'], 'wb');
 			$options += array(CURLOPT_FILE => $fp, CURLOPT_FOLLOWLOCATION => TRUE);
 			unset($data['path']);
-		}
+		}*/
 
 		if (!empty($data)) {
 			$options[CURLOPT_POST] = 1;

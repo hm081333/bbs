@@ -65,19 +65,17 @@ class Common_Function
 		return md5(urlencode($url . '?' . $querystring . $sk));
 	}
 
-	public static function getImage($url = '', $fileName = '')
+	public static function getImage($url = '', $path = 'wechat', $fileName = '')
 	{
-		$fileName = API_ROOT . '/Public/static/upload/wechat/' . $fileName . '.jpg';
-		$ch = curl_init();
+		$info = '/upload/' . $path;
+		$dir = API_ROOT . '/Public/static' . $info;
+		if (!file_exists($dir)) {
+			mkdir($dir, 0777);
+		}
+		$fileName = $dir . '/' . $fileName . '.jpg';
 		$fp = fopen($fileName, 'wb');
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_FILE, $fp);
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-		curl_exec($ch);
-		curl_close($ch);
-		fclose($fp);
+		DI()->curl->setOption(array(CURLOPT_FILE => $fp, CURLOPT_FOLLOWLOCATION => TRUE));
+		$result = DI()->curl->get($url);
 	}
 
 	/**
