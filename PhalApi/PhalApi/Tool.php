@@ -53,6 +53,16 @@ class PhalApi_Tool
 	}
 
 	/**
+	 * 生成一个字节的伪随机字符串
+	 * @param $len
+	 * @return string
+	 */
+	public function createPseudoBytes($len)
+	{
+		return openssl_random_pseudo_bytes($len);
+	}
+
+	/**
 	 * 获取数组value值不存在时返回默认值
 	 * 不建议在大循环中使用会有效率问题
 	 *
@@ -257,6 +267,37 @@ class PhalApi_Tool
 		$encrypted = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $privateKey, $data, MCRYPT_MODE_CBC, $iv);
 		$encode = base64_encode($encrypted);
 		return $encode;
+	}
+
+	/**
+	 * OPEN_SSL加密
+	 * @param string $data
+	 * @return string
+	 */
+	function encrypt($data, $method = 'AES-256-CFB')
+	{
+		$privateKey = '@fdskalhfj2387A!';
+		$iv = '@fdfpu+adj2387A!';
+		$encrypted = openssl_encrypt($data, $method, $privateKey, OPENSSL_ZERO_PADDING, $iv);
+		//openssl_encrypt 加密相当于将 mcrypt_encrypt 的加密结果执行一次 base64_encode
+		$encode = base64_encode($encrypted);
+		return $encode;
+	}
+
+	/**
+	 * OPEN_SSL解密
+	 * @param string $data
+	 * @return string
+	 */
+	function decrypt($data, $method = 'AES-256-CFB')
+	{
+		$privateKey = '@fdskalhfj2387A!';
+		$iv = '@fdfpu+adj2387A!';
+		//openssl_decode 解密相当于 先将加密结果执行一次base64_decode 然后再通过mcrypt_encrypt 解密
+		$encryptedData = base64_decode($data);
+		$decrypted = openssl_decrypt($encryptedData, $method, $privateKey, OPENSSL_ZERO_PADDING, $iv);
+		$decrypted = rtrim($decrypted, "\0");//解密出来的数据后面会出现如图所示的六个红点；这句代码可以处理掉，从而不影响进一步的数据操作
+		return $decrypted;
 	}
 
 	public function is_mobile_request()

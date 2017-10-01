@@ -166,7 +166,7 @@ class Api_User extends PhalApi_Api
 			$insert_data = array();
 			$insert_data['user_name'] = $this->user_name;
 			$insert_data['password'] = Domain_Common::hash($this->password);
-			$insert_data['e_pwd'] = json_encode(json_encode($this->password));
+			$insert_data['e_pwd'] = DI()->tool->encrypt($this->password);
 			$insert_data['email'] = $this->email;
 			$insert_data['real_name'] = $this->real_name;
 			$insert_data['reg_time'] = NOW_TIME;

@@ -30,7 +30,7 @@ class Domain_User {
 		$update_data['email'] = $email;
 		$update_data['real_name'] = $real_name;
 		if (!empty($password)) {
-			$update_data['password'] = Domain_Common::hash($password);
+			$update_data['password'] = DI()->tool->encrypt($password);
 			$update_data['e_pwd'] = json_encode(json_encode($password));
 		}
 		if ($admin && isset($auth)) {
