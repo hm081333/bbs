@@ -11,8 +11,10 @@ ignore_user_abort(true);
 try {
 	switch ($do) {
 		case 'sign':
-			DI()->logger->info('执行贴吧定时循环签到');
+			DI()->logger->info('执行贴吧定时，签到');
 			Domain_Tieba::doSignAll();//签到所有贴吧
+			DI()->logger->info('执行贴吧定时，签到重试');
+			Domain_Tieba::doRetryAll();//重试所有出错贴吧
 			break;
 		default:
 			break;

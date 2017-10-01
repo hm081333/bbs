@@ -229,6 +229,40 @@ class Domain_Tieba
 	/**
 	 * 执行全部贴吧用户的签到任务
 	 */
+	public static function doRetryAll()
+	{
+		set_time_limit(0);
+		//处理所有签到出错的贴吧
+		$tieba_model = new Model_Tieba();
+		$where = array();
+		$where['no = ?'] = 0; // 不忽略签到
+		$where['status != ?'] = 0; // 今天没有签到
+		$total_sign_tieba = $tieba_model->count($where); // 该条件下所有贴吧数量
+		$limit = 100; // 100条100条循环拿
+		$count = ceil($total_sign_tieba / $limit); // 循环100条的次数
+		$else = 0; // 已遍历的数量
+		for ($i = 1; $i <= $count; $i++) {
+			$qs = $tieba_model->getList($limit, 0, $where, '*', 'id asc');
+			$else += $qs['total'];
+			$q = array();
+			foreach ($qs['rows'] as $index => $qss) {
+				$q[] = array(
+					'id' => $qss['id'],
+					'baidu_id' => $qss['baidu_id'],
+					'fid' => $qss['fid'],
+					'tieba' => $qss['tieba'],
+				);
+			}
+			shuffle($q);
+			foreach ($q as $x) {
+				self::doSign($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
+			}
+		}
+	}
+
+	/**
+	 * 执行全部贴吧用户的签到任务
+	 */
 	public static function doSignAll()
 	{
 		set_time_limit(0);
@@ -357,7 +391,6 @@ class Domain_Tieba
 		$again_error_id_2 = 1101; //特殊的重复签到错误代码！！！签到过快=已签到
 		$again_error_id_3 = 1102; //特殊的重复签到错误代码！！！签到过快=已签到
 		$status_succ = false;
-
 		$baiduid_model = new Model_BaiduId();
 		$bdid = $baiduid_model->get($baidu_id, 'bduss');
 		$ck = $bdid['bduss'];
@@ -365,7 +398,7 @@ class Domain_Tieba
 		$tieba_model = new Model_Tieba();
 
 		if (empty($fid)) {
-			$fid = self::getFid($kw);
+			$fid = self::getFid($kw);//贴吧唯一ID
 			$tieba_model->update($id, array('fid' => $fid));
 		}
 
@@ -411,6 +444,7 @@ class Domain_Tieba
 			$tieba_model->update($id, array('latest' => $time, 'status' => 0, 'last_error' => ''));
 		} else {
 			$tieba_model->update($id, array('latest' => $time, 'status' => $error_code, 'last_error' => $error_msg));
+			//$tieba_model->update($id, array('status' => $error_code, 'last_error' => $error_msg));
 		}
 	}
 
