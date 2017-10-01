@@ -9,10 +9,12 @@ class Domain_Reply {
     }
 
 	public function add_Reply($topic_id, $user_id, $reply_detail) {
-		$reback = '';
-		if (!empty($_FILES['reply_pics']['tmp_name'])) {
-			$reback = DI()->tool->uppic($_FILES['reply_pics']);
-			if($reback === false){
+		$pic_path = '';
+		if (!empty($_FILES['reply_pics'])) {
+			$reback = DI()->tool->upLoadImage('reply_pics');
+			if (is_array($reback)) {
+				$pic_path = $reback['url'];
+			} else {
 				throw new PhalApi_Exception_InternalServerError(T('图片上传失败'), 2);// 抛出服务端错误
 			}
 		}
@@ -28,7 +30,7 @@ class Domain_Reply {
 		$reply_data['reply_name'] = $user['user_name'];
 		$reply_data['reply_email'] = $user['email'];
 		$reply_data['reply_detail'] = $reply_detail;
-		$reply_data['reply_pics'] = $reback;
+		$reply_data['reply_pics'] = $pic_path;
 		$reply_data['add_time'] = NOW_TIME;
 		$rs = $reply_model->insert($reply_data);
 		return $rs;

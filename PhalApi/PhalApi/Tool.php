@@ -366,43 +366,52 @@ class PhalApi_Tool
 		return $higrid_uncompress_html_source;
 	}
 
-	/**
-	 * 判断文件后缀
-	 * $f_type：允许文件的后缀类型
-	 * $f_upfiles：上传文件名
-	 */
-	public function f_postfix($f_type, $f_upfiles)
+	public function staticPath($path)
 	{
-		$is_pass = false;
-		$tmp_upfiles = preg_split("/\./", $f_upfiles);
-		$tmp_num = count($tmp_upfiles);
-		if (in_array(strtolower($tmp_upfiles[$tmp_num - 1]), $f_type))
-			$is_pass = $tmp_upfiles[$tmp_num - 1];
-		return $is_pass;
+		return URL_ROOT . $path;
 	}
 
 	/**
-	 * 上传图片
-	 * 参数$fileinfo为上传图片信息
-	 * $picture_path为上传的图片地址。要保存到数据库中的
+	 * @param $fileName string 上传文件名
+	 * @param string $path 相对路径-文件夹名
+	 * @return array|string
 	 */
-	public function uppic($fileinfo, $path = 'pics')
+	public function upLoadImage($fileName, $path = 'pics')
 	{
-		$p_type = array("jpg", "jpeg", "bmp", "gif", "png");
-		if ($fileinfo['size'] > 0 and $fileinfo['size'] < 2000000) {
-			if (($postf = $this->f_postfix($p_type, $fileinfo['name'])) != false) {
-				$path .= "/" . time() . "." . $postf;
-				$upload_path = PUB_ROOT . 'static/upload/';
-				$file = $upload_path . $path;
-				if ($fileinfo['tmp_name']) {
-					move_uploaded_file($fileinfo['tmp_name'], $file);
-					return $path;
-				}
-			} else {
-				throw new PhalApi_Exception_Error(T('图片格式不支持'), 1);// 抛出普通错误 T标签翻译
-			}
+		if ($_FILES[$fileName]["error"] > 0) {
+			return T('上传图片失败: {error}', array('error' => $_FILES[$fileName]['error']));
 		} else {
-			throw new PhalApi_Exception_Error(T('图片超过19M'), 1);// 抛出普通错误 T标签翻译
+			list ($width, $height, $type, $attr) = getimagesize($_FILES [$fileName] ['tmp_name']);
+			switch ($type) {
+				case 1 :
+					$ext = ".GIF";
+					break;
+				case 2 :
+					$ext = ".JPG";
+					break;
+				case 3 :
+					$ext = ".PNG";
+					break;
+				default :
+					$ext = "...";
+					break;
+			}
+			if ($ext == '...') {
+				return T('图片格式错误');
+			}
+
+			$info = '/upload/' . $path . '/' . date('Ym');
+			$dir = API_ROOT . '/Public/static' . $info;
+			if (!file_exists($dir)) {
+				mkdir($dir, 0777);
+			}
+
+			$url = '/' . NOW_TIME . $ext;
+			if (!@move_uploaded_file($_FILES[$fileName]['tmp_name'], $dir . $url)) {
+				return T('上传失败');
+			}
+			@unlink($_FILES[$fileName]['tmp_name']);
+			return array('url' => $info . $url);
 		}
 	}
 

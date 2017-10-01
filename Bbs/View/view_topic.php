@@ -20,16 +20,9 @@
 				echo '</br>';
 				?>
 
-				<?php
-				if (!empty($topic['pics'])) {
-					?>
-					<img class="materialboxed" width="40%" src="./Public/static/upload/<?php echo $topic['pics'] ?>">
-					<?php
-
-				} else {
-					echo '';
-				}
-				?>
+				<?php if (!empty($topic['pics'])) : ?>
+					<img class="materialboxed" width="40%" src="<?php echo DI()->tool->staticPath($topic['pics']); ?>>">
+				<?php endif; ?>>
 			</td>
 		</tr>
 		<tr>
@@ -55,7 +48,7 @@
 
 								<?php if (!empty($row['reply_pics'])) : ?>
 									<img class="materialboxed" width="30%"
-										 src="./Public/static/upload/<?php echo $row['reply_pics'] ?>">
+										 src="<?php echo DI()->tool->staticPath($row['reply_pics']); ?>">
 								<?php endif; ?>
 							</dd>
 						<?php endforeach; endif; ?>

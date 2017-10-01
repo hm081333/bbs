@@ -62,16 +62,18 @@ class Api_Topic extends PhalApi_Api
 	public function create_Topic()
 	{
 		if ($this->action == 'post') {
-			$reback = '';
+			$pic_path = '';
 			if (empty($this->topic)) {
 				throw new PhalApi_Exception_Error(T('请输入文章标题'), 1);// 抛出普通错误 T标签翻译
 			} elseif (empty($this->detail)) {
 				throw new PhalApi_Exception_Error(T('请输入正文内容'), 1);// 抛出普通错误 T标签翻译
 			} elseif (empty($this->class_id)) {
 				throw new PhalApi_Exception_Error(T('请选择课程'), 1);// 抛出普通错误 T标签翻译
-			} elseif (!empty($_FILES['pics']['tmp_name'])) {
-				$reback = DI()->tool->uppic($_FILES['pics']);
-				if ($reback === false) {
+			} elseif (!empty($_FILES['pics'])) {
+				$reback = DI()->tool->upLoadImage('pics');
+				if (is_array($reback)) {
+					$pic_path = $reback['url'];
+				} else {
 					throw new PhalApi_Exception_InternalServerError(T('图片上传失败'), 2);// 抛出服务端错误
 				}
 			}
@@ -82,7 +84,7 @@ class Api_Topic extends PhalApi_Api
 			$insert_data['class_id'] = $this->class_id;
 			$insert_data['topic'] = $this->topic;
 			$insert_data['detail'] = $this->detail;
-			$insert_data['pics'] = $reback;
+			$insert_data['pics'] = $pic_path;
 			$insert_data['user_id'] = $user['id'];
 			$insert_data['name'] = $user['user_name'];
 			$insert_data['email'] = $user['email'];
