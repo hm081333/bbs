@@ -89,7 +89,7 @@
 					</li>
 				</ul>
 			<?php endif; ?>
-			<a href="./tieba.php" class="center brand-logo"><?php echo T('首页') ?></a>
+			<a href="./tieba.php" class="center brand-logo"><?php echo T('贴吧签到站') ?></a>
 			<ul class="right">
 				<?php if (DI()->config->get('sys.translate')): ?>
 					<li>

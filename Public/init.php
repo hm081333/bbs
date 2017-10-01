@@ -97,6 +97,7 @@ DI()->cache = function () {
 //    return new PhalApi_Cache_Memcache(DI()->config->get('sys.mc'));
 };
 
+//cookie工具
 DI()->cookie = function () {
 	$config = array();
 	$config['path'] = '/';

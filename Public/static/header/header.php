@@ -62,6 +62,11 @@
 					<?php echo T('查询快递'); ?></a>
 			</li>
 			<li class="divider"></li>
+			<li>
+				<a onClick="location.href='./tieba.php'">
+					<?php echo T('跳转签到站'); ?></a>
+			</li>
+			<li class="divider"></li>
 			<li><a onclick="logoff()"><?php echo T('退出登录'); ?></a></li>
 		<?php else : ?>
 			<!-- 用户未登录 -->

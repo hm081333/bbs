@@ -40,11 +40,13 @@ class Api_System extends PhalApi_Api
 				throw new PhalApi_Exception_Error(T('密码错误'), 1);// 抛出客户端错误 T标签翻译
 			}
 			$sql = '
-			truncate table forum_user;
-			truncate table forum_topic;
-			truncate table forum_reply;
-			truncate table forum_email_auth;
-			truncate table forum_delivery;
+			truncate table ly_user;
+			truncate table ly_topic;
+			truncate table ly_reply;
+			truncate table ly_email_auth;
+			truncate table ly_delivery;
+			truncate table ly_tieba;
+			truncate table ly_baiduid;
 			';
 			$admin_model->queryAll($sql);
 			DI()->tool->emptyDir(PUB_ROOT . 'static/upload/pics');

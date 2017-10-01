@@ -44,8 +44,8 @@
 								<?php if ($row['status'] == 0): ?>
 									<span style="color: blue;">正常</span>
 								<?php else: ?>
-									<span style="color: red;">异常</span>
-									<br/>
+									<!--<span style="color: red;">异常</span>-->
+									<!--<br/>-->
 									<span style="color: red;"><?php echo $row['last_error']; ?></span>
 								<?php endif; ?>
 							</td>
