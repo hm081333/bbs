@@ -35,6 +35,9 @@ class Api_Tieba extends PhalApi_Api
 			'doSignByUserId' => array(
 				'user_id' => array('name' => 'user_id', 'type' => 'int', 'require' => true, 'desc' => '会员的ID--签到会员所有贴吧'),
 			),
+			'deleteBaiduId' => array(
+				'baidu_id' => array('name' => 'baidu_id', 'type' => 'int', 'require' => true, 'desc' => 'baiduid的ID--删除该贴吧用户'),
+			),
 		);
 	}
 
@@ -124,5 +127,19 @@ class Api_Tieba extends PhalApi_Api
 		Domain_Tieba::doSignByUserId($this->user_id);
 		DI()->response->setMsg(T('签到成功'));
 	}
+
+	public function deleteBaiduId()
+	{
+		$tieba_model = new Model_Tieba();
+		$baiduid_model = new Model_BaiduId();
+		$del_tieba = $tieba_model->deleteByWhere(array('baidu_id' => $this->baidu_id));
+		$del_baiduid = $baiduid_model->delete($this->baidu_id);
+		if ($del_tieba === false || $del_baiduid === false) {
+			throw new PhalApi_Exception_Error(T('删除失败'));
+		}
+		DI()->response->setMsg(T('删除成功'));
+		return true;
+	}
+
 
 }

@@ -42,7 +42,7 @@ class Api_Default extends PhalApi_Api
 	{
 		if (isset($_SESSION["user_id"])) {
 			$baiduid_model = new Model_BaiduId();
-			$bduss_list = $baiduid_model->getList((($this->page - 1) * each_page), ($this->page * each_page));
+			$bduss_list = $baiduid_model->getList((($this->page - 1) * each_page), ($this->page * each_page), array(), '*', 'id asc');
 			//抛出多个变量
 			DI()->view->assign(array('rows' => $bduss_list['rows'], 'total' => $bduss_list['total'], 'page' => $this->page));
 			DI()->view->show('bduss_list');

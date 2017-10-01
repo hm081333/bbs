@@ -4,6 +4,8 @@
 	<tr class="teal darken-3">
 		<th><?php echo T('BDUSS'); ?></th>
 		<th><?php echo T('贴吧用户名'); ?></th>
+		<th><?php echo T('上次刷新时间'); ?></th>
+		<th><?php echo T('操作'); ?></th>
 	</tr>
 	</thead>
 	<tbody>
@@ -18,6 +20,15 @@
 					  data-tooltip="<?php echo T($row['name']); ?>">
 					<?php echo T($row['name']); ?>
 				</span>
+			</td>
+			<td>
+				<?php echo date('Y-m-d H:i:s', $row['refresh_time']); ?>
+			</td>
+			<td>
+				<button onclick="delete_baiduid(<?php echo $row['id']; ?>)"
+						class="btn-floating waves-effect waves-light">
+					<i class="material-icons">delete</i>
+				</button>
 			</td>
 		</tr>
 	<?php endforeach; ?>

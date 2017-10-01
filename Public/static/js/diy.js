@@ -153,6 +153,10 @@ function delete_tieba(tieba_id) {
 	Ajax({service: 'Tieba.DeleteTieba', tieba_id: tieba_id})
 }
 
+function delete_baiduid(baidu_id) {
+	Ajax({service: 'Tieba.DeleteBaiduId', baidu_id: baidu_id})
+}
+
 function no_sign(tieba_id) {
 	var no_status = $('#no_sign' + tieba_id)[0]['checked'];
 	Ajax({service: 'Tieba.NoSignTieba', tieba_id: tieba_id, no: no_status}, function (d) {
