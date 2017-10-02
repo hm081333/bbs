@@ -14,6 +14,15 @@ DI()->loader->addDirs('Common');
 
 DI()->view = new View_Lite('Tieba');
 
+if (DI()->tool->is_weixin()) {
+	$wechat_domain = new Domain_Wechat();
+	if (isset($_GET['code'])) {
+		$wechat_domain->getOpenId($_GET['code']);
+	} else {
+		$wechat_domain->getOpenIdCode();
+	}
+}
+
 /** ---------------- 响应接口请求 ---------------- **/
 
 //过滤前台未登陆的操作

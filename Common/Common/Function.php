@@ -11,7 +11,7 @@ class Common_Function
 
 
 	/**
-	 * @param $question 问题
+	 * @param $question string 问题
 	 * @return array
 	 */
 	public static function tuling($question)

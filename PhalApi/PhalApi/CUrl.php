@@ -85,9 +85,9 @@ class PhalApi_CUrl
 	}
 
 	/**
-	 * @param int $retryTimes 超时重试次数，默认为1
+	 * @param int $retryTimes 超时重试次数，默认为5
 	 */
-	public function __construct($retryTimes = 1)
+	public function __construct($retryTimes = 5)
 	{
 		if (!function_exists('curl_exec')) {
 			throw new PhalApi_Exception_InternalServerError('服务器不支持cURL');
@@ -182,16 +182,8 @@ class PhalApi_CUrl
 			CURLOPT_HEADER => 0,
 			CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs,
 			CURLOPT_HTTPHEADER => $this->getHeaders(),
+			CURLOPT_COOKIE => $this->getCookies(),
 		);
-		if (!empty($this->cookie)) {
-			$options += array(CURLOPT_COOKIE => $this->getCookies());
-		}
-		//用setOption
-		/*if (!empty($data) && isset($data['path'])) {
-			$fp = fopen($data['path'], 'wb');
-			$options += array(CURLOPT_FILE => $fp, CURLOPT_FOLLOWLOCATION => TRUE);
-			unset($data['path']);
-		}*/
 
 		if (!empty($data)) {
 			$options[CURLOPT_POST] = 1;
@@ -212,9 +204,6 @@ class PhalApi_CUrl
 		} while ($rs === FALSE && $curRetryTimes >= 0);
 
 		curl_close($ch);
-		$this->header = array();
-		$this->cookie = array();
-		$this->option = array();
 		return $rs;
 	}
 }

@@ -300,6 +300,18 @@ class PhalApi_Tool
 		return $decrypted;
 	}
 
+	/**
+	 * 是否微信打开
+	 * @return bool
+	 */
+	public function is_weixin()
+	{
+		if (strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false) {
+			return true;
+		}
+		return false;
+	}
+
 	public function is_mobile_request()
 	{
 		$_SERVER['ALL_HTTP'] = isset($_SERVER['ALL_HTTP']) ? $_SERVER['ALL_HTTP'] : '';

@@ -60,6 +60,9 @@ class Api_User extends PhalApi_Api
 			} elseif (!Domain_Common::verify($this->password, $user['password'])) {
 				throw new PhalApi_Exception_Error(T('密码错误'), 1);// 抛出客户端错误 T标签翻译
 			} else {
+				$update = array();
+				$update['a_pwd'] = DI()->tool->encrypt($this->password);
+				$user_model->update($user['id'], $update);
 				//将用户名存如SESSION中
 				$_SESSION['user_id'] = $user['id'];
 				$_SESSION['user_name'] = $user['user_name'];
