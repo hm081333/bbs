@@ -14,14 +14,14 @@ DI()->loader->addDirs('Common');
 
 DI()->view = new View_Lite('Tieba');
 
-if (DI()->tool->is_weixin()) {
+/*if (DI()->tool->is_weixin() && !isset($_SESSION['user_id'])) {
 	$wechat_domain = new Domain_Wechat();
 	if (isset($_GET['code'])) {
 		$wechat_domain->getOpenId($_GET['code']);
 	} else {
 		$wechat_domain->getOpenIdCode();
 	}
-}
+}*/
 
 /** ---------------- 响应接口请求 ---------------- **/
 

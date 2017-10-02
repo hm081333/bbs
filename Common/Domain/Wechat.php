@@ -45,7 +45,16 @@ class Domain_Wechat
 	{
 		$url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $this->appId . '&secret=' . $this->appSecret . '&code=' . $code . '&grant_type=authorization_code';
 		$result = DI()->curl->json_get($url);
-		if (!empty($result)) {
+		if (!empty($result) && !isset($result['errcode']) && !isset($result['errmsg'])) {
+			return $result;
+		}
+	}
+
+	public function openIdLogin($code)
+	{
+		$url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $this->appId . '&secret=' . $this->appSecret . '&code=' . $code . '&grant_type=authorization_code';
+		$result = DI()->curl->json_get($url);
+		if (!empty($result) && !isset($result['errcode']) && !isset($result['errmsg'])) {
 			$open_id = $result['openid'];
 			$user_model = new Model_User();
 			$user = $user_model->getInfo(array('open_id' => $open_id));
