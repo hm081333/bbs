@@ -154,6 +154,16 @@ class Domain_Wechat
 		}
 	}
 
+	private function createNonceStr($length = 16)
+	{
+		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		$str = "";
+		for ($i = 0; $i < $length; $i++) {
+			$str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+		}
+		return $str;
+	}
+
 	/**
 	 * 生成jsSDK权限验证配置
 	 * @return array
@@ -165,7 +175,7 @@ class Domain_Wechat
 		$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
 		$url = "$protocol$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 		$timestamp = NOW_TIME;
-		$nonceStr = DI()->tool->createRandStr(16);
+		$nonceStr = $this->createNonceStr();
 		// 这里参数的顺序要按照 key 值 ASCII 码升序排序
 		$string = "jsapi_ticket=$jsapiTicket&noncestr=$nonceStr&timestamp=$timestamp&url=$url";
 		$signature = sha1($string);
