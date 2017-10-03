@@ -421,7 +421,7 @@ class PhalApi_Tool
 
 	public function staticPath($path)
 	{
-		return URL_ROOT . 'static' . $path;
+		return URL_ROOT . 'static/' . $path;
 	}
 
 	/**

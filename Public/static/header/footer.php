@@ -37,7 +37,8 @@
 			<h5 class="white-text"><?php echo T('联系我'); ?></h5>
 			<ul>
 				<li><a style="width: 127px;" class="white-text btn waves-effect waves-light"
-					   onclick="javascript:window.open('mailto:522751485@qq.com')"><i class="tiny material-icons">mail</i>Email</a></li>
+					   onclick="javascript:window.open('mailto:522751485@qq.com')"><i
+								class="tiny material-icons">mail</i>Email</a></li>
 				<li><a style="width: 127px;" class="white-text btn waves-effect waves-light"
 					   onclick="javascript:window.open('http://sighttp.qq.com/authd?IDKEY=2370447117525914b38fc589aa94b53b4d3a892de4c76039')">QQ</a>
 				</li>
@@ -67,4 +68,57 @@
 <!--局域网获取IP方法-->
 <script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
 <script src="./Public/static/js/diy.js"></script>
-
+<?php if (DI()->tool->is_weixin()) : ?>
+	<script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+	<?php $wechat_domain = new Domain_Wechat();
+	$signPackage = $wechat_domain->GetSignPackage(); ?>
+	<script>
+		wx.config({
+			debug: false,
+			appId: '<?php echo $signPackage["appId"];?>',
+			timestamp: <?php echo $signPackage["timestamp"];?>,
+			nonceStr: '<?php echo $signPackage["nonceStr"];?>',
+			signature: '<?php echo $signPackage["signature"];?>',
+			jsApiList: [
+				'checkJsApi',
+				'onMenuShareTimeline',
+				'onMenuShareAppMessage',
+				'onMenuShareQQ',
+				'onMenuShareWeibo',
+				'onMenuShareQZone',
+				'hideMenuItems',
+				'showMenuItems',
+				'hideAllNonBaseMenuItem',
+				'showAllNonBaseMenuItem',
+				'translateVoice',
+				'startRecord',
+				'stopRecord',
+				'onVoiceRecordEnd',
+				'playVoice',
+				'onVoicePlayEnd',
+				'pauseVoice',
+				'stopVoice',
+				'uploadVoice',
+				'downloadVoice',
+				'chooseImage',
+				'previewImage',
+				'uploadImage',
+				'downloadImage',
+				'getNetworkType',
+				'openLocation',
+				'getLocation',
+				'hideOptionMenu',
+				'showOptionMenu',
+				'closeWindow',
+				'scanQRCode',
+				'chooseWXPay',
+				'openProductSpecificView',
+				'addCard',
+				'chooseCard',
+				'openCard'
+			]
+		});
+	</script>
+	<script src="<?php echo DI()->tool->staticPath('/js/zepto.min.js'); ?>"></script>
+	<script src="<?php echo DI()->tool->staticPath('/js/demo.js'); ?>"></script>
+<?php endif; ?>
