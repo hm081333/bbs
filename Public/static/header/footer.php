@@ -74,7 +74,7 @@
 	$signPackage = $wechat_domain->GetSignPackage(); ?>
 	<script>
 		wx.config({
-			debug: true,
+			debug: false,
 			appId: '<?php echo $signPackage["appId"];?>',
 			timestamp: <?php echo $signPackage["timestamp"];?>,
 			nonceStr: '<?php echo $signPackage["nonceStr"];?>',
@@ -118,7 +118,68 @@
 				'openCard'
 			]
 		});
+		wx.ready(function () {
+			wx.onMenuShareAppMessage({
+				title: 'LYi-Ho',
+				desc: 'FUND',
+				link: '<?php echo NOW_WEB_SITE; ?>',
+				imgUrl: '<?php echo DI()->tool->staticPath('/images/non.jpeg') ?>',
+				success: function (res) {
+					alert('分享成功');
+				},
+				cancel: function (res) {
+					alert('取消分享');
+				}
+			});
+			wx.onMenuShareTimeline({
+				title: 'LYi-Ho',
+				link: '<?php echo NOW_WEB_SITE; ?>',
+				imgUrl: '<?php echo DI()->tool->staticPath('/images/non.jpeg') ?>',
+				success: function (res) {
+					alert('分享成功');
+				},
+				cancel: function (res) {
+					alert('取消分享');
+				}
+			});
+			wx.onMenuShareQQ({
+				title: 'LYi-Ho',
+				desc: 'FUND',
+				link: '<?php echo NOW_WEB_SITE; ?>',
+				imgUrl: '<?php echo DI()->tool->staticPath('/images/non.jpeg') ?>',
+				success: function (res) {
+					alert('分享成功');
+				},
+				cancel: function (res) {
+					alert('取消分享');
+				}
+			});
+			wx.onMenuShareWeibo({
+				title: 'LYi-Ho',
+				desc: 'FUND',
+				link: '<?php echo NOW_WEB_SITE; ?>',
+				imgUrl: '<?php echo DI()->tool->staticPath('/images/non.jpeg') ?>',
+				success: function (res) {
+					alert('分享成功');
+				},
+				cancel: function (res) {
+					alert('取消分享');
+				}
+			});
+			wx.onMenuShareQZone({
+				title: 'LYi-Ho',
+				desc: 'FUND',
+				link: '<?php echo NOW_WEB_SITE; ?>',
+				imgUrl: '<?php echo DI()->tool->staticPath('/images/non.jpeg') ?>',
+				success: function (res) {
+					alert('分享成功');
+				},
+				cancel: function (res) {
+					alert('取消分享');
+				}
+			});
+		});
 	</script>
-	<script src="<?php echo DI()->tool->staticPath('/js/zepto.min.js'); ?>"></script>
-	<script src="<?php echo DI()->tool->staticPath('/js/demo.js'); ?>"></script>
+	<!--<script src="--><?php //echo DI()->tool->staticPath('/js/zepto.min.js'); ?><!--"></script>-->
+	<!--<script src="--><?php //echo DI()->tool->staticPath('/js/jssdk.js'); ?><!--"></script>-->
 <?php endif; ?>
