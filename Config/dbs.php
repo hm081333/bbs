@@ -10,32 +10,12 @@ return array(
 	 * DB数据库服务器集群
 	 * apt-cache search php7.0
 	 */
-	/*'servers' => array(
-		'db_forum' => array(                         //服务器标记
-			'host'      => '127.12.167.2',             //数据库域名
-			'name'      => 'nyjl',               //数据库名字
-			'user'      => 'adminrnWmCCM',                  //数据库用户名
-			'password'  => 'HXizJXc1cPCm',	                    //数据库密码
-			'port'      => '3306',                  //数据库端口
-			'charset'   => 'UTF8',                  //数据库字符集
-		),
-	),*/
-	/*'servers' => array(
-		'db_forum' => array(                         //服务器标记
-			'host'      => 'mysql.hostinger.com.hk',             //数据库域名
-			'name'      => 'u690266057_nyjl',               //数据库名字
-			'user'      => 'u690266057_root',                  //数据库用户名
-			'password'  => 'asd110',	                    //数据库密码
-			'port'      => '3306',                  //数据库端口
-			'charset'   => 'UTF8',                  //数据库字符集
-		),
-	),*/
 	'servers' => array(
 		'db_forum' => array(                         //服务器标记
-			'host' => 'localhost',             //数据库域名
+			'host' => '123.249.20.195',             //数据库域名
 			'name' => 'lyiho',               //数据库名字
-			'user' => 'root',                  //数据库用户名
-			'password' => 'root',                        //数据库密码
+			'user' => 'hm081333',                  //数据库用户名
+			'password' => 'Lyihe110',                        //数据库密码
 			'port' => '3306',                  //数据库端口
 			'charset' => 'UTF8',                  //数据库字符集
 		),

@@ -1,20 +1,30 @@
 <?php
 
-class Domain_User {
-    public function getAllUsers($where = array(), $select = '*', $order = 'id asc') {
-        $user_model = new Model_User();
-        $rs = $user_model->getAllUsers($where, $select, $order);
-		// var_dump($rs);
-        return $rs;
-    }
+class Domain_User
+{
 
-	public function getUserList($limit, $offset, $where = array(), $select = '*', $order = 'id asc') {
+	public function getAllUsers($where = array(), $select = '*', $order = 'id asc')
+	{
+		$user_model = new Model_User();
+		$rs = $user_model->getAllUsers($where, $select, $order);
+		// var_dump($rs);
+		return $rs;
+	}
+
+	public function getUserList($limit, $offset, $where = array(), $select = '*', $order = 'id asc')
+	{
 		$user_model = new Model_User();
 		$rs = $user_model->getUserList($limit, $offset, $where, $select, $order);
 		return $rs;
 	}
 
-	public function userInfo($user_id) {
+	public static function user()
+	{
+		return unserialize(DI()->cookie->get('USER_TOKEN'));
+	}
+
+	public function userInfo($user_id)
+	{
 		$user_model = new Model_User();
 		$rs['info'] = $user_model->get($user_id);
 		$topic_model = new Model_Topic();
@@ -24,7 +34,8 @@ class Domain_User {
 		return $rs;
 	}
 
-	public function edit_Member($user_id, $password, $email, $real_name, $auth = false, $admin = false, $secret = false, $check = false) {
+	public function edit_Member($user_id, $password, $email, $real_name, $auth = false, $admin = false, $secret = false, $check = false)
+	{
 		$user_model = new Model_User();
 		$update_data = array();
 		$update_data['email'] = $email;
