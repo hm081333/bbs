@@ -12,6 +12,11 @@ class Domain_Wechat
 		$this->appSecret = $config['appsecret'];
 	}
 
+	/**
+	 * 获取access_token
+	 * @return mixed
+	 * @throws PhalApi_Exception
+	 */
 	private function getAccessToken()
 	{
 		$access_token = DI()->cache->get('access_token');
@@ -154,6 +159,11 @@ class Domain_Wechat
 		}
 	}
 
+	/**
+	 * 随机字符串
+	 * @param int $length
+	 * @return string
+	 */
 	private function createNonceStr($length = 16)
 	{
 		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

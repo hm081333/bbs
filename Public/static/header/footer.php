@@ -13,7 +13,7 @@
 		<div class="col s12 m4"><!--类似上面 offset为抵消-在电脑上浏览时距离左边物体两个单位-->
 			<h5 class="white-text"><?php echo T('友情链接'); ?></h5>
 			<ul>
-				<li><a class="white-text" href="#!"><?php echo T('暂时没有友情链接'); ?></a></li>
+				<li><a class="white-text" href="javascript:;"><?php echo T('暂时没有友情链接'); ?></a></li>
 				<li>
 					<a class="white-text">
 						<?php echo T('IP：'); ?>
@@ -61,13 +61,14 @@
 	</div>
 </footer>
 
-<a href="#!" class="cd-top"></a><!--返回顶部按钮-->
+<a href="javascript:;" class="cd-top"></a><!--返回顶部按钮-->
 
 </body>
 </html>
 <!--局域网获取IP方法-->
 <script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
 <script src="./Public/static/js/diy.js"></script>
+<!--微信jssdk-->
 <?php if (DI()->tool->is_weixin()) : ?>
 	<script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 	<?php $wechat_domain = new Domain_Wechat();
