@@ -12,10 +12,10 @@ return array(
 	 */
 	'servers' => array(
 		'db_forum' => array(                         //服务器标记
-			'host' => '123.249.20.195',             //数据库域名
+			'host' => '127.0.0.1',             //数据库域名
 			'name' => 'lyiho',               //数据库名字
-			'user' => 'hm081333',                  //数据库用户名
-			'password' => 'Lyihe110',                        //数据库密码
+			'user' => 'root',                  //数据库用户名
+			'password' => 'root',                        //数据库密码
 			'port' => '3306',                  //数据库端口
 			'charset' => 'UTF8',                  //数据库字符集
 		),
