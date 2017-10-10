@@ -359,5 +359,19 @@ class Domain_Tz
 		echo "-> Test finished in $deltat seconds. Your speed is " . round($kb / $deltat, 3) . "Kb/s";
 	}
 
+	public static function testMySQLi($data)
+	{
+		if (function_exists("mysqli_close") == 1) {
+			$link = @mysqli_connect($data['host'] . ":" . $data['port'], $data['login'], $data['password']);
+			if ($link) {
+				return T('连接到MySql数据库正常');
+			} else {
+				return T('无法连接到MySql数据库！');
+			}
+		} else {
+			return T('服务器不支持MySQL数据库！');
+		}
+	}
+
 
 }

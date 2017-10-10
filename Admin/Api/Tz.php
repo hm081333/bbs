@@ -14,9 +14,7 @@ class Api_Tz extends PhalApi_Api
 			'info' => array(),
 			'test' => array(),
 			'cpuPercentage' => array(),
-			'doTest' => array(
-				'type' => array('name' => 'type', 'type' => 'enum', 'range' => array('pInt', 'pFloat', 'pIo', 'pSpeed'), 'require' => true, 'desc' => '测试类型'),
-			),
+			'doTest' => array(),
 		);
 	}
 
@@ -169,7 +167,9 @@ class Api_Tz extends PhalApi_Api
 
 	public function doTest()
 	{
-		switch ($this->type) {
+		$post = DI()->request->getAll();
+		unset($post['service']);
+		switch ($post['type']) {
 			case 'pInt':
 				return Domain_Tz::testInt();
 				break;
@@ -181,6 +181,15 @@ class Api_Tz extends PhalApi_Api
 				break;
 			case 'pSpeed':
 				return Domain_Tz::testSpeed();
+				break;
+			case 'pMySQL':
+				return array('type' => $post['type'], 'result' => Domain_Tz::testMySQLi($post));
+				break;
+			case 'pFun':
+				return array('type' => $post['type'], 'result' => Domain_Tz::testFun());
+				break;
+			case 'pMail':
+				return array('type' => $post['type'], 'result' => Domain_Tz::testMail());
 				break;
 			default:
 				throw new PhalApi_Exception(T('没有该测试'));

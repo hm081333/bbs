@@ -34,7 +34,9 @@ $(document).ready(function () {
 	});
 	$('select').material_select();
 	$('.collapsible').collapsible();
-	$('ul.tabs').tabs();
+	$('ul.tabs').tabs({
+		// swipeable: true
+	});
 
 
 	// var ip = returnCitySN['cip'];
