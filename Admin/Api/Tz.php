@@ -186,10 +186,10 @@ class Api_Tz extends PhalApi_Api
 				return array('type' => $post['type'], 'result' => Domain_Tz::testMySQLi($post));
 				break;
 			case 'pFun':
-				return array('type' => $post['type'], 'result' => Domain_Tz::testFun());
+				return array('type' => $post['type'], 'result' => Domain_Tz::testFun($post));
 				break;
 			case 'pMail':
-				return array('type' => $post['type'], 'result' => Domain_Tz::testMail());
+				return array('type' => $post['type'], 'result' => Domain_Tz::testMail($post));
 				break;
 			default:
 				throw new PhalApi_Exception(T('没有该测试'));

@@ -356,12 +356,12 @@ class Domain_Tz
 		$time = explode(" ", microtime());
 		$finish = $time[0] + $time[1];
 		$deltat = $finish - $start;
-		echo "-> Test finished in $deltat seconds. Your speed is " . round($kb / $deltat, 3) . "Kb/s";
+		return "-> Test finished in $deltat seconds. Your speed is " . round($kb / $deltat, 3) . "Kb/s";
 	}
 
 	public static function testMySQLi($data)
 	{
-		if (function_exists("mysqli_close") == 1) {
+		if (function_exists("mysqli_close")) {
 			$link = @mysqli_connect($data['host'] . ":" . $data['port'], $data['login'], $data['password']);
 			if ($link) {
 				return T('连接到MySql数据库正常');
@@ -371,6 +371,30 @@ class Domain_Tz
 		} else {
 			return T('服务器不支持MySQL数据库！');
 		}
+	}
+
+	public static function testFun($data)
+	{
+		if (!$data['funName'] || trim($data['funName']) == '' || preg_match('~[^a-z0-9\_]+~i', $data['funName'], $tmp)) {
+			return T('函数名错误');
+		}
+		if (function_exists($data['funName'])) {
+			return T('服务器支持函数{fun}', array('fun' => $data['funName']));
+		} else {
+			return T('服务器不支持函数{fun}', array('fun' => $data['funName']));
+		}
+	}
+
+	public static function testMail($data)
+	{
+		$mailRe = '发送';
+		if ($_SERVER['SERVER_PORT'] == 80) {
+			$mailContent = "http://" . $_SERVER['SERVER_NAME'] . ($_SERVER['PHP_SELF'] ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME']);
+		} else {
+			$mailContent = "http://" . $_SERVER['SERVER_NAME'] . ":" . $_SERVER['SERVER_PORT'] . ($_SERVER['PHP_SELF'] ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME']);
+		}
+		$mailRe .= (false !== @mail($_POST["mailAdd"], $mailContent, "This is a test mail!")) ? '成功' : '失败';
+		return $mailRe;
 	}
 
 
