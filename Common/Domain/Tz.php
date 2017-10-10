@@ -361,15 +361,15 @@ class Domain_Tz
 
 	public static function testMySQLi($data)
 	{
-		if (function_exists("mysqli_close")) {
+		if (function_exists("mysqli_close") === False) {
+			return T('服务器不支持MySQL数据库！');
+		} else {
 			$link = @mysqli_connect($data['host'] . ":" . $data['port'], $data['login'], $data['password']);
 			if ($link) {
 				return T('连接到MySql数据库正常');
 			} else {
 				return T('无法连接到MySql数据库！');
 			}
-		} else {
-			return T('服务器不支持MySQL数据库！');
 		}
 	}
 
