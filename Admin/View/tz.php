@@ -87,7 +87,8 @@
 			} else {
 				echo @gethostbyname($_SERVER['SERVER_NAME']);
 			} ?>)&nbsp;&nbsp;你的IP地址是：<?php echo @$_SERVER['REMOTE_ADDR']; ?>">
-				<?php echo @get_current_user(); ?> - <?php echo $_SERVER['SERVER_NAME']; ?>(<?php if ('/' == DIRECTORY_SEPARATOR) {
+				<?php echo @get_current_user(); ?> - <?php echo $_SERVER['SERVER_NAME']; ?>
+				(<?php if ('/' == DIRECTORY_SEPARATOR) {
 					echo $_SERVER['SERVER_ADDR'];
 				} else {
 					echo @gethostbyname($_SERVER['SERVER_NAME']);
@@ -112,12 +113,13 @@
 		</tr>
 		<tr>
 			<td>服务器操作系统</td>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php $os = explode(" ", php_uname());
-			echo $os[0]; ?> &nbsp;内核版本：<?php if ('/' == DIRECTORY_SEPARATOR) {
-				echo $os[2];
-			} else {
-				echo $os[1];
-			} ?>">
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="<?php $os = explode(" ", php_uname());
+			    echo $os[0]; ?> &nbsp;内核版本：<?php if ('/' == DIRECTORY_SEPARATOR) {
+				    echo $os[2];
+			    } else {
+				    echo $os[1];
+			    } ?>">
 				<?php $os = explode(" ", php_uname());
 				echo $os[0]; ?> &nbsp;内核版本：<?php if ('/' == DIRECTORY_SEPARATOR) {
 					echo $os[2];
@@ -128,29 +130,33 @@
 		</tr>
 		<tr>
 			<td>服务器解译引擎</td>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php echo $_SERVER['SERVER_SOFTWARE']; ?>">
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="<?php echo $_SERVER['SERVER_SOFTWARE']; ?>">
 				<?php echo $_SERVER['SERVER_SOFTWARE']; ?>
 			</td>
 		</tr>
 		<tr>
 			<td>服务器语言</td>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php echo getenv("HTTP_ACCEPT_LANGUAGE"); ?>">
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="<?php echo getenv("HTTP_ACCEPT_LANGUAGE"); ?>">
 				<?php echo getenv("HTTP_ACCEPT_LANGUAGE"); ?>
 			</td>
 		</tr>
 		<tr>
 			<td>服务器端口</td>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php echo $_SERVER['SERVER_PORT']; ?>">
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="<?php echo $_SERVER['SERVER_PORT']; ?>">
 				<?php echo $_SERVER['SERVER_PORT']; ?>
 			</td>
 		</tr>
 		<tr>
 			<td>服务器主机名</td>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php if ('/' == DIRECTORY_SEPARATOR) {
-				echo $os[1];
-			} else {
-				echo $os[2];
-			} ?>">
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="<?php if ('/' == DIRECTORY_SEPARATOR) {
+				    echo $os[1];
+			    } else {
+				    echo $os[2];
+			    } ?>">
 				<?php if ('/' == DIRECTORY_SEPARATOR) {
 					echo $os[1];
 				} else {
@@ -167,7 +173,8 @@
 		</tr>
 		<tr>
 			<td>管理员邮箱</td>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php echo $_SERVER['SERVER_ADMIN']; ?>">
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="<?php echo $_SERVER['SERVER_ADMIN']; ?>">
 				<?php echo $_SERVER['SERVER_ADMIN']; ?>
 			</td>
 		</tr>
@@ -295,7 +302,9 @@
 					<span id="memCachedPercent"><?php echo $memCachedPercent; ?></span>
 					% | Buffers缓冲为  <span id="Buffers"><?php echo $mb; ?></span>
 					<div class="bar">
-						<div id="barmemCachedPercent" class="barli_blue" style="width:<?php echo $memCachedPercent ?>%">&nbsp;</div>
+						<div id="barmemCachedPercent" class="barli_blue" style="width:<?php echo $memCachedPercent ?>%">
+							&nbsp;
+						</div>
 					</div>
 
 					真实内存使用
@@ -306,7 +315,9 @@
 					<span id="memRealPercent"><?php echo $memRealPercent; ?></span>
 					%
 					<div class="bar_1">
-						<div id="barmemRealPercent" class="barli_1" style="width:<?php echo $memRealPercent ?>%">&nbsp;</div>
+						<div id="barmemRealPercent" class="barli_1" style="width:<?php echo $memRealPercent ?>%">
+							&nbsp;
+						</div>
 					</div>
 					<?php
 				}
@@ -323,7 +334,8 @@
 					<span id="swapPercent"><?php echo $swapPercent; ?></span>
 					%
 					<div class="bar">
-						<div id="barswapPercent" class="barli_red" style="width:<?php echo $swapPercent ?>%">&nbsp;</div>
+						<div id="barswapPercent" class="barli_red" style="width:<?php echo $swapPercent ?>%">&nbsp;
+						</div>
 					</div>
 
 					<?php
@@ -357,10 +369,14 @@
 				<?php preg_match_all("/([^\s]+):[\s]{0,}(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/", $strs[$i], $info); ?>
 				<tr>
 					<td width="13%"><?php echo $info[1][0] ?> :</td>
-					<td width="29%">入网: <font color='#CC0000'><span id="NetInput<?php echo $i ?>"><?php echo $NetInput[$i] ?></span></font></td>
-					<td width="14%">实时: <font color='#CC0000'><span id="NetInputSpeed<?php echo $i ?>">0B/s</span></font></td>
-					<td width="29%">出网: <font color='#CC0000'><span id="NetOut<?php echo $i ?>"><?php echo $NetOut[$i] ?></span></font></td>
-					<td width="14%">实时: <font color='#CC0000'><span id="NetOutSpeed<?php echo $i ?>">0B/s</span></font></td>
+					<td width="29%">入网: <font color='#CC0000'><span
+									id="NetInput<?php echo $i ?>"><?php echo $NetInput[$i] ?></span></font></td>
+					<td width="14%">实时: <font color='#CC0000'><span
+									id="NetInputSpeed<?php echo $i ?>">0B/s</span></font></td>
+					<td width="29%">出网: <font color='#CC0000'><span
+									id="NetOut<?php echo $i ?>"><?php echo $NetOut[$i] ?></span></font></td>
+					<td width="14%">实时: <font color='#CC0000'><span id="NetOutSpeed<?php echo $i ?>">0B/s</span></font>
+					</td>
 				</tr>
 			<?php endfor; ?>
 		</table>
@@ -387,7 +403,9 @@
 <div id="p5" class="cyan">
 	<table class="bordered highlight">
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PHP信息（phpinfo）">PHP信息（phpinfo）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PHP信息（phpinfo）">
+				PHP信息（phpinfo）：
+			</td>
 			<td width="50%">
 				<?php
 				$disFuns = get_cfg_var("disable_functions");
@@ -396,9 +414,12 @@
 			</td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PHP版本（php_version）">PHP版本（php_version）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PHP版本（php_version）">
+				PHP版本（php_version）：
+			</td>
 			<td>
-				<span class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php echo PHP_VERSION; ?>"><?php echo PHP_VERSION; ?></span>
+				<span class="truncate tooltipped" data-position="bottom" data-delay="50"
+					  data-tooltip="<?php echo PHP_VERSION; ?>"><?php echo PHP_VERSION; ?></span>
 			</td>
 		</tr>
 		<tr>
@@ -409,122 +430,179 @@
 			</td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="脚本占用最大内存（memory_limit）">脚本占用最大内存（memory_limit）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="脚本占用最大内存（memory_limit）">脚本占用最大内存（memory_limit）：
+			</td>
 			<td><?php echo Domain_Tz::show("memory_limit"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PHP安全模式（safe_mode）">PHP安全模式（safe_mode）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PHP安全模式（safe_mode）">
+				PHP安全模式（safe_mode）：
+			</td>
 			<td><?php echo Domain_Tz::show("safe_mode"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="POST方法提交最大限制（post_max_size）">POST方法提交最大限制（post_max_size）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="POST方法提交最大限制（post_max_size）">POST方法提交最大限制（post_max_size）：
+			</td>
 			<td><?php echo Domain_Tz::show("post_max_size"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="上传文件最大限制（upload_max_filesize）">上传文件最大限制（upload_max_filesize）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="上传文件最大限制（upload_max_filesize）">上传文件最大限制（upload_max_filesize）：
+			</td>
 			<td><?php echo Domain_Tz::show("upload_max_filesize"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="浮点型数据显示的有效位数（precision）">浮点型数据显示的有效位数（precision）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="浮点型数据显示的有效位数（precision）">浮点型数据显示的有效位数（precision）：
+			</td>
 			<td><?php echo Domain_Tz::show("precision"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="脚本超时时间（max_execution_time）">脚本超时时间（max_execution_time）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="脚本超时时间（max_execution_time）">脚本超时时间（max_execution_time）：
+			</td>
 			<td><?php echo Domain_Tz::show("max_execution_time"); ?>秒</td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="socket超时时间（default_socket_timeout）">socket超时时间（default_socket_timeout）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="socket超时时间（default_socket_timeout）">socket超时时间（default_socket_timeout）：
+			</td>
 			<td><?php echo Domain_Tz::show("default_socket_timeout"); ?>秒</td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PHP页面根目录（doc_root）">PHP页面根目录（doc_root）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PHP页面根目录（doc_root）">
+				PHP页面根目录（doc_root）：
+			</td>
 			<td><?php echo Domain_Tz::show("doc_root"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="用户根目录（user_dir）">用户根目录（user_dir）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="用户根目录（user_dir）">
+				用户根目录（user_dir）：
+			</td>
 			<td><?php echo Domain_Tz::show("user_dir"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="dl()函数（enable_dl）">dl()函数（enable_dl）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="dl()函数（enable_dl）">
+				dl()函数（enable_dl）：
+			</td>
 			<td><?php echo Domain_Tz::show("enable_dl"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="指定包含文件目录（include_path）">指定包含文件目录（include_path）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="指定包含文件目录（include_path）">指定包含文件目录（include_path）：
+			</td>
 			<td><?php echo Domain_Tz::show("include_path"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="显示错误信息（display_errors）">显示错误信息（display_errors）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="显示错误信息（display_errors）">显示错误信息（display_errors）：
+			</td>
 			<td><?php echo Domain_Tz::show("display_errors"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="自定义全局变量（register_globals）">自定义全局变量（register_globals）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="自定义全局变量（register_globals）">自定义全局变量（register_globals）：
+			</td>
 			<td><?php echo Domain_Tz::show("register_globals"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="数据反斜杠转义（magic_quotes_gpc）">数据反斜杠转义（magic_quotes_gpc）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="数据反斜杠转义（magic_quotes_gpc）">数据反斜杠转义（magic_quotes_gpc）：
+			</td>
 			<td><?php echo Domain_Tz::show("magic_quotes_gpc"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip='"&lt;?...?&gt;"短标签（short_open_tag）'>"&lt;?...?&gt;"短标签（short_open_tag）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip='"&lt;?...?&gt;"短标签（short_open_tag）'>"&lt;?...?&gt;"短标签（short_open_tag）：
+			</td>
 			<td><?php echo Domain_Tz::show("short_open_tag"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip='"&lt;% %&gt;"ASP风格标记（asp_tags）'>"&lt;% %&gt;"ASP风格标记（asp_tags）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip='"&lt;% %&gt;"ASP风格标记（asp_tags）'>"&lt;% %&gt;"ASP风格标记（asp_tags）：
+			</td>
 			<td><?php echo Domain_Tz::show("asp_tags"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="忽略重复错误信息（ignore_repeated_errors）">忽略重复错误信息（ignore_repeated_errors）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="忽略重复错误信息（ignore_repeated_errors）">忽略重复错误信息（ignore_repeated_errors）：
+			</td>
 			<td><?php echo Domain_Tz::show("ignore_repeated_errors"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="忽略重复的错误源（ignore_repeated_source）">忽略重复的错误源（ignore_repeated_source）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="忽略重复的错误源（ignore_repeated_source）">忽略重复的错误源（ignore_repeated_source）：
+			</td>
 			<td><?php echo Domain_Tz::show("ignore_repeated_source"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="报告内存泄漏（report_memleaks）">报告内存泄漏（report_memleaks）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="报告内存泄漏（report_memleaks）">报告内存泄漏（report_memleaks）：
+			</td>
 			<td><?php echo Domain_Tz::show("report_memleaks"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="自动字符串转义（magic_quotes_gpc）">自动字符串转义（magic_quotes_gpc）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="自动字符串转义（magic_quotes_gpc）">自动字符串转义（magic_quotes_gpc）：
+			</td>
 			<td><?php echo Domain_Tz::show("magic_quotes_gpc"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="外部字符串自动转义（magic_quotes_runtime）">外部字符串自动转义（magic_quotes_runtime）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="外部字符串自动转义（magic_quotes_runtime）">外部字符串自动转义（magic_quotes_runtime）：
+			</td>
 			<td><?php echo Domain_Tz::show("magic_quotes_runtime"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="打开远程文件（allow_url_fopen）">打开远程文件（allow_url_fopen）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="打开远程文件（allow_url_fopen）">打开远程文件（allow_url_fopen）：
+			</td>
 			<td><?php echo Domain_Tz::show("allow_url_fopen"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="声明argv和argc变量（register_argc_argv）">声明argv和argc变量（register_argc_argv）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="声明argv和argc变量（register_argc_argv）">声明argv和argc变量（register_argc_argv）：
+			</td>
 			<td><?php echo Domain_Tz::show("register_argc_argv"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="Cookie 支持">Cookie 支持：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="Cookie 支持">Cookie 支持：
+			</td>
 			<td><?php echo isset($_COOKIE) ? '<font color="green">√</font>' : '<font color="red">×</font>'; ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="拼写检查（ASpell Library）">拼写检查（ASpell Library）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="拼写检查（ASpell Library）">
+				拼写检查（ASpell Library）：
+			</td>
 			<td><?php echo Domain_Tz::isfun("aspell_check_raw"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="高精度数学运算（BCMath）">高精度数学运算（BCMath）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="高精度数学运算（BCMath）">
+				高精度数学运算（BCMath）：
+			</td>
 			<td><?php echo Domain_Tz::isfun("bcadd"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PREL相容语法（PCRE）">PREL相容语法（PCRE）：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PREL相容语法（PCRE）">
+				PREL相容语法（PCRE）：
+			</td>
 			<td><?php echo Domain_Tz::isfun("preg_match"); ?></td>
 		<tr>
 			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="PDF文档支持">PDF文档支持：</td>
 			<td><?php echo Domain_Tz::isfun("pdf_close"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="SNMP网络管理协议">SNMP网络管理协议：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="SNMP网络管理协议">
+				SNMP网络管理协议：
+			</td>
 			<td><?php echo Domain_Tz::isfun("snmpget"); ?></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="VMailMgr邮件处理">VMailMgr邮件处理：</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="VMailMgr邮件处理">
+				VMailMgr邮件处理：
+			</td>
 			<td><?php echo Domain_Tz::isfun("vm_adduser"); ?></td>
 		</tr>
 		<tr>
@@ -541,28 +619,16 @@
 		</tr>
 
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="默认支持函数（enable_functions）">默认支持函数（enable_functions）：</td>
-			<td><a href='<?php echo $phpSelf; ?>?act=Function' target='_blank' class='static'>查看</a></td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="默认支持函数（enable_functions）">默认支持函数（enable_functions）：
+			</td>
+			<td><a class="waves-effect waves-light btn modal-trigger" href="#fun">查看</a></td>
 		</tr>
 		<tr>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="被禁用的函数（disable_functions）">被禁用的函数（disable_functions）：</td>
-			<td><a href='#' target='_blank' class='static'>查看</a></td>
-			<!--<td>
-				<?php
-			/*				$disFuns = get_cfg_var("disable_functions");
-							if (empty($disFuns)) {
-								echo '<font color=red>×</font>';
-							} else {
-								$disFuns_array = explode(',', $disFuns);
-								foreach ($disFuns_array as $key => $value) {
-									if ($key != 0 && $key % 5 == 0) {
-										echo '<br />';
-									}
-									echo "$value&nbsp;&nbsp;";
-								}
-							}
-							*/ ?>
-			</td>-->
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="被禁用的函数（disable_functions）">被禁用的函数（disable_functions）：
+			</td>
+			<td><a class="waves-effect waves-light btn modal-trigger" href="#disfun">查看</a></td>
 		</tr>
 
 	</table>
@@ -704,7 +770,7 @@
 
 <script type="text/javascript">
 	$(document).ready(function () {
-		console.log('ready');
+		//console.log('ready');
 		getJSONData();
 	});
 
@@ -718,7 +784,7 @@
 	var InputSpeed5 =<?php echo floor($NetInputSpeed[5]) ?>;
 
 	function getJSONData() {
-		console.log('getJSONData');
+		//console.log('getJSONData');
 		setTimeout("getJSONData()", 1000);
 		Ajax({service: 'Tz.GetInfo'}, displayData)
 	}
@@ -803,3 +869,50 @@
 		InputSpeed5 = dataJSON.NetInputSpeed5;
 	}
 </script>
+
+
+<div id="fun" class="modal modal-fixed-footer">
+	<div class="modal-content">
+		<?php $arr = get_defined_functions(); ?>
+		<h4>支持函数</h4>
+		<?php foreach ($arr as $index => $item): ?>
+			<h4><?php echo $index; ?></h4>
+			<?php foreach ($item as $it): ?>
+				<p><?php echo $it; ?></p>
+			<?php endforeach; ?>
+		<?php endforeach; ?>
+	</div>
+</div>
+<div id="disfun" class="modal modal-fixed-footer">
+	<div class="modal-content">
+		<?php $disFuns = get_cfg_var("disable_functions"); ?>
+		<h4>被禁用的函数</h4>
+		<?php if (empty($disFuns)) : ?>
+			<font color=red>×</font>
+		<?php else: ?>
+			<?php $arr = explode(',', $disFuns) ?>
+			<?php foreach ($arr as $item): ?>
+				<?php if (!empty($item)) : ?>
+					<p><?php echo $item; ?></p>
+				<?php endif; ?>
+			<?php endforeach; ?>
+		<?php endif; ?>
+	</div>
+</div>
+
+<!--<td>
+				<?php
+/*				$disFuns = get_cfg_var("disable_functions");
+				if (empty($disFuns)) {
+					echo '<font color=red>×</font>';
+				} else {
+					$disFuns_array = explode(',', $disFuns);
+					foreach ($disFuns_array as $key => $value) {
+						if ($key != 0 && $key % 5 == 0) {
+							echo '<br />';
+						}
+						echo "$value&nbsp;&nbsp;";
+					}
+				}
+				*/ ?>
+			</td>-->
