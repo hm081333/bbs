@@ -66,7 +66,7 @@ class Api_User extends PhalApi_Api
 					$user_model->update($user['id'], $update);
 				}
 				//将用户名存如SESSION中
-				DI()->cookie->set('USER_TOKEN', serialize($user));
+				DI()->cookie->set(USER_TOKEN, serialize($user));
 				$_SESSION['user_id'] = $user['id'];
 				$_SESSION['user_name'] = $user['user_name'];
 				$_SESSION['user_auth'] = $user['auth'];

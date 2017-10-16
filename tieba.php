@@ -14,6 +14,14 @@ DI()->loader->addDirs('Common');
 
 DI()->view = new View_Lite('Tieba');
 
+$user_token = DI()->cookie->get(USER_TOKEN);
+if (!empty($user_token) && empty($_SESSION['user_id'])) {
+	$user = unserialize($user_token);
+	$_SESSION['user_id'] = $user['id'];
+	$_SESSION['user_name'] = $user['user_name'];
+	$_SESSION['user_auth'] = $user['auth'];
+}
+
 /*if (DI()->tool->is_weixin() && !isset($_SESSION['user_id'])) {
 	$wechat_domain = new Domain_Wechat();
 	if (isset($_GET['code'])) {

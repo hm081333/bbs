@@ -16,6 +16,14 @@ DI()->view = new View_Lite('Admin');
 
 /** ---------------- 响应接口请求 ---------------- **/
 
+$admin_token = DI()->cookie->get(ADMIN_TOKEN);
+if (!empty($admin_token) && empty($_SESSION['user_id'])) {
+	$admin = unserialize($admin_token);
+	$_SESSION['admin_id'] = $admin['id'];
+	$_SESSION['admin_name'] = $admin['user_name'];
+	$_SESSION['admin_auth'] = $admin['auth'];
+}
+
 //过滤后台未登陆的操作
 if (empty($_SESSION['admin_id']) && !empty($_GET['service']) && $_GET['service'] != 'Public.setLanguage') {
 	echo("<script>alert('" . T('未登录') . "');window.location.href='./admin.php'</script>");

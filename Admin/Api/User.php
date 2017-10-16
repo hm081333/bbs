@@ -65,13 +65,14 @@ class Api_User extends PhalApi_Api
 			} elseif (empty($this->password)) {
 				throw new PhalApi_Exception_Error(T('请输入密码'), 1);// 抛出普通错误 T标签翻译
 			}
-			$admin = $admin_model->getInfo(array('user_name' => $this->user_name), 'id, user_name, password, auth');
+			$admin = $admin_model->getInfo(array('user_name' => $this->user_name), '*');
 			if ($admin === false) {
 				throw new PhalApi_Exception_Error(T('用户名不存在'), 1);// 抛出客户端错误 T标签翻译
 			} elseif (!Domain_Common::verify($this->password, $admin['password'])) {
 				throw new PhalApi_Exception_Error(T('密码错误'), 1);// 抛出客户端错误 T标签翻译
 			} else {
 				//将用户名存如SESSION中
+				DI()->cookie->set(ADMIN_TOKEN, serialize($admin));
 				$_SESSION['admin_id'] = $admin['id'];
 				$_SESSION['admin_name'] = $admin['user_name'];
 				$_SESSION['admin_auth'] = $admin['auth'];
