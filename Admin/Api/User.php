@@ -72,7 +72,7 @@ class Api_User extends PhalApi_Api
 				throw new PhalApi_Exception_Error(T('密码错误'), 1);// 抛出客户端错误 T标签翻译
 			} else {
 				//将用户名存如SESSION中
-				DI()->cookie->set(ADMIN_TOKEN, serialize($admin));
+				DI()->cookie->set(ADMIN_TOKEN, DI()->tool->encrypt(serialize($admin)));
 				$_SESSION['admin_id'] = $admin['id'];
 				$_SESSION['admin_name'] = $admin['user_name'];
 				$_SESSION['admin_auth'] = $admin['auth'];
@@ -220,6 +220,7 @@ class Api_User extends PhalApi_Api
 		if (isset($_SESSION['admin_auth'])) {
 			unset($_SESSION['admin_auth']);
 		}
+		DI()->cookie->delete(ADMIN_TOKEN);
 		DI()->response->setMsg(T('退出登录成功'));
 		//跳转页面
 		//header("Location: ./");

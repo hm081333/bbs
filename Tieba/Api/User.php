@@ -67,7 +67,7 @@ class Api_User extends PhalApi_Api
 					$user_model->update($user['id'], $update);
 				}
 				//将用户名存如SESSION中
-				DI()->cookie->set(USER_TOKEN, serialize($user));
+				DI()->cookie->set(USER_TOKEN, DI()->tool->encrypt(serialize($user)));
 				$_SESSION['user_id'] = $user['id'];
 				$_SESSION['user_name'] = $user['user_name'];
 				$_SESSION['user_auth'] = $user['auth'];
@@ -215,6 +215,7 @@ class Api_User extends PhalApi_Api
 		if (isset($_SESSION['user_auth'])) {
 			unset($_SESSION['user_auth']);
 		}
+		DI()->cookie->delete(USER_TOKEN);
 		DI()->response->setMsg(T('退出登录成功'));
 		//跳转页面
 		//header("Location: ./");

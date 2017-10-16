@@ -17,7 +17,7 @@ DI()->view = new View_Lite('Admin');
 /** ---------------- 响应接口请求 ---------------- **/
 
 $admin_token = DI()->cookie->get(ADMIN_TOKEN);
-if (!empty($admin_token) && empty($_SESSION['user_id'])) {
+if (!empty($admin_token) && empty($_SESSION['admin_id'])) {
 	$admin = unserialize($admin_token);
 	$_SESSION['admin_id'] = $admin['id'];
 	$_SESSION['admin_name'] = $admin['user_name'];
