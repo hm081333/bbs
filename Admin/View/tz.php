@@ -250,11 +250,13 @@
 		<tr>
 			<td>CPU使用状况</td>
 			<td>
-				<?php if ('/' == DIRECTORY_SEPARATOR) {
-					echo $cpu_show . " | <a href='?service=Tz.CpuPercentage' style='color: #CC0000;'>查看图表</a>";
-				} else {
-					echo "暂时只支持Linux系统";
-				} ?>
+				<?php if ('/' == DIRECTORY_SEPARATOR) : ?>
+					<span id="cpu_show"><?php echo $cpu_show ?></span>
+					 —
+					<a href='?service=Tz.CpuPercentage' style='color: #CC0000;'>查看图表</a>
+				<?php else : ?>
+					<span>暂时只支持Linux系统</span>
+				<?php endif; ?>
 			</td>
 		</tr>
 		<tr>
@@ -770,7 +772,6 @@
 
 <script type="text/javascript">
 	$(document).ready(function () {
-		//console.log('ready');
 		getJSONData();
 	});
 
@@ -784,7 +785,6 @@
 	var InputSpeed5 =<?php echo floor($NetInputSpeed[5]) ?>;
 
 	function getJSONData() {
-		//console.log('getJSONData');
 		setTimeout("getJSONData()", 1000);
 		Ajax({service: 'Tz.GetInfo'}, displayData)
 	}
@@ -806,6 +806,7 @@
 
 	function displayData(dataJSON) {
 		dataJSON = dataJSON.data;
+		$("#cpu_show").html(dataJSON.cpu_show);
 		$("#useSpace").html(dataJSON.useSpace);
 		$("#freeSpace").html(dataJSON.freeSpace);
 		$("#hdPercent").html(dataJSON.hdPercent);
@@ -899,20 +900,3 @@
 		<?php endif; ?>
 	</div>
 </div>
-
-<!--<td>
-				<?php
-/*				$disFuns = get_cfg_var("disable_functions");
-				if (empty($disFuns)) {
-					echo '<font color=red>×</font>';
-				} else {
-					$disFuns_array = explode(',', $disFuns);
-					foreach ($disFuns_array as $key => $value) {
-						if ($key != 0 && $key % 5 == 0) {
-							echo '<br />';
-						}
-						echo "$value&nbsp;&nbsp;";
-					}
-				}
-				*/ ?>
-			</td>-->

@@ -95,7 +95,14 @@ class Api_Tz extends PhalApi_Api
 			$NetOut[$i] = Domain_Tz::formatsize($info[10][0]);
 		}
 
+		$stat1 = Domain_Tz::GetCoreInformation();
+		sleep(1);
+		$stat2 = Domain_Tz::GetCoreInformation();
+		$data = Domain_Tz::GetCpuPercentages($stat1, $stat2);
+		$cpu_show = $data['cpu0']['user'] . "%us,  " . $data['cpu0']['sys'] . "%sy,  " . $data['cpu0']['nice'] . "%ni, " . $data['cpu0']['idle'] . "%id,  " . $data['cpu0']['iowait'] . "%wa,  " . $data['cpu0']['irq'] . "%irq,  " . $data['cpu0']['softirq'] . "%softirq";
+
 		$arr = array();
+		$arr['cpu_show'] = $cpu_show;
 		$arr['useSpace'] = $du;
 		$arr['freeSpace'] = $df;
 		$arr['hdPercent'] = $hdPercent;
