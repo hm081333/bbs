@@ -167,6 +167,19 @@ class Api_Tz extends PhalApi_Api
 		DI()->view->show('cpu_percentage');
 	}
 
+	public function getCpuPercentage()
+	{
+		$stat1 = Domain_Tz::GetCoreInformation();
+		sleep(1);
+		$stat2 = Domain_Tz::GetCoreInformation();
+		$data = Domain_Tz::GetCpuPercentages1($stat1, $stat2);
+		if ($data) {
+			return $data;
+		} else {
+			throw new PhalApi_Exception_Error('获取cpu使用率失败');
+		}
+	}
+
 	public function test()
 	{
 		DI()->view->show('tz_test');

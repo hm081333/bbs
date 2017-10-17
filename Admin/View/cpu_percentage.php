@@ -3,7 +3,7 @@
 	<?php if ($i % 2 == 0) : ?>
 		<div style="width: 100%">
 	<?php endif; ?>
-		<div id="<?php echo $index; ?>" style="display: inline-block; width: 50%;"></div>
+	<div id="<?php echo $index; ?>" style="display: inline-block; width: 50%;"></div>
 	<?php $i += 1; ?>
 	<?php if ($i % 2 == 0) : ?>
 		</div>
@@ -15,8 +15,10 @@
 		$('#<?php echo $index; ?>').height($('#<?php echo $index; ?>').width());
 		<?php endforeach; ?>
 		<?php foreach ($data as $index => $cpu): ?>
-		var <?php echo $index; ?> = echarts.init(document.getElementById('<?php echo $index; ?>'));
-		var <?php echo $index.'option'; ?> = {
+		var <?php echo $index; ?> =
+		echarts.init(document.getElementById('<?php echo $index; ?>'));
+		<?php echo $index; ?>.
+		setOption({
 			title: {
 				text: '<?php echo $index; ?>',
 				x: 'center',
@@ -62,8 +64,43 @@
 					]
 				}
 			]
-		};
-		<?php echo $index; ?>.setOption(<?php echo $index.'option'; ?>);
+		});
 		<?php endforeach; ?>
+
+		getJSONData();
+
+		function getJSONData() {
+			setTimeout(function () {
+				getJSONData()
+			}, 1000);
+			Ajax({service: 'Tz.GetCpuPercentage'}, function (d) {
+				if (d.ret == 200) {
+					result = d.data;
+					console.log(result);
+					<?php foreach ($data as $index => $cpu): ?>
+					var datas = [];
+					console.log(result['<?php echo $index; ?>']);
+					for (var key in result['<?php echo $index; ?>']) {
+						var val = result['<?php echo $index; ?>'][key];
+						var da = {};
+						da.value = val;
+						da.name = key;
+						datas.push(da);
+					}
+					console.log(datas);
+					<?php echo $index; ?>.
+					setOption({
+						series: [{
+							name: '<?php echo $index; ?>',
+							data: datas
+						}]
+					});
+					<?php endforeach; ?>
+				}
+			})
+		}
+
 	});
+
+
 </script>

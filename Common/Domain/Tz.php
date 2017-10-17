@@ -261,6 +261,29 @@ class Domain_Tz
 		return $cpus;
 	}
 
+	public static function GetCpuPercentages1($stat1, $stat2)
+	{
+		if (count($stat1) !== count($stat2)) {
+			return;
+		}
+		$cpus = array();
+		for ($i = 0, $l = count($stat1); $i < $l; $i++) {
+			$dif = array();
+			$dif['User'] = $stat2[$i]['user'] - $stat1[$i]['user'];
+			$dif['Nice'] = $stat2[$i]['nice'] - $stat1[$i]['nice'];
+			$dif['Sys'] = $stat2[$i]['sys'] - $stat1[$i]['sys'];
+			$dif['Idle'] = $stat2[$i]['idle'] - $stat1[$i]['idle'];
+			$dif['Iowait'] = $stat2[$i]['iowait'] - $stat1[$i]['iowait'];
+			$dif['Irq'] = $stat2[$i]['irq'] - $stat1[$i]['irq'];
+			$dif['Softirq'] = $stat2[$i]['softirq'] - $stat1[$i]['softirq'];
+			$total = array_sum($dif);
+			$cpu = array();
+			foreach ($dif as $x => $y) $cpu[$x] = round($y / $total * 100, 2);
+			$cpus['cpu' . $i] = $cpu;
+		}
+		return $cpus;
+	}
+
 	/**
 	 * 单位转换
 	 * @param $size
