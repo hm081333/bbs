@@ -18,7 +18,7 @@ DI()->view = new View_Lite('Admin');
 
 $admin_token = DI()->cookie->get(ADMIN_TOKEN);
 if (!empty($admin_token) && empty($_SESSION['admin_id'])) {
-	$admin = DI()->tool->decrypt(unserialize($admin_token));
+	$admin = unserialize(DI()->tool->decrypt($admin_token));
 	if ($admin) {
 		$_SESSION['admin_id'] = $admin['id'];
 		$_SESSION['admin_name'] = $admin['user_name'];
