@@ -19,9 +19,11 @@ DI()->view = new View_Lite('Admin');
 $admin_token = DI()->cookie->get(ADMIN_TOKEN);
 if (!empty($admin_token) && empty($_SESSION['admin_id'])) {
 	$admin = DI()->tool->decrypt(unserialize($admin_token));
-	$_SESSION['admin_id'] = $admin['id'];
-	$_SESSION['admin_name'] = $admin['user_name'];
-	$_SESSION['admin_auth'] = $admin['auth'];
+	if ($admin) {
+		$_SESSION['admin_id'] = $admin['id'];
+		$_SESSION['admin_name'] = $admin['user_name'];
+		$_SESSION['admin_auth'] = $admin['auth'];
+	}
 }
 
 //过滤后台未登陆的操作
