@@ -15,6 +15,7 @@ class Api_User extends PhalApi_Api
 				'action' => array('name' => 'action', 'type' => 'string', 'default' => 'view', 'require' => true, 'desc' => '操作'),
 				'user_name' => array('name' => 'user_name', 'type' => 'string', 'require' => false, 'desc' => '用户名'),
 				'password' => array('name' => 'password', 'type' => 'string', 'require' => false, 'desc' => '用户密码'),
+				'remember' => array('name' => 'remember', 'type' => 'string', 'default' => '', 'require' => false, 'desc' => '记住我'),
 			),
 			'forget' => array(
 				'action' => array('name' => 'action', 'type' => 'string', 'default' => 'view', 'require' => true, 'desc' => '操作'),
@@ -67,7 +68,9 @@ class Api_User extends PhalApi_Api
 					$user_model->update($user['id'], $update);
 				}
 				//将用户名存如SESSION中
-				DI()->cookie->set(USER_TOKEN, DI()->tool->encrypt(serialize($user)));
+				if ($this->remember == 'on') {
+					DI()->cookie->set(USER_TOKEN, DI()->tool->encrypt(serialize($user)));
+				}
 				$_SESSION['user_id'] = $user['id'];
 				$_SESSION['user_name'] = $user['user_name'];
 				$_SESSION['user_auth'] = $user['auth'];

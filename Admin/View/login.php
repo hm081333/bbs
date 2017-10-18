@@ -16,7 +16,6 @@
 					<p class="msg right"><i class="material-icons">warning</i><?php echo T('请输入用户名') ?></p>
 				</div>
 			</div>
-
 			<div class="col s12">
 				<div class="input-field">
 					<i class="material-icons prefix">vpn_key</i>
@@ -26,6 +25,12 @@
 				<div>
 					<p class="msg right"><i class="material-icons">warning</i><?php echo T('请输入密码') ?></p>
 				</div>
+			</div>
+			<div class="col s12">
+				<p style="text-align: center;">
+					<input type="checkbox" id="remember" name="remember"/>
+					<label for="remember">记住我</label>
+				</p>
 			</div>
 			<div class="col s12 center">
 				<button type="submit" name="submit" class="btn waves-effect waves-light"><?php echo T('登录') ?></button>

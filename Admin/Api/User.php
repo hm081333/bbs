@@ -14,6 +14,7 @@ class Api_User extends PhalApi_Api
 				'action' => array('name' => 'action', 'type' => 'string', 'default' => 'view', 'require' => true, 'desc' => '操作'),
 				'user_name' => array('name' => 'user_name', 'type' => 'string', 'require' => true, 'desc' => '用户名'),
 				'password' => array('name' => 'password', 'type' => 'string', 'require' => true, 'desc' => '用户密码'),
+				'remember' => array('name' => 'remember', 'type' => 'string', 'default' => '', 'require' => false, 'desc' => '记住我'),
 			),
 			'register' => array(
 				'action' => array('name' => 'action', 'type' => 'string', 'default' => 'view', 'require' => true, 'desc' => '操作'),
@@ -72,7 +73,9 @@ class Api_User extends PhalApi_Api
 				throw new PhalApi_Exception_Error(T('密码错误'), 1);// 抛出客户端错误 T标签翻译
 			} else {
 				//将用户名存如SESSION中
-				DI()->cookie->set(ADMIN_TOKEN, DI()->tool->encrypt(serialize($admin)));
+				if ($this->remember == 'on') {
+					DI()->cookie->set(ADMIN_TOKEN, DI()->tool->encrypt(serialize($admin)));
+				}
 				$_SESSION['admin_id'] = $admin['id'];
 				$_SESSION['admin_name'] = $admin['user_name'];
 				$_SESSION['admin_auth'] = $admin['auth'];

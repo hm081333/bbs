@@ -26,6 +26,12 @@
 					<p class="msg right"><i class="material-icons">warning</i><?php echo T('请输入密码'); ?></p>
 				</div>
 			</div>
+			<div class="col s12">
+				<p style="text-align: center;">
+					<input type="checkbox" id="remember" name="remember"/>
+					<label for="remember">记住我</label>
+				</p>
+			</div>
 			<div class="col s12 center">
 				<button type="submit" name="submit" class="btn waves-effect waves-light"><?php echo T('登录') ?></button>
 				<button type="reset" class="btn waves-effect waves-light">清空</button>
@@ -33,18 +39,17 @@
 		</form>
 		<div class="col s12 center">
 			<!--<button onclick="location.href='?service=User.google_auth_login'" class="btn waves-effect waves-light">--><?php //echo T('忘记密码') ?><!--</button>-->
-			<a class="btn waves-effect waves-light" href="#find_password">找回密码</a>
+			<button data-target="find_password" class="btn waves-effect waves-light modal-trigger">找回密码</button>
 		</div>
 </fieldset>
 
-<!-- Modal Structure -->
 <div id="find_password" class="modal center">
 	<div class="modal-content">
 		<h4>找回密码</h4>
 		<p>找回途径</p>
 	</div>
-	<div class="modal-footer">
-		<a onclick="location.href='?service=User.forget&type=0'" style="float: none !important;" class="modal-action modal-close btn waves-effect waves-light">谷歌身份验证器</a>
+	<div class="modal-footer" style="text-align: center;">
+		<a onclick="location.href='?service=User.forget&type=0'" class="modal-action modal-close btn waves-effect waves-light">谷歌身份验证器</a>
 		<!--<a onclick="location.href='?service=User.forget&type=1'" style="float: none !important;" class="modal-action modal-close btn waves-effect waves-light">手机短信找回</a>-->
 		<!--<a onclick="location.href='?service=User.forget&type=2'" style="float: none !important;" class="modal-action modal-close btn waves-effect waves-light">邮件找回</a>-->
 	</div>
