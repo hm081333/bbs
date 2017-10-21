@@ -46,6 +46,11 @@ class Api_Tieba extends PhalApi_Api
 		DI()->view->show('add_bduss');
 	}
 
+	public function getBduss()
+	{
+		DI()->view->show('get_bduss');
+	}
+
 	public function addBdussAC()
 	{
 		$user_id = $_SESSION['user_id'];
