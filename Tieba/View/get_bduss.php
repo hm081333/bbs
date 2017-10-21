@@ -19,7 +19,7 @@
 					<div id="load" class="alert alert-info" style="display:none;"></div>
 				</div>
 				<div id="login" class="row" style="border: 1px solid #ddd; margin-bottom: 0;">
-					<form class="col s12">
+					<form class="col s12" onsubmit="return false;">
 						<div class="row">
 							<div class="input-field col s12">
 								<input id="user" name="user" type="text" class="validate"/>
@@ -101,7 +101,7 @@
 					</div>
 				</div>
 				<div id="login" class="row" style="border: 1px solid #ddd; margin-bottom: 0;">
-					<form class="col s12">
+					<form class="col s12" onsubmit="return false;">
 						<div class="row">
 							<div class="input-field col s12">
 								<input id="phone" name="phone" type="text" class="validate"/>

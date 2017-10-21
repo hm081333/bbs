@@ -1,5 +1,5 @@
-	<h3 class="center"><?php echo T('管理课程分类'); ?></h3>
-	<fieldset>
+<h3 class="center"><?php echo T('管理课程分类'); ?></h3>
+<fieldset>
 	<legend><?php echo T('管理课程'); ?></legend>
 	<table>
 		<thead>
@@ -11,16 +11,17 @@
 		<tbody>
 		<?php foreach ($rows as $key => $row) : ?>
 			<tr>
-				<form>
-					<td>
-						<input id="name<?php echo $row['id']; ?>" name="name<?php echo $row['id']; ?>" type="text" value="<?php echo T($row['name']); ?>">
-					</td>
-					<td>
-						<input id="tips<?php echo $row['id']; ?>" name="tips<?php echo $row['id']; ?>" type="text" value="<?php echo T($row['tips']); ?>">
-					</td>
-				</form>
 				<td>
-					<button onclick="update_Class(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light"><i class="material-icons">edit</i></button>
+					<input id="name<?php echo $row['id']; ?>" name="name<?php echo $row['id']; ?>" type="text"
+						   value="<?php echo T($row['name']); ?>">
+				</td>
+				<td>
+					<input id="tips<?php echo $row['id']; ?>" name="tips<?php echo $row['id']; ?>" type="text"
+						   value="<?php echo T($row['tips']); ?>">
+				</td>
+				<td>
+					<button onclick="update_Class(<?php echo $row['id']; ?>)"
+							class="btn-floating waves-effect waves-light"><i class="material-icons">edit</i></button>
 
 					<button onclick="delete_Class(<?php echo $row['id']; ?>)"
 							class="btn-floating waves-effect waves-light"><i class="material-icons">delete</i>
