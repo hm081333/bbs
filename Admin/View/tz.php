@@ -80,19 +80,33 @@
 <div id="p1" class="blue">
 	<table class="bordered highlight">
 		<tr>
-			<td width="35%">服务器域名<br/>IP地址</td>
+			<td width="35%">服务器域名</td>
 			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="
-				<?php echo @get_current_user(); ?> - <?php echo $_SERVER['SERVER_NAME']; ?>(<?php if ('/' == DIRECTORY_SEPARATOR) {
+				<?php echo $_SERVER['SERVER_NAME']; ?>(<?php if ('/' == DIRECTORY_SEPARATOR) {
 				echo $_SERVER['SERVER_ADDR'];
 			} else {
 				echo @gethostbyname($_SERVER['SERVER_NAME']);
-			} ?>)&nbsp;&nbsp;你的IP地址是：<?php echo @$_SERVER['REMOTE_ADDR']; ?>">
-				<?php echo @get_current_user(); ?> - <?php echo $_SERVER['SERVER_NAME']; ?>
+			} ?>)">
+				<?php echo $_SERVER['SERVER_NAME']; ?>
 				(<?php if ('/' == DIRECTORY_SEPARATOR) {
 					echo $_SERVER['SERVER_ADDR'];
 				} else {
 					echo @gethostbyname($_SERVER['SERVER_NAME']);
-				} ?>)&nbsp;&nbsp;你的IP地址是：<?php echo @$_SERVER['REMOTE_ADDR']; ?>
+				} ?>)
+			</td>
+		</tr>
+		<tr>
+			<td width="35%">服务器IP地址</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="<?php echo @$_SERVER['REMOTE_ADDR']; ?>">
+				<?php echo @$_SERVER['REMOTE_ADDR']; ?>
+			</td>
+		</tr>
+		<tr>
+			<td width="35%">服务器用户名</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="<?php echo @get_current_user(); ?>">
+				<?php echo @get_current_user(); ?>
 			</td>
 		</tr>
 		<tr>
@@ -109,6 +123,15 @@
 				} else {
 					echo @php_uname();
 				}; ?>
+			</td>
+		</tr>
+		<tr>
+			<td>服务器主机名</td>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
+				data-tooltip="<?php $os = explode(" ", php_uname());
+			    echo $os[1]; ?>">
+				<?php $os = explode(" ", php_uname());
+				echo $os[1]; ?>
 			</td>
 		</tr>
 		<tr>
@@ -252,7 +275,7 @@
 			<td>
 				<?php if ('/' == DIRECTORY_SEPARATOR) : ?>
 					<span id="cpu_show"><?php echo $cpu_show ?></span>
-					 —
+					—
 					<a href='?service=Tz.CpuPercentage' style='color: #CC0000;'>查看图表</a>
 				<?php else : ?>
 					<span>暂时只支持Linux系统</span>
