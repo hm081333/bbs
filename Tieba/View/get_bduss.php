@@ -7,7 +7,7 @@
 				<li class="tab col s3"><a href="#login1">普通登录</a></li>
 				<li class="tab col s3"><a href="#login2">扫码登录</a></li>
 				<li class="tab col s3"><a href="#login3">短信验证码登录</a></li>
-				<li class="tab col s3"><a href="#login4">第三方登录</a></li>
+				<!--<li class="tab col s3"><a href="#login4">第三方登录</a></li>-->
 			</ul>
 
 			<div id="login1" class="col s12">
@@ -24,13 +24,15 @@
 					<div class="col s12">
 						<div class="row">
 							<div class="input-field col s12">
-								<input id="user" name="user" type="text" value="hm081333" class="validate"/>
+								<input id="user" name="user" type="text" value="" class="validate"
+									   onkeydown="if(event.keyCode==13){submit.click()}"/>
 								<label for="user">帐号</label>
 							</div>
 						</div>
 						<div class="row">
 							<div class="input-field col s12">
-								<input id="pwd" name="pwd" type="password" value="lyihe110" class="validate"/>
+								<input id="pwd" name="pwd" type="password" value="" class="validate"
+									   onkeydown="if(event.keyCode==13){submit.click()}"/>
 								<label for="pwd">密码</label>
 							</div>
 						</div>
@@ -39,7 +41,8 @@
 								<div id="codeimg"></div>
 							</div>
 							<div class="input-field col s12">
-								<input id="code" name="code" type="text" class="validate"/>
+								<input id="code" name="code" type="text" class="validate"
+									   onkeydown="if(event.keyCode==13){submit.click()}"/>
 								<label for="code">输入验证码</label>
 							</div>
 						</div>
@@ -53,7 +56,8 @@
 					<div class="col s12">
 						<div class="row">
 							<div class="input-field col s12" style="display: inline-flex;">
-								<input id="smscode" name="smscode" type="text" class="validate"/>
+								<input id="smscode" name="smscode" type="text" class="validate"
+									   onkeydown="if(event.keyCode==13){submit.click()}"/>
 								<button type="button" style="width: 13rem;" id="sendcode"
 										class="btn waves-effect waves-light right">发送验证码
 								</button>
@@ -105,13 +109,15 @@
 					<form class="col s12" onsubmit="return false;">
 						<div class="row">
 							<div class="input-field col s12">
-								<input id="phone" name="phone" type="text" class="validate"/>
+								<input id="phone" name="phone" type="text" class="validate"
+									   onkeydown="if(event.keyCode==13){submit.click()}"/>
 								<label for="phone">手机号</label>
 							</div>
 						</div>
 						<div class="row">
-							<div class="input-field col s12" style="display: none;/*display: inline-flex;*/">
-								<input id="smscode" name="smscode" type="text" class="validate"/>
+							<div class="input-field col s12" id="sms" style="display: none;/*display: inline-flex;*/">
+								<input id="smscode" name="smscode" type="text" class="validate"
+									   onkeydown="if(event.keyCode==13){submit.click()}"/>
 								<button type="button" style="width: 13rem;" id="sendcode"
 										class="btn waves-effect waves-light right">发送验证码
 								</button>
@@ -120,22 +126,24 @@
 						</div>
 						<div class="row code" style="display:none;">
 							<div class="input-field col s12 center">
-								<div id="codeimg">1234</div>
+								<div id="codeimg">
+								</div>
 							</div>
 							<div class="input-field col s12">
-								<input id="code" name="code" type="text" class="validate"/>
+								<input id="code" name="code" type="text" class="validate"
+									   onkeydown="if(event.keyCode==13){submit.click()}"/>
 								<label for="code">输入验证码</label>
 							</div>
 						</div>
 						<div class="col s12 center">
-							<button style="width: 100%;" type="submit" name="submit"
+							<button style="width: 100%;" type="submit" id="submit"
 									class="btn waves-effect waves-light"><?php echo T('提交') ?></button>
 						</div>
 					</form>
 				</div>
 			</div>
 
-			<div id="login4" class="col s12">
+			<!--<div id="login4" class="col s12">
 				<div class="row" style="margin-bottom: 0;">
 					<div class="col s12 center" style="border: 1px solid #ddd;">
 						<img src="https://m.baidu.com/static/index/plus/plus_logo.png"
@@ -177,7 +185,7 @@
 								</div>
 								<div class="col s12 center">
 									<button style="width: 100%;" type="submit" name="submit"
-											class="btn waves-effect waves-light"><?php echo T('提交') ?></button>
+											class="btn waves-effect waves-light"><?php /*echo T('提交') */ ?></button>
 								</div>
 							</form>
 						</div>
@@ -195,7 +203,7 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</div>-->
 
 		</div>
 </fieldset>
@@ -367,7 +375,6 @@
 	}
 
 	function showresult(arr, elementId) {
-		console.log($(elementId + ' #load'));
 		$(elementId + ' #load').html('<div class="alert alert-success">登录成功！' + decodeURIComponent(arr.displayname) + '</div><div class="input-group"><span class="input-group-addon">用户UID</span><input id="uid" value="' + arr.uid + '" class="form-control" /></div><br/><div class="input-group"><span class="input-group-addon">用户名</span><input id="user" value="' + arr.user + '" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">BDUSS</span><input id="bduss" value="' + arr.bduss + '" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">PTOKEN</span><input id="ptoken" value="' + arr.ptoken + '" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">STOKEN</span><input id="stoken" value="' + arr.stoken + '" class="form-control"/></div>');
 	}
 
@@ -419,6 +426,96 @@
 			}
 		});
 	}
+
+	/*手机号登陆*/
+	function loginByPhone(phone, smsvc, elementId) {
+		$(elementId + ' #load').html('正在登录，请稍等...');
+		Ajax({'service': 'Tieba.Login3', 'phone': phone, 'smsvc': smsvc, 'r': Math.random(1)}, function (d) {
+			if (d.ret == 200) {
+				var d = d.data;
+				if (d.code == 0) {
+					$(elementId + ' #login').hide();
+					$(elementId + ' .code').hide();
+					$(elementId + ' #submit').hide();
+					$(elementId + ' #sms').hide();
+					showresult(d, elementId);
+				} else {
+					$(elementId + ' #load').html(d.msg + " (" + d.code + ")");
+					$(elementId + ' .code').hide();
+					$(elementId + ' #login').show();
+				}
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		});
+	}
+
+	function sendsms(phone, vcode, vcodestr, vcodesign, elementId) {
+		vcode = vcode || null;
+		vcodestr = vcodestr || null;
+		vcodesign = vcodesign || null;
+		$(elementId + ' #load').html('正在发送验证码...');
+		Ajax({
+			'service': 'Tieba.SendSms', 'phone': phone, 'vcode': vcode, 'vcodestr': vcodestr, 'vcodesign': vcodesign,
+			'r': Math.random(1)
+		}, function (d) {
+			if (d.ret == 200) {
+				var d = d.data;
+				if (d.code == 0) {
+					$(elementId + ' .code').hide();
+					$(elementId + ' #sms').show();
+					$(elementId + ' #sms').css('display', 'inline-flex');
+					$(elementId + ' #submit').attr('do', 'smscode');
+					$(elementId + ' #smscode').focus();
+					$(elementId + ' #load').html('请输入短信验证码');
+					alert('已发送验证码到 ' + phone);
+				} else if (d.code == 50020) {
+					$(elementId + ' #load').html(d.msg);
+					$(elementId + ' #codeimg').attr('vcodesign', d.vcodesign);
+					$(elementId + ' #sms').hide();
+					$(elementId + ' #submit').attr('do', 'code');
+					getvc(d.vcodestr, elementId);
+				} else if (d.code == 500002 || d.code == 500001) {
+					$(elementId + ' #load').html('请输入验证码');
+					$(elementId + ' #submit').attr('do', 'code');
+					alert(d.msg);
+				} else if (d.code == 50014) {
+					$(elementId + ' #load').html('提示：60秒内只能发送一次验证码，否则会提示频繁');
+					$(elementId + ' .code').hide();
+					alert(d.msg);
+				} else {
+					$(elementId + ' .code').hide();
+					alert(d.msg);
+				}
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		});
+	}
+
+	function getphone(phone, elementId) {
+		$(elementId + ' #load').html('正在检测手机号是否存在...');
+		Ajax({'service': 'Tieba.GetPhone', 'phone': phone, 'r': Math.random(1)}, function (d) {
+			if (d.ret == 200) {
+				var d = d.data;
+				if (d.code == 0) {
+					sendsms(phone, '', '', '', elementId);
+				} else if (d.code == 3) {
+					$(elementId + ' #load').html('');
+					$(elementId + ' .code').hide();
+					$(elementId + ' #submit').attr('do', 'submit');
+					alert('该手机号不存在，请重新输入！');
+				} else {
+					$(elementId + ' #load').html(d.msg + " (" + d.code + ")");
+					$(elementId + ' #submit').attr('do', 'submit');
+					$(elementId + ' .code').hide();
+				}
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		});
+	}
+
 
 	$(document).ready(function () {
 		$('ul.tabs').tabs({
@@ -478,5 +575,55 @@
 		$('#login2 #submit').click(function () {
 			qrlogin();
 		});
+
+		/*手机号登陆*/
+		$('#login3 #submit').click(function () {
+			var self = $(this);
+			var elementId = '#login3';
+			var phone = trim($('#login3 #phone').val()),
+				smscode = trim($('#login3 #smscode').val());
+			if (phone == '') {
+				alert("手机号不能为空！");
+				return false;
+			}
+			$('#login3 #load').show();
+			self.addClass('disabled');
+			if (self.attr('do') == 'smscode') {
+				if (smscode == '') {
+					alert("验证码不能为空！");
+					return false;
+				}
+				loginByPhone(phone, smscode, elementId);
+			} else if (self.attr('do') == 'code') {
+				if (code == '') {
+					alert("验证码不能为空！");
+					return false;
+				}
+				var code = trim($('#login3 #code').val()),
+					vcodestr = $('#login3 #codeimg').attr('vcodestr'),
+					vcodesign = $('#login3 #codeimg').attr('vcodesign');
+				sendsms(phone, code, vcodestr, vcodesign, elementId);
+			} else {
+				getphone(phone, elementId);
+			}
+			self.removeClass('disabled');
+		});
+		$('#login3 #sendcode').click(function () {
+			var self = $(this);
+			var elementId = '#login3';
+			var phone = trim($('#login3 #phone').val());
+			if (phone == '') {
+				alert("手机号不能为空！");
+				return false;
+			}
+			$('#login3 #load').show();
+			self.addClass('disabled');
+			var code = trim($('#login3 #code').val()),
+				vcodestr = $('#login3 #codeimg').attr('vcodestr'),
+				vcodesign = $('#login3 #codeimg').attr('vcodesign');
+			sendsms(phone, code, vcodestr, vcodesign, elementId);
+			self.removeClass('disabled');
+		});
+
 	});
 </script>

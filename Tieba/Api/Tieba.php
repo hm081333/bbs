@@ -69,16 +69,56 @@ class Api_Tieba extends PhalApi_Api
 			'getQRCode' => array(
 				'r' => array('name' => 'r', 'type' => 'string', 'require' => true, 'desc' => '未知'),
 			),
-			'qRLogin' => array(
-				'sign' => array('name' => 'sign', 'type' => 'string', 'require' => true, 'desc' => '未知'),
-				'r' => array('name' => 'r', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+			'getPhone' => array(
+				'phone' => array('name' => 'phone', 'type' => 'string', 'require' => true, 'desc' => '手机号'),
+			),
+			'sendSms' => array(
+				'phone' => array('name' => 'phone', 'type' => 'string', 'require' => true, 'desc' => '手机号'),
+				'vcode' => array('name' => 'vcode', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+				'vcodestr' => array('name' => 'vcodestr', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+				'vcodesign' => array('name' => 'vcodesign', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+			),
+			'login3' => array(
+				'phone' => array('name' => 'phone', 'type' => 'string', 'require' => true, 'desc' => '手机号'),
+				'smsvc' => array('name' => 'smsvc', 'type' => 'string', 'require' => true, 'desc' => '未知'),
 			),
 		);
 	}
 
+	public function login3()
+	{
+		$domain = new Domain_BaiDuLogin();
+		$result = $domain->login3($this->phone, $this->smsvc);
+		if ($result) {
+			return $result;
+		}
+		throw new PhalApi_Exception_Error(T('获取二维码失败'));
+	}
+
+	public function sendSms()
+	{
+		$domain = new Domain_BaiDuLogin();
+		$result = $domain->sendSms($this->phone, $this->vcode, $this->vcodestr, $this->vcodesign);
+		if ($result) {
+			return $result;
+		}
+		throw new PhalApi_Exception_Error(T('获取二维码失败'));
+	}
+
+	public function getPhone()
+	{
+		$domain = new Domain_BaiDuLogin();
+		$result = $domain->getPhone($this->phone);
+		if ($result) {
+			return $result;
+		}
+		throw new PhalApi_Exception_Error(T('获取二维码失败'));
+	}
+
 	public function getQRCode()
 	{
-		$result = Domain_Tieba::getQRCode();
+		$domain = new Domain_BaiDuLogin();
+		$result = $domain->getQRCode();
 		if ($result) {
 			return $result;
 		}
@@ -87,7 +127,8 @@ class Api_Tieba extends PhalApi_Api
 
 	public function qRLogin()
 	{
-		$result = Domain_Tieba::qRLogin($this->sign);
+		$domain = new Domain_BaiDuLogin();
+		$result = $domain->qRLogin($this->sign);
 		if ($result) {
 			return $result;
 		}
@@ -96,7 +137,8 @@ class Api_Tieba extends PhalApi_Api
 
 	public function checkVC()
 	{
-		$result = Domain_Tieba::checkVC($this->user);
+		$domain = new Domain_BaiDuLogin();
+		$result = $domain->checkVC($this->user);
 		if ($result) {
 			return $result;
 		}
@@ -105,7 +147,8 @@ class Api_Tieba extends PhalApi_Api
 
 	public function sendCode()
 	{
-		$result = Domain_Tieba::sendCode($this->type, $this->lstr, $this->ltoken);
+		$domain = new Domain_BaiDuLogin();
+		$result = $domain->sendCode($this->type, $this->lstr, $this->ltoken);
 		if ($result) {
 			return $result;
 		}
@@ -116,13 +159,15 @@ class Api_Tieba extends PhalApi_Api
 	{
 		//直接输出图片
 		header('content-type:image/jpeg');
-		echo Domain_Tieba::getVCPic($this->vcodestr);
+		$domain = new Domain_BaiDuLogin();
+		echo $domain->getVCPic($this->vcodestr);
 		exit();
 	}
 
 	public function time()
 	{
-		$result = Domain_Tieba::serverTime();
+		$domain = new Domain_BaiDuLogin();
+		$result = $domain->serverTime();
 		if ($result) {
 			return $result;
 		}
@@ -131,7 +176,8 @@ class Api_Tieba extends PhalApi_Api
 
 	public function login()
 	{
-		$result = Domain_Tieba::login($this->time, $this->user, $this->pwd, $this->p, $this->vcode, $this->vcodestr);
+		$domain = new Domain_BaiDuLogin();
+		$result = $domain->login($this->time, $this->user, $this->pwd, $this->p, $this->vcode, $this->vcodestr);
 		if ($result) {
 			return $result;
 		}
@@ -140,7 +186,8 @@ class Api_Tieba extends PhalApi_Api
 
 	public function login2()
 	{
-		$result = Domain_Tieba::login2($this->type, $this->lstr, $this->ltoken, $this->vcode);
+		$domain = new Domain_BaiDuLogin();
+		$result = $domain->login2($this->type, $this->lstr, $this->ltoken, $this->vcode);
 		if ($result) {
 			return $result;
 		}
