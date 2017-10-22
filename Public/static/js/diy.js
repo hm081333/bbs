@@ -71,6 +71,7 @@ function preview(file) {
 	}
 }
 
+
 function SuccessMsg(data, CallBack) {
 	var msg = data.msg || data || '';
 	var back = data.back || false;

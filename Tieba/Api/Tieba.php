@@ -38,8 +38,90 @@ class Api_Tieba extends PhalApi_Api
 			'deleteBaiduId' => array(
 				'baidu_id' => array('name' => 'baidu_id', 'type' => 'int', 'require' => true, 'desc' => 'baiduid的ID--删除该贴吧用户'),
 			),
+			'checkVC' => array(
+				'user' => array('name' => 'user', 'type' => 'string', 'require' => true, 'desc' => '用户名'),
+			),
+			'login' => array(
+				'time' => array('name' => 'time', 'type' => 'string', 'require' => true, 'desc' => 'token'),
+				'user' => array('name' => 'user', 'type' => 'string', 'require' => true, 'desc' => '用户名'),
+				'pwd' => array('name' => 'pwd', 'type' => 'string', 'require' => true, 'desc' => '密码'),
+				'p' => array('name' => 'p', 'type' => 'string', 'require' => true, 'desc' => '加密'),
+				'vcode' => array('name' => 'vcode', 'type' => 'string', 'require' => true, 'desc' => '验证码'),
+				'vcodestr' => array('name' => 'vcodestr', 'type' => 'string', 'require' => true, 'desc' => '验证码'),
+			),
+			'getVCPic' => array(
+				'vcodestr' => array('name' => 'vcodestr', 'type' => 'string', 'require' => true, 'desc' => '拉取验证码'),
+				'r' => array('name' => 'r', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+			),
+			'sendCode' => array(
+				'type' => array('name' => 'type', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+				'lstr' => array('name' => 'lstr', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+				'ltoken' => array('name' => 'ltoken', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+				'r' => array('name' => 'r', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+			),
+			'login2' => array(
+				'type' => array('name' => 'type', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+				'lstr' => array('name' => 'lstr', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+				'ltoken' => array('name' => 'ltoken', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+				'vcode' => array('name' => 'vcode', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+				'r' => array('name' => 'r', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+			),
 		);
 	}
+
+	public function checkVC()
+	{
+		$result = Domain_Tieba::checkVC($this->user);
+		if ($result) {
+			return $result;
+		}
+		throw new PhalApi_Exception_Error(T('登陆失败'));
+	}
+
+	public function sendCode()
+	{
+		$result = Domain_Tieba::sendCode($this->type, $this->lstr, $this->ltoken);
+		if ($result) {
+			return $result;
+		}
+		throw new PhalApi_Exception_Error(T('发送失败'));
+	}
+
+	public function getVCPic()
+	{
+		//直接输出图片
+		header('content-type:image/jpeg');
+		echo Domain_Tieba::getVCPic($this->vcodestr);
+		exit();
+	}
+
+	public function time()
+	{
+		$result = Domain_Tieba::serverTime();
+		if ($result) {
+			return $result;
+		}
+		throw new PhalApi_Exception_Error(T('获取Token失败'));
+	}
+
+	public function login()
+	{
+		$result = Domain_Tieba::login($this->time, $this->user, $this->pwd, $this->p, $this->vcode, $this->vcodestr);
+		if ($result) {
+			return $result;
+		}
+		throw new PhalApi_Exception_Error(T('登陆失败'));
+	}
+
+	public function login2()
+	{
+		$result = Domain_Tieba::login2($this->type, $this->lstr, $this->ltoken, $this->vcode);
+		if ($result) {
+			return $result;
+		}
+		throw new PhalApi_Exception_Error(T('登陆失败'));
+	}
+
 
 	public function addBduss()
 	{

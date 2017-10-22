@@ -70,7 +70,8 @@ class PhalApi_CUrl
 	 */
 	public function setOption($option)
 	{
-		$this->option = array_merge($this->option, $option);
+		//$this->option = array_merge($this->option, $option); // array_merge会改变key值，故弃用
+		$this->option = $option + $this->option; // 后传入的优先
 		return $this;
 	}
 
@@ -179,6 +180,7 @@ class PhalApi_CUrl
 		$options = array(
 			CURLOPT_URL => $url,
 			CURLOPT_RETURNTRANSFER => TRUE, //将curl获取的信息以文件流的形式返回，而不是直接输出
+			CURLOPT_SSL_VERIFYPEER => FALSE,
 			CURLOPT_HEADER => 0,
 			CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs,
 			CURLOPT_HTTPHEADER => $this->getHeaders(),
