@@ -80,13 +80,12 @@
 						<span id="loginmsg">正在加载</span>
 					</div>
 				</div>
-				<div class="row" id="login" style="/*display:none;*/ border: 1px solid #ddd; margin-bottom: 0;">
-					<div class="col offset-s1 s10 center" id="qrimg"
+				<div class="row" id="login" style="display:none; border: 1px solid #ddd; margin-bottom: 0;">
+					<div class="col offset-s1 s10 center"
 						 style="border: 1px solid #ddd; margin-bottom: 0; border-radius:5px;">
-						<img style="padding: 1rem;" onclick="getqrcode()"
-							 src="https://passport.baidu.com/v2/api/qrcode?sign=dfb4ca3b9892e0ae7b127f034350a08b&uaonly="
-							 title="点击刷新">
-						<button style="width: 100%;" type="button" name="submit"
+						<div id="qrimg">
+						</div>
+						<button style="width: 100%;" type="button" id="submit"
 								class="btn waves-effect waves-light"><?php echo T('已完成扫码') ?></button>
 					</div>
 				</div>
@@ -315,7 +314,6 @@
 				} else if (d.code == 310006 || d.code == 500001 || d.code == 500002) {
 					/*需要验证码*/
 					$(elementId + ' #load').html(d.msg);
-					console.log(d);
 					getvc(d.vcodestr, elementId);
 				} else if (d.code == 230048 || d.code == 400010) {
 					$(elementId + ' #load').html("您输入的账号不存在，请重新输入");
@@ -356,7 +354,7 @@
 					$(elementId + ' #submit').hide();
 					$(elementId + ' #security').hide();
 					$(elementId + ' #submit2').hide();
-					showresult(d);
+					showresult(d, elementId);
 				} else {
 					$(elementId + ' #load').html(d.msg + " (" + d.code + ")");
 					$(elementId + ' .code').hide();
@@ -369,7 +367,57 @@
 	}
 
 	function showresult(arr, elementId) {
+		console.log($(elementId + ' #load'));
 		$(elementId + ' #load').html('<div class="alert alert-success">登录成功！' + decodeURIComponent(arr.displayname) + '</div><div class="input-group"><span class="input-group-addon">用户UID</span><input id="uid" value="' + arr.uid + '" class="form-control" /></div><br/><div class="input-group"><span class="input-group-addon">用户名</span><input id="user" value="' + arr.user + '" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">BDUSS</span><input id="bduss" value="' + arr.bduss + '" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">PTOKEN</span><input id="ptoken" value="' + arr.ptoken + '" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">STOKEN</span><input id="stoken" value="' + arr.stoken + '" class="form-control"/></div>');
+	}
+
+
+	/*获取二维码*/
+	function getqrcode() {
+		Ajax({
+			'service': 'Tieba.GetQRCode', 'r': Math.random(1)
+		}, function (d) {
+			if (d.ret == 200) {
+				var d = d.data;
+				if (d.code == 0) {
+					$('#login2 #qrimg').attr('sign', d.sign);
+					$('#login2 #qrimg').html('<img onclick="getqrcode()" src="https://' + d.imgurl + '" title="点击刷新">');
+					$('#login2 #login').show();
+					$('#login2 #loginmsg').html('请使用<a href="http://xbox.m.baidu.com/mo/" target="_blank" rel="noreferrer">手机百度app</a>扫描登录');
+				} else {
+					alert(d.msg);
+				}
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		});
+	}
+
+	/*扫码登陆*/
+	function qrlogin() {
+		var sign = $('#login2 #qrimg').attr('sign');
+		if (sign == '') {
+			return;
+		}
+		$('#login2 #submit').html('Loading...');
+		Ajax({
+			'service': 'Tieba.QRLogin', 'sign': sign, 'r': Math.random(1)
+		}, function (d) {
+			if (d.ret == 200) {
+				$('#login2 #submit').html('已完成扫码');
+				var data = d.data;
+				if (data.code == 0) {
+					$('#login2 #login').hide();
+					showresult(data, '#login2');
+				} else {
+					$('#login2 #submit').html('已完成扫码');
+					alert('未检测到登录状态');
+					getqrcode();
+				}
+			} else {
+				Materialize.toast(d.msg, 2000, 'rounded');
+			}
+		});
 	}
 
 	$(document).ready(function () {
@@ -423,6 +471,12 @@
 				ltoken = $('#login1 #security').attr('ltoken');
 			sendcode(type, lstr, ltoken, '#login1');
 			self.removeClass('disabled');
+		});
+
+		/*扫码登陆*/
+		getqrcode();
+		$('#login2 #submit').click(function () {
+			qrlogin();
 		});
 	});
 </script>

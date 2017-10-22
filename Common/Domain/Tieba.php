@@ -543,6 +543,44 @@ class Domain_Tieba
 	// 百度账号登陆
 	private $referrer = 'https://wappass.baidu.com/passport/login?clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=1485501702555&act=bind_mobile&loginLink=0&smsLoginLink=0&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0';
 
+	public static function BaiDuCurl($url, $post = 0, $referer = 1, $cookie = 0, $header = 0, $ua = 0, $nobaody = 0)
+	{
+		$httpheader = array();
+		$httpheader[] = "Accept:application/json";
+		$httpheader[] = "Accept-Encoding:gzip,deflate,sdch";
+		$httpheader[] = "Accept-Language:zh-CN,zh;q=0.8";
+		$httpheader[] = "Connection:close";
+		DI()->curl->setHeader($httpheader);
+		$options = array();
+		$options[CURLOPT_SSL_VERIFYPEER] = FALSE;
+		$options[CURLOPT_SSL_VERIFYHOST] = FALSE;
+		if ($header) {
+			$options[CURLOPT_HEADER] = TRUE;
+		}
+		if ($cookie) {
+			$options[CURLOPT_COOKIE] = $cookie;
+		}
+		if ($referer) {
+			$options[CURLOPT_REFERER] = "https://wappass.baidu.com/";
+		}
+		if ($ua) {
+			$options[CURLOPT_USERAGENT] = $ua;
+		} else {
+			$options[CURLOPT_USERAGENT] = "Mozilla/5.0 (Linux; Android 4.4.2; H650 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36";
+		}
+		if ($nobaody) {
+			$options[CURLOPT_NOBODY] = TRUE;
+
+		}
+		$options[CURLOPT_ENCODING] = "gzip";
+		DI()->curl->setOption($options);
+		if ($post) {
+			return DI()->curl->post($url, $post);
+		} else {
+			return DI()->curl->get($url);
+		}
+	}
+
 	/**
 	 * 检测是否需要验证码
 	 * @param $user
@@ -553,10 +591,9 @@ class Domain_Tieba
 		if (empty($user)) {
 			throw new PhalApi_Exception_BadRequest('请先输入用户名');
 		}
-		$url = 'https://wappass.baidu.com/wp/api/login/check?tt=' . NOW_TIME . '9117&username=' . $user . '&countrycode=&clientfrom=wap&sub_source=leadsetpwd&tpl=tb';
-		DI()->curl->setHeader(array("Accept:application/json", "Accept-Encoding:gzip,deflate,sdch", "Accept-Language:zh-CN,zh;q=0.8", "Connection:close"));
-		DI()->curl->setOption(array(CURLOPT_REFERER => 'https://wappass.baidu.com/', CURLOPT_SSL_VERIFYPEER => FALSE, CURLOPT_SSL_VERIFYHOST => FALSE, CURLOPT_USERAGENT => 'Mozilla/5.0 (Linux; Android 4.4.2; H650 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36', CURLOPT_ENCODING => 'gzip'));
-		$arr = DI()->curl->json_get($url);
+		$url = 'https://wappass.baidu.com/wp/api/login/check?tt=' . time() . '9117&username=' . $user . '&countrycode=&clientfrom=wap&sub_source=leadsetpwd&tpl=tb';
+		$data = self::BaiDuCurl($url);
+		$arr = json_decode($data, true);
 		if ($arr['errInfo'] && $arr['errInfo']['no'] == '0' && empty($arr['data']['codeString'])) {
 			return array('code' => 0);
 		} elseif ($arr['errInfo'] && $arr['errInfo']['no'] == '0') {
@@ -573,10 +610,8 @@ class Domain_Tieba
 	 */
 	public static function getVCPic($vcodestr)
 	{
-		$url = 'https://wappass.baidu.com/cgi-bin/genimage?' . $vcodestr . '&v=' . NOW_TIME . '0000';
-		DI()->curl->setHeader(array("Accept:application/json", "Accept-Encoding:gzip,deflate,sdch", "Accept-Language:zh-CN,zh;q=0.8", "Connection:close"));
-		DI()->curl->setOption(array(CURLOPT_SSL_VERIFYPEER => FALSE, CURLOPT_SSL_VERIFYHOST => FALSE, CURLOPT_REFERER => 'https://wappass.baidu.com/', CURLOPT_USERAGENT => 'Mozilla/5.0 (Linux; Android 4.4.2; H650 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36', CURLOPT_ENCODING => 'gzip'));
-		return DI()->curl->get($url);
+		$url = 'https://wappass.baidu.com/cgi-bin/genimage?' . $vcodestr . '&v=' . time() . '0000';
+		return self::BaiDuCurl($url);
 	}
 
 	/**
@@ -585,10 +620,9 @@ class Domain_Tieba
 	 */
 	public static function serverTime()
 	{
-		$url = 'https://wappass.baidu.com/wp/api/security/antireplaytoken?tpl=tb&v=' . NOW_TIME . '0000';
-		DI()->curl->setHeader(array("Accept:application/json", "Accept-Encoding:gzip,deflate,sdch", "Accept-Language:zh-CN,zh;q=0.8", "Connection:close"));
-		DI()->curl->setOption(array(CURLOPT_SSL_VERIFYPEER => FALSE, CURLOPT_SSL_VERIFYHOST => FALSE, CURLOPT_REFERER => 'https://wappass.baidu.com/', CURLOPT_USERAGENT => 'Mozilla/5.0 (Linux; Android 4.4.2; H650 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36', CURLOPT_ENCODING => 'gzip'));
-		$arr = DI()->curl->json_get($url);
+		$url = 'https://wappass.baidu.com/wp/api/security/antireplaytoken?tpl=tb&v=' . time() . '0000';
+		$data = self::BaiDuCurl($url);
+		$arr = json_decode($data, true);
 		if ($arr['errno'] == 110000) {
 			return array('code' => 0, 'time' => $arr['time']);
 		} else {
@@ -623,49 +657,14 @@ class Domain_Tieba
 		if ($vcodestr == 'null') {
 			$vcodestr = '';
 		}
-		$url = 'https://wappass.baidu.com/wp/api/login?v=' . NOW_TIME . '0000';
-		$post = array();
-		$post['username'] = $user;
-		$post['code'] = '';
-		$post['password'] = $p;
-		$post['verifycode'] = $vcode;
-		$post['clientfrom'] = 'native';
-		$post['tpl'] = 'tb';
-		$post['login_share_strategy'] = 'choice';
-		$post['client'] = 'android';
-		$post['adapter'] = '3';
-		$post['t'] = NOW_TIME . '0000';
-		$post['act'] = 'bind_mobile';
-		$post['loginLink'] = '0';
-		$post['smsLoginLink'] = '1';
-		$post['lPFastRegLink'] = '0';
-		$post['fastRegLink'] = '1';
-		$post['lPlayout'] = '0';
-		$post['loginInitType'] = '0';
-		$post['lang'] = 'zh-cn';
-		$post['regLink'] = '1';
-		$post['action'] = 'login';
-		$post['loginmerge'] = '1';
-		$post['isphone'] = '0';
-		$post['dialogVerifyCode'] = '';
-		$post['dialogVcodestr'] = '';
-		$post['dialogVcodesign'] = '';
-		$post['gid'] = '660BDF6-30E5-4A83-8EAC-F0B4752E1C4B';
-		$post['vcodestr'] = $vcodestr;
-		$post['countrycode'] = '';
-		$post['servertime'] = $time;
-		$post['logLoginType'] = 'sdk_login';
-		$post['passAppHash'] = '';
-		$post['passAppVersion'] = '';
-		DI()->curl->setHeader(array("Accept:application/json", "Accept-Encoding:gzip,deflate,sdch", "Accept-Language:zh-CN,zh;q=0.8", "Connection:close"));
-		DI()->curl->setOption(array(CURLOPT_SSL_VERIFYPEER => FALSE, CURLOPT_SSL_VERIFYHOST => FALSE, CURLOPT_REFERER => 'https://wappass.baidu.com/', CURLOPT_USERAGENT => 'Mozilla/5.0 (Linux; Android 4.4.2; H650 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36', CURLOPT_ENCODING => 'gzip'));
-		$arr = DI()->curl->json_post($url, $post);
-		unset($post);
+		$url = 'https://wappass.baidu.com/wp/api/login?v=' . time() . '0000';
+		$post = 'username=' . $user . '&code=&password=' . $p . '&verifycode=' . $vcode . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . time() . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&vcodestr=' . $vcodestr . '&countrycode=&servertime=' . $time . '&logLoginType=sdk_login&passAppHash=&passAppVersion=';
+		$data = self::BaiDuCurl($url, $post);
+		$arr = json_decode($data, true);
 		if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
 			if (!empty($arr['data']['loginProxy'])) {
-				DI()->curl->setHeader(array("Accept:application/json", "Accept-Encoding:gzip,deflate,sdch", "Accept-Language:zh-CN,zh;q=0.8", "Connection:close"));
-				DI()->curl->setOption(array(CURLOPT_SSL_VERIFYPEER => FALSE, CURLOPT_SSL_VERIFYHOST => FALSE, CURLOPT_REFERER => 'https://wappass.baidu.com/', CURLOPT_USERAGENT => 'Mozilla/5.0 (Linux; Android 4.4.2; H650 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36', CURLOPT_ENCODING => 'gzip'));
-				$arr = DI()->curl->json_get($arr['data']['loginProxy']);
+				$data = self::BaiDuCurl($arr['data']['loginProxy']);
+				$arr = json_decode($data, true);
 			}
 			$data = $arr['data']['xml'];
 			preg_match('!<uname>(.*?)</uname>!i', $data, $user);
@@ -696,10 +695,9 @@ class Domain_Tieba
 	 */
 	public static function sendCode($type, $lstr, $ltoken)
 	{
-		$url = 'https://wappass.baidu.com/wp/login/sec?ajax=1&v=' . NOW_TIME . '0000&vcode=&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . NOW_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&showtype=' . $type . '&lstr=' . rawurlencode($lstr) . '&ltoken=' . $ltoken;
-		DI()->curl->setHeader(array("Accept:application/json", "Accept-Encoding:gzip,deflate,sdch", "Accept-Language:zh-CN,zh;q=0.8", "Connection:close"));
-		DI()->curl->setOption(array(CURLOPT_SSL_VERIFYPEER => FALSE, CURLOPT_SSL_VERIFYHOST => FALSE, CURLOPT_REFERER => 'https://wappass.baidu.com/', CURLOPT_USERAGENT => 'Mozilla/5.0 (Linux; Android 4.4.2; H650 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36', CURLOPT_ENCODING => 'gzip'));
-		$arr = DI()->curl->json_get($url);
+		$url = 'https://wappass.baidu.com/wp/login/sec?ajax=1&v=' . time() . '0000&vcode=&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . time() . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&showtype=' . $type . '&lstr=' . rawurlencode($lstr) . '&ltoken=' . $ltoken;
+		$data = self::BaiDuCurl($url);
+		$arr = json_decode($data, true);
 		if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
 			return array('code' => 0);
 		} elseif (array_key_exists('errInfo', $arr)) {
@@ -724,45 +722,14 @@ class Domain_Tieba
 		if (empty($vcode)) {
 			throw new PhalApi_Exception_BadRequest(T('vcode不能为空'));
 		}
-
-		$url = 'https://wappass.baidu.com/wp/login/sec?type=2&v=' . NOW_TIME . '0000';
-		$post = array();
-		$post['vcode'] = $vcode;
-		$post['clientfrom'] = 'native';
-		$post['tpl'] = 'tb';
-		$post['login_share_strategy'] = '';
-		$post['choice'] = '';
-		$post['client'] = 'android';
-		$post['adapter'] = '3';
-		$post['t'] = NOW_TIME . '0000';
-		$post['act'] = 'bind_mobile';
-		$post['loginLink'] = '0';
-		$post['smsLoginLink'] = '1';
-		$post['lPFastRegLink'] = '0';
-		$post['fastRegLink'] = '1';
-		$post['lPlayout'] = '0';
-		$post['loginInitType'] = '0';
-		$post['lang'] = 'zh-cn';
-		$post['regLink'] = '1';
-		$post['action'] = 'login';
-		$post['loginmerge'] = '1';
-		$post['isphone'] = '0';
-		$post['dialogVerifyCode'] = 'dialogVcodestr';
-		$post['dialogVcodesign'] = '';
-		$post['gid'] = '660BDF6-30E5-4A83-8EAC-F0B4752E1C4B';
-		$post['showtype'] = $type;
-		$post['lstr'] = rawurlencode($lstr);
-		$post['ltoken'] = $ltoken;
-		DI()->curl->setHeader(array("Accept:application/json", "Accept-Encoding:gzip,deflate,sdch", "Accept-Language:zh-CN,zh;q=0.8", "Connection:close"));
-		DI()->curl->setOption(array(CURLOPT_SSL_VERIFYPEER => FALSE, CURLOPT_SSL_VERIFYHOST => FALSE, CURLOPT_REFERER => 'https://wappass.baidu.com/', CURLOPT_USERAGENT => 'Mozilla/5.0 (Linux; Android 4.4.2; H650 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36', CURLOPT_ENCODING => 'gzip'));
-		$arr = DI()->curl->post($url, $post);
-		var_dump($arr);
-		die;
+		$url = 'https://wappass.baidu.com/wp/login/sec?type=2&v=' . time() . '0000';
+		$post = 'vcode=' . $vcode . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . time() . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&showtype=' . $type . '&lstr=' . rawurlencode($lstr) . '&ltoken=' . $ltoken;
+		$data = self::BaiDuCurl($url, $post);
+		$arr = json_decode($data, true);
 		if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
 			if (!empty($arr['data']['loginProxy'])) {
-				DI()->curl->setHeader(array("Accept:application/json", "Accept-Encoding:gzip,deflate,sdch", "Accept-Language:zh-CN,zh;q=0.8", "Connection:close"));
-				DI()->curl->setOption(array(CURLOPT_SSL_VERIFYPEER => FALSE, CURLOPT_SSL_VERIFYHOST => FALSE, CURLOPT_REFERER => 'https://wappass.baidu.com/', CURLOPT_USERAGENT => 'Mozilla/5.0 (Linux; Android 4.4.2; H650 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36', CURLOPT_ENCODING => 'gzip'));
-				$arr = DI()->curl->json_get($arr['data']['loginProxy']);
+				$data = self::BaiDuCurl($arr['data']['loginProxy']);
+				$arr = json_decode($data, true);
 			}
 			$data = $arr['data']['xml'];
 			preg_match('!<uname>(.*?)</uname>!i', $data, $user);
@@ -777,6 +744,52 @@ class Domain_Tieba
 			return array('code' => $arr['errInfo']['no'], 'msg' => $arr['errInfo']['msg']);
 		} else {
 			return array('code' => -1, 'msg' => '登录失败，原因未知');
+		}
+	}
+
+	public static function getQRCode()
+	{
+		$url = 'https://passport.baidu.com/v2/api/getqrcode?lp=pc&gid=07D9D20-91EB-43D8-8553-16A98A0B24AA&apiver=v3&tt=' . time() . '0000&callback=callback';
+		$data = self::BaiDuCurl($url, 0, 'https://passport.baidu.com/v2/?login');
+		preg_match('/callback\((.*?)\)/', $data, $match);
+		$arr = json_decode($match[1], true);
+		if (array_key_exists('errno', $arr) && $arr['errno'] == 0) {
+			return array('code' => 0, 'imgurl' => $arr['imgurl'], 'sign' => $arr['sign'], 'link' => 'https://wappass.baidu.com/wp/?qrlogin&t=' . time() . '&error=0&sign=' . $arr['sign'] . '&cmd=login&lp=pc&tpl=&uaonly=');
+		} else {
+			return array('code' => $arr['errno'], 'msg' => '获取二维码失败');
+		}
+	}
+
+	public static function qRLogin($sign)
+	{
+		if (empty($sign)) {
+			throw new PhalApi_Exception_BadRequest(T('sign不能为空'));
+		}
+		$url = 'https://passport.baidu.com/channel/unicast?channel_id=' . $sign . '&tpl=pp&gid=07D9D20-91EB-43D8-8553-16A98A0B24AA&apiver=v3&tt=' . time() . '0000&callback=callback';
+		$data = self::BaiDuCurl($url, 0, 'https://passport.baidu.com/v2/?login');
+		preg_match('/callback\((.*?)\)/', $data, $match);
+		$arr = json_decode($match[1], true);
+		if (array_key_exists('errno', $arr) && $arr['errno'] == 0) {
+			$arr = json_decode($arr['channel_v'], true);
+			$data = self::BaiDuCurl('https://passport.baidu.com/v2/api/bdusslogin?bduss=' . $arr['v'] . '&u=https%3A%2F%2Fpassport.baidu.com%2F&qrcode=1&tpl=pp&apiver=v3&tt=' . time() . '0000&callback=callback', 0, 'https://passport.baidu.com/v2/?login', 0, 1);
+			preg_match('/callback\((.*?)\)/', $data, $match);
+			$arr = json_decode($match[1], true);
+			if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
+				$data = str_replace('=deleted', '', $data);
+				preg_match('!BDUSS=(.*?);!i', $data, $bduss);
+				preg_match('!PTOKEN=(.*?);!i', $data, $ptoken);
+				preg_match('!STOKEN=(.*?);!i', $data, $stoken);
+				$userid = self::getUserid($arr['data']['userName']);
+				return array('code' => 0, 'uid' => $userid, 'user' => $arr['data']['userName'], 'displayname' => $arr['data']['displayname'], 'mail' => $arr['data']['mail'], 'phone' => $arr['data']['phoneNumber'], 'bduss' => $bduss[1], 'ptoken' => $ptoken[1], 'stoken' => $stoken[1]);
+			} elseif (array_key_exists('errInfo', $arr)) {
+				return array('code' => $arr['errInfo']['no'], 'msg' => $arr['errInfo']['msg']);
+			} else {
+				return array('code' => '-1', 'msg' => '登录失败，原因未知');
+			}
+		} elseif (array_key_exists('errno', $arr)) {
+			return array('code' => $arr['errno']);
+		} else {
+			return array('code' => '-1', 'msg' => '登录失败，原因未知');
 		}
 	}
 

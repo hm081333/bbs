@@ -66,7 +66,32 @@ class Api_Tieba extends PhalApi_Api
 				'vcode' => array('name' => 'vcode', 'type' => 'string', 'require' => true, 'desc' => '未知'),
 				'r' => array('name' => 'r', 'type' => 'string', 'require' => true, 'desc' => '未知'),
 			),
+			'getQRCode' => array(
+				'r' => array('name' => 'r', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+			),
+			'qRLogin' => array(
+				'sign' => array('name' => 'sign', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+				'r' => array('name' => 'r', 'type' => 'string', 'require' => true, 'desc' => '未知'),
+			),
 		);
+	}
+
+	public function getQRCode()
+	{
+		$result = Domain_Tieba::getQRCode();
+		if ($result) {
+			return $result;
+		}
+		throw new PhalApi_Exception_Error(T('获取二维码失败'));
+	}
+
+	public function qRLogin()
+	{
+		$result = Domain_Tieba::qRLogin($this->sign);
+		if ($result) {
+			return $result;
+		}
+		throw new PhalApi_Exception_Error(T('登录失败'));
 	}
 
 	public function checkVC()

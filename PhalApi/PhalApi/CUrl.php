@@ -88,7 +88,7 @@ class PhalApi_CUrl
 	/**
 	 * @param int $retryTimes 超时重试次数，默认为5
 	 */
-	public function __construct($retryTimes = 5)
+	public function __construct($retryTimes = 0)
 	{
 		if (!function_exists('curl_exec')) {
 			throw new PhalApi_Exception_InternalServerError('服务器不支持cURL');
@@ -183,13 +183,18 @@ class PhalApi_CUrl
 			CURLOPT_SSL_VERIFYPEER => FALSE,
 			CURLOPT_HEADER => 0,
 			CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs,
-			CURLOPT_HTTPHEADER => $this->getHeaders(),
+			//CURLOPT_HTTPHEADER => $this->getHeaders(),
+			CURLOPT_HTTPHEADER => $this->header,
 			CURLOPT_COOKIE => $this->getCookies(),
 		);
 
 		if (!empty($data)) {
 			$options[CURLOPT_POST] = 1;
-			$options[CURLOPT_POSTFIELDS] = http_build_query($data);//使用给出的关联（或下标）数组生成一个经过 URL-encode 的请求字符串
+			if (is_array($data)) {
+				$options[CURLOPT_POSTFIELDS] = http_build_query($data);//使用给出的关联（或下标）数组生成一个经过 URL-encode 的请求字符串
+			} else {
+				$options[CURLOPT_POSTFIELDS] = $data;
+			}
 		}
 
 		$options = $this->option + $options;//$this->>option优先
