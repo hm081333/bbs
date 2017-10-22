@@ -211,6 +211,7 @@
 <script src="<?php echo DI()->tool->staticPath('js/bduss/collect.js'); ?>"></script>
 <script src="<?php echo DI()->tool->staticPath('js/bduss/qqlogin.js'); ?>"></script>
 <script>
+	/*普通登陆*/
 	function trim(str) {
 		return str.replace(/(^\s*)|(\s*$)/g, "");
 	}
@@ -377,7 +378,6 @@
 	function showresult(arr, elementId) {
 		$(elementId + ' #load').html('<div class="alert alert-success">登录成功！' + decodeURIComponent(arr.displayname) + '</div><div class="input-group"><span class="input-group-addon">用户UID</span><input id="uid" value="' + arr.uid + '" class="form-control" /></div><br/><div class="input-group"><span class="input-group-addon">用户名</span><input id="user" value="' + arr.user + '" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">BDUSS</span><input id="bduss" value="' + arr.bduss + '" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">PTOKEN</span><input id="ptoken" value="' + arr.ptoken + '" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">STOKEN</span><input id="stoken" value="' + arr.stoken + '" class="form-control"/></div>');
 	}
-
 
 	/*获取二维码*/
 	function getqrcode() {
