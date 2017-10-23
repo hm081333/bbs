@@ -30,7 +30,7 @@ $(document).ready(function () {
 	$('.modal').modal();
 	$('.datepicker').pickadate({
 		selectMonths: true, // Creates a dropdown to control month
-		selectYears: 15 // Creates a dropdown of 15 years to control year
+		selectYears: 30 // Creates a dropdown of 15 years to control year
 	});
 	$('select').material_select();
 	$('.collapsible').collapsible();
@@ -43,16 +43,11 @@ $(document).ready(function () {
 	// $('#ip').html(ip);
 	// $('#ip').attr('href', 'http://www.ip138.com/ips138.asp?ip=' + ip);
 	var ip = $('#ip').html();
-	$.ajax({
-		type: 'POST',
-		data: {service: 'Public.ip', ip: ip},
-		dataType: 'json',
-		success: function (d) {
-			if (d.ret == 200) {
-				$('#ip_address').text(d.data.country + ' ' + d.data.area + ' ' + d.data.region + ' ' + d.data.city + ' ' + d.data.isp)
-			} else {
-				$('#ip_address').text(d.msg)
-			}
+	Ajax({service: 'Public.ip', ip: ip}, function (d) {
+		if (d.ret == 200) {
+			$('#ip_address').text(d.data.country + ' ' + d.data.area + ' ' + d.data.region + ' ' + d.data.city + ' ' + d.data.isp)
+		} else {
+			$('#ip_address').text(d.msg)
 		}
 	});
 });

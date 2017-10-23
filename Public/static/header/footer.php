@@ -19,8 +19,6 @@
 						<?php echo T('IP：'); ?>
 						<a id="ip" class="white-text"
 						   href="http://www.ip138.com/ips138.asp?ip=<?php echo client_ip ?>"><?php echo client_ip; ?></a>
-						<!--<a id="ip" class="white-text">-->
-						<!--</a>-->
 					</a>
 				</li>
 				<li>
@@ -66,7 +64,7 @@
 </body>
 </html>
 <!--局域网获取IP方法-->
-<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+<!--<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>-->
 <script src="./Public/static/js/diy.js"></script>
 <!--微信jssdk-->
 <?php if (DI()->tool->is_weixin()) : ?>

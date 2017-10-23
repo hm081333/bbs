@@ -7,7 +7,6 @@
 				<li class="tab col s3"><a href="#login1">普通登录</a></li>
 				<li class="tab col s3"><a href="#login2">扫码登录</a></li>
 				<li class="tab col s3"><a href="#login3">短信验证码登录</a></li>
-				<!--<li class="tab col s3"><a href="#login4">第三方登录</a></li>-->
 			</ul>
 
 			<div id="login1" class="col s12">
@@ -142,74 +141,9 @@
 					</form>
 				</div>
 			</div>
-
-			<!--<div id="login4" class="col s12">
-				<div class="row" style="margin-bottom: 0;">
-					<div class="col s12 center" style="border: 1px solid #ddd;">
-						<img src="https://m.baidu.com/static/index/plus/plus_logo.png"
-							 style="margin: 1rem; width: 160px;">
-					</div>
-					<div class="col s12" style="border: 1px solid #ddd;">
-						<ul class="tabs">
-							<li class="tab col s3"><a href="#login4-1">QQ普通登录</a></li>
-							<li class="tab col s3"><a href="#login4-2">QQ扫码登录</a></li>
-						</ul>
-					</div>
-					<div class="col s12" style="border: 1px solid #ddd; margin-bottom: 0;">
-						<div id="login4-1" class="row" style="margin-bottom: 0;">
-							<div id="load" class="col s12 center"
-								 style="font-weight: bold; border: 1px solid #ddd; color: #31708f; background-color: #d9edf7; padding: 10px 15px;">
-								请使用百度账号绑定的QQ登录
-							</div>
-							<form class="col s12">
-								<div class="row">
-									<div class="input-field col s12">
-										<input id="uin" name="uin" type="text" class="validate"/>
-										<label for="uin">QQ帐号</label>
-									</div>
-								</div>
-								<div class="row">
-									<div class="input-field col s12">
-										<input id="pwd" name="pwd" type="password" class="validate"/>
-										<label for="pwd">QQ密码</label>
-									</div>
-								</div>
-								<div class="row code" style="display:none;">
-									<div class="input-field col s12 center">
-										<div id="codeimg">1234</div>
-									</div>
-									<div class="input-field col s12">
-										<input id="code" name="code" type="text" class="validate"/>
-										<label for="code">输入验证码</label>
-									</div>
-								</div>
-								<div class="col s12 center">
-									<button style="width: 100%;" type="submit" name="submit"
-											class="btn waves-effect waves-light"><?php /*echo T('提交') */ ?></button>
-								</div>
-							</form>
-						</div>
-						<div id="login4-2" class="row" style="margin-bottom: 0;">
-							<div id="load" class="col s12 center"
-								 style="font-weight: bold; border: 1px solid #ddd; color: #31708f; background-color: #d9edf7; padding: 10px 15px;">
-								<span id="loginmsg">使用QQ手机版扫描二维码</span>
-								<span id="loginload" style="padding-left: 10px;color: #790909;">.</span>
-							</div>
-							<div class="col offset-s1 s10 center" id="qrimg">
-								<img style="padding: 1rem;" onclick="getqrcode()"
-									 src="https://passport.baidu.com/v2/api/qrcode?sign=dfb4ca3b9892e0ae7b127f034350a08b&uaonly="
-									 title="点击刷新">
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>-->
-
 		</div>
 </fieldset>
 <script src="<?php echo DI()->tool->staticPath('js/bduss/base.js'); ?>"></script>
-<script src="<?php echo DI()->tool->staticPath('js/bduss/collect.js'); ?>"></script>
-<script src="<?php echo DI()->tool->staticPath('js/bduss/qqlogin.js'); ?>"></script>
 <script>
 	/*普通登陆*/
 	function trim(str) {
@@ -306,7 +240,8 @@
 					$(elementId + ' #submit').hide();
 					$(elementId + ' #security').hide();
 					$(elementId + ' #submit2').hide();
-					showresult(d, elementId);
+					//showresult(d, elementId);
+					location.href = './tieba.php'
 				} else if (d.code == 400023) {
 					if (d.type == 'phone') {
 						$(elementId + ' #load').html("请验证密保后登录，密保手机是：" + d.phone);
@@ -363,7 +298,8 @@
 					$(elementId + ' #submit').hide();
 					$(elementId + ' #security').hide();
 					$(elementId + ' #submit2').hide();
-					showresult(d, elementId);
+					//showresult(d, elementId);
+					location.href = './tieba.php'
 				} else {
 					$(elementId + ' #load').html(d.msg + " (" + d.code + ")");
 					$(elementId + ' .code').hide();
@@ -415,7 +351,8 @@
 				var data = d.data;
 				if (data.code == 0) {
 					$('#login2 #login').hide();
-					showresult(data, '#login2');
+					//showresult(data, '#login2');
+					location.href = './tieba.php'
 				} else {
 					$('#login2 #submit').html('已完成扫码');
 					alert('未检测到登录状态');
@@ -438,7 +375,8 @@
 					$(elementId + ' .code').hide();
 					$(elementId + ' #submit').hide();
 					$(elementId + ' #sms').hide();
-					showresult(d, elementId);
+					//showresult(d, elementId);
+					location.href = './tieba.php'
 				} else {
 					$(elementId + ' #load').html(d.msg + " (" + d.code + ")");
 					$(elementId + ' .code').hide();
@@ -518,10 +456,6 @@
 
 
 	$(document).ready(function () {
-		$('ul.tabs').tabs({
-			/*swipeable: true,*/
-		});
-
 		$('#login1 #login #submit').click(function () {
 			$('#login1 #load').hide();
 			var self = $(this);

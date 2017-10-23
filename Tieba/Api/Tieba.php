@@ -194,7 +194,6 @@ class Api_Tieba extends PhalApi_Api
 		throw new PhalApi_Exception_Error(T('登陆失败'));
 	}
 
-
 	public function addBduss()
 	{
 		DI()->view->show('add_bduss');
