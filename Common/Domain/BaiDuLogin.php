@@ -33,8 +33,6 @@ class Domain_BaiDuLogin
 		$option = array();
 		$option[CURLOPT_SSL_VERIFYPEER] = FALSE;
 		$option[CURLOPT_SSL_VERIFYHOST] = FALSE;
-
-
 		if ($header) {
 			$option[CURLOPT_HEADER] = TRUE;
 		}
@@ -52,10 +50,10 @@ class Domain_BaiDuLogin
 		}
 		if ($nobaody) {
 			$option[CURLOPT_NOBODY] = 1;
-
 		}
 		$option[CURLOPT_ENCODING] = 'gzip';
 		//$option[CURLOPT_TIMEOUT] =10;
+		DI()->curl->setOption($option);
 		if ($post) {
 			$ret = DI()->curl->post($url, $post);
 		} else {
@@ -138,6 +136,7 @@ class Domain_BaiDuLogin
 	//登录异常时发送手机/邮件验证码
 	public function sendCode($type, $lstr, $ltoken)
 	{
+		error_reporting(0);
 		$url = 'https://wappass.baidu.com/wp/login/sec?ajax=1&v=' . time() . '0000&vcode=&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . time() . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&showtype=' . $type . '&lstr=' . rawurlencode($lstr) . '&ltoken=' . $ltoken;
 		$data = $this->get_curl($url, 0, $this->referrer);
 		$arr = json_decode($data, true);

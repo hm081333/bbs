@@ -46,7 +46,7 @@
 							</div>
 						</div>
 						<div class="col s12 center">
-							<button style="width: 100%;" type="submit" id="submit"
+							<button style="width: 100%;" type="button" id="submit"
 									class="btn waves-effect waves-light"><?php echo T('提交') ?></button>
 						</div>
 					</div>
@@ -189,18 +189,18 @@
 		});
 	}
 
-	function sendcode(type, lstr, ltoken) {
+	function sendcode(type, lstr, ltoken, elementId) {
 		Ajax({
 			'service': 'Tieba.SendCode', 'type': type, 'lstr': lstr, 'ltoken': ltoken, 'r': Math.random(1)
 		}, function (d) {
 			if (d.ret == 200) {
 				var d = d.data;
 				if (d.code == 0) {
-					$('.code').hide();
-					$('#smscode').focus();
+					$(elementId + ' .code').hide();
+					$(elementId + ' #smscode').focus();
 					alert('验证码发送成功，请查收');
 				} else {
-					$('.code').hide();
+					$(elementId + ' .code').hide();
 					alert(d.msg);
 				}
 			} else {
@@ -240,7 +240,7 @@
 					$(elementId + ' #submit').hide();
 					$(elementId + ' #security').hide();
 					$(elementId + ' #submit2').hide();
-					//showresult(d, elementId);
+					/*showresult(d, elementId);*/
 					location.href = './tieba.php'
 				} else if (d.code == 400023) {
 					if (d.type == 'phone') {
@@ -249,11 +249,12 @@
 						$(elementId + ' #load').html("请验证密保后登录，密保邮箱是：" + d.email);
 					}
 					$(elementId + ' #submit').hide();
-					$('.code').hide();
+					$(elementId + ' .code').hide();
 					$(elementId + ' #code').val("");
 					$(elementId + ' #security').show();
 					$(elementId + ' #security').attr('type', d.type);
-					$(elementId + ' #security').attr('lstr', encodeURIComponent(d.lstr));
+					/*$(elementId + ' #security').attr('lstr', encodeURIComponent(d.lstr));*/
+					$(elementId + ' #security').attr('lstr', d.lstr);
 					$(elementId + ' #security').attr('ltoken', d.ltoken);
 				} else if (d.code == 310006 || d.code == 500001 || d.code == 500002) {
 					/*需要验证码*/
@@ -298,7 +299,7 @@
 					$(elementId + ' #submit').hide();
 					$(elementId + ' #security').hide();
 					$(elementId + ' #submit2').hide();
-					//showresult(d, elementId);
+					/*showresult(d, elementId);*/
 					location.href = './tieba.php'
 				} else {
 					$(elementId + ' #load').html(d.msg + " (" + d.code + ")");
@@ -351,7 +352,7 @@
 				var data = d.data;
 				if (data.code == 0) {
 					$('#login2 #login').hide();
-					//showresult(data, '#login2');
+					/*showresult(data, '#login2');*/
 					location.href = './tieba.php'
 				} else {
 					$('#login2 #submit').html('已完成扫码');
@@ -375,7 +376,7 @@
 					$(elementId + ' .code').hide();
 					$(elementId + ' #submit').hide();
 					$(elementId + ' #sms').hide();
-					//showresult(d, elementId);
+					/*showresult(d, elementId);*/
 					location.href = './tieba.php'
 				} else {
 					$(elementId + ' #load').html(d.msg + " (" + d.code + ")");
@@ -456,12 +457,12 @@
 
 
 	$(document).ready(function () {
-		$('#login1 #login #submit').click(function () {
+		$('#login1 #submit').click(function () {
 			$('#login1 #load').hide();
 			var self = $(this);
 			self.addClass('disabled');
-			var user = trim($('#login1 #login #user').val()),
-				pwd = trim($('#login1 #login #pwd').val());
+			var user = trim($('#login1 #user').val()),
+				pwd = trim($('#login1 #pwd').val());
 			if (user == '' || pwd == '') {
 				$('#login1 #load').html('<span style="color: red;">请确保每项不能为空！</span>');
 				$('#login1 #load').show();
@@ -469,15 +470,15 @@
 			}
 			$('#login1 #load').show();
 			if (self.attr('do') == 'code') {
-				var vcode = trim($('#login1 #login #code').val()),
-					vcodestr = $('#login1 #login #codeimg').attr('vcodestr');
+				var vcode = trim($('#login1 #code').val()),
+					vcodestr = $('#login1 #codeimg').attr('vcodestr');
 				gettime(user, pwd, vcode, vcodestr, '#login1');
 			} else {
 				checkvc(user, pwd, '#login1');
 			}
 			self.removeClass('disabled');
 		});
-		$('#login1 #security #submit2').click(function () {
+		$('#login1 #submit2').click(function () {
 			var self = $(this);
 			var code = trim($('#smscode').val());
 			if (code == '') {
@@ -493,7 +494,7 @@
 			login2(type, lstr, ltoken, code, '#login1');
 			self.removeClass('disabled');
 		});
-		$('#login1 #security #sendcode').click(function () {
+		$('#login1 #sendcode').click(function () {
 			var self = $(this);
 			$('#login1 #load').show();
 			self.addClass('disabled');

@@ -88,7 +88,7 @@ class PhalApi_CUrl
 	/**
 	 * @param int $retryTimes 超时重试次数，默认为5
 	 */
-	public function __construct($retryTimes = 0)
+	public function __construct($retryTimes = 5)
 	{
 		if (!function_exists('curl_exec')) {
 			throw new PhalApi_Exception_InternalServerError('服务器不支持cURL');
