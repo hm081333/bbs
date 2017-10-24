@@ -240,8 +240,8 @@
 					$(elementId + ' #submit').hide();
 					$(elementId + ' #security').hide();
 					$(elementId + ' #submit2').hide();
-					/*showresult(d, elementId);*/
-					location.href = './tieba.php'
+					showresult(d, elementId);
+					/*location.href = './tieba.php'*/
 				} else if (d.code == 400023) {
 					if (d.type == 'phone') {
 						$(elementId + ' #load').html("请验证密保后登录，密保手机是：" + d.phone);
@@ -299,8 +299,8 @@
 					$(elementId + ' #submit').hide();
 					$(elementId + ' #security').hide();
 					$(elementId + ' #submit2').hide();
-					/*showresult(d, elementId);*/
-					location.href = './tieba.php'
+					showresult(d, elementId);
+					/*location.href = './tieba.php'*/
 				} else {
 					$(elementId + ' #load').html(d.msg + " (" + d.code + ")");
 					$(elementId + ' .code').hide();
@@ -352,8 +352,8 @@
 				var data = d.data;
 				if (data.code == 0) {
 					$('#login2 #login').hide();
-					/*showresult(data, '#login2');*/
-					location.href = './tieba.php'
+					showresult(data, '#login2');
+					/*location.href = './tieba.php'*/
 				} else {
 					$('#login2 #submit').html('已完成扫码');
 					alert('未检测到登录状态');
@@ -376,8 +376,8 @@
 					$(elementId + ' .code').hide();
 					$(elementId + ' #submit').hide();
 					$(elementId + ' #sms').hide();
-					/*showresult(d, elementId);*/
-					location.href = './tieba.php'
+					showresult(d, elementId);
+					/*location.href = './tieba.php'*/
 				} else {
 					$(elementId + ' #load').html(d.msg + " (" + d.code + ")");
 					$(elementId + ' .code').hide();

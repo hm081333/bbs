@@ -183,8 +183,8 @@ class PhalApi_CUrl
 			CURLOPT_SSL_VERIFYPEER => FALSE,
 			CURLOPT_HEADER => 0,
 			CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs,
-			//CURLOPT_HTTPHEADER => $this->getHeaders(),
-			CURLOPT_HTTPHEADER => $this->header,
+			CURLOPT_HTTPHEADER => $this->getHeaders(),
+			//CURLOPT_HTTPHEADER => $this->header,
 			CURLOPT_COOKIE => $this->getCookies(),
 		);
 
