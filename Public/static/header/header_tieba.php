@@ -64,11 +64,7 @@
 										</li>
 										<li>
 											<a class="waves-effect waves-teal"
-											   href="?service=Tieba.AddBduss"><?php echo T('手动添加BDUSS') ?></a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Tieba.GetBduss"><?php echo T('自动获取BDUSS') ?></a>
+											   href="?service=Tieba.AddBduss"><?php echo T('添加BDUSS') ?></a>
 										</li>
 										<li>
 											<a class="waves-effect waves-teal"

@@ -49,9 +49,9 @@ class Domain_Tieba
 			return T('您的 BDUSS Cookie 信息有误，请核验后重新绑定');
 		}
 		$baiduid_model = new Model_BaiduId();
-		$check = $baiduid_model->getInfo(array('bduss' => $bduss),'id');
+		$check = $baiduid_model->getInfo(array('name' => $baidu_name),'id');
 		if ($check) {
-			return T('该账号已绑定');
+			return T('该账号已经绑定过了');
 		}
 		$insert_rs = $baiduid_model->insert(array('user_id' => $user_id, 'bduss' => $bduss, 'name' => $baidu_name));
 		if ($insert_rs === false) {

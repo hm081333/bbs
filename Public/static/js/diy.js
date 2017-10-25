@@ -497,13 +497,10 @@ $('#RestoreModal form').submit(function ()//提交表单
 	});
 });
 
-$('#add_bduss').submit(function ()//提交表单
-{
-	Ajax($(this).serialize());
-});
+
 
 /**
- * 点击跳转按钮
+ * a标签 点击跳转按钮
  */
 /*$('.url').click(function () {
 	var url = $(this).attr('data-url');
