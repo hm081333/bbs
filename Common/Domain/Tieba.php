@@ -7,14 +7,14 @@ class Domain_Tieba
 	 * 删除贴吧
 	 * @param $tieba_id
 	 * @return bool
-	 * @throws PhalApi_Exception
+	 * @throws PhalApi_Exception_Error
 	 */
 	public static function deleteTieba($tieba_id)
 	{
 		$tieba_model = new Model_Tieba();
 		$result = $tieba_model->delete($tieba_id);
 		if ($result === false) {
-			throw new PhalApi_Exception(T('删除失败'));
+			throw new PhalApi_Exception_Error(T('删除失败'));
 		}
 		return true;
 	}
@@ -24,14 +24,14 @@ class Domain_Tieba
 	 * @param $tieba_id
 	 * @param $no
 	 * @return bool
-	 * @throws PhalApi_Exception
+	 * @throws PhalApi_Exception_Error
 	 */
 	public static function noSignTieba($tieba_id, $no)
 	{
 		$tieba_model = new Model_Tieba();
 		$result = $tieba_model->update($tieba_id, array('no' => $no));
 		if ($result === false) {
-			throw new PhalApi_Exception(T('操作失败'));
+			throw new PhalApi_Exception_Error(T('操作失败'));
 		}
 		return true;
 	}
@@ -45,19 +45,19 @@ class Domain_Tieba
 		$bduss = DI()->tool->sqlAdds($bduss);
 		$baidu_name = DI()->tool->sqlAdds(self::getBaiduId($bduss));
 		if (empty($baidu_name)) {
-			//throw new PhalApi_Exception(T('您的 BDUSS Cookie 信息有误，请核验后重新绑定'));
-			return T('您的 BDUSS Cookie 信息有误，请核验后重新绑定');
+			throw new PhalApi_Exception_Error('您的 BDUSS Cookie 信息有误，请核验后重新绑定');
 		}
 		$baiduid_model = new Model_BaiduId();
-		$check = $baiduid_model->getInfo(array('name' => $baidu_name),'id');
+		$check = $baiduid_model->getInfo(array('name' => $baidu_name), 'id');
 		if ($check) {
-			return T('该账号已经绑定过了');
+			throw new PhalApi_Exception_Error('该账号已经绑定过了');
 		}
 		$insert_rs = $baiduid_model->insert(array('user_id' => $user_id, 'bduss' => $bduss, 'name' => $baidu_name));
 		if ($insert_rs === false) {
-			return T('插入表失败');
+			throw new PhalApi_Exception_Error('插入表失败');
 		}
-		return array('msg' => T('添加新Bduss成功'));
+		DI()->response->setMsg('添加新Bduss成功');
+		return array('url' => '?service=Default.Index');
 	}
 
 	/**
@@ -67,10 +67,6 @@ class Domain_Tieba
 	 */
 	public static function getBaiduId($bduss)
 	{
-		//$c = new wcurl('http://wapp.baidu.com/');
-		//$c->addCookie(array('BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(SERVER_TIME))));
-		//$data = $c->get();
-		//$c->close();
 		$url = 'http://wapp.baidu.com/';
 		DI()->curl->setCookie(array('BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(SERVER_TIME))));
 		$data = DI()->curl->get($url);
@@ -83,20 +79,15 @@ class Domain_Tieba
 	 */
 	public static function scanTiebaByUser($user_id = '')
 	{
-		//global $i;
 		$baiduid_model = new Model_BaiduId();
 		set_time_limit(0);
-		//if (empty($user_id)) {
-		//	$bduss = $i['user']['bduss'];
-		//} else {
 		$bx = $baiduid_model->getListByWhere(array('user_id' => $user_id));
 		foreach ($bx as $by) {
 			$upid = $by['id'];
 			$bduss[$upid] = $by['bduss'];
 		}
-		//}
 		foreach ($bduss as $pid => $ubduss) {
-			$t = self::scanTiebaByPid($pid);
+			self::scanTiebaByPid($pid);
 		}
 	}
 
@@ -110,8 +101,6 @@ class Domain_Tieba
 		$baiduid_model = new Model_BaiduId();
 		$cma = $baiduid_model->get($pid);
 		$tieba_model = new Model_Tieba();
-		//$tb_sl = $tieba_model->count(array('user_id' => $user_id));
-		//$ptb_sl = $tieba_model->count(array('user_id' => $user_id, 'baidu_id' => $pid));
 		$user_id = $cma['user_id'];
 		$bduss = $cma['bduss'];
 		$bname = $cma['name'];
@@ -172,7 +161,6 @@ class Domain_Tieba
 		$head = array();
 		$head[] = 'Content-Type: application/x-www-form-urlencoded';
 		$head[] = 'User-Agent: Mozilla/5.0 (SymbianOS/9.3; Series60/3.2 NokiaE72-1/021.021; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/525 (KHTML, like Gecko) Version/3.0 BrowserNG/7.1.16352';
-		//$tl = new wcurl('http://c.tieba.baidu.com/c/f/forum/like', $head);
 		$url = 'http://c.tieba.baidu.com/c/f/forum/like';
 		$data = array(
 			'_client_id' => 'wappc_' . SERVER_TIME . '_' . '258',
@@ -532,9 +520,6 @@ class Domain_Tieba
 	}
 
 
-	//登陆贴吧
-	private $referrer = 'https://wappass.baidu.com/passport/login?clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=1485501702555&act=bind_mobile&loginLink=0&smsLoginLink=0&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0';
-
 	/**
 	 * CURL整合--返回数组
 	 * @param $url
@@ -844,41 +829,42 @@ class Domain_Tieba
 	//扫码登录操作
 	public static function qRLogin($sign)
 	{
-		if (empty($sign)) return array('code' => -1, 'msg' => 'sign不能为空');
+		throw new PhalApi_Exception_BadRequest('sign不能为空');
+		if (empty($sign)) {
+		}
 		$url = 'https://passport.baidu.com/channel/unicast?channel_id=' . $sign . '&tpl=pp&gid=07D9D20-91EB-43D8-8553-16A98A0B24AA&apiver=v3&tt=' . SERVER_TIME . '0000&callback=callback';
-		$data = self::get_curl($url, 0, 'https://passport.baidu.com/v2/?login');
+		$data = self::get_curl($url);
 		preg_match('/callback\((.*?)\)/', $data, $match);
 		$arr = json_decode($match[1], true);
 		if (array_key_exists('errno', $arr) && $arr['errno'] == 0) {
 			$arr = json_decode($arr['channel_v'], true);
-			$data = self::get_curl('https://passport.baidu.com/v2/api/bdusslogin?bduss=' . $arr['v'] . '&u=https%3A%2F%2Fpassport.baidu.com%2F&qrcode=1&tpl=pp&apiver=v3&tt=' . SERVER_TIME . '0000&callback=callback', 0, 'https://passport.baidu.com/v2/?login', 0, 1);
+			$data = self::get_curl('https://passport.baidu.com/v2/api/bdusslogin?bduss=' . $arr['v'] . '&u=https%3A%2F%2Fpassport.baidu.com%2F&qrcode=1&tpl=pp&apiver=v3&tt=' . SERVER_TIME . '0000&callback=callback', false, true, false, true);
 			preg_match('/callback\((.*?)\)/', $data, $match);
 			$arr = json_decode($match[1], true);
 			if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
 				$data = str_replace('=deleted', '', $data);
 				preg_match('!BDUSS=(.*?);!i', $data, $bduss);
-				preg_match('!PTOKEN=(.*?);!i', $data, $ptoken);
-				preg_match('!STOKEN=(.*?);!i', $data, $stoken);
-				$userid = self::getUserid($arr['data']['userName']);
 
 				$user_id = $_SESSION['user_id'];
-				$rs = self::addBduss($user_id, $bduss[1]);
-				if (is_string($rs)) {
-					throw new PhalApi_Exception($rs);
-				} else {
-					DI()->response->setMsg($rs['msg']);
-					return true;
-				}
-				return array('code' => 0, 'uid' => $userid, 'user' => $arr['data']['userName'], 'displayname' => $arr['data']['displayname'], 'mail' => $arr['data']['mail'], 'phone' => $arr['data']['phoneNumber'], 'bduss' => $bduss[1], 'ptoken' => $ptoken[1], 'stoken' => $stoken[1]);
+				return Domain_Tieba::addBduss($user_id, $bduss[1]);
+
+				//preg_match('!PTOKEN=(.*?);!i', $data, $ptoken);
+				//preg_match('!STOKEN=(.*?);!i', $data, $stoken);
+				//$userid = self::getUserid($arr['data']['userName']);
+				//return array('code' => 0, 'uid' => $userid, 'user' => $arr['data']['userName'], 'displayname' => $arr['data']['displayname'], 'mail' => $arr['data']['mail'], 'phone' => $arr['data']['phoneNumber'], 'bduss' => $bduss[1], 'ptoken' => $ptoken[1], 'stoken' => $stoken[1]);
 			} elseif (array_key_exists('errInfo', $arr)) {
-				return array('code' => $arr['errInfo']['no'], 'msg' => $arr['errInfo']['msg']);
+				throw new PhalApi_Exception_BadRequest($arr['errInfo']['msg']);
+				//return array('code' => $arr['errInfo']['no'], 'msg' => $arr['errInfo']['msg']);
 			} else {
-				return array('code' => '-1', 'msg' => '登录失败，原因未知');
+				throw new PhalApi_Exception_BadRequest('登录失败，原因未知');
+				//return array('code' => '-1', 'msg' => '登录失败，原因未知');
 			}
 		} elseif (array_key_exists('errno', $arr)) {
-			return array('code' => $arr['errno']);
+			throw new PhalApi_Exception_BadRequest('未检测到登录状态');
+			//return array('code' => $arr['errno']);
 		} else {
-			return array('code' => '-1', 'msg' => '登录失败，原因未知');
+			throw new PhalApi_Exception_BadRequest('登录失败，原因未知');
+			//return array('code' => '-1', 'msg' => '登录失败，原因未知');
 		}
 	}
 

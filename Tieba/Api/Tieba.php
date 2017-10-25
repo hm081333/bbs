@@ -198,11 +198,7 @@ class Api_Tieba extends PhalApi_Api
 	public function addBdussAC()
 	{
 		$user_id = $_SESSION['user_id'];
-		$rs = Domain_Tieba::addBduss($user_id, $this->bduss);
-		if (is_string($rs)) {
-			throw new PhalApi_Exception($rs);
-		}
-		DI()->response->setMsg($rs['msg']);
+		return Domain_Tieba::addBduss($user_id, $this->bduss);
 	}
 
 	public function tiebaList()
@@ -217,9 +213,6 @@ class Api_Tieba extends PhalApi_Api
 			$tiebas[$baiduid['id']]['name'] = $baiduid['name'];
 			$tiebas[$baiduid['id']]['tieba'] = $tieba_model->getListByWhere(array('user_id' => $user_id, 'baidu_id' => $baiduid['id']), '*', 'id asc');
 		}
-		//$tieba_list = $tieba_model->getList((($this->page - 1) * each_page), ($this->page * each_page));
-		//$tieba_list['page_total'] = ceil($tieba_list['total'] / each_page);
-		//DI()->view->assign(array('rows' => $tieba_list['rows'], 'total' => $tieba_list['total'], 'page' => $this->page));
 		DI()->view->assign(array('tiebas' => $tiebas));
 		DI()->view->show('tieba_list');
 	}

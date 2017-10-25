@@ -73,9 +73,7 @@ class Common_Function
 			mkdir($dir, 0777);
 		}
 		$fileName = $dir . '/' . $fileName . '.jpg';
-		$fp = fopen($fileName, 'wb');
-		DI()->curl->setOption(array(CURLOPT_FILE => $fp, CURLOPT_FOLLOWLOCATION => TRUE));
-		$result = DI()->curl->get($url);
+		$result = DI()->curl->getFile($url, $fileName);
 	}
 
 	/**

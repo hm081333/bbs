@@ -30,7 +30,7 @@ $(document).ready(function () {
 	$('.modal').modal();
 	$('.datepicker').pickadate({
 		selectMonths: true, // Creates a dropdown to control month
-		selectYears: 30 // Creates a dropdown of 15 years to control year
+		selectYears: 30 // Creates a dropdown of 30 years to control year
 	});
 	$('select').material_select();
 	$('.collapsible').collapsible();
@@ -67,11 +67,11 @@ function preview(file) {
 }
 
 
-function SuccessMsg(data, CallBack) {
+function SuccessMsg(data, SuccessCallBack, FailCallBack) {
 	var msg = data.msg || data || '';
 	var back = data.back || false;
 	var url = data.data ? data.data.url : null;
-	var fuc = CallBack && typeof(CallBack) == "object" ? CallBack : function () {
+	var fuc = SuccessCallBack && (typeof(SuccessCallBack) == "object" || typeof(SuccessCallBack) == "function") ? SuccessCallBack : function () {
 		if (url) {
 			location.href = url
 		} else if (back) {
@@ -80,15 +80,19 @@ function SuccessMsg(data, CallBack) {
 			location.reload()
 		}
 	};
+	var failFuc = FailCallBack && (typeof(FailCallBack) == "object" || typeof(FailCallBack) == "function") ? FailCallBack : null;
 	if (data.ret == 200) {
-		Materialize.toast(msg, 2000, 'rounded', fuc);
+		alertMsg(msg, fuc);
+		// Materialize.toast(msg, 2000, 'rounded', fuc);
 	} else {
-		Materialize.toast(msg, 2000, 'rounded');
+		alertMsg(msg, failFuc);
+		// Materialize.toast(msg, 2000, 'rounded', failFuc);
 	}
 }
 
-function alertMsg(msg) {
-	Materialize.toast(msg, 2000, 'rounded');
+function alertMsg(msg, CallBack) {
+	var fun = CallBack && (typeof(CallBack) == "object" || typeof(CallBack) == "function") ? CallBack : null;
+	Materialize.toast(msg, 2000, 'rounded', fun);
 }
 
 function Ajax(data, SuccessCallback, file) {
@@ -497,12 +501,12 @@ $('#RestoreModal form').submit(function ()//提交表单
 	});
 });
 
-
-
 /**
  * a标签 点击跳转按钮
+ * 提交?service='xxx'跳转api
+ * 跳转外链请加上http://开头
  */
-/*$('.url').click(function () {
+$('.url').click(function () {
 	var url = $(this).attr('data-url');
-	console.log(url);
-});*/
+	location.href = url;
+});

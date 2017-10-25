@@ -136,10 +136,14 @@ class PhalApi_CUrl
 	 * @param int $timeoutMs
 	 * @return string
 	 */
-	public function getFile($url, $fileName, $timeoutMs = 3000)
+	public function getFile($url, $pathFile, $timeoutMs = 3000)
 	{
-		$fileName = API_ROOT . '/Public/static/upload/wechat/' . $fileName . '.jpg';
-		return $this->request($url, array('path' => $fileName), $timeoutMs);
+		$fp = fopen($pathFile, 'wb');
+		if ($fp === FALSE) {
+			throw new PhalApi_Exception_InternalServerError('保存文件初始化失败');
+		}
+		$this->setOption(array(CURLOPT_FILE => $fp, CURLOPT_FOLLOWLOCATION => TRUE));
+		return $this->request($url, array(), $timeoutMs);
 	}
 
 	/**
@@ -183,8 +187,8 @@ class PhalApi_CUrl
 			CURLOPT_SSL_VERIFYPEER => FALSE,
 			CURLOPT_HEADER => 0,
 			CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs,
-			CURLOPT_HTTPHEADER => $this->getHeaders(),
-			//CURLOPT_HTTPHEADER => $this->header,
+			CURLOPT_HTTPHEADER => $this->getHeaders(), //字符串
+			//CURLOPT_HTTPHEADER => $this->header, //数组
 			CURLOPT_COOKIE => $this->getCookies(),
 		);
 
@@ -193,7 +197,7 @@ class PhalApi_CUrl
 			if (is_array($data)) {
 				$options[CURLOPT_POSTFIELDS] = http_build_query($data);//使用给出的关联（或下标）数组生成一个经过 URL-encode 的请求字符串
 			} else {
-				$options[CURLOPT_POSTFIELDS] = $data;
+				$options[CURLOPT_POSTFIELDS] = $data; // 字符串
 			}
 		}
 

@@ -40,9 +40,6 @@
 				<li><a style="width: 127px;" class="white-text btn waves-effect waves-light"
 					   onclick="javascript:window.open('http://sighttp.qq.com/authd?IDKEY=2370447117525914b38fc589aa94b53b4d3a892de4c76039')">QQ</a>
 				</li>
-				<!--<li><a style="width: 127px;" class="white-text btn waves-effect waves-light"
-					   href="javascript:window.open('http://wpa.qq.com/msgrd?v=3&uin=3449769816&site=qq&menu=yes')">XXX</a>
-				</li>-->
 			</ul>
 		</div>
 	</div>

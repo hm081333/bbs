@@ -101,24 +101,11 @@
 			</div>
 
 			<div id="login2" class="col s12">
-				<div class="row" style="margin-bottom: 0;">
-					<!-- <div class="col s12 center" style="border: 1px solid #ddd;">
-						<img src="https://m.baidu.com/static/index/plus/plus_logo.png"
-							 style="margin: 1rem; width: 160px;">
-					</div> -->
-					<div id="load" class="col s12 center"
-						 style="font-weight: bold; border: 1px solid #ddd; color: #31708f; background-color: #d9edf7; padding: 10px 15px;">
-						<span id="loginmsg">正在加载</span>
-					</div>
-				</div>
 				<div class="row" id="login" style="display:none; border: 1px solid #ddd; margin-bottom: 0;">
-					<div class="col offset-s1 s10 center"
-						 style="border: 1px solid #ddd; margin-bottom: 0; border-radius:5px;">
-						<div id="qrimg">
-						</div>
-						<button style="width: 100%;" type="button" id="submit"
-								class="btn waves-effect waves-light"><?php echo T('已完成扫码') ?></button>
+					<div class="center" id="qrimg">
 					</div>
+					<button style="width: 100%;" type="button" id="submit"
+							class="btn waves-effect waves-light"><?php echo T('已扫码') ?></button>
 				</div>
 			</div>
 
@@ -238,10 +225,10 @@
 				if (d.code == 0) {
 					$(elementId + ' .code').hide();
 					$(elementId + ' #smscode').focus();
-					alert('验证码发送成功，请查收');
+					alertMsg('验证码发送成功，请查收');
 				} else {
 					$(elementId + ' .code').hide();
-					alert(d.msg);
+					alertMsg(d.msg);
 				}
 			} else {
 				Materialize.toast(d.msg, 2000, 'rounded');
@@ -273,7 +260,6 @@
 					$(elementId + ' #security').hide();
 					$(elementId + ' #submit2').hide();
 					showresult(d, elementId);
-					/*location.href = './tieba.php'*/
 				} else if (d.code == 400023) {
 					if (d.type == 'phone') {
 						$(elementId + ' #load').html("请验证密保后登录，密保手机是：" + d.phone);
@@ -332,7 +318,6 @@
 					$(elementId + ' #security').hide();
 					$(elementId + ' #submit2').hide();
 					showresult(d, elementId);
-					/*location.href = './tieba.php'*/
 				} else {
 					$(elementId + ' #load').html(d.msg + " (" + d.code + ")");
 					$(elementId + ' .code').hide();
@@ -355,9 +340,9 @@
 					$('#login2 #qrimg').attr('sign', d.sign);
 					$('#login2 #qrimg').html('<img onclick="getqrcode()" src="https://' + d.imgurl + '" title="点击刷新">');
 					$('#login2 #login').show();
-					$('#login2 #loginmsg').html('请使用<a href="http://xbox.m.baidu.com/mo/" target="_blank" rel="noreferrer">手机百度app</a>扫描登录');
+					$('#login2 #submit').html('已扫码');
 				} else {
-					alert(d.msg);
+					alertMsg(d.msg);
 				}
 			} else {
 				Materialize.toast(d.msg, 2000, 'rounded');
@@ -372,24 +357,13 @@
 			return;
 		}
 		$('#login2 #submit').html('Loading...');
-		Ajax({
-			'service': 'Tieba.QRLogin', 'sign': sign, 'r': Math.random(1)
-		}, function (d) {
-			if (d.ret == 200) {
-				$('#login2 #submit').html('已完成扫码');
-				var data = d.data;
-				if (data.code == 0) {
-					$('#login2 #login').hide();
-					showresult(data, '#login2');
-					/*location.href = './tieba.php'*/
-				} else {
-					$('#login2 #submit').html('已完成扫码');
-					alert('未检测到登录状态');
-					getqrcode();
-				}
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
+		$('#login2 #submit').addClass('disabled');
+		Ajax({'service': 'Tieba.QRLogin', 'sign': sign, 'r': Math.random(1)}, function (d) {
+			SuccessMsg(d, null, function () {
+				$('#login2 #submit').html('二维码正在刷新');
+				getqrcode();
+				$('#login2 #submit').removeClass('disabled');
+			});
 		});
 	}
 
@@ -405,7 +379,6 @@
 					$(elementId + ' #submit').hide();
 					$(elementId + ' #sms').hide();
 					showresult(d, elementId);
-					/*location.href = './tieba.php'*/
 				} else {
 					$(elementId + ' #load').html(d.msg + " (" + d.code + ")");
 					$(elementId + ' .code').hide();
@@ -435,7 +408,7 @@
 					$(elementId + ' #submit').attr('do', 'smscode');
 					$(elementId + ' #smscode').focus();
 					$(elementId + ' #load').html('请输入短信验证码');
-					alert('已发送验证码到 ' + phone);
+					alertMsg('已发送验证码到 ' + phone);
 				} else if (d.code == 50020) {
 					$(elementId + ' #load').html(d.msg);
 					$(elementId + ' #codeimg').attr('vcodesign', d.vcodesign);
@@ -445,14 +418,14 @@
 				} else if (d.code == 500002 || d.code == 500001) {
 					$(elementId + ' #load').html('请输入验证码');
 					$(elementId + ' #submit').attr('do', 'code');
-					alert(d.msg);
+					alertMsg(d.msg);
 				} else if (d.code == 50014) {
 					$(elementId + ' #load').html('提示：60秒内只能发送一次验证码，否则会提示频繁');
 					$(elementId + ' .code').hide();
-					alert(d.msg);
+					alertMsg(d.msg);
 				} else {
 					$(elementId + ' .code').hide();
-					alert(d.msg);
+					alertMsg(d.msg);
 				}
 			} else {
 				Materialize.toast(d.msg, 2000, 'rounded');
@@ -471,7 +444,7 @@
 					$(elementId + ' #load').html('');
 					$(elementId + ' .code').hide();
 					$(elementId + ' #submit').attr('do', 'submit');
-					alert('该手机号不存在，请重新输入！');
+					alertMsg('该手机号不存在，请重新输入！');
 				} else {
 					$(elementId + ' #load').html(d.msg + " (" + d.code + ")");
 					$(elementId + ' #submit').attr('do', 'submit');
@@ -564,20 +537,20 @@
 			var phone = trim($('#login3 #phone').val()),
 				smscode = trim($('#login3 #smscode').val());
 			if (phone == '') {
-				alert("手机号不能为空！");
+				alertMsg("手机号不能为空！");
 				return false;
 			}
 			$('#login3 #load').show();
 			self.addClass('disabled');
 			if (self.attr('do') == 'smscode') {
 				if (smscode == '') {
-					alert("验证码不能为空！");
+					alertMsg("验证码不能为空！");
 					return false;
 				}
 				loginByPhone(phone, smscode, elementId);
 			} else if (self.attr('do') == 'code') {
 				if (code == '') {
-					alert("验证码不能为空！");
+					alertMsg("验证码不能为空！");
 					return false;
 				}
 				var code = trim($('#login3 #code').val()),
@@ -594,7 +567,7 @@
 			var elementId = '#login3';
 			var phone = trim($('#login3 #phone').val());
 			if (phone == '') {
-				alert("手机号不能为空！");
+				alertMsg("手机号不能为空！");
 				return false;
 			}
 			$('#login3 #load').show();
