@@ -82,17 +82,8 @@
 		<tr>
 			<td width="35%">服务器域名</td>
 			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="
-				<?php echo $_SERVER['SERVER_NAME']; ?>(<?php if ('/' == DIRECTORY_SEPARATOR) {
-				echo $_SERVER['SERVER_ADDR'];
-			} else {
-				echo @gethostbyname($_SERVER['SERVER_NAME']);
-			} ?>)">
-				<?php echo $_SERVER['SERVER_NAME']; ?>
-				(<?php if ('/' == DIRECTORY_SEPARATOR) {
-					echo $_SERVER['SERVER_ADDR'];
-				} else {
-					echo @gethostbyname($_SERVER['SERVER_NAME']);
-				} ?>)
+				<?php echo $_SERVER['SERVER_NAME']; ?>(<?php echo '/' == DIRECTORY_SEPARATOR ? $_SERVER['SERVER_ADDR'] : @gethostbyname($_SERVER['SERVER_NAME']); ?>)">
+				<?php echo $_SERVER['SERVER_NAME']; ?>(<?php echo '/' == DIRECTORY_SEPARATOR ? $_SERVER['SERVER_ADDR'] : @gethostbyname($_SERVER['SERVER_NAME']); ?>)
 			</td>
 		</tr>
 		<tr>
@@ -111,44 +102,23 @@
 		</tr>
 		<tr>
 			<td>服务器标识</td>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="
-				<?php if ($sysInfo['win_n'] != '') {
-				echo $sysInfo['win_n'];
-			} else {
-				echo @php_uname();
-			}; ?>
-					">
-				<?php if ($sysInfo['win_n'] != '') {
-					echo $sysInfo['win_n'];
-				} else {
-					echo @php_uname();
-				}; ?>
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php echo $sysInfo['win_n'] != '' ? $sysInfo['win_n'] : @php_uname(); ?>">
+				<?php echo $sysInfo['win_n'] != '' ? $sysInfo['win_n'] : @php_uname(); ?>
 			</td>
 		</tr>
+		<?php $os = explode(" ", php_uname()); ?>
 		<tr>
 			<td>服务器主机名</td>
 			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
-				data-tooltip="<?php $os = explode(" ", php_uname());
-			    echo $os[1]; ?>">
-				<?php $os = explode(" ", php_uname());
-				echo $os[1]; ?>
+				data-tooltip="<?php echo '/' == DIRECTORY_SEPARATOR ? $os[1] : $os[2]; ?>">
+				<?php echo '/' == DIRECTORY_SEPARATOR ? $os[1] : $os[2]; ?>
 			</td>
 		</tr>
 		<tr>
 			<td>服务器操作系统</td>
 			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
-				data-tooltip="<?php $os = explode(" ", php_uname());
-			    echo $os[0]; ?> &nbsp;内核版本：<?php if ('/' == DIRECTORY_SEPARATOR) {
-				    echo $os[2];
-			    } else {
-				    echo $os[1];
-			    } ?>">
-				<?php $os = explode(" ", php_uname());
-				echo $os[0]; ?> &nbsp;内核版本：<?php if ('/' == DIRECTORY_SEPARATOR) {
-					echo $os[2];
-				} else {
-					echo $os[1];
-				} ?>
+				data-tooltip="<?php echo $os[0]; ?> &nbsp;内核版本：<?php echo '/' == DIRECTORY_SEPARATOR ? $os[2] : $os[1]; ?>">
+				<?php echo '/' == DIRECTORY_SEPARATOR ? $os[2] : $os[1]; ?>
 			</td>
 		</tr>
 		<tr>
@@ -170,21 +140,6 @@
 			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
 				data-tooltip="<?php echo $_SERVER['SERVER_PORT']; ?>">
 				<?php echo $_SERVER['SERVER_PORT']; ?>
-			</td>
-		</tr>
-		<tr>
-			<td>服务器主机名</td>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
-				data-tooltip="<?php if ('/' == DIRECTORY_SEPARATOR) {
-				    echo $os[1];
-			    } else {
-				    echo $os[2];
-			    } ?>">
-				<?php if ('/' == DIRECTORY_SEPARATOR) {
-					echo $os[1];
-				} else {
-					echo $os[2];
-				} ?>
 			</td>
 		</tr>
 		<tr>
