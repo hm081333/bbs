@@ -81,22 +81,19 @@
 	<table class="bordered highlight">
 		<tr>
 			<td width="35%">服务器域名</td>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="
-				<?php echo $_SERVER['SERVER_NAME']; ?>(<?php echo '/' == DIRECTORY_SEPARATOR ? $_SERVER['SERVER_ADDR'] : @gethostbyname($_SERVER['SERVER_NAME']); ?>)">
-				<?php echo $_SERVER['SERVER_NAME']; ?>(<?php echo '/' == DIRECTORY_SEPARATOR ? $_SERVER['SERVER_ADDR'] : @gethostbyname($_SERVER['SERVER_NAME']); ?>)
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php echo $_SERVER['SERVER_NAME']; ?>">
+				<?php echo $_SERVER['SERVER_NAME']; ?>
 			</td>
 		</tr>
 		<tr>
 			<td width="35%">服务器IP地址</td>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
-				data-tooltip="<?php echo @$_SERVER['REMOTE_ADDR']; ?>">
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php echo @$_SERVER['REMOTE_ADDR']; ?>">
 				<?php echo @$_SERVER['REMOTE_ADDR']; ?>
 			</td>
 		</tr>
 		<tr>
 			<td width="35%">服务器用户名</td>
-			<td class="truncate tooltipped" data-position="bottom" data-delay="50"
-				data-tooltip="<?php echo @get_current_user(); ?>">
+			<td class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php echo @get_current_user(); ?>">
 				<?php echo @get_current_user(); ?>
 			</td>
 		</tr>
