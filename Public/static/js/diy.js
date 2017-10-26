@@ -83,16 +83,14 @@ function SuccessMsg(data, SuccessCallBack, FailCallBack) {
 	var failFuc = FailCallBack && (typeof(FailCallBack) == "object" || typeof(FailCallBack) == "function") ? FailCallBack : null;
 	if (data.ret == 200) {
 		alertMsg(msg, fuc);
-		// Materialize.toast(msg, 2000, 'rounded', fuc);
 	} else {
 		alertMsg(msg, failFuc);
-		// Materialize.toast(msg, 2000, 'rounded', failFuc);
 	}
 }
 
 function alertMsg(msg, CallBack) {
 	var fun = CallBack && (typeof(CallBack) == "object" || typeof(CallBack) == "function") ? CallBack : null;
-	Materialize.toast(msg, 2000, 'rounded', fun);
+	Materialize.toast(msg, 4000, 'rounded', fun);
 }
 
 function Ajax(data, SuccessCallback, file) {

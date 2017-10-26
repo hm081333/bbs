@@ -17,8 +17,9 @@
 
 <body>
 <!--头开始-->
-<header>
-	<nav class="cyan darken-4"><!--导航栏语句开始-->
+<header style="display: grid;">
+	<nav style="opacity: 0;"></nav>
+	<nav class="cyan darken-4" style="position: fixed; z-index: 2;"><!--导航栏语句开始-->
 		<div class="nav-wrapper container"><!--导航栏内容开始-->
 			<?php if (!isset($back) && back) : ?>
 				<a href="#" onclick="history.back();" class="button-collapse show-on-large"

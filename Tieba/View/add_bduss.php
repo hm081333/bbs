@@ -3,11 +3,11 @@
 	<legend><?php echo T('添加BDUSS') ?></legend>
 	<div class="row">
 		<div class="col s12">
-			<ul class="tabs">
+			<ul class="tabs tabs-fixed-width">
 				<li class="tab col s3"><a href="#login0">手动添加</a></li>
 				<li class="tab col s3"><a href="#login1">普通登录</a></li>
 				<li class="tab col s3"><a href="#login2">扫码登录</a></li>
-				<li class="tab col s3"><a href="#login3">短信验证码登录</a></li>
+				<li class="tab col s3"><a href="#login3">手机登录</a></li>
 			</ul>
 
 			<div id="login0" class="col s12">
@@ -124,14 +124,14 @@
 						<div class="row">
 							<div class="input-field col s12">
 								<input id="phone" name="phone" type="text" class="validate"
-									   onkeydown="if(event.keyCode==13){submit.click()}"/>
+									   onkeydown="if(event.keyCode==13){smsLogin.click()}"/>
 								<label for="phone">手机号</label>
 							</div>
 						</div>
 						<div class="row">
 							<div class="input-field col s12" id="sms" style="display: none;/*display: inline-flex;*/">
 								<input id="smscode" name="smscode" type="text" class="validate"
-									   onkeydown="if(event.keyCode==13){submit.click()}"/>
+									   onkeydown="if(event.keyCode==13){smsLogin.click()}"/>
 								<button type="button" style="width: 13rem;" id="sendcode"
 										class="btn waves-effect waves-light right">发送验证码
 								</button>
@@ -145,12 +145,12 @@
 							</div>
 							<div class="input-field col s12">
 								<input id="code" name="code" type="text" class="validate"
-									   onkeydown="if(event.keyCode==13){submit.click()}"/>
+									   onkeydown="if(event.keyCode==13){smsLogin.click()}"/>
 								<label for="code">输入验证码</label>
 							</div>
 						</div>
 						<div class="col s12 center">
-							<button style="width: 100%;" type="submit" id="submit"
+							<button style="width: 100%;" type="button" id="smsLogin"
 									class="btn waves-effect waves-light"><?php echo T('提交') ?></button>
 						</div>
 					</form>
@@ -456,6 +456,14 @@
 		});
 	}
 
+	function dis($this) {
+		$this.addClass('disabled');
+	}
+
+	function en($this) {
+		$this.removeClass('disabled');
+	}
+
 	$(document).ready(function () {
 		/*手动填写BDUSS*/
 		$('#login0 #addBduss').click(function () {
@@ -467,10 +475,10 @@
 				$('#login0 #load').show();
 				return false;
 			}
-			self.addClass('disabled');
+			dis(self);
 			$('#login0 #load').show();
 			Ajax({'service': 'Tieba.AddBdussAC', 'bduss': bduss});
-			self.removeClass('disabled');
+			en(self);
 		});
 
 		/*账号密码登陆*/
@@ -531,7 +539,7 @@
 		});
 
 		/*手机号登陆*/
-		$('#login3 #submit').click(function () {
+		$('#login3 #smsLogin').click(function () {
 			var self = $(this);
 			var elementId = '#login3';
 			var phone = trim($('#login3 #phone').val()),
@@ -541,16 +549,18 @@
 				return false;
 			}
 			$('#login3 #load').show();
-			self.addClass('disabled');
+			dis(self);
 			if (self.attr('do') == 'smscode') {
 				if (smscode == '') {
 					alertMsg("验证码不能为空！");
+					en(self);
 					return false;
 				}
 				loginByPhone(phone, smscode, elementId);
 			} else if (self.attr('do') == 'code') {
 				if (code == '') {
 					alertMsg("验证码不能为空！");
+					en(self);
 					return false;
 				}
 				var code = trim($('#login3 #code').val()),
@@ -560,7 +570,7 @@
 			} else {
 				getphone(phone, elementId);
 			}
-			self.removeClass('disabled');
+			en(self);
 		});
 		$('#login3 #sendcode').click(function () {
 			var self = $(this);
@@ -571,13 +581,13 @@
 				return false;
 			}
 			$('#login3 #load').show();
-			self.addClass('disabled');
+			dis(self);
 			var code = trim($('#login3 #code').val()),
 				vcodestr = $('#login3 #codeimg').attr('vcodestr'),
 				vcodesign = $('#login3 #codeimg').attr('vcodesign');
 			sendsms(phone, code, vcodestr, vcodesign, elementId);
-			self.removeClass('disabled');
-		});
+			en(self);
+	});
 
 	});
 </script>

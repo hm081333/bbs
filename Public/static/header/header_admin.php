@@ -24,8 +24,9 @@
 </head>
 
 <body>
-<header>
-	<nav class="cyan darken-4">
+<header style="display: grid;">
+	<nav style="opacity: 0;"></nav>
+	<nav class="cyan darken-4" style="position: fixed; z-index: 2;">
 		<!--导航栏语句开始-->
 		<div class="nav-wrapper container">
 			<!--导航栏内容开始-->
@@ -35,164 +36,7 @@
 				<a href="#" data-activates="slide-out" class="button-collapse show-on-large">
 					<i class="material-icons">menu</i>
 				</a>
-				<ul id="slide-out" class="side-nav">
-					<li class="no-padding">
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<div class="userView">
-									<div class="background">
-										<img src="<?php echo URL_ROOT; ?>static/images/office.jpg">
-									</div>
-									<a><img class="circle" src="<?php echo URL_ROOT; ?>static/images/user.jpg"></a>
-									<a><span class="white-text name"><?php echo T('管理员：') ?><?php echo $_SESSION['admin_name']; ?></span></a>
-								</div>
-							</li>
-						</ul>
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<div class="divider"></div>
-							</li>
-						</ul>
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('会员管理') ?><i
-											class="material-icons">arrow_drop_down</i></a>
-								<div class="collapsible-body">
-									<ul>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=User.register"><?php echo T('添加用户') ?></a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Default.Index"><?php echo T('管理用户') ?></a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=User.create_admin"><?php echo T('添加管理员') ?></a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=User.admin_list"><?php echo T('管理管理员') ?></a>
-										</li>
 
-									</ul>
-								</div>
-							</li>
-						</ul>
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('帖子管理') ?><i
-											class="material-icons">arrow_drop_down</i></a>
-								<div class="collapsible-body">
-									<ul>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Topic.create_Topic"><?php echo T('添加新帖子') ?></a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Topic.topic_List"><?php echo T('管理帖子') ?></a>
-										</li>
-									</ul>
-								</div>
-							</li>
-						</ul>
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('分类管理') ?><i
-											class="material-icons">arrow_drop_down</i></a>
-								<div class="collapsible-body">
-									<ul>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Class.create_Class"><?php echo T('添加分类') ?></a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Class.class_List"><?php echo T('管理分类') ?></a>
-										</li>
-									</ul>
-								</div>
-							</li>
-						</ul>
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('探针') ?><i
-											class="material-icons">arrow_drop_down</i></a>
-								<div class="collapsible-body">
-									<ul>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Tz.Info">
-												<?php echo T('服务器信息') ?>
-											</a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Tz.PhpInfo">
-												<?php echo T('PHPInfo') ?>
-											</a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Tz.Test">
-												<?php echo T('服务器测试') ?>
-											</a>
-										</li>
-									</ul>
-								</div>
-							</li>
-						</ul>
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('系统设置') ?><i
-											class="material-icons">arrow_drop_down</i></a>
-								<div class="collapsible-body">
-									<ul>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Default.email_config">
-												<?php echo T('配置邮箱') ?>
-											</a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Default.smsbao_config">
-												<?php echo T('配置短信宝') ?>
-											</a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=System.backup">
-												<?php echo T('备份还原') ?>
-											</a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=System.reset">
-												<?php echo T('重置系统') ?>
-											</a>
-										</li>
-									</ul>
-								</div>
-							</li>
-						</ul>
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<div class="divider"></div>
-							</li>
-						</ul>
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<a class="subheader"><?php echo T('退出登陆') ?></a>
-							</li>
-							<li>
-								<a class="waves-effect waves-teal" onclick="logoff()"><?php echo T('退出登陆') ?></a>
-							</li>
-						</ul>
-					</li>
-				</ul>
 			<?php endif; ?>
 			<a href="./admin.php" class="center brand-logo"><?php echo T('后台') ?></a>
 			<ul class="right">
@@ -227,10 +71,166 @@
 					<a onclick="javascript:set_language('fr')"><?php echo T('法语'); ?></a>
 				</li>
 			</ul>
-
-
 		</div>
 	</nav>
+	<ul id="slide-out" class="side-nav">
+		<li class="no-padding">
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<div class="userView">
+						<div class="background">
+							<img src="<?php echo URL_ROOT; ?>static/images/office.jpg">
+						</div>
+						<a><img class="circle" src="<?php echo URL_ROOT; ?>static/images/user.jpg"></a>
+						<a><span class="white-text name"><?php echo T('管理员：') ?><?php echo $_SESSION['admin_name']; ?></span></a>
+					</div>
+				</li>
+			</ul>
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<div class="divider"></div>
+				</li>
+			</ul>
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('会员管理') ?><i
+								class="material-icons">arrow_drop_down</i></a>
+					<div class="collapsible-body">
+						<ul>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=User.register"><?php echo T('添加用户') ?></a>
+							</li>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Default.Index"><?php echo T('管理用户') ?></a>
+							</li>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=User.create_admin"><?php echo T('添加管理员') ?></a>
+							</li>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=User.admin_list"><?php echo T('管理管理员') ?></a>
+							</li>
+
+						</ul>
+					</div>
+				</li>
+			</ul>
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('帖子管理') ?><i
+								class="material-icons">arrow_drop_down</i></a>
+					<div class="collapsible-body">
+						<ul>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Topic.create_Topic"><?php echo T('添加新帖子') ?></a>
+							</li>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Topic.topic_List"><?php echo T('管理帖子') ?></a>
+							</li>
+						</ul>
+					</div>
+				</li>
+			</ul>
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('分类管理') ?><i
+								class="material-icons">arrow_drop_down</i></a>
+					<div class="collapsible-body">
+						<ul>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Class.create_Class"><?php echo T('添加分类') ?></a>
+							</li>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Class.class_List"><?php echo T('管理分类') ?></a>
+							</li>
+						</ul>
+					</div>
+				</li>
+			</ul>
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('探针') ?><i
+								class="material-icons">arrow_drop_down</i></a>
+					<div class="collapsible-body">
+						<ul>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Tz.Info">
+									<?php echo T('服务器信息') ?>
+								</a>
+							</li>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Tz.PhpInfo">
+									<?php echo T('PHPInfo') ?>
+								</a>
+							</li>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Tz.Test">
+									<?php echo T('服务器测试') ?>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</li>
+			</ul>
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('系统设置') ?><i
+								class="material-icons">arrow_drop_down</i></a>
+					<div class="collapsible-body">
+						<ul>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Default.email_config">
+									<?php echo T('配置邮箱') ?>
+								</a>
+							</li>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Default.smsbao_config">
+									<?php echo T('配置短信宝') ?>
+								</a>
+							</li>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=System.backup">
+									<?php echo T('备份还原') ?>
+								</a>
+							</li>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=System.reset">
+									<?php echo T('重置系统') ?>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</li>
+			</ul>
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<div class="divider"></div>
+				</li>
+			</ul>
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<a class="subheader"><?php echo T('退出登陆') ?></a>
+				</li>
+				<li>
+					<a class="waves-effect waves-teal" onclick="logoff()"><?php echo T('退出登陆') ?></a>
+				</li>
+			</ul>
+		</li>
+	</ul>
 	<!--导航栏语句结束-->
 </header>
 <!-- 头结束 -->

@@ -23,8 +23,9 @@
 </head>
 
 <body>
-<header>
-	<nav class="cyan darken-4">
+<header style="display: grid;">
+	<nav style="opacity: 0;"></nav>
+	<nav class="cyan darken-4" style="position: fixed; z-index: 2;">
 		<!--导航栏语句开始-->
 		<div class="nav-wrapper container">
 			<!--导航栏内容开始-->
@@ -34,61 +35,6 @@
 				<a href="#" data-activates="slide-out" class="button-collapse show-on-large">
 					<i class="material-icons">menu</i>
 				</a>
-				<ul id="slide-out" class="side-nav">
-					<li class="no-padding">
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<div class="userView">
-									<div class="background">
-										<img src="<?php echo URL_ROOT; ?>static/images/office.jpg">
-									</div>
-									<a><img class="circle" src="<?php echo URL_ROOT; ?>static/images/user.jpg"></a>
-									<a><span class="white-text name"><?php echo T('会员：') ?><?php echo $_SESSION['user_name']; ?></span></a>
-								</div>
-							</li>
-						</ul>
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<div class="divider"></div>
-							</li>
-						</ul>
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('贴吧签到管理') ?><i
-											class="material-icons">arrow_drop_down</i></a>
-								<div class="collapsible-body">
-									<ul>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Default.Index"><?php echo T('BDUSS列表') ?></a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Tieba.AddBduss"><?php echo T('添加BDUSS') ?></a>
-										</li>
-										<li>
-											<a class="waves-effect waves-teal"
-											   href="?service=Tieba.TiebaList"><?php echo T('贴吧列表') ?></a>
-										</li>
-									</ul>
-								</div>
-							</li>
-						</ul>
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<div class="divider"></div>
-							</li>
-						</ul>
-						<ul class="collapsible collapsible-accordion">
-							<li>
-								<a class="subheader"><?php echo T('退出登陆') ?></a>
-							</li>
-							<li>
-								<a class="waves-effect waves-teal" onclick="logoff()"><?php echo T('退出登陆') ?></a>
-							</li>
-						</ul>
-					</li>
-				</ul>
 			<?php endif; ?>
 			<a href="./tieba.php" class="center brand-logo"><?php echo T('贴吧签到站') ?></a>
 			<ul class="right">
@@ -123,10 +69,63 @@
 					<a onclick="javascript:set_language('fr')"><?php echo T('法语'); ?></a>
 				</li>
 			</ul>
-
-
 		</div>
 	</nav>
+	<ul id="slide-out" class="side-nav">
+		<li class="no-padding">
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<div class="userView">
+						<div class="background">
+							<img src="<?php echo URL_ROOT; ?>static/images/office.jpg">
+						</div>
+						<a><img class="circle" src="<?php echo URL_ROOT; ?>static/images/user.jpg"></a>
+						<a><span class="white-text name"><?php echo T('会员：') ?><?php echo $_SESSION['user_name']; ?></span></a>
+					</div>
+				</li>
+			</ul>
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<div class="divider"></div>
+				</li>
+			</ul>
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('贴吧签到管理') ?><i
+								class="material-icons">arrow_drop_down</i></a>
+					<div class="collapsible-body">
+						<ul>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Default.Index"><?php echo T('BDUSS列表') ?></a>
+							</li>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Tieba.AddBduss"><?php echo T('添加BDUSS') ?></a>
+							</li>
+							<li>
+								<a class="waves-effect waves-teal"
+								   href="?service=Tieba.TiebaList"><?php echo T('贴吧列表') ?></a>
+							</li>
+						</ul>
+					</div>
+				</li>
+			</ul>
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<div class="divider"></div>
+				</li>
+			</ul>
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<a class="subheader"><?php echo T('退出登陆') ?></a>
+				</li>
+				<li>
+					<a class="waves-effect waves-teal" onclick="logoff()"><?php echo T('退出登陆') ?></a>
+				</li>
+			</ul>
+		</li>
+	</ul>
 	<!--导航栏语句结束-->
 </header>
 <!-- 头结束 -->
