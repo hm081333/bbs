@@ -39,8 +39,8 @@ class Domain_Wechat
 	}
 
 	/**
-	 * jsapi_ticket是公众号用于调用微信JS接口的临时票据
-	 * jsapi_ticket的有效期为7200秒
+	 * jsapi_ticket是公众号jsapi_ticket的有效期为7200秒用于调用微信JS接口的临时票据
+	 *
 	 * 通过access_token来获取
 	 * @return mixed
 	 */
