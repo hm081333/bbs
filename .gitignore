@@ -1,0 +1,6 @@
+.idea
+Data/*
+Runtime/cache/*
+Runtime/log/*
+Public/static/upload/pics/*
+Public/static/upload/wechat/*
