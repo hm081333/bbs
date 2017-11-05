@@ -13,7 +13,7 @@
 	<tbody>
 	<?php foreach ($rows as $key => $row) : ?>
 		<tr class="green accent-1">
-			<td>
+			<td style="color: blueviolet;">
 				<?php echo $row['sn']; ?>
 			</td>
 			<td>
