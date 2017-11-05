@@ -19,7 +19,7 @@ class Api_Tieba extends PhalApi_Api
 				'baidu_id' => array('name' => 'baidu_id', 'type' => 'int', 'require' => true, 'desc' => 'baiduid表的ID'),
 			),
 			'deleteTieba' => array(
-				'tieba_id' => array('name' => 'tieba_id', 'type' => 'int', 'require' => true, 'desc' => 'tieba表的ID'),
+				'id' => array('name' => 'id', 'type' => 'int', 'require' => true, 'desc' => 'tieba表的ID'),
 			),
 			'noSignTieba' => array(
 				'tieba_id' => array('name' => 'tieba_id', 'type' => 'int', 'require' => true, 'desc' => 'tieba表的ID'),
@@ -36,7 +36,7 @@ class Api_Tieba extends PhalApi_Api
 				'user_id' => array('name' => 'user_id', 'type' => 'int', 'require' => true, 'desc' => '会员的ID--签到会员所有贴吧'),
 			),
 			'deleteBaiduId' => array(
-				'baidu_id' => array('name' => 'baidu_id', 'type' => 'int', 'require' => true, 'desc' => 'baiduid的ID--删除该贴吧用户'),
+				'id' => array('name' => 'id', 'type' => 'int', 'require' => true, 'desc' => 'baiduid的ID--删除该贴吧用户'),
 			),
 			'checkVC' => array(
 				'user' => array('name' => 'user', 'type' => 'string', 'require' => true, 'desc' => '用户名'),
@@ -234,8 +234,7 @@ class Api_Tieba extends PhalApi_Api
 
 	public function deleteTieba()
 	{
-		//$tieba_id = $this->tieba_id;
-		Domain_Tieba::deleteTieba($this->tieba_id);
+		Domain_Tieba::deleteTieba($this->id);
 		DI()->response->setMsg(T('删除成功'));
 	}
 
@@ -274,8 +273,8 @@ class Api_Tieba extends PhalApi_Api
 	{
 		$tieba_model = new Model_Tieba();
 		$baiduid_model = new Model_BaiduId();
-		$del_tieba = $tieba_model->deleteByWhere(array('baidu_id' => $this->baidu_id));
-		$del_baiduid = $baiduid_model->delete($this->baidu_id);
+		$del_tieba = $tieba_model->deleteByWhere(array('baidu_id' => $this->id));
+		$del_baiduid = $baiduid_model->delete($this->id);
 		if ($del_tieba === false || $del_baiduid === false) {
 			throw new PhalApi_Exception_Error(T('删除失败'));
 		}

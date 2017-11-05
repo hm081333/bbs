@@ -66,7 +66,8 @@
 								<button onclick="sign_tieba(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light">
 									<i class="material-icons">refresh</i>
 								</button>
-								<button onclick="delete_tieba(<?php echo $row['id']; ?>)" class="btn-floating waves-effect waves-light">
+								<button data-id="<?php echo $row['id']; ?>" data-service="Tieba.DeleteTieba"
+										class="delete btn-floating waves-effect waves-light">
 									<i class="material-icons">delete</i>
 								</button>
 							</td>

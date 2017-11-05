@@ -27,8 +27,8 @@
 				<?php echo date('Y-m-d H:i:s', $row['refresh_time']); ?>
 			</td>
 			<td>
-				<button onclick="delete_baiduid(<?php echo $row['id']; ?>)"
-						class="btn-floating waves-effect waves-light">
+				<button data-id="<?php echo $row['id']; ?>" data-service="Tieba.DeleteBaiduId"
+						class="delete btn-floating waves-effect waves-light">
 					<i class="material-icons">delete</i>
 				</button>
 			</td>

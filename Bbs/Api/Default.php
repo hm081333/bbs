@@ -28,6 +28,9 @@ class Api_Default extends PhalApi_Api
 			'deliveryView' => array(
 				'id' => array('name' => 'id', 'type' => 'int', 'require' => true, 'min' => 1, 'desc' => 'ID'),
 			),
+			'delDelivery' => array(
+				'id' => array('name' => 'id', 'type' => 'int', 'require' => true, 'min' => 1, 'desc' => 'ID'),
+			),
 		);
 	}
 
@@ -66,6 +69,22 @@ class Api_Default extends PhalApi_Api
 		} else {
 			DI()->notorm->commit('db_forum');
 			DI()->response->setMsg(T('添加成功'));
+			return true;
+		}
+	}
+
+	public function delDelivery()
+	{
+		$delivery_model = new Model_Delivery();
+		DI()->notorm->beginTransaction('db_forum');
+		$rs = $delivery_model->delete($this->id);
+		unset($insert);
+		if ($rs === false) {
+			DI()->notorm->rollback('db_forum');
+			throw new PhalApi_Exception(T('删除失败'));
+		} else {
+			DI()->notorm->commit('db_forum');
+			DI()->response->setMsg(T('删除成功'));
 			return true;
 		}
 	}

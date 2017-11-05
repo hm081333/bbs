@@ -16,3 +16,8 @@ defined('PREFIX') || define('PREFIX', DI()->config->get('dbs.tables')['__default
 defined('USER_TOKEN') || define('USER_TOKEN', '85cc39d65ded51e8ffb949503e83ed65');
 defined('ADMIN_TOKEN') || define('ADMIN_TOKEN', '1858d7d84c1f48cd63eda4f989dbf9e7');
 
+// SoundCloud 客户端 ID，如果失效请更改
+defined('MC_SC_CLIENT_ID') || define('MC_SC_CLIENT_ID', '2t9loNQH90kzJcsFCODdigxfp325aq4z');
+// Curl 代理地址，解决翻墙问题。例如：define('MC_PROXY', 'http://10.10.10.10:8123');
+defined('MC_PROXY') || define('MC_PROXY', false);
+

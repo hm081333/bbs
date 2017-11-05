@@ -44,11 +44,30 @@ return array(
 
 	'tuling_config' => array(
 		'APIkey' => '7fec48a1322b4e06827f600e04fd080f',
-		'URI'=>'http://www.tuling123.com/openapi/api'
+		'URI' => 'http://www.tuling123.com/openapi/api'
 	),
 
 	'baidu_map_config' => array(
 		'ak' => 'OO9EUBzBqEqGnA9ItB62uUL1AaWc5n4l',
-		'sk'=>'6g6g5oDczqelrOwR921ntPekrDFQGcC3'
-	)
+		'sk' => '6g6g5oDczqelrOwR921ntPekrDFQGcC3'
+	),
+
+	'music_type_list' => array(
+		'netease' => '网易',
+		'qq' => 'ＱＱ',
+		'kugou' => '酷狗',
+		'kuwo' => '酷我',
+		'xiami' => '虾米',
+		'baidu' => '百度',
+		'1ting' => '一听',
+		'migu' => '咪咕',
+		'lizhi' => '荔枝',
+		'qingting' => '蜻蜓',
+		'ximalaya' => '喜马拉雅',
+		'5singyc' => '5sing 原创',
+		'5singfc' => '5sing 翻唱',
+		'soundcloud' => 'SoundCloud'
+	),
+
+
 );

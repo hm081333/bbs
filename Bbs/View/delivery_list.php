@@ -7,15 +7,14 @@
 		<th><?php echo T('说明'); ?></th>
 		<th><?php echo T('状态'); ?></th>
 		<th><?php echo T('上次查看时间'); ?></th>
+		<th><?php echo T('操作'); ?></th>
 	</tr>
 	</thead>
 	<tbody>
 	<?php foreach ($rows as $key => $row) : ?>
 		<tr class="green accent-1">
 			<td>
-				<a class="brown-text delivery_id" data-id="<?php echo $row['id']; ?>" style="cursor: pointer;">
-					<b><?php echo $row['sn']; ?></b>
-				</a>
+				<?php echo $row['sn']; ?>
 			</td>
 			<td>
 				<?php echo $row['log_name']; ?>
@@ -59,6 +58,15 @@
 			</td>
 			<td>
 				<?php echo $row['last_time'] ? date('Y-m-d H:i:s', $row['last_time']) : ''; ?>
+			</td>
+			<td class="center">
+				<a class="delivery_id btn-floating waves-effect waves-light" data-id="<?php echo $row['id']; ?>">
+					<i class="material-icons">insert_chart</i>
+				</a>
+				<a class="delete btn-floating waves-effect waves-light" data-id="<?php echo $row['id']; ?>"
+				   data-service="Default.DelDelivery">
+					<i class="material-icons">delete</i>
+				</a>
 			</td>
 		</tr>
 	<?php endforeach; ?>

@@ -40,8 +40,9 @@
 				<td>
 					<button onclick="update_user(<?php echo $row['id']; ?>)"
 							class="btn-floating waves-effect waves-light"><i class="material-icons">edit</i></button>
-					<button onclick="delete_user(<?php echo $row['id']; ?>)"
-							class="btn-floating waves-effect waves-light"><i class="material-icons">delete</i></button>
+					<button data-id="<?php echo $row['id']; ?>" data-service="User.delete_User"
+							class="delete btn-floating waves-effect waves-light"><i class="material-icons">delete</i>
+					</button>
 				</td>
 			</tr>
 		<?php endforeach; ?>

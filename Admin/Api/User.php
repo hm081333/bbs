@@ -52,7 +52,7 @@ class Api_User extends PhalApi_Api
 				'auth' => array('name' => 'auth', 'type' => 'string', 'require' => false, 'desc' => '用户权限')
 			),
 			'delete_User' => array(
-				'user_id' => array('name' => 'user_id', 'type' => 'int', 'require' => true, 'desc' => '用户ID')
+				'id' => array('name' => 'id', 'type' => 'int', 'require' => true, 'desc' => '用户ID')
 			),
 		);
 	}
@@ -255,7 +255,7 @@ class Api_User extends PhalApi_Api
 	public function delete_User()
 	{
 		$user_model = new Model_User();
-		$user = $user_model->get($this->user_id);
+		$user = $user_model->get($this->id);
 		if (!$user) {
 			throw new PhalApi_Exception_Error(T('会员不存在'), 1);// 抛出普通错误 T标签翻译
 		}

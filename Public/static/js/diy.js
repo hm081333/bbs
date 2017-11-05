@@ -149,14 +149,6 @@ function refresh_tieba(baidu_id) {
 	Ajax({service: 'Tieba.RefreshTieba', baidu_id: baidu_id})
 }
 
-function delete_tieba(tieba_id) {
-	Ajax({service: 'Tieba.DeleteTieba', tieba_id: tieba_id})
-}
-
-function delete_baiduid(baidu_id) {
-	Ajax({service: 'Tieba.DeleteBaiduId', baidu_id: baidu_id})
-}
-
 function no_sign(tieba_id) {
 	var no_status = $('#no_sign' + tieba_id)[0]['checked'];
 	Ajax({service: 'Tieba.NoSignTieba', tieba_id: tieba_id, no: no_status}, function (d) {
@@ -200,23 +192,6 @@ function update_user(user_id) {
 			real_name: real_name,
 			password: password
 		},
-		success: function (d) {
-			if (d.ret == 200) {
-				Materialize.toast(d.msg, 2000, 'rounded', function () {
-					location.reload();
-				});
-			} else {
-				Materialize.toast(d.msg, 2000, 'rounded');
-			}
-		}
-	});
-}
-
-function delete_user(user_id) {
-	$.ajax({
-		type: 'POST',
-		data: {service: 'User.delete_User', user_id: user_id},
-		dataType: 'json',
 		success: function (d) {
 			if (d.ret == 200) {
 				Materialize.toast(d.msg, 2000, 'rounded', function () {
@@ -499,12 +474,23 @@ $('#RestoreModal form').submit(function ()//提交表单
 	});
 });
 
+
 /**
- * a标签 点击跳转按钮
+ * a标签
+ */
+
+/**
+ * 点击跳转按钮
  * 提交?service='xxx'跳转api
  * 跳转外链请加上http://开头
  */
 $('.url').click(function () {
 	var url = $(this).attr('data-url');
 	location.href = url;
+});
+
+$('.delete').click(function () {
+	var id = $(this).attr("data-id");
+	var service = $(this).attr("data-service");
+	Ajax({service: service, id: id});
 });
