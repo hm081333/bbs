@@ -5,7 +5,7 @@
 		padding-right: 10px !important;
 	}
 </style>
-<div class="row" style="max-width: 900px;">
+<div class="row">
 	<form class="col s12" onsubmit="return false">
 		<div class="row">
 			<div class="input-field col s12">
@@ -14,37 +14,34 @@
 			</div>
 		</div>
 		<div class="row">
+			<div class="input-field col s12">
+				<select id="music_filter" name="music_filter">
+					<option value="name">音乐名称</option>
+					<option value="id">音乐 ID</option>
+					<option value="url">音乐地址</option>
+				</select>
+				<label>搜索途径</label>
+			</div>
+		</div>
+		<div class="row">
 			<div class="col s12">
 				<p style="text-align: center!important;">
-					<input name="music_type" type="radio" id="netease" value="netease" class="with-gap"/>
-					<label for="netease">网易</label>
-					<input name="music_type" type="radio" id="qq" value="qq" class="with-gap"/>
-					<label for="qq">ＱＱ</label>
-					<input name="music_type" type="radio" id="kugou" value="kugou" class="with-gap"/>
-					<label for="kugou">酷狗</label>
-					<input name="music_type" type="radio" id="kuwo" value="kuwo" class="with-gap"/>
-					<label for="kuwo">酷我</label>
-					<input name="music_type" type="radio" id="xiami" value="xiami" class="with-gap"/>
-					<label for="xiami">虾米</label>
-					<input name="music_type" type="radio" id="baidu" value="baidu" class="with-gap"/>
-					<label for="baidu">百度</label>
-					<input name="music_type" type="radio" id="1ting" value="1ting" class="with-gap"/>
-					<label for="1ting">一听</label>
-					<input name="music_type" type="radio" id="migu" value="migu" class="with-gap"/>
-					<label for="migu">咪咕</label>
-					<input name="music_type" type="radio" id="lizhi" value="lizhi" class="with-gap"/>
-					<label for="lizhi">荔枝</label>
-					<input name="music_type" type="radio" id="qingting" value="qingting" class="with-gap"/>
-					<label for="qingting">蜻蜓</label>
-					<input name="music_type" type="radio" id="ximalaya" value="ximalaya" class="with-gap"/>
-					<label for="ximalaya">喜马拉雅</label>
-					<input name="music_type" type="radio" id="5singyc" value="5singyc" class="with-gap"/>
-					<label for="5singyc">5sing 原创</label>
-					<input name="music_type" type="radio" id="5singfc" value="5singfc" class="with-gap"/>
-					<label for="5singfc">5sing 翻唱</label>
-					<input name="music_type" type="radio" id="soundcloud" value="soundcloud" class="with-gap"/>
-					<label for="soundcloud">SoundCloud</label>
+					<?php $music_type_list = DI()->config->get('app.music_type_list'); ?>
+					<?php foreach ($music_type_list as $key => $val): ?>
+						<input name="music_type" type="radio" id="<?php echo $key; ?>" value="<?php echo $key; ?>"
+							   class="with-gap"/>
+						<label for="<?php echo $key; ?>"><?php echo $val; ?></label>
+					<?php endforeach; ?>
 				</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col s12">
+				<button class="btn-large waves-effect waves-light" type="submit" name="action"
+						style="width: 100%; font-size: xx-large;">
+					获取
+					<i class="material-icons large">send</i>
+				</button>
 			</div>
 		</div>
 	</form>
@@ -55,3 +52,22 @@
 			type="audio/mpeg">
 </audio>-->
 
+<script>
+	$().ready(function () {
+		$('#music_filter').change(function () {
+			$this = $(this);
+			var filter = $this.val();
+			var holder = {
+				name: '例如: 不要说话 陈奕迅',
+				id: '例如: 25906124',
+				url: '例如: http://music.163.com/#/song?id=25906124',
+				'pattern-name': '^.+$',
+				'pattern-id': '^[\\w\\/\\|]+$',
+				'pattern-url': '^https?:\\/\\/\\S+$'
+			};
+			$('#music_input').attr({
+				placeholder: holder[filter]
+			});
+		})
+	});
+</script>
