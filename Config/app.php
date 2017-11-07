@@ -69,5 +69,11 @@ return array(
 		'soundcloud' => 'SoundCloud'
 	),
 
+	'music_valid_patterns' => array(
+		'name' => '/^.+$/i',
+		'id' => '/^[\w\/\|]+$/i',
+		'url' => '/^https?:\/\/\S+$/i'
+	),
+
 
 );

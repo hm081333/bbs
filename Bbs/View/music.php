@@ -6,11 +6,12 @@
 	}
 </style>
 <div class="row">
-	<form class="col s12" onsubmit="return false">
+	<form class="col s12" id="music" onsubmit="return false">
+		<input type="hidden" name="service" value="Music.Search">
 		<div class="row">
 			<div class="input-field col s12">
 				<input style="text-align: center!important; font-size: 1.5rem!important;" placeholder="例如: 不要说话 陈奕迅"
-					   id="music_input" type="text" class="validate" required>
+					   id="music_input" name="music_input" type="text" class="validate" required>
 			</div>
 		</div>
 		<div class="row">
@@ -28,7 +29,7 @@
 				<p style="text-align: center!important;">
 					<?php $music_type_list = DI()->config->get('app.music_type_list'); ?>
 					<?php foreach ($music_type_list as $key => $val): ?>
-						<input name="music_type" type="radio" id="<?php echo $key; ?>" value="<?php echo $key; ?>"
+						<input name="music_type" <?php echo $key == 'netease' ? 'checked' : ''; ?> type="radio" id="<?php echo $key; ?>" value="<?php echo $key; ?>"
 							   class="with-gap"/>
 						<label for="<?php echo $key; ?>"><?php echo $val; ?></label>
 					<?php endforeach; ?>
@@ -65,9 +66,10 @@
 				'pattern-id': '^[\\w\\/\\|]+$',
 				'pattern-url': '^https?:\\/\\/\\S+$'
 			};
-			$('#music_input').attr({
-				placeholder: holder[filter]
-			});
-		})
+			$('#music_input').attr({placeholder: holder[filter]});
+		});
+		$('#music').submit(function () {
+			Ajax($("#music").serialize());
+		});
 	});
 </script>
