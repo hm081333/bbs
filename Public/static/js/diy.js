@@ -37,6 +37,7 @@ $(document).ready(function () {
 	$('ul.tabs').tabs({
 		// swipeable: true
 	});
+	$('.tooltipped').tooltip({delay: 50});
 
 
 	// var ip = returnCitySN['cip'];

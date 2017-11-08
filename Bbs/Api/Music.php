@@ -32,19 +32,24 @@ class Api_Music extends PhalApi_Api
 		if (!preg_match($music_valid_patterns[$this->music_filter], $this->music_input)) {
 			throw new PhalApi_Exception_BadRequest('请检查您的输入是否正确');
 		}
-		var_dump($this);
-		die;
+		$music_domain = new Domain_Music();
+		$music_response = '';
 		switch ($this->music_filter) {
 			case 'name':
-				$music_response = maicong_get_song_by_name($music_input, $music_type);
+				$music_response = $music_domain->maicong_get_song_by_name($this->music_input, $this->music_type);
 				break;
 			case 'id':
-				$music_response = maicong_get_song_by_id($music_input, $music_type);
+				$music_response = $music_domain->maicong_get_song_by_id($this->music_input, $this->music_type);
 				break;
 			case 'url':
-				$music_response = maicong_get_song_by_url($music_input);
+				$music_response = $music_domain->maicong_get_song_by_url($this->music_input);
 				break;
 		}
+		if (empty($music_response)) {
+			throw new PhalApi_Exception_Error('未知错误');
+		}
+		DI()->response->setMsg('搜索成功');
+		return $music_response;
 	}
 
 

@@ -63,26 +63,56 @@ class Domain_Music
 		if (null === $args['url'] || !in_array($method, $method_allow, true)) {
 			return;
 		}
-		$curl = new Curl();
-		$curl->setOpt(CURLOPT_SSL_VERIFYPEER, $args['sslverify']);
-		$curl->setUserAgent($args['user-agent']);
-		$curl->setReferrer($args['referer']);
-		$curl->setTimeout(20);
-		$curl->setHeader('X-Requested-With', 'XMLHttpRequest');
-		if ($args['proxy'] && define('MC_PROXY') && MC_PROXY) {
-			$curl->setOpt(CURLOPT_PROXY, MC_PROXY);
+		$headers = array();
+		$headers['X-Requested-With'] = 'XMLHttpRequest';
+		if (!empty($args['headers'])) {
+			array_merge($headers, $args['headers']);
+		}
+		DI()->curl->setHeader($headers);
+
+		$options = array();
+		$options[CURLOPT_SSL_VERIFYPEER] = $args['sslverify'];
+		$options[CURLOPT_USERAGENT] = $args['user-agent'];
+		$options[CURLOPT_REFERER] = $args['referer'];
+		$options[CURLOPT_TIMEOUT] = 20;
+		if ($args['proxy'] && defined('MC_PROXY') && MC_PROXY) {
+			$options[CURLOPT_PROXY] = MC_PROXY;
 		}
 		if (!empty($args['range'])) {
-			$curl->setOpt(CURLOPT_RANGE, $args['range']);
+			$options[CURLOPT_RANGE] = $args['range'];
 		}
-		if (!empty($args['headers'])) {
-			foreach ($args['headers'] as $key => $val) {
-				$curl->setHeader($key, $val);
-			}
+		switch ($method) {
+			case 'get':
+				$options[CURLOPT_CUSTOMREQUEST] = 'GET';
+				$options[CURLOPT_HTTPGET] = true;
+				DI()->curl->setOption($options);
+				$response = DI()->curl->$method($args['url'], $args['body']);
+				break;
+			case 'post':
+				if (is_array($args['body']) && empty($args['body'])) {
+					DI()->curl->unsetHeader('Content-Length');
+				}
+				$options[CURLOPT_CUSTOMREQUEST] = 'POST';
+				$options[CURLOPT_POST] = true;
+				DI()->curl->setOption($options);
+				$response = DI()->curl->$method($args['url'], $args['body']);
+				break;
+			case 'put':
+				throw new PhalApi_Exception_InternalServerError('未开发');
+				break;
+			case 'patch':
+				throw new PhalApi_Exception_InternalServerError('未开发');
+				break;
+			case 'delete':
+				throw new PhalApi_Exception_InternalServerError('未开发');
+				break;
+			case 'head':
+				throw new PhalApi_Exception_InternalServerError('未开发');
+				break;
+			case 'options':
+				throw new PhalApi_Exception_InternalServerError('未开发');
+				break;
 		}
-		$curl->$method($args['url'], $args['body']);
-		$curl->close();
-		$response = $curl->raw_response;
 		if (!empty($response)) {
 			return $response;
 		}
@@ -911,7 +941,7 @@ class Domain_Music
 							'name' => urldecode($radio_detail[0]['name']),
 							'author' => urldecode($radio_author),
 							'music' => $radio_music_url,
-							'pic' => $radio_detail[0]['album']['picUrl'] . '?param=100x100'
+							'pic' => $radio_detail[0]['album']['picUrl']/* . '?param=100x100'*/
 						);
 					}
 				}

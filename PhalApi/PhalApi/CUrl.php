@@ -60,6 +60,12 @@ class PhalApi_CUrl
 		return $this;
 	}
 
+	public function unsetHeader($key)
+	{
+		unset($this->header[$key]);
+		return $this;
+	}
+
 	/**
 	 * 设置curl配置项
 	 * 1、后设置的会覆盖之前的设置

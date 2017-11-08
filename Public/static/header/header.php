@@ -67,11 +67,11 @@
 			</li>
 			<li class="divider"></li>
 			<?php if (version_compare(phpversion(), '5.4', '>=')) : ?>
-				<li>
+				<!--<li>
 					<a onClick="location.href='?service=Music.Index'">
-						<?php echo T('音乐搜索器'); ?></a>
+						<?php /*echo T('音乐搜索器'); */?></a>
 				</li>
-				<li class="divider"></li>
+				<li class="divider"></li>-->
 			<?php endif; ?>
 			<li>
 				<a onClick="location.href='./tieba.php'">
