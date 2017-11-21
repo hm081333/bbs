@@ -94,8 +94,10 @@
 			</ul>
 			<ul class="collapsible collapsible-accordion">
 				<li>
-					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('会员管理') ?><i
-								class="material-icons">arrow_drop_down</i></a>
+					<a class="bold collapsible-header waves-effect waves-teal">
+						<?php echo T('会员管理') ?>
+						<i class="material-icons">chevron_right</i>
+					</a>
 					<div class="collapsible-body">
 						<ul>
 							<li>
@@ -121,8 +123,9 @@
 			</ul>
 			<ul class="collapsible collapsible-accordion">
 				<li>
-					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('帖子管理') ?><i
-								class="material-icons">arrow_drop_down</i></a>
+					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('帖子管理') ?>
+						<i class="material-icons">chevron_right</i>
+					</a>
 					<div class="collapsible-body">
 						<ul>
 							<li>
@@ -139,8 +142,9 @@
 			</ul>
 			<ul class="collapsible collapsible-accordion">
 				<li>
-					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('分类管理') ?><i
-								class="material-icons">arrow_drop_down</i></a>
+					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('分类管理') ?>
+						<i class="material-icons">chevron_right</i>
+					</a>
 					<div class="collapsible-body">
 						<ul>
 							<li>
@@ -157,8 +161,9 @@
 			</ul>
 			<ul class="collapsible collapsible-accordion">
 				<li>
-					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('探针') ?><i
-								class="material-icons">arrow_drop_down</i></a>
+					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('探针') ?>
+						<i class="material-icons">chevron_right</i>
+					</a>
 					<div class="collapsible-body">
 						<ul>
 							<li>
@@ -185,8 +190,9 @@
 			</ul>
 			<ul class="collapsible collapsible-accordion">
 				<li>
-					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('系统设置') ?><i
-								class="material-icons">arrow_drop_down</i></a>
+					<a class="bold collapsible-header waves-effect waves-teal"><?php echo T('系统设置') ?>
+						<i class="material-icons">chevron_right</i>
+					</a>
 					<div class="collapsible-body">
 						<ul>
 							<li>
@@ -235,6 +241,21 @@
 	<!--导航栏语句结束-->
 </header>
 <!-- 头结束 -->
+
+<script>
+	$(document).ready(function () {
+		$('.collapsible-header').click(function (d) {
+			var $this = $(this);
+			var is_open = $this.hasClass('active');
+			var icon = $this.children('i');
+			if (is_open==true) {
+				icon.html('chevron_right');
+			} else {
+				icon.html('expand_more');
+			}
+		});
+	});
+</script>
 
 <!-- 正文内容开始 -->
 <main id="Content" class="container row">
