@@ -124,7 +124,7 @@ class Domain_Tieba
 				$refresh_time = $rc['time'];
 				foreach ($ngf as $v) {
 					$vn = addslashes(htmlspecialchars($v['name']));
-					$ist = $tieba_model->count(array('baidu_id' => $pid, 'tieba' => $vn));
+					$ist = $tieba_model->getCountByWhere(array('baidu_id' => $pid, 'tieba' => $vn));
 					if ($ist == 0) {
 						$a++;
 						$tieba_model->insert(array('baidu_id' => $pid, 'fid' => $v['id'], 'user_id' => $user_id, 'tieba' => $vn, 'refresh_time' => $refresh_time));
@@ -217,7 +217,7 @@ class Domain_Tieba
 		$where = array();
 		$where['no = ?'] = 0; // 不忽略签到
 		$where['status != ?'] = 0; // 签到状态不为0==签到出错
-		$total_sign_tieba = $tieba_model->count($where); // 该条件下所有贴吧数量
+		$total_sign_tieba = $tieba_model->getCountByWhere($where); // 该条件下所有贴吧数量
 		$limit = 100; // 100条100条循环拿
 		$count = ceil($total_sign_tieba / $limit); // 循环100条的次数
 		$else = 0; // 已遍历的数量
@@ -252,7 +252,7 @@ class Domain_Tieba
 		$where = array();
 		$where['no = ?'] = 0; // 不忽略签到
 		$where['latest < ?'] = $day_time['begin']; // 今天没有签到
-		$total_sign_tieba = $tieba_model->count($where); // 该条件下所有贴吧数量
+		$total_sign_tieba = $tieba_model->getCountByWhere($where); // 该条件下所有贴吧数量
 		$limit = 100; // 100条100条循环拿
 		$count = ceil($total_sign_tieba / $limit); // 循环100条的次数
 		$else = 0; // 已遍历的数量
@@ -293,7 +293,7 @@ class Domain_Tieba
 		$where['baidu_id = ?'] = $baidu_id; // 该贴吧用户
 		$where['no = ?'] = 0; // 不忽略签到
 		$where['latest < ?'] = $day_time['begin']; // 今天没有签到
-		$total_sign_tieba = $tieba_model->count($where); // 该条件下所有贴吧数量
+		$total_sign_tieba = $tieba_model->getCountByWhere($where); // 该条件下所有贴吧数量
 		$limit = 100; // 100条100条循环拿
 		$count = ceil($total_sign_tieba / $limit); // 循环100条的次数
 		$else = 0; // 已遍历的数量
