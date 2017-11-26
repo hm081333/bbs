@@ -5,8 +5,19 @@ class Domain_Test
 
 	public static function down()
 	{
-		$result = DI()->curl->getFile('http://i.yxniu.com/comic/43/21406/232791/0001.jpg', API_ROOT . '/Public/static/download/qigongzhu/1/', '0001.jpg');
-		var_dump($result);
-		die;
+		$begin = 232791;
+		for ($i = 0; $i < 1; $i++) {
+			$now = $begin - $i;
+			for ($z = 0; $z < 109; $z++) {
+				$num = str_pad($z, 4, '0', STR_PAD_LEFT);
+				$url = 'http://i.yxniu.com/comic/43/21406/' . $now . '/' . $num . '.jpg';
+				$result = DI()->curl->getFile($url, API_ROOT . '/Public/static/download/qigongzhu/' . ($i + 1) . '/', $num . '.jpg');
+				$file_size = filesize($result);
+				if ($file_size <= 10000) {
+					break;
+				}
+			}
+		}
 	}
+
 }

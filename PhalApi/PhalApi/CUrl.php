@@ -157,7 +157,7 @@ class PhalApi_CUrl
 		$this->setOption(array(CURLOPT_URL => $url, CURLOPT_FILE => $fp, CURLOPT_HEADER => FALSE, CURLOPT_FOLLOWLOCATION => TRUE, CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs));
 		$this->request($url);
 		fclose($fp);
-		return true;
+		return $path . $file_name;
 	}
 
 	/**

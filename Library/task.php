@@ -16,6 +16,10 @@ try {
 			DI()->logger->info('执行贴吧定时，签到重试');
 			Domain_Tieba::doRetryAll();//重试所有出错贴吧
 			break;
+		case 'test':
+			DI()->logger->info('扒图开始');
+			Domain_Test::down();
+			break;
 		default:
 			break;
 	}
