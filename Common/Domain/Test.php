@@ -6,7 +6,7 @@ class Domain_Test
 	public static function down()
 	{
 		$begin = 232791;
-		for ($i = 0; $i < 1; $i++) {
+		for ($i = 0; $i < 64; $i++) {
 			$now = $begin - $i;
 			for ($z = 0; $z < 109; $z++) {
 				$num = str_pad($z, 4, '0', STR_PAD_LEFT);
