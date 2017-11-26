@@ -67,13 +67,8 @@ class Common_Function
 
 	public static function getImage($url = '', $path = 'wechat', $fileName = '')
 	{
-		$info = '/upload/' . $path;
-		$dir = API_ROOT . '/Public/static' . $info;
-		if (!file_exists($dir)) {
-			mkdir($dir, 0777);
-		}
-		$fileName = $dir . '/' . $fileName . '.jpg';
-		$result = DI()->curl->getFile($url, $fileName);
+		$dir = API_ROOT . '/Public/static/upload/' . $path;
+		$result = DI()->curl->getFile($url, $dir . '/', $fileName . '.jpg');
 	}
 
 	/**

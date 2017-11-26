@@ -16,7 +16,8 @@
 				</a>
 			</td>
 			<td>
-				<span class="truncate tooltipped" data-position="bottom" data-delay="50" data-tooltip="<?php echo T($row['tips']); ?>">
+				<span class="truncate tooltipped" data-position="bottom" data-delay="50"
+					  data-tooltip="<?php echo T($row['tips']); ?>">
 					<?php echo T($row['tips']); ?>
 				</span>
 			</td>

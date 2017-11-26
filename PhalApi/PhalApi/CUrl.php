@@ -142,14 +142,22 @@ class PhalApi_CUrl
 	 * @param int $timeoutMs
 	 * @return string
 	 */
-	public function getFile($url, $pathFile, $timeoutMs = 3000)
+	public function getFile($url, $path, $file_name, $timeoutMs = 3000)
 	{
-		$fp = fopen($pathFile, 'wb');
+		if (empty($path) || empty($file_name)) {
+			throw new PhalApi_Exception_InternalServerError('路径或文件名为空');
+		}
+		if (!is_dir($path)) {
+			mkdir($path, 0777, TRUE);
+		}
+		$fp = fopen($path . $file_name, 'wb');
 		if ($fp === FALSE) {
 			throw new PhalApi_Exception_InternalServerError('保存文件初始化失败');
 		}
-		$this->setOption(array(CURLOPT_FILE => $fp, CURLOPT_FOLLOWLOCATION => TRUE));
-		return $this->request($url, array(), $timeoutMs);
+		$this->setOption(array(CURLOPT_URL => $url, CURLOPT_FILE => $fp, CURLOPT_HEADER => FALSE, CURLOPT_FOLLOWLOCATION => TRUE, CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs));
+		$this->request($url);
+		fclose($fp);
+		return true;
 	}
 
 	/**
@@ -185,13 +193,13 @@ class PhalApi_CUrl
 	 * @param int $timeoutMs 超时设置，单位：毫秒
 	 * @return string 接口返回的内容，超时返回false
 	 */
-	protected function request($url, $data, $timeoutMs = 3000)
+	protected function request($url, $data = array(), $timeoutMs = 3000)
 	{
 		$options = array(
 			CURLOPT_URL => $url,
 			CURLOPT_RETURNTRANSFER => TRUE, //将curl获取的信息以文件流的形式返回，而不是直接输出
 			CURLOPT_SSL_VERIFYPEER => FALSE,
-			CURLOPT_HEADER => 0,
+			CURLOPT_HEADER => FALSE,
 			CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs,
 			CURLOPT_HTTPHEADER => $this->getHeaders(), //字符串
 			//CURLOPT_HTTPHEADER => $this->header, //数组
@@ -207,7 +215,11 @@ class PhalApi_CUrl
 			}
 		}
 
-		$options = $this->option + $options;//$this->>option优先
+		if (isset($this->option[CURLOPT_FILE])) {
+			$options = $this->option;
+		} else {
+			$options = $this->option + $options;//$this->>option优先
+		}
 
 		$ch = curl_init();
 		if ($ch === FALSE) {
