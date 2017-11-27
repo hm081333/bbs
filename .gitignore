@@ -2,5 +2,6 @@
 Data/*
 Runtime/cache/*
 Runtime/log/*
+Public/static/download/*
 Public/static/upload/pics/*
 Public/static/upload/wechat/*
