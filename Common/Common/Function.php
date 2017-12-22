@@ -65,7 +65,7 @@ class Common_Function
 		return md5(urlencode($url . '?' . $querystring . $sk));
 	}
 
-	public static function getImage($url = '', $path = 'wechat', $fileName = '')
+	public static function getImage($url = '', $fileName = '', $path = 'wechat')
 	{
 		$dir = API_ROOT . '/Public/static/upload/' . $path;
 		$result = DI()->curl->getFile($url, $dir . '/', $fileName . '.jpg');
