@@ -4,18 +4,18 @@ class Domain_Wechat
 {
 	private $appId;
 	private $appSecret;
-
+	
 	public function __construct()
 	{
 		$config = DI()->config->get('app.Wechat')['config'];
 		$this->appId = $config['appID'];
 		$this->appSecret = $config['appsecret'];
 	}
-
+	
 	/**
 	 * 获取access_token
 	 * @return mixed
-	 * @throws PhalApi_Exception
+	 * @throws PhalApi_Exception 抛出错误
 	 */
 	private function getAccessToken()
 	{
@@ -37,7 +37,7 @@ class Domain_Wechat
 			return $access_token;
 		}
 	}
-
+	
 	/**
 	 * jsapi_ticket是公众号jsapi_ticket的有效期为7200秒用于调用微信JS接口的临时票据
 	 *
@@ -65,7 +65,7 @@ class Domain_Wechat
 			return $jsapi_ticket;
 		}
 	}
-
+	
 	/**
 	 * 拉取身份信息的唯一code
 	 * @param string $scope
@@ -80,7 +80,7 @@ class Domain_Wechat
 			die;
 		}
 	}
-
+	
 	/**
 	 * 通过code拉取openid和access_token
 	 * @param $code
@@ -100,7 +100,7 @@ class Domain_Wechat
 			throw new PhalApi_Exception_Error(T('失败'));
 		}
 	}
-
+	
 	/**
 	 * $scope = 'snsapi_userinfo'的后续
 	 * @param $access_token
@@ -130,7 +130,7 @@ class Domain_Wechat
 			throw new PhalApi_Exception_Error(T('失败'));
 		}
 	}
-
+	
 	/**
 	 * 通过获取的openid达到自动登陆的效果
 	 * @param $code
@@ -158,7 +158,7 @@ class Domain_Wechat
 			throw new PhalApi_Exception_Error(T('失败'));
 		}
 	}
-
+	
 	/**
 	 * 随机字符串
 	 * @param int $length
@@ -173,7 +173,7 @@ class Domain_Wechat
 		}
 		return $str;
 	}
-
+	
 	/**
 	 * 生成jsSDK权限验证配置
 	 * @return array
@@ -199,6 +199,69 @@ class Domain_Wechat
 		);
 		return $signPackage;
 	}
-
-
+	
+	/**
+	 * 发送贴吧签到详情
+	 * @param string $openid
+	 * @throws PhalApi_Exception
+	 */
+	private function sendTiebaSignDetail($openid = '')
+	{
+		if (empty($openid)) {
+			return;
+		}
+		$accessToken = $this->getAccessToken();
+		$url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={$accessToken}";
+		$result = Domain_Tieba::getSignStatus($openid);
+		if ($result == false) {
+			return;
+		}
+		
+		$send_array = array();
+		$send_array['touser'] = $openid;
+		$send_array['template_id'] = "Ogvc_rROWerSHvfgo1IOJIL103bso0H3jLYEAwTuKKg";//微信模板消息模板
+		$send_array['url'] = URL;
+		$send_array['topcolor'] = "#FF0000";
+		$send_array['data'] = array();
+		$send_array['data']['user_name'] = array();
+		$send_array['data']['user_name']['value'] = $result['user_name'];
+		$send_array['data']['user_name']['color'] = "#173177";
+		$send_array['data']['greeting'] = array();
+		$send_array['data']['greeting']['value'] = $result['greeting'];
+		$send_array['data']['greeting']['color'] = "#173177";
+		$send_array['data']['tieba_count'] = array();
+		$send_array['data']['tieba_count']['value'] = $result['tieba_count'];
+		$send_array['data']['tieba_count']['color'] = "#173177";
+		$send_array['data']['success_count'] = array();
+		$send_array['data']['success_count']['value'] = $result['success_count'];
+		$send_array['data']['success_count']['color'] = "#173177";
+		$send_array['data']['fail_count'] = array();
+		$send_array['data']['fail_count']['value'] = $result['fail_count'];
+		$send_array['data']['fail_count']['color'] = "#173177";
+		$send_array['data']['ignore_count'] = array();
+		$send_array['data']['ignore_count']['value'] = $result['ignore_count'];
+		$send_array['data']['ignore_count']['color'] = "#173177";
+		
+		unset($result);
+		
+		$send_json = json_encode($send_array, true);
+		
+		unset($send_array);
+		
+		$result = DI()->curl->json_post($url, $send_json);
+		
+		return true;
+	}
+	
+	
+	public function sendTiebaSignDetailByCron()
+	{
+		$user_model = new Model_User();
+		$users = $user_model->getListByWhere(array('open_id IS NOT ?' => null, 'sign_notice' => 1), 'open_id');
+		foreach ($users as $user) {
+			$this->sendTiebaSignDetail($user['open_id']);
+		}
+	}
+	
+	
 }

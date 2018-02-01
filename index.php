@@ -8,6 +8,7 @@ defined('website') || define('website', 'index');
 
 require_once dirname(__FILE__) . '/Public/init.php';
 
+
 //装载你的接口
 DI()->loader->addDirs('Bbs');
 DI()->loader->addDirs('Common');

@@ -2,7 +2,7 @@
 
 class Domain_Tieba
 {
-
+	
 	/**
 	 * 删除贴吧
 	 * @param $tieba_id
@@ -18,7 +18,7 @@ class Domain_Tieba
 		}
 		return true;
 	}
-
+	
 	/**
 	 * 忽略签到
 	 * @param $tieba_id
@@ -35,7 +35,7 @@ class Domain_Tieba
 		}
 		return true;
 	}
-
+	
 	public static function addBduss($user_id, $bduss)
 	{
 		// 去除双引号和bduss=
@@ -59,7 +59,7 @@ class Domain_Tieba
 		DI()->response->setMsg('添加新Bduss成功');
 		return array('url' => '?service=Default.Index');
 	}
-
+	
 	/**
 	 * 获取一个bduss对应的百度用户名
 	 * @param string $bduss BDUSS
@@ -72,7 +72,7 @@ class Domain_Tieba
 		$data = DI()->curl->get($url);
 		return urldecode(DI()->tool->textMiddle($data, 'i?un=', '">'));
 	}
-
+	
 	/**
 	 * 扫描指定用户的所有贴吧并储存--用于一键刷新
 	 * @param UserID，如果留空，表示当前用户的UID
@@ -90,7 +90,7 @@ class Domain_Tieba
 			self::scanTiebaByPid($pid);
 		}
 	}
-
+	
 	/**
 	 * 扫描指定PID的所有贴吧
 	 * @param string $pid PID
@@ -140,7 +140,7 @@ class Domain_Tieba
 			$pn++;
 		}
 	}
-
+	
 	/**
 	 * 获取贴吧用户id
 	 * 获取指定pid用户userid--根据贴吧用户名找
@@ -152,7 +152,7 @@ class Domain_Tieba
 		$userid = $ur['data']['id'];
 		return $userid;
 	}
-
+	
 	/**
 	 * 获取指定pid
 	 */
@@ -187,7 +187,7 @@ class Domain_Tieba
 		$rt = DI()->curl->json_post($url, $data);
 		return $rt;
 	}
-
+	
 	/**
 	 * 得到贴吧 FID
 	 * @param string $kw 贴吧名
@@ -205,7 +205,7 @@ class Domain_Tieba
 			return false;
 		}
 	}
-
+	
 	/**
 	 * 执行全部贴吧用户的签到任务
 	 */
@@ -239,7 +239,47 @@ class Domain_Tieba
 			}
 		}
 	}
-
+	
+	public static function getSignStatus($openid = '')
+	{
+		if (empty($openid)) {
+			return false;
+		}
+		$user_model = new Model_User();
+		$user = $user_model->getInfo(array('open_id' => $openid), 'id,user_name');
+		if (empty($user)) {
+			return false;
+		}
+		$h = date('G', NOW_TIME);
+		if ($h < 11) {
+			$greeting = '早上好！';
+		} else if ($h < 13) {
+			$greeting = '中午好！';
+		} else if ($h < 17) {
+			$greeting = '下午好！';
+		} else {
+			$greeting = '晚上好！';
+		}
+		$day_time = DateHelper::getDayTime();
+		$tieba_model = new Model_Tieba();
+		$total = $tieba_model->getCountByWhere(array('user_id=?' => $user['id']));
+		if ($total <= 0) {
+			return false;
+		}
+		$success_count = $tieba_model->getCountByWhere(array('user_id=?' => $user['id'], 'no=?' => 0, 'status=?' => 0, 'latest>=?' => $day_time['begin'], 'latest<=?' => $day_time['end']));//签到成功
+		$fail_count = $tieba_model->getCountByWhere(array('user_id=?' => $user['id'], 'no=?' => 0, 'status>?' => 0, 'latest>=?' => $day_time['begin'], 'latest<=?' => $day_time['end']));//签到失败
+		$no_count = $tieba_model->getCountByWhere(array('user_id=?' => $user['id'], 'no>?' => 0));//忽略签到
+		$result = array();
+		$result['user_name'] = $user['user_name'];
+		$result['greeting'] = $greeting;
+		$result['tieba_count'] = $total;
+		$result['success_count'] = $success_count;
+		$result['fail_count'] = $fail_count;
+		$result['ignore_count'] = $no_count;
+		
+		return $result;
+	}
+	
 	/**
 	 * 执行全部贴吧用户的签到任务
 	 */
@@ -279,7 +319,7 @@ class Domain_Tieba
 			}
 		}
 	}
-
+	
 	/**
 	 * 执行一个贴吧用户的签到
 	 */
@@ -315,7 +355,7 @@ class Domain_Tieba
 			}
 		}
 	}
-
+	
 	/**
 	 * 执行一个会员的签到
 	 */
@@ -351,7 +391,7 @@ class Domain_Tieba
 			}
 		}
 	}
-
+	
 	/**
 	 * 执行一个贴吧的签到
 	 */
@@ -361,7 +401,7 @@ class Domain_Tieba
 		$x = $tieba_model->get($tieba_id);
 		self::doSign($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
 	}
-
+	
 	/**
 	 * 对一个贴吧执行完整的签到任务
 	 */
@@ -376,12 +416,12 @@ class Domain_Tieba
 		$ck = $bdid['bduss'];
 		$kw = addslashes($kw);
 		$tieba_model = new Model_Tieba();
-
+		
 		if (empty($fid)) {
 			$fid = self::getFid($kw);//贴吧唯一ID
 			$tieba_model->update($id, array('fid' => $fid));
 		}
-
+		
 		//三种签到方式依次尝试
 		$tbs = self::getTbs($ck);
 		//客户端
@@ -398,7 +438,7 @@ class Domain_Tieba
 				}
 			}
 		}
-
+		
 		/*//手机网页
 		if ($status_succ === false) {
 			$r = self::DoSign_Mobile($kw, $fid, $ck, $tbs);
@@ -419,7 +459,7 @@ class Domain_Tieba
 				$status_succ = true;
 			}
 		}*/
-
+		
 		if ($status_succ === true) {
 			$tieba_model->update($id, array('latest' => $time, 'status' => 0, 'last_error' => ''));
 		} else {
@@ -427,7 +467,7 @@ class Domain_Tieba
 			//$tieba_model->update($id, array('status' => $error_code, 'last_error' => $error_msg));
 		}
 	}
-
+	
 	/**
 	 * 得到BDUSS
 	 * @param int|string $baidu_id 贴吧用户PID
@@ -441,7 +481,7 @@ class Domain_Tieba
 		$temp = $baiduid_model->get($baidu_id);
 		return $temp['bduss'];
 	}*/
-
+	
 	/**
 	 * 得到TBS
 	 */
@@ -453,7 +493,7 @@ class Domain_Tieba
 		$x = DI()->curl->json_get($url);
 		return $x['tbs'];
 	}
-
+	
 	/**
 	 * 客户端签到
 	 */
@@ -480,7 +520,7 @@ class Domain_Tieba
 		DI()->curl->setCookie(array("BDUSS" => $ck));
 		return DI()->curl->post($url, $temp);
 	}
-
+	
 	/**
 	 * 手机网页签到
 	 */
@@ -491,7 +531,7 @@ class Domain_Tieba
 		DI()->curl->setCookie(array('BDUSS' => $ck));
 		return DI()->curl->get($url);
 	}
-
+	
 	/**
 	 * 网页签到
 	 */
@@ -518,8 +558,8 @@ class Domain_Tieba
 			return true;
 		}
 	}
-
-
+	
+	
 	/**
 	 * CURL整合--返回数组
 	 * @param $url
@@ -573,7 +613,7 @@ class Domain_Tieba
 		}
 		return $ret;
 	}
-
+	
 	//获取ServerTime
 	public static function serverTime()
 	{
@@ -586,14 +626,14 @@ class Domain_Tieba
 			return array('code' => -1, 'msg' => $arr['errmsg']);
 		}
 	}
-
+	
 	//获取验证码图片
 	public static function getVCPic($vcodestr)
 	{
 		$url = 'https://wappass.baidu.com/cgi-bin/genimage?' . $vcodestr . '&v=' . SERVER_TIME . '0000';
 		return self::get_curl($url, 0);
 	}
-
+	
 	//普通登录操作
 	public static function login($time, $user, $pwd, $p, $vcode = null, $vcodestr = null)
 	{
@@ -612,7 +652,7 @@ class Domain_Tieba
 		if ($vcodestr == 'null') {
 			$vcodestr = '';
 		}
-
+		
 		$url = 'https://wappass.baidu.com/wp/api/login?v=' . SERVER_TIME . '0000';
 		$post = 'username=' . $user . '&code=&password=' . $p . '&verifycode=' . $vcode . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . SERVER_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&vcodestr=' . $vcodestr . '&countrycode=&servertime=' . $time . '&logLoginType=sdk_login&passAppHash=&passAppVersion=';
 		$data = self::get_curl($url, $post);
@@ -641,7 +681,7 @@ class Domain_Tieba
 			throw new PhalApi_Exception_Error(T('登录失败，原因未知'));
 		}
 	}
-
+	
 	//登录异常时发送手机/邮件验证码
 	public static function sendCode($type, $lstr, $ltoken)
 	{
@@ -656,8 +696,8 @@ class Domain_Tieba
 			throw new PhalApi_Exception_Error(T('发生验证码失败，原因未知'));
 		}
 	}
-
-
+	
+	
 	//登录异常时登录操作
 	public static function login2($type, $lstr, $ltoken, $vcode)
 	{
@@ -673,7 +713,7 @@ class Domain_Tieba
 		if (empty($vcode)) {
 			throw new PhalApi_Exception_BadRequest(T('vcode不能为空'));
 		}
-
+		
 		$url = 'https://wappass.baidu.com/wp/login/sec?type=2&v=' . SERVER_TIME . '0000';
 		$post = 'vcode=' . $vcode . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . SERVER_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&showtype=' . $type . '&lstr=' . rawurlencode($lstr) . '&ltoken=' . $ltoken;
 		$data = self::get_curl($url, $post);
@@ -698,7 +738,7 @@ class Domain_Tieba
 			throw new PhalApi_Exception_Error(T('登录失败，原因未知'));
 		}
 	}
-
+	
 	//检测是否需要验证码
 	public static function checkVC($user)
 	{
@@ -716,8 +756,8 @@ class Domain_Tieba
 			return array('code' => $arr['errInfo']['no'], 'msg' => $arr['errInfo']['msg']);
 		}
 	}
-
-
+	
+	
 	//手机验证码登录，获取手机号是否存在
 	public static function getPhone($phone)
 	{
@@ -742,8 +782,8 @@ class Domain_Tieba
 			return array('code' => $arr['errInfo']['no'], 'msg' => $arr['errInfo']['msg']);
 		}
 	}
-
-
+	
+	
 	//手机验证码登录，发送验证码
 	public static function sendSms($phone, $vcode = null, $vcodestr = null, $vcodesign = null)
 	{
@@ -774,8 +814,8 @@ class Domain_Tieba
 			return array('code' => $arr['errInfo']['no'], 'msg' => $arr['errInfo']['msg']);
 		}
 	}
-
-
+	
+	
 	//手机验证码登录操作
 	public static function login3($phone, $smsvc)
 	{
@@ -785,7 +825,7 @@ class Domain_Tieba
 		if (empty($smsvc)) {
 			throw new PhalApi_Exception_BadRequest(T('验证码不能为空'));
 		}
-
+		
 		$url = 'https://wappass.baidu.com/wp/api/login?v=' . SERVER_TIME . '0000';
 		$post = 'smsvc=' . $smsvc . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . SERVER_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&lang=zh-cn&regLink=1&action=login&loginmerge=&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=E528690-4ADF-47A5-BA87-1FD76D2583EA&agreement=1&vcodesign=&vcodestr=&smsverify=1&sms=1&mobilenum=' . $phone . '&username=' . $phone . '&countrycode=&passAppHash=&passAppVersion=';
 		$data = self::get_curl($url, $post);
@@ -810,8 +850,8 @@ class Domain_Tieba
 			throw new PhalApi_Exception_Error(T('登录失败，原因未知'));
 		}
 	}
-
-
+	
+	
 	//获取扫码登录二维码
 	public static function getQRCode()
 	{
@@ -825,7 +865,7 @@ class Domain_Tieba
 			return array('code' => $arr['errno'], 'msg' => '获取二维码失败');
 		}
 	}
-
+	
 	//扫码登录操作
 	public static function qRLogin($sign)
 	{
@@ -844,10 +884,10 @@ class Domain_Tieba
 			if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
 				$data = str_replace('=deleted', '', $data);
 				preg_match('!BDUSS=(.*?);!i', $data, $bduss);
-
+				
 				$user_id = $_SESSION['user_id'];
 				return Domain_Tieba::addBduss($user_id, $bduss[1]);
-
+				
 				//preg_match('!PTOKEN=(.*?);!i', $data, $ptoken);
 				//preg_match('!STOKEN=(.*?);!i', $data, $stoken);
 				//$userid = self::getUserid($arr['data']['userName']);
@@ -867,6 +907,6 @@ class Domain_Tieba
 			//return array('code' => '-1', 'msg' => '登录失败，原因未知');
 		}
 	}
-
-
+	
+	
 }

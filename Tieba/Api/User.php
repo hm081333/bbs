@@ -232,24 +232,5 @@ class Api_User extends PhalApi_Api
 		DI()->view->show('user_info');
 	}
 
-	public function edit_Member()
-	{
-		if ($this->action == 'post') {
-			$user_domain = new Domain_User();
-			$rs = $user_domain->edit_Member($this->user_id, $this->password, $this->email, $this->real_name, false, false, $this->secret, $this->check);
-			DI()->response->setMsg(T('修改成功'));
-			return;
-		} else {
-			$user_domain = new Domain_User();
-			$user = $user_domain->userInfo($_SESSION['user_id']);
-			//密钥
-			$secret = Domain_Common::create_Google_Auth();
-			//二维码
-			$qrCodeUrl = Domain_Common::get_Google_Auth_Url($secret);
-			DI()->view->assign(array('user' => $user['info'], 'secret' => $secret, 'qrCodeUrl' => $qrCodeUrl));
-			DI()->view->show('edit_member');
-		}
-	}
-
 
 }

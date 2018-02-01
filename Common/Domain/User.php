@@ -2,7 +2,7 @@
 
 class Domain_User
 {
-
+	
 	public function getAllUsers($where = array(), $select = '*', $order = 'id asc')
 	{
 		$user_model = new Model_User();
@@ -10,19 +10,19 @@ class Domain_User
 		// var_dump($rs);
 		return $rs;
 	}
-
+	
 	public function getUserList($limit, $offset, $where = array(), $select = '*', $order = 'id asc')
 	{
 		$user_model = new Model_User();
 		$rs = $user_model->getUserList($limit, $offset, $where, $select, $order);
 		return $rs;
 	}
-
+	
 	public static function user()
 	{
 		return unserialize(DI()->cookie->get('USER_TOKEN'));
 	}
-
+	
 	public function userInfo($user_id)
 	{
 		$user_model = new Model_User();
@@ -33,8 +33,8 @@ class Domain_User
 		$rs['reply_count'] = $reply_model->ReplyCount(array('user_id' => $user_id));
 		return $rs;
 	}
-
-	public function edit_Member($user_id, $password, $email, $real_name, $auth = false, $admin = false, $secret = false, $check = false)
+	
+	public function edit_Member($user_id, $password, $email, $real_name, $auth = false, $admin = false, $secret = false, $check = false, $sign_notice = false)
 	{
 		$user_model = new Model_User();
 		$update_data = array();
@@ -47,6 +47,7 @@ class Domain_User
 		if ($admin && isset($auth)) {
 			$update_data['auth'] = $auth;
 		}
+		$update_data['sign_notice'] = $sign_notice;
 		if ($check == 1) {
 			$update_data['secret'] = $secret;
 		}
@@ -56,8 +57,8 @@ class Domain_User
 		} else {
 			return true;
 		}
-
+		
 	}
-
-
+	
+	
 }

@@ -5,7 +5,7 @@
  */
 class Api_User extends PhalApi_Api
 {
-
+	
 	public function getRules()
 	{
 		return array(
@@ -42,10 +42,11 @@ class Api_User extends PhalApi_Api
 				'real_name' => array('name' => 'real_name', 'type' => 'string', 'require' => false, 'desc' => '用户姓名'),
 				'secret' => array('name' => 'secret', 'type' => 'string', 'require' => false, 'desc' => '谷歌身份验证器密钥'),
 				'check' => array('name' => 'check', 'type' => 'string', 'require' => false, 'desc' => '身份验证器验证成功'),
+				'sign_notice' => array('name' => 'sign_notice', 'type' => 'string', 'require' => false, 'desc' => '身份验证器验证成功'),
 			),
 		);
 	}
-
+	
 	public function login()
 	{
 		if ($this->action == 'post') {
@@ -81,7 +82,7 @@ class Api_User extends PhalApi_Api
 			DI()->view->show('login');
 		}
 	}
-
+	
 	public function forget()
 	{
 		if ($this->action == 'post') {
@@ -141,7 +142,7 @@ class Api_User extends PhalApi_Api
 			DI()->view->show('forget');
 		}
 	}
-
+	
 	public function register()
 	{
 		if ($this->action == 'post') {
@@ -157,7 +158,7 @@ class Api_User extends PhalApi_Api
 			} elseif (empty($this->birthdate)) {
 				throw new PhalApi_Exception_Error(T('请选择生日'), 1);// 抛出普通错误 T标签翻译
 			}
-
+			
 			$user = $user_model->getInfo(array('user_name' => $this->user_name), 'id');
 			if ($user !== false) {
 				throw new PhalApi_Exception_Error(T('用户名已注册'), 1);// 抛出普通错误 T标签翻译
@@ -196,7 +197,7 @@ class Api_User extends PhalApi_Api
 			DI()->view->show('register');
 		}
 	}
-
+	
 	public function logoff()
 	{
 		/*$_SESSION = array();
@@ -218,7 +219,7 @@ class Api_User extends PhalApi_Api
 		//跳转页面
 		//header("Location: ./");
 	}
-
+	
 	public function user_Info()
 	{
 		$user_domain = new Domain_User();
@@ -226,12 +227,13 @@ class Api_User extends PhalApi_Api
 		DI()->view->assign(array('user' => $user));
 		DI()->view->show('user_info');
 	}
-
+	
 	public function edit_Member()
 	{
 		if ($this->action == 'post') {
 			$user_domain = new Domain_User();
-			$rs = $user_domain->edit_Member($this->user_id, $this->password, $this->email, $this->real_name, false, false, $this->secret, $this->check);
+			$sign_notice = boolval($this->sign_notice);
+			$rs = $user_domain->edit_Member($this->user_id, $this->password, $this->email, $this->real_name, false, false, $this->secret, $this->check, $sign_notice);
 			DI()->response->setMsg(T('修改成功'));
 			return;
 		} else {
@@ -245,6 +247,6 @@ class Api_User extends PhalApi_Api
 			DI()->view->show('edit_member');
 		}
 	}
-
-
+	
+	
 }

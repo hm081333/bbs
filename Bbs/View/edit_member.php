@@ -27,11 +27,20 @@
 				<td><input name="real_name" type="text" value="<?php echo $user['real_name']; ?>" class="validate"></td>
 			</tr>
 			<tr>
+				<td><?php echo T('特殊开关'); ?></td>
+				<td>
+					<p>
+						<input type="checkbox" id="sign_notice" name="sign_notice"/>
+						<label for="sign_notice">每日签到详情通知</label>
+					</p>
+				</td>
+			</tr>
+			<tr>
 				<td colspan="2" class="center">
 					<a class="modal-trigger waves-effect waves-light btn"
-					   href="#google_Auth"><?php echo isset($user['secret']) ? T('修改谷歌身份验证') : T('添加谷歌身份验证'); ?></a><br/>
+					   href="#google_Auth"><?php echo isset($user['secret']) ? T('更换谷歌身份验证') : T('绑定谷歌身份验证'); ?></a><br/>
 					<button type="submit" name="submit"
-							class="btn waves-effect waves-light"><?php echo T('更新'); ?></button>
+					        class="btn waves-effect waves-light"><?php echo T('更新'); ?></button>
 				</td>
 			</tr>
 		</table>
@@ -40,12 +49,12 @@
 	<!-- Modal Structure -->
 	<div id="google_Auth" class="modal">
 		<div class="modal-content" style="text-align: center;">
-			<h4><?php echo isset($user['secret']) ? T('修改谷歌身份验证') : T('添加谷歌身份验证'); ?></h4>
+			<h4><?php echo isset($user['secret']) ? T('更换谷歌身份验证') : T('绑定谷歌身份验证'); ?></h4>
 			<p><?php echo T('一、手机下载谷歌身份验证器'); ?></p>
 			<p><?php echo T('二、扫描二维码或手动输入密钥'); ?></p>
 			<p><?php echo T('三、输入扫描后出现的验证码'); ?></p>
 			<img src="<?php echo $qrCodeUrl; ?>"/>
-			<p><?php echo T('密钥：').$secret; ?></p>
+			<p><?php echo T('密钥：') . $secret; ?></p>
 			<input type="text" name="code" placeholder="<?php echo T('请输入扫描后出现的验证码'); ?>">
 			<a onclick="check_google_auth()" class="btn waves-effect waves-light"><?php echo T('验证'); ?></a>
 		</div>
