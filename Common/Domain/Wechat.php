@@ -220,7 +220,7 @@ class Domain_Wechat
 		$send_array = array();
 		$send_array['touser'] = $openid;
 		$send_array['template_id'] = "Ogvc_rROWerSHvfgo1IOJIL103bso0H3jLYEAwTuKKg";//微信模板消息模板
-		$send_array['url'] = URL;
+		$send_array['url'] = "bbs.lyiho.com/bbs/tieba.php";
 		$send_array['topcolor'] = "#FF0000";
 		$send_array['data'] = array();
 		$send_array['data']['user_name'] = array();
