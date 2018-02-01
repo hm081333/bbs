@@ -30,7 +30,7 @@
 				<td><?php echo T('特殊开关'); ?></td>
 				<td>
 					<p>
-						<input type="checkbox" id="sign_notice" name="sign_notice"/>
+						<input type="checkbox" id="sign_notice" name="sign_notice" <?php echo $user['sign_notice']?'checked':''; ?>/>
 						<label for="sign_notice">每日签到详情通知</label>
 					</p>
 				</td>
