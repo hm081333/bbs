@@ -35,10 +35,10 @@
 			<h5 class="white-text"><?php echo T('联系我'); ?></h5>
 			<ul>
 				<li><a style="width: 127px;" class="white-text btn waves-effect waves-light"
-					   onclick="javascript:window.open('mailto:522751485@qq.com')"><i
+				       onclick="javascript:window.open('mailto:522751485@qq.com')"><i
 								class="tiny material-icons">mail</i>Email</a></li>
 				<li><a style="width: 127px;" class="white-text btn waves-effect waves-light"
-					   onclick="javascript:window.open('http://sighttp.qq.com/authd?IDKEY=2370447117525914b38fc589aa94b53b4d3a892de4c76039')">QQ</a>
+				       onclick="javascript:window.open('http://sighttp.qq.com/authd?IDKEY=2370447117525914b38fc589aa94b53b4d3a892de4c76039')">QQ</a>
 				</li>
 			</ul>
 		</div>
@@ -62,7 +62,8 @@
 </html>
 <!--局域网获取IP方法-->
 <!--<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>-->
-<script src="./Public/static/js/diy.js"></script>
+<script src="<?php echo URL_ROOT; ?>static/js/diy.js"></script>
+
 <!--微信jssdk-->
 <?php if (DI()->tool->is_weixin()) : ?>
 	<script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>

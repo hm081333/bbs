@@ -4,16 +4,12 @@
 	<meta name="format-detection" content="telephone=no">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<title><?php echo T('南洋师生交流平台DEMO'); ?></title>
-	<!--<link href="<?php echo URL_ROOT; ?>static/css/material-design-icons/3.0.1/material-icons.min.css" rel="stylesheet">-->
-	<!--<link href="-->
-	<?php //echo URL_ROOT; ?><!--static/css/materialize/0.99.0/materialize_nofont.min.css" type="text/css" rel="stylesheet" media="screen,projection">-->
-	<!--<script src="<?php echo URL_ROOT; ?>static/js/jquery/3.2.1/jquery.min.js"></script>-->
-	<!--<script src="<?php echo URL_ROOT; ?>static/js/materialize/0.99.0/materialize.min.js"></script>-->
-	<link href="//cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.min.css" rel="stylesheet">
-	<link href="//cdn.bootcss.com/materialize/0.100.2/css/materialize.min.css" rel="stylesheet"
-		  media="screen,projection">
-	<script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-	<script src="//cdn.bootcss.com/materialize/0.100.2/js/materialize.min.js"></script>
+	<link href="<?php echo URL_ROOT; ?>static/css/material-design-icons/3.0.1/material-icons.min.css" rel="stylesheet">
+	<link href=" <?php echo URL_ROOT; ?>static/css/materialize/0.100.2/materialize_nofont.min.css" rel="stylesheet" media="screen,projection">
+	
+	<script src="<?php echo URL_ROOT; ?>static/js/jquery/3.2.1/jquery.min.js"></script>
+	<script src="<?php echo URL_ROOT; ?>static/js/materialize/0.100.2/materialize.min.js"></script>
+	
 	<link href="<?php echo URL_ROOT; ?>static/css/diy.css" rel="stylesheet">
 </head>
 
