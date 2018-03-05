@@ -99,6 +99,7 @@ function Ajax(data, SuccessCallback, file) {
 	if (file) {
 		$.ajax({
 			type: 'POST',
+			url: window.NOW_WEB_SITE,
 			data: data,
 			processData: false,
 			contentType: false,
@@ -111,6 +112,7 @@ function Ajax(data, SuccessCallback, file) {
 	} else {
 		$.ajax({
 			type: 'POST',
+			url: window.NOW_WEB_SITE,
 			data: data,
 			dataType: 'json',
 			success: fuc,

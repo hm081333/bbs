@@ -46,7 +46,6 @@
             optImageCompressBorder = editor.getOpt('imageCompressEnable') ? editor.getOpt('imageCompressBorder'):null,
             maxSize = editor.getOpt('imageMaxSize') / 1024 / 1024,
             extension = editor.getOpt('imageAllowFiles').join(';').replace(/\./g, '*.');
-
         /* 添加额外的GET参数 */
         var params = utils.serializeParam(editor.queryCommandValue('serverparam')) || '',
             urlWidthParams = optImageUrl + (optImageUrl.indexOf('?') == -1 ? '?':'&') + params;

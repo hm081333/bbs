@@ -19,12 +19,12 @@ DI()->view = new View_Lite('Bbs');
 
 $user_token = DI()->cookie->get(USER_TOKEN);
 if (!empty($user_token) && empty($_SESSION['user_id'])) {
-	$user = unserialize(DI()->tool->decrypt($user_token));
-	if ($user) {
-		$_SESSION['user_id'] = $user['id'];
-		$_SESSION['user_name'] = $user['user_name'];
-		$_SESSION['user_auth'] = $user['auth'];
-	}
+    $user = Domain_User::user();
+    if ($user) {
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_name'] = $user['user_name'];
+        $_SESSION['user_auth'] = $user['auth'];
+    }
 }
 
 //过滤前台未登陆的操作

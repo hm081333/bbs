@@ -7,8 +7,8 @@
 
 //开启GZIP
 if (!headers_sent() && extension_loaded("zlib") && strstr($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip")) {//开启gzip压缩
-	ini_set('zlib.output_compression', 'On');
-	ini_set('zlib.output_compression_level', '6');
+    ini_set('zlib.output_compression', 'On');
+    ini_set('zlib.output_compression_level', '6');
 }
 
 date_default_timezone_set('Asia/Shanghai');
@@ -39,11 +39,11 @@ DI()->config->get('constant'); // 常量
 DI()->debug = !empty($_GET['__debug__']) ? true : DI()->config->get('sys.debug');
 
 if (DI()->debug) {
-	//DI()->tracer->mark();// 启动追踪器
-	error_reporting(E_ALL);
-	ini_set('display_errors', 1);//正式部署的时候请关闭
+    //DI()->tracer->mark();// 启动追踪器
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);//正式部署的时候请关闭
 } else {
-	ini_set('display_errors', 0);//正式部署的时候请关闭
+    ini_set('display_errors', 0);//正式部署的时候请关闭
 }
 
 // 日记纪录
@@ -54,35 +54,29 @@ DI()->notorm = new PhalApi_DB_NotORM(DI()->config->get('dbs'), DI()->debug);
 //DI()->notorm = new PhalApi_DB_NotORM(DI()->config->get('dbs'), !empty($_GET['__sql__']));
 
 if (!defined('IS_JSON')) {
-	$accept = DI()->request->getHeader('Accept');
-	$accept = explode(',', $accept);
-	$accept = $accept[0];
-	/*复制*/
-	if ($accept == 'application/json') {
-		defined('IS_JSON') || define('IS_JSON', true);
-	} else {
-		defined('IS_JSON') || define('IS_JSON', false);
-		DI()->response = 'PhalApi_Response_Explorer';
-	}
-	/*默认*/
-	/*if ($accept == 'text/html' || $accept == 'text/plain') {
-		defined('IS_JSON') || define('IS_JSON', false);
-		DI()->response = 'PhalApi_Response_Explorer';
-	} elseif ($accept == 'application/json') {
-		defined('IS_JSON') || define('IS_JSON', true);
-		DI()->response = 'PhalApi_Response_Json';
-	}*/
+    $accept = DI()->request->getHeader('Accept');
+    $accept = explode(',', $accept);
+    $accept = $accept[0];
+    $service = DI()->request->getService();
+    if (stripos('Public.neditor,', $service) === false) {
+        if ($accept == 'application/json') {
+            defined('IS_JSON') || define('IS_JSON', true);
+        } else {
+            defined('IS_JSON') || define('IS_JSON', false);
+            DI()->response = 'PhalApi_Response_Explorer';
+        }
+    }
 }
 
 // 翻译语言包设定
 if (isset($_SESSION['Language'])) {
-	$language = GL();
-	if ($_SESSION['Language'] != $language) {
-		SL($_SESSION['Language']);
-	}
-	unset($language);
+    $language = GL();
+    if ($_SESSION['Language'] != $language) {
+        SL($_SESSION['Language']);
+    }
+    unset($language);
 } else {
-	SL('zh_cn');
+    SL('zh_cn');
 }
 
 /** ---------------- 定制注册 可选服务组件 ---------------- **/
@@ -94,25 +88,25 @@ if (isset($_SESSION['Language'])) {
 
 //缓存 - Memcache/Memcached
 DI()->cache = function () {
-	return new PhalApi_Cache_File(DI()->config->get('sys.file'));
-//    return new PhalApi_Cache_Memcache(DI()->config->get('sys.mc'));
+    return new PhalApi_Cache_File(DI()->config->get('sys.file'));
+    //    return new PhalApi_Cache_Memcache(DI()->config->get('sys.mc'));
 };
 
 //cookie工具
 DI()->cookie = function () {
-	$config = array();
-	$config['path'] = '/';
-	return new PhalApi_Cookie($config);
+    $config = array();
+    $config['path'] = '/';
+    return new PhalApi_Cookie($config);
 };
 
 //curl请求
 DI()->curl = function () {
-	return new PhalApi_CUrl();
+    return new PhalApi_CUrl();
 };
 
 //tool工具
 DI()->tool = function () {
-	return new PhalApi_Tool();
+    return new PhalApi_Tool();
 };
 
 defined('client_ip') || define('client_ip', DI()->tool->getClientIp());

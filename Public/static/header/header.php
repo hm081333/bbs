@@ -5,12 +5,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<title><?php echo T('南洋师生交流平台DEMO'); ?></title>
 	<link href="<?php echo URL_ROOT; ?>static/css/material-design-icons/3.0.1/material-icons.min.css" rel="stylesheet">
-	<link href=" <?php echo URL_ROOT; ?>static/css/materialize/0.100.2/materialize_nofont.min.css" rel="stylesheet" media="screen,projection">
-	
+	<link href=" <?php echo URL_ROOT; ?>static/css/materialize/0.100.2/materialize_nofont.min.css" rel="stylesheet"
+	      media="screen,projection">
+
 	<script src="<?php echo URL_ROOT; ?>static/js/jquery/3.2.1/jquery.min.js"></script>
 	<script src="<?php echo URL_ROOT; ?>static/js/materialize/0.100.2/materialize.min.js"></script>
-	
+
 	<link href="<?php echo URL_ROOT; ?>static/css/diy.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -65,7 +67,7 @@
 			<?php if (version_compare(phpversion(), '5.4', '>=')) : ?>
 				<!--<li>
 					<a onClick="location.href='?service=Music.Index'">
-						<?php /*echo T('音乐搜索器'); */?></a>
+						<?php /*echo T('音乐搜索器'); */ ?></a>
 				</li>
 				<li class="divider"></li>-->
 			<?php endif; ?>
