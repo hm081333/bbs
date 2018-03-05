@@ -8,7 +8,7 @@
 
 // editor.js
 UEDITOR_CONFIG = window.UEDITOR_CONFIG || {};
-
+console.log(UEDITOR_CONFIG);
 var baidu = window.baidu || {};
 
 window.baidu = baidu;

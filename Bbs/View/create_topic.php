@@ -10,7 +10,7 @@
 		<div class="col s12">
 			<ul class="tabs">
 				<li class="tab col s6"><a class="active" href="#info">相关信息</a></li>
-				<li class="tab col s6"><a href="#contant">内容</a></li>
+				<li class="tab col s6"><a href="#contants">内容</a></li>
 			</ul>
 		</div>
 		<form id="Create_Topic" enctype="multipart/form-data" method="post" onsubmit="return false;" class="col s12">
@@ -63,8 +63,9 @@
 					<br/>
 				<?php endif; ?>
 			</div>
-			<div id="contant" class="col s12">
-				<script id="detail" type="text/plain"> 这里写你的初始化内容</script>
+			<div id="contants" class="col s12">
+				<script id="detail" type="text/plain">
+				</script>
 			</div>
 			<div class="col s12 center">
 				<button type="submit" name="submit"
@@ -74,12 +75,6 @@
 		</form>
 	</div>
 </fieldset>
-
-<script>
-	window.NEDITOR_UPLOAD = '<?php echo NOW_WEB_SITE ?>';
-	window.UEDITOR_HOME_URL = "/Public/static/js/neditor/";
-	//window.UEDITOR_HOME_URL = '<?php //echo URL; ?>//'
-</script>
 
 <script type="text/javascript" charset="utf-8"
         src="<?php echo DI()->tool->staticPath('js/neditor/neditor.config.js'); ?>"></script>
@@ -93,5 +88,8 @@
 <script type="text/javascript">
 	//实例化编辑器
 	//建议使用工厂方法getEditor创建和引用编辑器实例，如果在某个闭包下引用该编辑器，直接调用UE.getEditor('editor')就能拿到相关的实例
+
 	var ue = UE.getEditor('detail');
+
+	console.log(UEDITOR_CONFIG);
 </script>
