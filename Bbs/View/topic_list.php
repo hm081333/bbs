@@ -17,7 +17,7 @@
 				<?php if ($row['sticky'] == "1"): ?>
 					<i class="material-icons">stars</i>
 				<?php endif; ?>
-				<a href="?service=Topic.topic&topic_id=<?php echo $row['id']; ?>"><?php echo T($row['topic']); ?></a><br/><?php echo T('发帖者: ' . $row['name']) ?>
+				<a class="btn-link" href="#topic_info" data-topic_id="<?php echo $row['id']; ?>"><?php echo T($row['topic']); ?></a><br/><?php echo T('发帖者: ' . $row['name']) ?>
 			</td>
 			<td>
 				<?php

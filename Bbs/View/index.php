@@ -11,8 +11,8 @@
 		<tr class="green accent-1">
 			<td>
 				<i class="material-icons">label</i>
-				<a class="brown-text" href="?service=Topic.topic_List&class_id=<?php echo $row['id']; ?>">
-					<b><?php echo T($row['name']); ?></b>
+				<a class="btn-link brown-text" href="#topic_list" data-class_id="<?php echo $row['id']; ?>">
+					<?php echo T($row['name']); ?>
 				</a>
 			</td>
 			<td>

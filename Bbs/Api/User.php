@@ -225,7 +225,7 @@ class Api_User extends PhalApi_Api
 		$user_domain = new Domain_User();
 		$user = $user_domain->userInfo($this->user_id);
 		DI()->view->assign(array('user' => $user));
-		DI()->view->show('user_info');
+		return DI()->view->post('user_info');
 	}
 	
 	public function edit_Member()

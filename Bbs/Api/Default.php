@@ -94,10 +94,13 @@ class Api_Default extends PhalApi_Api
 		$delivery_model = new Model_Delivery();
 		$delivery = $delivery_model->get($this->id);
 		$logistics = Common_Function::getLogistics($delivery['code'], $delivery['sn']);
-		if ($logistics['status'] != 200) {
-			throw new PhalApi_Exception(T($logistics['message']));
-		}
 		$update = array();
+		if ($logistics['status'] != 200) {
+			// throw new PhalApi_Exception(T($logistics['message']));
+			$logistics=unserialize($delivery['last_message']);
+		}else{
+			$update['last_message'] = serialize($logistics);
+		}
 		$update['last_time'] = NOW_TIME;
 		if ($delivery['state'] != $logistics['state']) {
 			$update['state'] = $logistics['state'];
@@ -127,10 +130,15 @@ class Api_Default extends PhalApi_Api
 	 */
 	public function index()
 	{
+		DI()->view->index();
+	}
+	
+	public function main()
+	{
 		$class_domain = new Domain_Class();
 		$class_list = $class_domain->getClassList((($this->page - 1) * each_page), ($this->page * each_page));
 		$class_list['page_total'] = ceil($class_list['total'] / each_page);
-		DI()->view->show('index', array('rows' => $class_list['rows'], 'total' => $class_list['total'], 'page' => $this->page, 'back' => 0));
+		return DI()->view->post('index', array('rows' => $class_list['rows'], 'total' => $class_list['total'], 'page' => $this->page, 'back' => 0));
 	}
 
 
