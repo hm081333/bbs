@@ -102,7 +102,7 @@ class Api_Topic extends PhalApi_Api
         } else {
             $class = Domain_Class::getAllClassList();
             DI()->view->assign(array('class' => $class));
-            DI()->view->show('create_topic');
+            return DI()->view->post('create_topic');
         }
     }
     

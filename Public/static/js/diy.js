@@ -36,8 +36,8 @@ function afterPageLoad() {
     // $(".button-collapse").sideNav();
     $('.modal').modal();
     $('.datepicker').pickadate({
-        selectMonths: true, // Creates a dropdown to control month
-        selectYears: 30 // Creates a dropdown of 30 years to control year
+        selectMonths: true, // 创建一个下拉菜单来控制月份
+        selectYears: 30 // 创建一个30年的下拉菜单来控制年份
     });
     $('select').material_select();
     $('.collapsible').collapsible();
@@ -45,7 +45,22 @@ function afterPageLoad() {
     $('ul.tabs').tabs({
         // swipeable: true
     });
+    $('.dropdown-button').dropdown('close');
+    $('.dropdown-button').dropdown({
+            inDuration: 300,
+            outDuration: 225,
+            constrainWidth: false, // 不改变宽度
+            hover: false, // hover时激活
+            gutter: 0, // 边缘间隔
+            belowOrigin: false, // 显示在按钮下面
+            alignment: 'left', // 对齐方式
+            stopPropagation: true // 停止事件传播
+        }
+    );
     $('.tooltipped').tooltip({delay: 50});
+    $('body,html').animate({//滚动条回到顶端
+        scrollTop: 0
+    }, 0);
 }
 
 //上传图片预览
@@ -67,16 +82,16 @@ function SuccessMsg(data, SuccessCallBack, FailCallBack) {
     var msg = data.msg || data || '';
     var back = data.back || false;
     var url = data.data ? data.data.url : null;
-    var fuc = SuccessCallBack && (typeof(SuccessCallBack) == "object" || typeof(SuccessCallBack) == "function") ? SuccessCallBack : function () {
+    var fuc = SuccessCallBack && (typeof(SuccessCallBack) == "object" || typeof(SuccessCallBack) == "function") ? SuccessCallBack(data) : function () {
         if (url) {
             location.href = url
         } else if (back) {
             history.back();
         } else {
-            location.reload()
+            location.reload();
         }
     };
-    var failFuc = FailCallBack && (typeof(FailCallBack) == "object" || typeof(FailCallBack) == "function") ? FailCallBack : null;
+    var failFuc = FailCallBack && (typeof(FailCallBack) == "object" || typeof(FailCallBack) == "function") ? FailCallBack(data) : null;
     if (data.ret == 200) {
         alertMsg(msg, fuc);
     } else {
@@ -325,10 +340,22 @@ $('#Register').submit(function ()//提交表单
     Ajax($("#Register").serialize());
 });
 
-$('#Login_in').submit(function ()//提交表单
-{
-    Ajax($("#Login_in").serialize());
-});
+function sendFormAjax(selector, callback, file) {
+    $("body").delegate(selector, "submit", function (event) {
+        event.preventDefault();
+        var $this = $(this);
+        var $form_button = $this.find("button");
+        var form_disable = $form_button.hasClass("disabled");
+        if (form_disable === true) {
+            return false;
+        }
+        $form_button.addClass("disabled");
+        Ajax($this.serialize(), function (d) {
+            $form_button.removeClass("disabled");
+            SuccessMsg(d, callback);
+        }, file);
+    });
+}
 
 // 谷歌身份认证登录
 $('#forget').submit(function ()//提交表单
@@ -401,24 +428,17 @@ $('#config').submit(function ()//提交表单
     Ajax($("#config").serialize());
 });
 
-$('.delivery_id').click(function () {
-    var id = $(this).attr("data-id");
-    $.ajax({
-        type: 'POST',
-        data: {service: 'Default.deliveryView', id: id},
-        dataType: 'json',
-        success: function (d) {
-            if (d.ret == 200) {
-                $('#delivery').html(d.data);
-                $('.collapsible').collapsible();
-                $('.collapsible').collapsible('open', 0);
-                $('#delivery').modal('open');
-            } else {
-                Materialize.toast(d.msg, 2000, 'rounded');
-            }
-        }
-    });
-});
+function sendButtomAjax(element, callback) {
+    var data = element.data();
+    element.addClass("disabled");
+    Ajax(data, callback);
+    element.removeClass("disabled");
+}
+
+
+function bindClick(selector, func) {
+    $("body").delegate(selector, "click", func);
+}
 
 $('#Add_Delivery').submit(function ()//提交表单
 {

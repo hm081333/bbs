@@ -60,7 +60,7 @@
 				<?php echo $row['last_time'] ? date('Y-m-d H:i:s', $row['last_time']) : ''; ?>
 			</td>
 			<td class="center">
-				<a class="delivery_id btn-floating waves-effect waves-light" data-id="<?php echo $row['id']; ?>">
+				<a class="delivery_id btn-floating waves-effect waves-light" data-service="Default.DeliveryView" data-id="<?php echo $row['id']; ?>">
 					<i class="material-icons">insert_chart</i>
 				</a>
 				<a class="delete btn-floating waves-effect waves-light" data-id="<?php echo $row['id']; ?>"
