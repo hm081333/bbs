@@ -32,8 +32,25 @@ jQuery(document).ready(function ($) {
     });
 });
 
+/**
+ * 消除之前的js框架初始化
+ */
+function beginLoadNewPage() {
+    $('body,html').animate({//滚动条回到顶端
+        scrollTop: 0
+    }, 0);
+    $('.button-collapse').sideNav('hide');//隐藏侧滑导航
+    $('.dropdown-button').dropdown('close');
+    $(".material-tooltip").remove();
+    $(".hiddendiv").remove();
+}
+
+/**
+ * js框架初始化
+ */
 function afterPageLoad() {
-    // $(".button-collapse").sideNav();
+    beginLoadNewPage();
+    $(".button-collapse").sideNav();
     $('.modal').modal();
     $('.datepicker').pickadate({
         selectMonths: true, // 创建一个下拉菜单来控制月份
@@ -45,7 +62,6 @@ function afterPageLoad() {
     $('ul.tabs').tabs({
         // swipeable: true
     });
-    $('.dropdown-button').dropdown('close');
     $('.dropdown-button').dropdown({
             inDuration: 300,
             outDuration: 225,
@@ -57,10 +73,9 @@ function afterPageLoad() {
             stopPropagation: true // 停止事件传播
         }
     );
-    $('.tooltipped').tooltip({delay: 50});
-    $('body,html').animate({//滚动条回到顶端
-        scrollTop: 0
-    }, 0);
+    $('.tooltipped').tooltip({
+        delay: 50
+    });
 }
 
 //上传图片预览
@@ -82,20 +97,23 @@ function SuccessMsg(data, SuccessCallBack, FailCallBack) {
     var msg = data.msg || data || '';
     var back = data.back || false;
     var url = data.data ? data.data.url : null;
-    var fuc = SuccessCallBack && (typeof(SuccessCallBack) == "object" || typeof(SuccessCallBack) == "function") ? SuccessCallBack(data) : function () {
+    var fuc = SuccessCallBack && (typeof(SuccessCallBack) == "object" || typeof(SuccessCallBack) == "function") ? SuccessCallBack : function () {
         if (url) {
             location.href = url
         } else if (back) {
             history.back();
-        } else {
-            location.reload();
         }
+        /* else {
+                    location.reload();
+                }*/
     };
-    var failFuc = FailCallBack && (typeof(FailCallBack) == "object" || typeof(FailCallBack) == "function") ? FailCallBack(data) : null;
-    if (data.ret == 200) {
-        alertMsg(msg, fuc);
+    var failFuc = FailCallBack && (typeof(FailCallBack) == "object" || typeof(FailCallBack) == "function") ? FailCallBack : function () {
+    };
+    if (parseInt(data.ret) === 200) {
+        alertMsg(msg, fuc(data));
     } else {
-        alertMsg(msg, failFuc);
+        console.log(failFuc);
+        alertMsg(msg, failFuc(data));
     }
 }
 
@@ -357,6 +375,15 @@ function sendFormAjax(selector, callback, file) {
     });
 }
 
+function initDeleteButton() {
+    bindClick("a.delete", function (event) {//触发点击事件
+        sendButtomAjax($(this), function (d) {
+            SuccessMsg(d, callback);
+        });
+    });
+}
+
+
 // 谷歌身份认证登录
 $('#forget').submit(function ()//提交表单
 {
@@ -440,11 +467,6 @@ function bindClick(selector, func) {
     $("body").delegate(selector, "click", func);
 }
 
-$('#Add_Delivery').submit(function ()//提交表单
-{
-    Ajax($("#Add_Delivery").serialize());
-});
-
 $('#Reset').submit(function ()//提交表单
 {
     Ajax($(this).serialize());
@@ -493,22 +515,5 @@ $('#RestoreModal form').submit(function ()//提交表单
 });
 
 
-/**
- * a标签
- */
 
-/**
- * 点击跳转按钮
- * 提交?service='xxx'跳转api
- * 跳转外链请加上http://开头
- */
-$('.url').click(function () {
-    var url = $(this).attr('data-url');
-    location.href = url;
-});
 
-$('.delete').click(function () {
-    var id = $(this).attr("data-id");
-    var service = $(this).attr("data-service");
-    Ajax({service: service, id: id});
-});

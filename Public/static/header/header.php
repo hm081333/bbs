@@ -29,6 +29,10 @@
     ?>
     <link href="<?php echo DI()->tool->staticPath('css/mini.css') ?>" rel="stylesheet" media="screen,projection">
     <script src="<?php echo DI()->tool->staticPath('js/mini.js'); ?>"></script>
+    <script>
+        window.NOW_WEB_SITE = '<?php echo NOW_WEB_SITE; ?>';
+        window.URL_ROOT = '<?php echo URL; ?>';
+    </script>
 </head>
 
 <body>
@@ -38,7 +42,7 @@
     <nav class="cyan darken-4" style="position: fixed; z-index: 2;"><!--导航栏语句开始-->
         <div class="nav-wrapper container"><!--导航栏内容开始-->
             <?php if (!isset($back) && back) : ?>
-                <a href="javascript:;" class="button-collapse show-on-large btn-back"
+                <a href="javascript:;" class="show-on-large btn-back"
                    style="float: left !important; display: none;">
                     <i class="material-icons">arrow_back</i></a><!--网页LOGO-->
             <?php endif; ?>
@@ -103,25 +107,35 @@
     <?php if (DI()->config->get('sys.translate')): ?>
         <ul id="language" class="dropdown-content">
             <li>
-                <a onclick="javascript:set_language('zh_cn')"><?php echo T('简体中文'); ?></a>
+                <a class="btn-ajax lang" data-service="Public.SetLanguage" data-language="zh_cn">
+                    简体中文
+                </a>
             </li>
             <li class="divider"></li>
             <li>
-                <a onclick="javascript:set_language('zh_tw')"><?php echo T('繁体中文'); ?></a>
+                <a class="btn-ajax lang" data-service="Public.SetLanguage" data-language="zh_tw">
+                    繁體中文
+                </a>
             </li>
             <li class="divider"></li>
             <li>
-                <a onclick="javascript:set_language('en')"><?php echo T('英语'); ?></a>
+                <a class="btn-ajax lang" data-service="Public.SetLanguage" data-language="en">
+                    English
+                </a>
             </li>
             <li class="divider"></li>
             <li>
                 <!--de 德标 at 奥地利 ch 瑞士 ru 俄罗斯(欧境)-->
-                <a onclick="javascript:set_language('de')"><?php echo T('德语'); ?></a>
+                <a class="btn-ajax lang" data-service="Public.SetLanguage" data-language="de">
+                    Deutsch
+                </a>
             </li>
             <li class="divider"></li>
             <li>
                 <!--fr 法标 lu 卢森堡-->
-                <a onclick="javascript:set_language('fr')"><?php echo T('法语'); ?></a>
+                <a class="btn-ajax lang" data-service="Public.SetLanguage" data-language="fr">
+                    Français
+                </a>
             </li>
         </ul>
     <?php endif; ?>

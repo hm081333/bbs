@@ -20,11 +20,11 @@ obj['edit_member'] = function () {
     pageInit({service: 'User.Edit_Member'});
 };
 obj['create_topic'] = function () {
+    $("svg").remove();
     pageInit({service: 'Topic.Create_Topic'});
 };
 obj['delivery_list'] = function () {
     pageInit({service: 'Default.DeliveryList'});
-
     bindClick("#delivery_list a.delivery_id", function () {
         sendButtomAjax($(this), function (d) {
             if (d.ret == 200) {
@@ -37,30 +37,49 @@ obj['delivery_list'] = function () {
             }
         });
     });
+    bindClick("#delivery_list a.delete", function () {//触发点击事件
+        $this_tr = $(this).parent().parent();
+        sendButtomAjax($(this), function (d) {
+            if (d.ret == 200) {
+                SuccessMsg(d);
+                $this_tr.remove();
+            } else {
+                Materialize.toast(d.msg, 2000, 'rounded');
+            }
+        });
+    });
+    sendFormAjax("#delivery_list #addDelivery form", function () {
+        $('#delivery_list #addDelivery').modal('close');
+        pageReload();//重新加载当前页面
+    });
 };
 obj['login'] = function () {
     pageInit({service: 'User.Login'});
-
-    sendFormAjax("#login form")
+    sendFormAjax("#login form");
 };
 
 
 $(document).ready(function () {
-    // href_id = location.hash.split('#')[1];
+    bindClick("header nav #language a.lang", function () {
+        sendButtomAjax($(this), function (d) {
+            if (d.ret == 200) {
+                SuccessMsg(d, function () {
+                    location.reload();
+                });
+            } else {
+                alertMsg(d.msg);
+            }
+        });
+    });
+
     page_href_id(); //第一次访问时加载首页
 
     $("body").on("click", "a", function (event) {//监听body下所有a标签的点击事件
         $click = $(event.currentTarget);//当前点击的对象
         if ($click.is("a.btn-link")) {
             event.preventDefault(); //阻止默认操作 - 跳转href地址
-            var click_id = $click.attr('href').split('#')[1];
-            if (click_id === href_id) {
-                return false;
-            }
-            href_id = click_id;
+            href_id = $click.attr('href').split('#')[1];
             href_data = $click.data() || {};
-            // var data = $click.data() || {};
-            // setData(data);
             page_href_id();
             return false;
         } else if ($click.is("a.btn-back")) {
@@ -85,8 +104,24 @@ function page_href_id() {
     }
 }
 
+/**
+ * 页面重载 - 重载当前页面
+ */
+function pageReload() {
+    Ajax(href_data, function (d) {
+        $('#' + href_id).empty();
+        $('#' + href_id).html(d.data);
+        afterPageLoad();//初始化所有必要的框架初始化
+        backBtn();
+        goNextStep();
+        $('.page-current').removeClass('page-current');
+        $('#' + href_id).addClass('page-current');
+    });
+}
+
 function pageInit(data, func) {
     $.extend(data, href_data);
+    href_data = data;
     Ajax(data, function (d) {
         if ($('#' + href_id).length > 0) {
             $('#' + href_id).empty();
@@ -103,8 +138,7 @@ function pageInit(data, func) {
         goNextStep();
         $('.page-current').removeClass('page-current');
         $('#' + href_id).addClass('page-current');
-        // console.log(href_id);
-        // console.log(href_step);
+        console.log(href_step);
     });
 }
 
@@ -161,18 +195,22 @@ function getStep() {
  * 跳转新页面时候步进添加新页面id
  */
 function goNextStep() {
-    // var href_step = [];
     if (href_id === "index") {
         href_step = [href_id];
     } else {
-        // href_step = getStep(); //读取本地存储
+        var now_index = href_step.length - 1;//现在所在页面的id的index
+        var now_page = href_step[now_index];//现在所在页面的id
+        if (now_page === href_id) {//就是当前页面，不添加
+            return false;
+        }
         href_step = href_step.concat([href_id]);
     }
-    // setStep(href_step);
 }
 
+/**
+ * 返回上一个页面时候的步进
+ */
 function backLastStep() {
-    // var href_step = getStep(); //读取本地存储
     var now_index = href_step.length - 1;//现在所在页面的id的index
     var now_page = href_step[now_index];//现在所在页面的id
     if (now_page === "index") {//在首页就不返回了
@@ -182,6 +220,5 @@ function backLastStep() {
     href_id = href_step[last_index];//上一个页面的id
     href_step.splice(now_index, 1);//删除一个id
     pageReInit();//重载页面
-    // setStep(href_step);//重设页面步进
 }
 
