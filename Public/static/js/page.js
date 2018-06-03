@@ -1,4 +1,4 @@
-var href_id = "index";
+var href_id = "";
 var href_data = {};
 var href_step = getStep();
 var href_step_data = getData();
@@ -24,6 +24,10 @@ obj['edit_member'] = function () {
 obj['create_topic'] = function () {
     $("svg").remove();
     pageInit({service: 'Topic.Create_Topic'});
+    sendFormAjax("#create_topic form", function (d) {
+        location.href = '#topic_info?topic_id=' + d.data['topic_id'];
+        page_href_id();
+    });
 };
 obj['delivery_list'] = function () {
     pageInit({service: 'Default.DeliveryList'});
@@ -118,10 +122,12 @@ function diy_href() {
         }
         href_data = params;
         href_data['href_id'] = href_id;
-        history.pushState({}, '123', hrefs[0]);
-    } else if (href_step_index >= 0 && href_id === 'index') {
+        history.pushState({}, '', hrefs[0]);
+    } else if (href_step_index >= 0 && href_id === '') {
         href_id = href_step[href_step_index];
         href_data = href_step_data[href_id];
+    } else {
+        href = 'index';
     }
 
 }
