@@ -42,8 +42,8 @@
     <nav class="cyan darken-4" style="position: fixed; z-index: 2;"><!--导航栏语句开始-->
         <div class="nav-wrapper container"><!--导航栏内容开始-->
             <?php if (!isset($back) && back) : ?>
-                <a href="javascript:;" class="show-on-large btn-back"
-                   style="float: left !important; display: none;">
+                <a href="javascript:;" class="show-on-large btn-back hide"
+                   style="float: left !important;">
                     <i class="material-icons">arrow_back</i></a><!--网页LOGO-->
             <?php endif; ?>
             <a href="#index" class="brand-logo btn-link">LYiHo</a><!--网页LOGO-->

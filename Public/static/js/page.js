@@ -1,6 +1,8 @@
 var href_id = "index";
 var href_data = {};
-var href_step = [];
+var href_step = getStep();
+var href_step_data = getData();
+var href_step_index = href_step.length - 1;//当前页面历史下标 初始下标为-1，有一个页面的时候应该为0
 var obj = {};
 /*追加页面对象的写法*/
 obj['index'] = function () {
@@ -93,10 +95,42 @@ $(document).ready(function () {
 
 });
 
+function diy_href() {
+    // old_data = getData();
+    // if (JSON.stringify(old_data) !== '{}') {
+    //     href_data = old_data;
+    //     href_id = href_data['href_id'];
+    //     return;
+    // }
+    var href = window.location.href;
+    var hrefs = href.split('#');
+    var page_req = hrefs[1];
+    if (page_req) {
+        var reqs = page_req.split('?');
+        href_id = reqs[0];
+        if (reqs[1]) {
+            param_words = reqs[1].split('&');
+            var params = {};
+            for (i = 0; i < param_words.length; i++) {
+                param = param_words[i].split('=');
+                params[param[0]] = param[1];
+            }
+        }
+        href_data = params;
+        href_data['href_id'] = href_id;
+        history.pushState({}, '123', hrefs[0]);
+    } else if (href_step_index >= 0 && href_id === 'index') {
+        href_id = href_step[href_step_index];
+        href_data = href_step_data[href_id];
+    }
+
+}
 
 /*调起页面对象函数*/
 function page_href_id() {
+    diy_href();
     var obj_func_name = 'obj.' + href_id;
+    console.log(obj_func_name);
     if (typeof(eval(obj_func_name)) === "function") {
         eval(obj_func_name + '()');
     } else {
@@ -109,19 +143,29 @@ function page_href_id() {
  */
 function pageReload() {
     Ajax(href_data, function (d) {
-        $('#' + href_id).empty();
-        $('#' + href_id).html(d.data);
+        if ($('#' + href_id).length > 0) {
+            $('#' + href_id).empty();
+            $('#' + href_id).html(d.data);
+        } else {
+            var html = "";
+            html += '<div class="page page-inited" id="' + href_id + '">';
+            html += d.data;
+            html += '</div>';
+            $('#Content').append(html);
+        }
         afterPageLoad();//初始化所有必要的框架初始化
         backBtn();
         goNextStep();
         $('.page-current').removeClass('page-current');
         $('#' + href_id).addClass('page-current');
+        console.log(href_step, href_step_data, href_step_index);
     });
 }
 
 function pageInit(data, func) {
     $.extend(data, href_data);
     href_data = data;
+    href_data['href_id'] = href_id;
     Ajax(data, function (d) {
         if ($('#' + href_id).length > 0) {
             $('#' + href_id).empty();
@@ -138,22 +182,23 @@ function pageInit(data, func) {
         goNextStep();
         $('.page-current').removeClass('page-current');
         $('#' + href_id).addClass('page-current');
-        console.log(href_step);
+        console.log(href_step, href_step_data, href_step_index);
     });
 }
 
-function pageReInit(func) {
+function pageReInit() {
     afterPageLoad();//初始化所有必要的框架初始化
     backBtn();
     $('.page-current').removeClass('page-current');
     $('#' + href_id).addClass('page-current');
+    console.log(href_step, href_step_data, href_step_index);
 }
 
 function backBtn() {
     if (href_id === "index") {
-        $('header nav a.btn-back').hide();
+        $('header nav a.btn-back').addClass('hide');
     } else {
-        $('header nav a.btn-back').show();
+        $('header nav a.btn-back').removeClass('hide');
     }
 }
 
@@ -162,7 +207,8 @@ function backBtn() {
  * @param data
  */
 function setData(data) {
-    localStorage.setItem("href_data", JSON.stringify(data));//转化为JSON字符串 存储 localStorage - H5本地存储
+    // localStorage.setItem("href_step_data", JSON.stringify(data));//转化为JSON字符串 存储 localStorage - H5本地存储
+    sessionStorage.setItem("href_step_data", JSON.stringify(data));//转化为JSON字符串 存储 sessionStorage - H5本地存储
 }
 
 /**
@@ -171,7 +217,8 @@ function setData(data) {
  * @returns array
  */
 function getData(data) {
-    var href_data = JSON.parse(localStorage.getItem("href_data")); //读取本地存储
+    // var href_data = JSON.parse(localStorage.getItem("href_step_data")); //读取本地存储
+    var href_data = JSON.parse(sessionStorage.getItem("href_step_data")) || {}; //读取本地存储
     return $.extend(data, href_data);
 }
 
@@ -180,7 +227,8 @@ function getData(data) {
  * @param data
  */
 function setStep(data) {
-    localStorage.setItem("href_step", JSON.stringify(data));//转化为JSON字符串 存储 localStorage - H5本地存储
+    // localStorage.setItem("href_step", JSON.stringify(data));//转化为JSON字符串 存储 localStorage - H5本地存储
+    sessionStorage.setItem("href_step", JSON.stringify(data));//转化为JSON字符串 存储 sessionStorage - H5本地存储
 }
 
 /**
@@ -188,37 +236,53 @@ function setStep(data) {
  * @returns array
  */
 function getStep() {
-    return JSON.parse(localStorage.getItem("href_step")); //读取本地存储
+    // return JSON.parse(localStorage.getItem("href_step")); //读取本地存储
+    return JSON.parse(sessionStorage.getItem("href_step")) || []; //读取本地存储
 }
 
 /**
  * 跳转新页面时候步进添加新页面id
  */
 function goNextStep() {
-    if (href_id === "index") {
-        href_step = [href_id];
+    if (href_id === 'index') {
+        href_step_index = 0;
+        href_step = ['index'];
+        href_step_data = {};
+        href_step_data['index'] = href_data;
     } else {
-        var now_index = href_step.length - 1;//现在所在页面的id的index
-        var now_page = href_step[now_index];//现在所在页面的id
-        if (now_page === href_id) {//就是当前页面，不添加
-            return false;
+        if (parseInt(href_step_index) >= 0) {
+            var now_page = href_step[href_step_index];//现在所在页面的id
+            if (now_page === href_id) {//就是当前页面，不添加
+                return false;
+            }
         }
-        href_step = href_step.concat([href_id]);
+        href_step[href_step_index + 1] = href_id;
+        href_step_data[href_id] = href_data;
+        href_step_index += 1;
     }
+    setStep(href_step);
+    setData(href_step_data);
 }
 
 /**
  * 返回上一个页面时候的步进
  */
 function backLastStep() {
-    var now_index = href_step.length - 1;//现在所在页面的id的index
-    var now_page = href_step[now_index];//现在所在页面的id
-    if (now_page === "index") {//在首页就不返回了
+    if (parseInt(href_step_index) === 0) {
         return false;
     }
-    var last_index = href_step.length - 2;//上一个页面id的index
+    var last_index = href_step_index - 1;//上一个页面id的index
     href_id = href_step[last_index];//上一个页面的id
-    href_step.splice(now_index, 1);//删除一个id
-    pageReInit();//重载页面
+    href_data = href_step_data[href_id];//上一个页面的参数
+    href_step.pop();//删除最后一个加载的页面
+    href_step_index -= 1;
+    setStep(href_step);
+    setData(href_step_data);
+    if ($('#' + href_id).length > 0) {
+        pageReInit();//重载页面
+    } else {
+        console.log(href_id, href_data);
+        pageReload();
+    }
 }
 
