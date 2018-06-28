@@ -60,9 +60,13 @@
 
 </body>
 </html>
-
+<script>
+	window.NOW_WEB_SITE = '<?php echo NOW_WEB_SITE; ?>';
+	window.URL_ROOT = '<?php echo URL; ?>';
+</script>
 <!--局域网获取IP方法-->
-<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+<!--<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>-->
+<script src="<?php echo URL_ROOT; ?>static/js/diy.js"></script>
 
 <!--微信jssdk-->
 <?php if (DI()->tool->is_weixin()) : ?>
