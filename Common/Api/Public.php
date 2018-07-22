@@ -76,7 +76,7 @@ class Api_Public extends PhalApi_Api
             
             /* 抓取远程文件 */
             case 'catchimage':
-                $result = Domain_Neditor::crawler($action);
+                $result = Domain_Neditor::crawler();
                 break;
             
             default:

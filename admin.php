@@ -3,8 +3,7 @@
  * $APP_NAME 统一入口
  */
 
-define('admin', true);
-defined('website') || define('website', 'admin');
+defined('MODULE') || define('MODULE', 'admin');
 
 require_once dirname(__FILE__) . '/Public/init.php';
 

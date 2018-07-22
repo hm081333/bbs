@@ -3,8 +3,7 @@
  * $APP_NAME 统一入口
  */
 
-define('tieba', true);
-defined('website') || define('website', 'tieba');
+defined('MODULE') || define('MODULE', 'bbs');
 
 require_once dirname(__FILE__) . '/Public/init.php';
 

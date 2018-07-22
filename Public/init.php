@@ -15,15 +15,19 @@ date_default_timezone_set('Asia/Shanghai');
 
 defined('PUB_ROOT') || define('PUB_ROOT', dirname(__FILE__) . '/');
 defined('API_ROOT') || define('API_ROOT', dirname(__FILE__) . '/..');
-defined('URL') || define('URL', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/');
-defined('NOW_WEB_SITE') || define('NOW_WEB_SITE', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF']);
-defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/Public/');
+// defined('URL') || define('URL', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/');
+defined('NOW_WEB_SITE') || define('NOW_WEB_SITE', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/' . MODULE);
+defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/');
 
 require_once API_ROOT . '/PhalApi/PhalApi.php';
 
 session_start();
 
 $loader = new PhalApi_Loader(API_ROOT, 'Library');
+
+if (file_exists(API_ROOT . 'vendor/autoload.php')) {
+    require API_ROOT . 'vendor/autoload.php';
+}
 
 /** ---------------- 注册&初始化 基本服务组件 ---------------- **/
 
@@ -117,3 +121,18 @@ defined('client_ip') || define('client_ip', DI()->tool->getClientIp());
  * DI()->response = new PhalApi_Response_JsonP($_GET['callback']);
  * }
  */
+
+register_shutdown_function('sys_error_func');// 捕获系统级错误
+function sys_error_func()
+{
+    if ($error = error_get_last()) {
+        DI()->logger->error('Type:' . $error['type'] . ' Msg: ' . $error['message'] . ' in ' . $error['file'] . ' on line ' . $error['line']);
+    }
+}
+
+set_error_handler('error_func');// 捕获一般错误
+function error_func($type, $message, $file, $line)
+{
+    DI()->logger->error($type . ':' . $message . ' in ' . $file . ' on ' . $line . ' line');
+}
+

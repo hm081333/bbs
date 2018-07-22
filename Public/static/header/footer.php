@@ -62,7 +62,7 @@
 </html>
 <script>
 	window.NOW_WEB_SITE = '<?php echo NOW_WEB_SITE; ?>';
-	window.URL_ROOT = '<?php echo URL; ?>';
+	window.URL_ROOT = '<?php echo URL_ROOT; ?>';
 </script>
 <!--局域网获取IP方法-->
 <!--<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>-->
