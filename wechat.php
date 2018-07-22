@@ -15,6 +15,8 @@ $GLOBALS['HTTP_RAW_POST_DATA']=file_get_contents("php://input"); // PHP7.0
 if (!isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
 	die('Access denied!');
 }
+defined('NOW_WEB_SITE') || define('NOW_WEB_SITE', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF']);
+defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/Public/');
 
 require_once dirname(__FILE__) . '/Public/init.php';
 
