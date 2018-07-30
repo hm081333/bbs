@@ -2,6 +2,7 @@
 $_SERVER['HTTP_ACCEPT_ENCODING'] = '';
 $_SERVER['HTTP_HOST'] = '127.0.0.1';
 $_SERVER['PHP_SELF'] = '/';
+defined('MODULE') || define('MODULE', 'tieba');
 require_once dirname(__FILE__) . '/../Public/init.php';
 DI()->loader->addDirs('Common');
 !empty(getopt('a:')['a']) or die('请输入正确参数');
@@ -11,7 +12,6 @@ ignore_user_abort(true);
 try {
 	switch ($do) {
 		case 'sign':
-            defined('MODULE') || define('MODULE', 'tieba');
 			DI()->logger->info('执行贴吧定时，签到');
 			Domain_Tieba::doSignAll();//签到所有贴吧
 			DI()->logger->info('执行贴吧定时，签到重试');
