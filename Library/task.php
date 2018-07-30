@@ -16,7 +16,7 @@ try {
 			Domain_Tieba::doSignAll();//签到所有贴吧
 			DI()->logger->info('执行贴吧定时，签到重试');
 			Domain_Tieba::doRetryAll();//重试所有出错贴吧
-			if (date('G', NOW_TIME) === 10) {//10点发送推送
+			if (date('G', NOW_TIME) == 10) {//10点发送推送
 				DI()->logger->info('推送签到详情信息');
 				$wechat_domain = new Domain_Wechat();
 				$wechat_domain->sendTiebaSignDetailByCron();
