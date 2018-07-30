@@ -11,6 +11,7 @@ ignore_user_abort(true);
 try {
 	switch ($do) {
 		case 'sign':
+            defined('MODULE') || define('MODULE', 'tieba');
 			DI()->logger->info('执行贴吧定时，签到');
 			Domain_Tieba::doSignAll();//签到所有贴吧
 			DI()->logger->info('执行贴吧定时，签到重试');
