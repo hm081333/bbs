@@ -25,3 +25,8 @@ function url($Api = 'Default.Index', $param = [])
     }
     return NOW_WEB_SITE . "?service={$Api}&{$param}";
 }
+
+function path_url($path = '')
+{
+    return URL_ROOT . 'static/' . $path;
+}

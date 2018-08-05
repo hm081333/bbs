@@ -14,6 +14,13 @@
                     <label for="api_key"><?php echo T('APIkey') ?></label>
                 </div>
             </div>
+            <div class="col s12">
+                <div class="input-field">
+                    <i class="material-icons prefix">account_box</i>
+                    <input placeholder="Secret" id="secret" name="secret" type="text" value="<?php echo isset($setting['secret']) ? $setting['secret'] : ''; ?>"/>
+                    <label for="secret"><?php echo T('Secret') ?></label>
+                </div>
+            </div>
             <div class="col s12 center">
                 <button type="submit" name="submit" class="btn waves-effect waves-light"><?php echo T('提交') ?></button>
             </div>
