@@ -1,7 +1,7 @@
 <?php
 //加载快速方法
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'functions.php';
-require_once dirname(API_ROOT) . DIRECTORY_SEPARATOR . 'function.php';
+require_once dirname(API_ROOT) . DIRECTORY_SEPARATOR . 'functions.php';
 
 /**
  * PhalApi_Loader 自动加载器

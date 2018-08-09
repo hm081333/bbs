@@ -5,8 +5,10 @@
  * Date: 2018/7/21
  * Time: 23:06
  */
-
-$module = isset($_SERVER['REDIRECT_URL']) ? substr($_SERVER['REDIRECT_URL'], 1) : '';
+$REQUEST_URI = $_SERVER['REQUEST_URI'];
+$REQUEST_URIs = explode('?', $REQUEST_URI);
+$REQUEST_URI = $REQUEST_URIs[0];
+$module = substr($REQUEST_URI, 1);
 defined('MODULE') || define('MODULE', $module == '' ? 'bbs' : $module);
 require_once dirname(__FILE__) . '/init.php';
 
