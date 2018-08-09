@@ -193,22 +193,4 @@ class Api_Public extends PhalApi_Api
         }
     }
     
-    public function send_sms()
-    {
-        $rs = Domain_Common::send_smsbao($this->phone, $this->content);
-        if ($rs == true) {
-            DI()->response->setMsg(T('发送成功，请查收短信！'));
-        } else {
-            throw new PhalApi_Exception_InternalServerError(T($rs), 1);// 抛出客户端错误 T标签翻译*/
-        }
-    }
-    
-    public function query_sms()
-    {
-        $rs = Domain_Common::query_smsbao();
-        if ($rs[0] == 0) {
-        }
-        var_dump($rs);
-    }
-    
 }
