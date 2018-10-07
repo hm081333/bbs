@@ -4,6 +4,13 @@
  */
 
 /** ---------------- 根目录定义，自动加载 ---------------- **/
+// 开启跨域访问
+header('Access-Control-Allow-Origin:*');// 允许请求的地址
+header('Access-Control-Allow-Headers:*');// 允许请求的Headers
+header('Access-Control-Allow-Methods: GET,POST,OPTIONS');// 允许请求的方式
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    exit();
+}
 
 //开启GZIP
 if (!headers_sent() && extension_loaded("zlib") && strstr($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip")) {//开启gzip压缩
@@ -19,7 +26,7 @@ defined('API_ROOT') || define('API_ROOT', dirname(__FILE__) . '/..');
 defined('NOW_WEB_SITE') || define('NOW_WEB_SITE', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/' . MODULE);
 if (strpos($_SERVER['SERVER_SOFTWARE'], 'nginx') !== false) {
     defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname(dirname($_SERVER['PHP_SELF'])) == '\\' ? '' : dirname(dirname($_SERVER['PHP_SELF']))) . '/');
-}else{
+} else {
     defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/');
 }
 
