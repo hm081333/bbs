@@ -7,7 +7,8 @@
 // 开启跨域访问
 header('Access-Control-Allow-Origin:*');// 允许请求的地址
 header('Access-Control-Allow-Headers:*');// 允许请求的Headers
-header('Access-Control-Allow-Methods: GET,POST,OPTIONS');// 允许请求的方式
+header('Access-Control-Allow-Methods:GET,POST,OPTIONS');// 允许请求的方式
+header('Access-Control-Allow-Credentials:true');// 允许请求的方式
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit();
 }
