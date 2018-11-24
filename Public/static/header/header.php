@@ -22,7 +22,7 @@
     <nav class="cyan darken-4" style="position: fixed; z-index: 2;"><!--导航栏语句开始-->
         <div class="nav-wrapper container"><!--导航栏内容开始-->
             <?php if (!isset($back) && back) : ?>
-                <a href="#" onclick="history.back();" class="button-collapse show-on-large"
+                <a href="javascript:void(0);" onclick="history.back();" class="button-collapse show-on-large"
                    style="float: left !important;">
                     <i class="material-icons">arrow_back</i></a><!--网页LOGO-->
             <?php endif; ?>

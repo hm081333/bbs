@@ -4,14 +4,6 @@
  */
 
 /** ---------------- 根目录定义，自动加载 ---------------- **/
-// 开启跨域访问
-header('Access-Control-Allow-Origin:*');// 允许请求的地址
-header('Access-Control-Allow-Headers:*');// 允许请求的Headers
-header('Access-Control-Allow-Methods:GET,POST,OPTIONS');// 允许请求的方式
-header('Access-Control-Allow-Credentials:true');// 允许请求的方式
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    exit();
-}
 
 //开启GZIP
 if (!headers_sent() && extension_loaded("zlib") && strstr($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip")) {//开启gzip压缩
@@ -25,7 +17,7 @@ defined('PUB_ROOT') || define('PUB_ROOT', dirname(__FILE__) . '/');
 defined('API_ROOT') || define('API_ROOT', dirname(__FILE__) . '/..');
 // defined('URL') || define('URL', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/');
 defined('NOW_WEB_SITE') || define('NOW_WEB_SITE', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/' . MODULE);
-if (strpos($_SERVER['SERVER_SOFTWARE'], 'nginx') !== false) {
+if (strpos($_SERVER['SERVER_SOFTWARE'], 'nginx') !== FALSE) {
     defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname(dirname($_SERVER['PHP_SELF'])) == '\\' ? '' : dirname(dirname($_SERVER['PHP_SELF']))) . '/');
 } else {
     defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname($_SERVER['PHP_SELF']) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])) . '/');
@@ -52,7 +44,7 @@ DI()->config = new PhalApi_Config_File(API_ROOT . '/Config');
 DI()->config->get('constant'); // 常量
 
 // 调试模式，$_GET['__debug__']可自行改名
-DI()->debug = !empty($_GET['__debug__']) ? true : DI()->config->get('sys.debug');
+DI()->debug = !empty($_GET['__debug__']) ? TRUE : DI()->config->get('sys.debug');
 
 if (DI()->debug) {
     //DI()->tracer->mark();// 启动追踪器
@@ -70,15 +62,15 @@ DI()->notorm = new PhalApi_DB_NotORM(DI()->config->get('dbs'), DI()->debug);
 //DI()->notorm = new PhalApi_DB_NotORM(DI()->config->get('dbs'), !empty($_GET['__sql__']));
 
 if (!defined('IS_JSON')) {
-    $accept = DI()->request->getHeader('Accept');
-    $accept = explode(',', $accept);
-    $accept = $accept[0];
+    $accepts = DI()->request->getHeader('Accept');
+    $accepts = explode(',', $accepts);
+    $accept = $accepts[0];
     $service = DI()->request->getService();
-    if (stripos('Public.neditor,', $service) === false) {
-        if ($accept == 'application/json') {
-            defined('IS_JSON') || define('IS_JSON', true);
+    if (stripos('Public.neditor,', $service) === FALSE) {
+        if (in_array('application/json', $accepts)) {
+            defined('IS_JSON') || define('IS_JSON', TRUE);
         } else {
-            defined('IS_JSON') || define('IS_JSON', false);
+            defined('IS_JSON') || define('IS_JSON', FALSE);
             DI()->response = 'PhalApi_Response_Explorer';
         }
     }
@@ -110,7 +102,7 @@ DI()->cache = function () {
 
 //cookie工具
 DI()->cookie = function () {
-    $config = array();
+    $config = [];
     $config['path'] = '/';
     return new PhalApi_Cookie($config);
 };
@@ -148,3 +140,25 @@ function error_func($type, $message, $file, $line)
     DI()->logger->error($type . ':' . $message . ' in ' . $file . ' on ' . $line . ' line');
 }
 
+/* 客户端域名 */
+$origin = strtolower(isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '');
+/* 配置数组 */
+$crossDomainConfig = DI()->config->get('sys.crossDomain');
+/* 追加header 开启跨域访问 */
+if ($crossDomainConfig['Access-Control-Allow-Origin'] == '*' || in_array($origin, $crossDomainConfig['Access-Control-Allow-Origin'])) {
+    array_walk($crossDomainConfig, function ($value, $key) use ($origin) {
+        if ($key == 'Access-Control-Allow-Origin') {
+            header("{$key}:{$origin}");
+        } else {
+            if (is_array($value)) {
+                $value = implode(',', $value);
+            }
+            header("{$key}:{$value}");
+        }
+    });
+}
+unset($origin, $crossDomainConfig);
+
+if (strtolower($_SERVER['REQUEST_METHOD']) == 'options') {
+    exit(TRUE);
+}

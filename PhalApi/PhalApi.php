@@ -3,7 +3,7 @@
  * 框架版本号
  */
 defined('PHALAPI_VERSION') || define('PHALAPI_VERSION', '1.4.0');
- 
+
 /**
  * 项目根目录
  */
@@ -15,7 +15,7 @@ require_once PHALAPI_ROOT . DIRECTORY_SEPARATOR . 'PhalApi' . DIRECTORY_SEPARATO
  * PhalApi 应用类
  *
  * - 实现远程服务的响应、调用等操作
- * 
+ *
  * <br>使用示例：<br>
 ```
  * $api = new PhalApi();
@@ -30,7 +30,7 @@ require_once PHALAPI_ROOT . DIRECTORY_SEPARATOR . 'PhalApi' . DIRECTORY_SEPARATO
  */
 
 class PhalApi {
-    
+
     /**
      * 响应操作
      *
@@ -41,7 +41,7 @@ class PhalApi {
 ```
      *  array(
      *      'ret'   => 200,	            //服务器响应状态
-     *      'data'  => array(),	        //正常并成功响应后，返回给客户端的数据	
+     *      'data'  => array(),	        //正常并成功响应后，返回给客户端的数据
      *      'msg'   => '',		        //错误提示信息
      *  );
 ```
@@ -50,7 +50,7 @@ class PhalApi {
         $rs = DI()->response;
         try {
             // 接口调度与响应
-            $api    = PhalApi_ApiFactory::generateService(); 
+            $api    = PhalApi_ApiFactory::generateService();
             $action = DI()->request->getServiceAction();
             $data   = call_user_func(array($api, $action));
             $rs->setData($data);
@@ -75,5 +75,5 @@ class PhalApi {
 
         return $rs;
     }
-    
+
 }
