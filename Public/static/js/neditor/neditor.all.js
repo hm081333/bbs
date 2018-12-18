@@ -46,8 +46,8 @@
                  * @example
                  * ```javascript
                  * if ( UE.browser.ie ) {
-         *     console.log( '当前浏览器是IE' );
-         * }
+                 *     console.log( '当前浏览器是IE' );
+                 * }
                  * ```
                  */
                 ie: /(msie\s|trident.*rv:)([\w.]+)/i.test(agent),
@@ -57,8 +57,8 @@
                  * @example
                  * ```javascript
                  * if ( UE.browser.opera ) {
-         *     console.log( '当前浏览器是Opera' );
-         * }
+                 *     console.log( '当前浏览器是Opera' );
+                 * }
                  * ```
                  */
                 opera: !!opera && opera.version,
@@ -68,8 +68,8 @@
                  * @example
                  * ```javascript
                  * if ( UE.browser.webkit ) {
-         *     console.log( '当前浏览器是webkit内核浏览器' );
-         * }
+                 *     console.log( '当前浏览器是webkit内核浏览器' );
+                 * }
                  * ```
                  */
                 webkit: agent.indexOf(" applewebkit/") > -1,
@@ -79,8 +79,8 @@
                  * @example
                  * ```javascript
                  * if ( UE.browser.mac ) {
-         *     console.log( '当前浏览器运行在mac平台下' );
-         * }
+                 *     console.log( '当前浏览器运行在mac平台下' );
+                 * }
                  * ```
                  */
                 mac: agent.indexOf("macintosh") > -1,
@@ -90,8 +90,8 @@
                  * @example
                  * ```javascript
                  * if ( UE.browser.quirks ) {
-         *     console.log( '当前浏览器运行处于“怪异模式”' );
-         * }
+                 *     console.log( '当前浏览器运行处于“怪异模式”' );
+                 * }
                  * ```
                  */
                 quirks: document.compatMode == "BackCompat"
@@ -102,8 +102,8 @@
          * @example
          * ```javascript
          * if ( UE.browser.gecko ) {
-    *     console.log( '当前浏览器内核是gecko内核' );
-    * }
+         *     console.log( '当前浏览器内核是gecko内核' );
+         * }
          * ```
          */
         browser.gecko =
@@ -135,8 +135,8 @@
              * @example
              * ```javascript
              * if ( UE.browser.ie9Compat ) {
-         *     console.log( '当前浏览器运行在IE9兼容模式下' );
-         * }
+             *     console.log( '当前浏览器运行在IE9兼容模式下' );
+             * }
              * ```
              */
             browser.ie9Compat = document.documentMode == 9;
@@ -147,8 +147,8 @@
              * @example
              * ```javascript
              * if ( UE.browser.ie8 ) {
-         *     console.log( '当前浏览器是IE8浏览器' );
-         * }
+             *     console.log( '当前浏览器是IE8浏览器' );
+             * }
              * ```
              */
             browser.ie8 = !!document.documentMode;
@@ -159,8 +159,8 @@
              * @example
              * ```javascript
              * if ( UE.browser.ie8Compat ) {
-         *     console.log( '当前浏览器运行在IE8兼容模式下' );
-         * }
+             *     console.log( '当前浏览器运行在IE8兼容模式下' );
+             * }
              * ```
              */
             browser.ie8Compat = document.documentMode == 8;
@@ -171,8 +171,8 @@
              * @example
              * ```javascript
              * if ( UE.browser.ie7Compat ) {
-         *     console.log( '当前浏览器运行在IE7兼容模式下' );
-         * }
+             *     console.log( '当前浏览器运行在IE7兼容模式下' );
+             * }
              * ```
              */
             browser.ie7Compat =
@@ -184,8 +184,8 @@
              * @example
              * ```javascript
              * if ( UE.browser.ie6Compat ) {
-         *     console.log( '当前浏览器运行在IE6模式或者怪异模式下' );
-         * }
+             *     console.log( '当前浏览器运行在IE6模式或者怪异模式下' );
+             * }
              * ```
              */
             browser.ie6Compat = version < 7 || browser.quirks;
@@ -217,8 +217,8 @@
          * @example
          * ```javascript
          * if ( UE.browser.chrome ) {
-     *     console.log( '当前浏览器是Chrome' );
-     * }
+         *     console.log( '当前浏览器是Chrome' );
+         * }
          * ```
          */
         if (/chrome\/(\d+\.\d)/i.test(agent)) {
@@ -231,8 +231,8 @@
          * @example
          * ```javascript
          * if ( UE.browser.safari ) {
-     *     console.log( '当前浏览器是Safari' );
-     * }
+         *     console.log( '当前浏览器是Safari' );
+         * }
          * ```
          */
         if (
@@ -269,8 +269,8 @@
          * @example
          * ```javascript
          * if ( UE.browser.isCompatible ) {
-     *     console.log( '浏览器与UEditor能够良好兼容' );
-     * }
+         *     console.log( '浏览器与UEditor能够良好兼容' );
+         * }
          * ```
          */
         browser.isCompatible =
@@ -313,16 +313,16 @@
          * @example
          * ```javascript
          * var demoObj = {
-     *     key1: 1,
-     *     key2: 2
-     * };
+         *     key1: 1,
+         *     key2: 2
+         * };
          *
          * //output: key1: 1, key2: 2
          * UE.utils.each( demoObj, funciton ( value, key ) {
-     *
-     *     console.log( key + ":" + value );
-     *
-     * } );
+         *
+         *     console.log( key + ":" + value );
+         *
+         * } );
          * ```
          */
 
@@ -337,10 +337,10 @@
          *
          * //output: 0: DIV, 1: DIV ...
          * UE.utils.each( divs, funciton ( value, key ) {
-     *
-     *     console.log( key + ":" + value.tagName );
-     *
-     * } );
+         *
+         *     console.log( key + ":" + value.tagName );
+         *
+         * } );
          * ```
          */
         each: function (obj, iterator, context) {
@@ -482,18 +482,18 @@
          * @example
          * ```javascript
          * function SuperClass(){
-     *     this.name = "小李";
-     * }
+         *     this.name = "小李";
+         * }
          *
          * SuperClass.prototype = {
-     *     hello:function(str){
-     *         console.log(this.name + str);
-     *     }
-     * }
+         *     hello:function(str){
+         *         console.log(this.name + str);
+         *     }
+         * }
          *
          * function SubClass(){
-     *     this.name = "小张";
-     * }
+         *     this.name = "小张";
+         * }
          *
          * UE.utils.inherits(SubClass,SuperClass);
          *
@@ -523,8 +523,8 @@
          *     newTest = null;
          *
          * function test () {
-     *     console.log( this.name );
-     * }
+         *     console.log( this.name );
+         * }
          *
          * newTest = UE.utils.bind( test, { name: 'object' } );
          *
@@ -555,8 +555,8 @@
          * var start = 0;
          *
          * function test(){
-     *     console.log( new Date() - start );
-     * }
+         *     console.log( new Date() - start );
+         * }
          *
          * var testDefer = UE.utils.defer( test, 1000 );
          * //
@@ -581,8 +581,8 @@
          * ```javascript
          *
          * function test(){
-     *     console.log(1);
-     * }
+         *     console.log(1);
+         * }
          *
          * var testDefer = UE.utils.defer( test, 1000, true );
          *
@@ -847,11 +847,11 @@
          * ```javascript
          *
          * UE.utils.loadFile( document, {
-     *     src:"test.js",
-     *     tag:"script",
-     *     type:"text/javascript",
-     *     defer:"defer"
-     * } );
+         *     src:"test.js",
+         *     tag:"script",
+         *     type:"text/javascript",
+         *     defer:"defer"
+         * } );
          *
          * ```
          */
@@ -868,13 +868,13 @@
          * ```javascript
          *
          * UE.utils.loadFile( document, {
-     *     src:"test.js",
-     *     tag:"script",
-     *     type:"text/javascript",
-     *     defer:"defer"
-     * }, function () {
-     *     console.log('加载成功');
-     * } );
+         *     src:"test.js",
+         *     tag:"script",
+         *     type:"text/javascript",
+         *     defer:"defer"
+         * }, function () {
+         *     console.log('加载成功');
+         * } );
          *
          * ```
          */
@@ -1151,10 +1151,10 @@
          * ```javascript
          *
          * UE.utils.domReady( function () {
-     *
-     *     console.log('123');
-     *
-     * } );
+         *
+         *     console.log('123');
+         *
+         * } );
          *
          * ```
          */
@@ -1608,16 +1608,16 @@
          * @example
          * ```javascript
          * editor.addListener('selectionchange',function(){
-     *      console.log("选区已经变化！");
-     * })
+         *      console.log("选区已经变化！");
+         * })
          * editor.addListener('beforegetcontent aftergetcontent',function(type){
-     *         if(type == 'beforegetcontent'){
-     *             //do something
-     *         }else{
-     *             //do something
-     *         }
-     *         console.log(this.getContent) // this是注册的事件的编辑器实例
-     * })
+         *         if(type == 'beforegetcontent'){
+         *             //do something
+         *         }else{
+         *             //do something
+         *         }
+         *         console.log(this.getContent) // this是注册的事件的编辑器实例
+         * })
          * ```
          * @see UE.EventBase:fireEvent(String)
          */
@@ -1677,10 +1677,10 @@
          * ```javascript
          *
          * editor.addListener( "selectionchange", function ( type, arg1, arg2 ) {
-     *
-     *     console.log( arg1 + " " + arg2 );
-     *
-     * } );
+         *
+         *     console.log( arg1 + " " + arg2 );
+         *
+         * } );
          *
          * //触发selectionchange事件， 会执行上面的事件监听器
          * //output: Hello World
@@ -2281,39 +2281,39 @@
          * var position = UE.dom.domUtils.getPosition( document.documentElement, document.body );
          *
          * switch ( position ) {
-     *
-     *      //0
-     *      case UE.dom.domUtils.POSITION_IDENTICAL:
-     *          console.log('元素相同');
-     *          break;
-     *      //1
-     *      case UE.dom.domUtils.POSITION_DISCONNECTED:
-     *          console.log('两个节点在不同的文档中');
-     *          break;
-     *      //2
-     *      case UE.dom.domUtils.POSITION_FOLLOWING:
-     *          console.log('节点A在节点B之后');
-     *          break;
-     *      //4
-     *      case UE.dom.domUtils.POSITION_PRECEDING;
-     *          console.log('节点A在节点B之前');
-     *          break;
-     *      //8
-     *      case UE.dom.domUtils.POSITION_IS_CONTAINED:
-     *          console.log('节点A被节点B包含');
-     *          break;
-     *      case 10:
-     *          console.log('节点A被节点B包含且节点A在节点B之后');
-     *          break;
-     *      //16
-     *      case UE.dom.domUtils.POSITION_CONTAINS:
-     *          console.log('节点A包含节点B');
-     *          break;
-     *      case 20:
-     *          console.log('节点A包含节点B且节点A在节点B之前');
-     *          break;
-     *
-     * }
+         *
+         *      //0
+         *      case UE.dom.domUtils.POSITION_IDENTICAL:
+         *          console.log('元素相同');
+         *          break;
+         *      //1
+         *      case UE.dom.domUtils.POSITION_DISCONNECTED:
+         *          console.log('两个节点在不同的文档中');
+         *          break;
+         *      //2
+         *      case UE.dom.domUtils.POSITION_FOLLOWING:
+         *          console.log('节点A在节点B之后');
+         *          break;
+         *      //4
+         *      case UE.dom.domUtils.POSITION_PRECEDING;
+         *          console.log('节点A在节点B之前');
+         *          break;
+         *      //8
+         *      case UE.dom.domUtils.POSITION_IS_CONTAINED:
+         *          console.log('节点A被节点B包含');
+         *          break;
+         *      case 10:
+         *          console.log('节点A被节点B包含且节点A在节点B之后');
+         *          break;
+         *      //16
+         *      case UE.dom.domUtils.POSITION_CONTAINS:
+         *          console.log('节点A包含节点B');
+         *          break;
+         *      case 20:
+         *          console.log('节点A包含节点B且节点A在节点B之前');
+         *          break;
+         *
+         * }
          * ```
          */
         getPosition: function (nodeA, nodeB) {
@@ -2447,11 +2447,11 @@
          * @example
          * ```javascript
          * var filterNode = UE.dom.domUtils.findParent( document.body.firstChild, function ( node ) {
-     *
-     *     //由于查找的终点是body节点， 所以永远也不会匹配当前过滤器的条件， 即这里永远会返回false
-     *     return node.tagName === "HTML";
-     *
-     * } );
+         *
+         *     //由于查找的终点是body节点， 所以永远也不会匹配当前过滤器的条件， 即这里永远会返回false
+         *     return node.tagName === "HTML";
+         *
+         * } );
          *
          * //output: true
          * console.log( filterNode === null );
@@ -2482,11 +2482,11 @@
          *
          *          //output: DIV, BODY
          *          var filterNode = UE.dom.domUtils.findParent( document.getElementById( "test" ), function ( node ) {
-     *
-     *              console.log( node.tagName );
-     *              return false;
-     *
-     *          }, true );
+         *
+         *              console.log( node.tagName );
+         *              return false;
+         *
+         *          }, true );
          *
          *      </script>
          * </body>
@@ -2936,8 +2936,8 @@
          * @example
          * ```javascript
          * UE.dom.domUtils.on(document.body,"click",function(e){
-     *     //e为事件对象，this为被点击元素对戏那个
-     * });
+         *     //e为事件对象，this为被点击元素对戏那个
+         * });
          * ```
          */
 
@@ -2950,8 +2950,8 @@
          * @example
          * ```javascript
          * UE.dom.domUtils.on(document.body,["click","mousedown"],function(evt){
-     *     //evt为事件对象，this为被点击元素对象
-     * });
+         *     //evt为事件对象，this为被点击元素对象
+         * });
          * ```
          */
         on: function (element, type, handler) {
@@ -2995,8 +2995,8 @@
          * @example
          * ```javascript
          * UE.dom.domUtils.un(document.body,"click",function(evt){
-     *     //evt为事件对象，this为被点击元素对象
-     * });
+         *     //evt为事件对象，this为被点击元素对象
+         * });
          * ```
          */
 
@@ -3009,8 +3009,8 @@
          * @example
          * ```javascript
          * UE.dom.domUtils.un(document.body, ["click","mousedown"],function(evt){
-     *     //evt为事件对象，this为被点击元素对象
-     * });
+         *     //evt为事件对象，this为被点击元素对象
+         * });
          * ```
          */
         un: function (element, type, handler) {
@@ -3686,8 +3686,8 @@
          * @example
          * ```javascript
          * var ele = UE.dom.domUtils.createElement( document, 'div', {
-     *     id: 'test'
-     * } );
+         *     id: 'test'
+         * } );
          *
          * //output: DIV
          * console.log( ele.tagName );
@@ -3713,8 +3713,8 @@
          * <script>
          *
          *     var testNode = UE.dom.domUtils.setAttributes( document.getElementById( "test" ), {
-     *         id: 'demo'
-     *     } );
+         *         id: 'demo'
+         *     } );
          *
          *     //output: demo
          *     console.log( testNode.id );
@@ -3758,8 +3758,8 @@
          * ```html
          * <style type="text/css">
          *      #test {
-     *          font-size: 15px;
-     *      }
+         *          font-size: 15px;
+         *      }
          * </style>
          *
          * <span id="test"></span>
@@ -3921,14 +3921,21 @@
          * ```
          */
         addClass: function (elm, classNames) {
+            // elm.getAttribute('class')
+            // elm.setAttribute('class',utils.trim(cls));
             if (!elm) return;
             classNames = utils.trim(classNames).replace(/[ ]{2,}/g, " ").split(" ");
-            for (var i = 0, ci, cls = elm.className; (ci = classNames[i++]);) {
+            var cls = elm.getAttribute('class');
+            if (cls == null) {
+                cls = '';
+            }
+            for (var i = 0, ci, cls; (ci = classNames[i++]);) {
                 if (!new RegExp("\\b" + ci + "\\b").test(cls)) {
                     cls += " " + ci;
                 }
             }
-            elm.className = utils.trim(cls);
+            // elm.className = utils.trim(cls);
+            elm.setAttribute('class',utils.trim(cls));
         },
         /**
          * 判断元素element是否包含给定的样式类名className
@@ -4116,8 +4123,8 @@
          *      console.log( testNode.style.color );
          *
          *      UE.dom.domUtils.setStyles( testNode, {
-     *          'color': 'red'
-     *      } );
+         *          'color': 'red'
+         *      } );
          *      //output: "red"
          *      console.log( testNode.style.color );
          *
@@ -4181,10 +4188,10 @@
          *
          *     //output: 1
          *     console.log( UE.dom.domUtils.getChildCount( document.getElementById("test"), function ( node ) {
-     *
-     *         return node.nodeType === 1;
-     *
-     *     } ) );
+         *
+         *         return node.nodeType === 1;
+         *
+         *     } ) );
          *
          * </script>
          * ```
@@ -4247,9 +4254,9 @@
                         mode = doc.compatMode == "CSS1Compat";
                     return {
                         width:
-                        (mode ? doc.documentElement.clientWidth : doc.body.clientWidth) || 0,
+                            (mode ? doc.documentElement.clientWidth : doc.body.clientWidth) || 0,
                         height:
-                        (mode ? doc.documentElement.clientHeight : doc.body.clientHeight) || 0
+                            (mode ? doc.documentElement.clientHeight : doc.body.clientHeight) || 0
                     };
                 },
                 getScrollPosition = function (win) {
@@ -4416,9 +4423,9 @@
          *     var testNode = document.getElementById("test");
          *
          *     UE.dom.domUtils.setViewportOffset( testNode, {
-     *         left: 200,
-     *         top: 50
-     *     } );
+         *         left: 200,
+         *         top: 50
+         *     } );
          *
          *     //output: top: 300px; left: 100px; position: absolute;
          *     console.log( testNode.style.cssText );
@@ -4621,8 +4628,8 @@
          *
          * //output: null
          * console.log( UE.dom.domUtils.filterNodeList( divNodes, function ( node ) {
-     *     return node.tagName.toLowerCase() !== 'div';
-     * } ) );
+         *     return node.tagName.toLowerCase() !== 'div';
+         * } ) );
          * ```
          */
 
@@ -4660,15 +4667,15 @@
          * console.log( divNodes.length );
          *
          * var nodes = UE.dom.domUtils.filterNodeList( divNodes, function ( node ) {
-     *     return node.tagName.toLowerCase() === 'div';
-     * }, true );
+         *     return node.tagName.toLowerCase() === 'div';
+         * }, true );
          *
          * //output: 3
          * console.log( nodes.length );
          *
          * var node = UE.dom.domUtils.filterNodeList( divNodes, function ( node ) {
-     *     return node.tagName.toLowerCase() === 'div';
-     * }, false );
+         *     return node.tagName.toLowerCase() === 'div';
+         * }, false );
          *
          * //output: div
          * console.log( node.nodeName );
@@ -6651,12 +6658,12 @@
              *     console.log( range.cloneContents() );
              *
              *     range.traversal( function ( node ) {
-         *
-         *         if ( node.nodeType === 1 ) {
-         *             node.className = "test";
-         *         }
-         *
-         *     } );
+             *
+             *         if ( node.nodeType === 1 ) {
+             *             node.className = "test";
+             *         }
+             *
+             *     } );
              *
              *     //output: <span class="test"></span><a class="test"></a>
              *     console.log( range.cloneContents() );
@@ -6695,12 +6702,12 @@
              *     console.log( range.cloneContents() );
              *
              *     range.traversal( function ( node ) {
-         *
-         *         node.className = "test";
-         *
-         *     }, function ( node ) {
-         *          return node.nodeType === 1;
-         *     } );
+             *
+             *         node.className = "test";
+             *
+             *     }, function ( node ) {
+             *          return node.nodeType === 1;
+             *     } );
              *
              *     //output: <span class="test"></span><a class="test"></a>
              *     console.log( range.cloneContents() );
@@ -7248,8 +7255,8 @@
          * @example
          * ```javascript
          * editor.addListener( 'ready', function( editor ) {
-     *     editor.execCommand( 'focus' ); //编辑器家在完成后，让编辑器拿到焦点
-     * } );
+         *     editor.execCommand( 'focus' ); //编辑器家在完成后，让编辑器拿到焦点
+         * } );
          * ```
          */
         /**
@@ -7339,8 +7346,8 @@
          * @example
          * ```javascript
          * editor.addListener( 'selectionchange', function( editor ) {
-     *     console.log('选区发生改变');
-     * }
+         *     console.log('选区发生改变');
+         * }
          */
         /**
          * 在所有selectionchange的监听函数执行之前，会触发该事件
@@ -7412,11 +7419,11 @@
                     document,
                     {
                         src:
-                        me.options.langPath +
-                        me.options.lang +
-                        "/" +
-                        me.options.lang +
-                        ".js",
+                            me.options.langPath +
+                            me.options.lang +
+                            "/" +
+                            me.options.lang +
+                            ".js",
                         tag: "script",
                         type: "text/javascript",
                         defer: "defer"
@@ -7443,8 +7450,8 @@
              * @example
              * ```javascript
              * editor.ready( function( editor ) {
-         *     editor.setContent('初始化完毕');
-         * } );
+             *     editor.setContent('初始化完毕');
+             * } );
              * ```
              * @see UE.Editor.event:ready
              */
@@ -7508,8 +7515,8 @@
              * @example
              * ```javascript
              * editor.setOpt( {
-         *     'initContent': '欢迎使用编辑器'
-         * } );
+             *     'initContent': '欢迎使用编辑器'
+             * } );
              * ```
              */
             setOpt: function (key, val) {
@@ -7661,13 +7668,13 @@
                             //先注释掉了，加的原因忘记了，但开启会直接导致全屏模式下内容多时不会出现滚动条
                             //                    scrolling :'no',
                             src:
-                            "javascript:void(function(){document.open();" +
-                            (options.customDomain && document.domain != location.hostname
-                                ? 'document.domain="' + document.domain + '";'
-                                : "") +
-                            'document.write("' +
-                            html +
-                            '");document.close();}())'
+                                "javascript:void(function(){document.open();" +
+                                (options.customDomain && document.domain != location.hostname
+                                    ? 'document.domain="' + document.domain + '";'
+                                    : "") +
+                                'document.write("' +
+                                html +
+                                '");document.close();}())'
                         })
                     );
                     container.style.overflow = "hidden";
@@ -7880,9 +7887,9 @@
              * @example
              * ```javascript
              * editor.addshortcutkey({
-         *     "Bold" : "ctrl+66",//^B
-         *     "Italic" : "ctrl+73", //^I
-         * });
+             *     "Bold" : "ctrl+66",//^B
+             *     "Italic" : "ctrl+73", //^I
+             * });
              * ```
              */
             /**
@@ -7967,8 +7974,8 @@
              * ```javascript
              * // editor 是一个编辑器的实例
              * var content = editor.getContent( function ( editor ) {
-         *      return editor.body.innerHTML === '欢迎使用UEditor'; //返回空字符串
-         * } );
+             *      return editor.body.innerHTML === '欢迎使用UEditor'; //返回空字符串
+             * } );
              * ```
              */
             getContent: function (cmd, fn, notSetCursor, ignoreBlank, formatter) {
@@ -8758,10 +8765,10 @@
              * @example
              * ```javascript
              * editor.addInputRule(function(root){
-         *   $.each(root.getNodesByTagName('div'),function(i,node){
-         *       node.tagName="p";
-         *   });
-         * });
+             *   $.each(root.getNodesByTagName('div'),function(i,node){
+             *       node.tagName="p";
+             *   });
+             * });
              * ```
              */
             addInputRule: function (rule) {
@@ -8792,10 +8799,10 @@
              * @example
              * ```javascript
              * editor.addOutputRule(function(root){
-         *   $.each(root.getNodesByTagName('p'),function(i,node){
-         *       node.tagName="div";
-         *   });
-         * });
+             *   $.each(root.getNodesByTagName('p'),function(i,node){
+             *       node.tagName="div";
+             *   });
+             * });
              * ```
              */
             addOutputRule: function (rule) {
@@ -9188,32 +9195,32 @@
              * ```javascript
              * //向sayhello.php发起一个异步的Ajax GET请求, 请求超时时间为10s， 请求完成后执行相应的回调。
              * UE.ajax.requeset( 'sayhello.php', {
-         *
-         *     //请求方法。可选值： 'GET', 'POST'，默认值是'POST'
-         *     method: 'GET',
-         *
-         *     //超时时间。 默认为5000， 单位是ms
-         *     timeout: 10000,
-         *
-         *     //是否是异步请求。 true为异步请求， false为同步请求
-         *     async: true,
-         *
-         *     //请求携带的数据。如果请求为GET请求， data会经过stringify后附加到请求url之后。
-         *     data: {
-         *         name: 'neditor'
-         *     },
-         *
-         *     //请求成功后的回调， 该回调接受当前的XMLHttpRequest对象作为参数。
-         *     onsuccess: function ( xhr ) {
-         *         console.log( xhr.responseText );
-         *     },
-         *
-         *     //请求失败或者超时后的回调。
-         *     onerror: function ( xhr ) {
-         *          alert( 'Ajax请求失败' );
-         *     }
-         *
-         * } );
+             *
+             *     //请求方法。可选值： 'GET', 'POST'，默认值是'POST'
+             *     method: 'GET',
+             *
+             *     //超时时间。 默认为5000， 单位是ms
+             *     timeout: 10000,
+             *
+             *     //是否是异步请求。 true为异步请求， false为同步请求
+             *     async: true,
+             *
+             *     //请求携带的数据。如果请求为GET请求， data会经过stringify后附加到请求url之后。
+             *     data: {
+             *         name: 'neditor'
+             *     },
+             *
+             *     //请求成功后的回调， 该回调接受当前的XMLHttpRequest对象作为参数。
+             *     onsuccess: function ( xhr ) {
+             *         console.log( xhr.responseText );
+             *     },
+             *
+             *     //请求失败或者超时后的回调。
+             *     onerror: function ( xhr ) {
+             *          alert( 'Ajax请求失败' );
+             *     }
+             *
+             * } );
              * ```
              */
 
@@ -9228,11 +9235,11 @@
              *
              * //向sayhello.php发起一个异步的Ajax POST请求, 请求超时时间为5s， 请求完成后不执行任何回调。
              * UE.ajax.requeset( 'sayhello.php', {
-         *
-         *     //请求的地址， 该项是必须的。
-         *     url: 'sayhello.php'
-         *
-         * } );
+             *
+             *     //请求的地址， 该项是必须的。
+             *     url: 'sayhello.php'
+             *
+             * } );
              * ```
              */
             request: function (url, opts) {
@@ -9509,10 +9516,10 @@
          * @example
          * ```javascript
          * var node = new uNode({
-     *     type:'element',
-     *     tagName:'span',
-     *     attrs:{style:'font-size:14px;'}
-     * })
+         *     type:'element',
+         *     tagName:'span',
+         *     attrs:{style:'font-size:14px;'}
+         * })
          * ```
          */
         var uNode = (UE.uNode = function (obj) {
@@ -10243,8 +10250,8 @@
              * @example
              * ```javascript
              * traversal(node, function(){
-         *     console.log(node.type);
-         * });
+             *     console.log(node.type);
+             * });
              * ```
              */
             traversal: function (fn) {
@@ -11924,10 +11931,10 @@
                     var html = '<style type="text/css">body{';
                     var bgObj = {
                         "background-color":
-                        domUtils.getComputedStyle(body, "background-color") || "#ffffff",
+                            domUtils.getComputedStyle(body, "background-color") || "#ffffff",
                         "background-image": url ? "url(" + url + ")" : "",
                         "background-repeat":
-                        domUtils.getComputedStyle(body, "background-repeat") || "",
+                            domUtils.getComputedStyle(body, "background-repeat") || "",
                         "background-position": browser.ie
                             ? domUtils.getComputedStyle(body, "background-position-x") +
                             " " +
@@ -12183,22 +12190,22 @@
      * @example
      * ```javascript
      * editor.execCommand( 'insertimage', {
- *     src:'a/b/c.jpg',
- *     width:'100',
- *     height:'100'
- * } );
+     *     src:'a/b/c.jpg',
+     *     width:'100',
+     *     height:'100'
+     * } );
      * ```
      * @example
      * ```javascript
      * editor.execCommand( 'insertimage', [{
- *     src:'a/b/c.jpg',
- *     width:'100',
- *     height:'100'
- * },{
- *     src:'a/b/d.jpg',
- *     width:'100',
- *     height:'100'
- * }] );
+     *     src:'a/b/c.jpg',
+     *     width:'100',
+     *     height:'100'
+     * },{
+     *     src:'a/b/d.jpg',
+     *     width:'100',
+     *     height:'100'
+     * }] );
      * ```
      */
 
@@ -13005,10 +13012,10 @@
      * @example
      * ```javascript
      * editor.execCommand( 'link', '{
- *     url:'neditor.baidu.com',
- *     title:'neditor',
- *     target:'_blank'
- * }' );
+     *     url:'neditor.baidu.com',
+     *     title:'neditor',
+     *     target:'_blank'
+     * }' );
      * ```
      */
     /**
@@ -13460,8 +13467,8 @@
      * @example
      * ```javascript
      * editor.execCommand( 'blockquote',{
- *     style: "color: red;"
- * } );
+     *     style: "color: red;"
+     * } );
      * ```
      */
 
@@ -13847,8 +13854,8 @@
      * @example
      * ```javascript
      * editor.execCommand( 'Paragraph','h1','{
- *     class:'test'
- * }' );
+     *     class:'test'
+     * }' );
      * ```
      */
 
@@ -15484,11 +15491,11 @@
                             word_img: attrs.src,
                             src: src,
                             style:
-                            "background:url(" +
-                            (flag
-                                ? opt.themePath + opt.theme + "/images/word.gif"
-                                : opt.langPath + opt.lang + "/images/localimage.png") +
-                            ") no-repeat center center;border:1px solid #ddd"
+                                "background:url(" +
+                                (flag
+                                    ? opt.themePath + opt.theme + "/images/word.gif"
+                                    : opt.langPath + opt.lang + "/images/localimage.png") +
+                                ") no-repeat center center;border:1px solid #ddd"
                         });
                     }
                 });
@@ -15913,8 +15920,8 @@
             ZeroClipboard.config({
                 debug: false,
                 swfPath:
-                me.options.UEDITOR_HOME_URL +
-                "third-party/zeroclipboard/ZeroClipboard.swf"
+                    me.options.UEDITOR_HOME_URL +
+                    "third-party/zeroclipboard/ZeroClipboard.swf"
             });
 
             var client = (me.zeroclipboard = new ZeroClipboard());
@@ -15961,8 +15968,8 @@
                                 document,
                                 {
                                     src:
-                                    me.options.UEDITOR_HOME_URL +
-                                    "third-party/zeroclipboard/ZeroClipboard.js",
+                                        me.options.UEDITOR_HOME_URL +
+                                        "third-party/zeroclipboard/ZeroClipboard.js",
                                     tag: "script",
                                     type: "text/javascript",
                                     defer: "defer"
@@ -18220,8 +18227,8 @@
                         document,
                         {
                             src:
-                            opt.codeMirrorJsUrl ||
-                            opt.UEDITOR_HOME_URL + "third-party/codemirror/codemirror.js",
+                                opt.codeMirrorJsUrl ||
+                                opt.UEDITOR_HOME_URL + "third-party/codemirror/codemirror.js",
                             tag: "script",
                             type: "text/javascript",
                             defer: "defer"
@@ -18239,8 +18246,8 @@
                         rel: "stylesheet",
                         type: "text/css",
                         href:
-                        opt.codeMirrorCssUrl ||
-                        opt.UEDITOR_HOME_URL + "third-party/codemirror/codemirror.css"
+                            opt.codeMirrorCssUrl ||
+                            opt.UEDITOR_HOME_URL + "third-party/codemirror/codemirror.css"
                     });
                 });
             }
@@ -18980,19 +18987,19 @@
                         width: target.width + "px",
                         height: target.height + "px",
                         left:
-                        iframePos.x +
-                        imgPos.x -
-                        me.editor.document.body.scrollLeft -
-                        editorPos.x -
-                        parseInt(resizer.style.borderLeftWidth) +
-                        "px",
+                            iframePos.x +
+                            imgPos.x -
+                            me.editor.document.body.scrollLeft -
+                            editorPos.x -
+                            parseInt(resizer.style.borderLeftWidth) +
+                            "px",
                         top:
-                        iframePos.y +
-                        imgPos.y -
-                        me.editor.document.body.scrollTop -
-                        editorPos.y -
-                        parseInt(resizer.style.borderTopWidth) +
-                        "px"
+                            iframePos.y +
+                            imgPos.y -
+                            me.editor.document.body.scrollTop -
+                            editorPos.y -
+                            parseInt(resizer.style.borderTopWidth) +
+                            "px"
                     });
                 }
             };
@@ -19754,12 +19761,12 @@
          * ```javascript
          *
          * var videoAttr = {
-     *      //视频地址
-     *      url: 'http://www.youku.com/xxx',
-     *      //视频宽高值， 单位px
-     *      width: 200,
-     *      height: 100
-     * };
+         *      //视频地址
+         *      url: 'http://www.youku.com/xxx',
+         *      //视频宽高值， 单位px
+         *      width: 200,
+         *      height: 100
+         * };
          *
          * //editor 是编辑器实例
          * //向编辑器插入单个视频
@@ -19777,19 +19784,19 @@
          * ```javascript
          *
          * var videoAttr1 = {
-     *      //视频地址
-     *      url: 'http://www.youku.com/xxx',
-     *      //视频宽高值， 单位px
-     *      width: 200,
-     *      height: 100
-     * },
+         *      //视频地址
+         *      url: 'http://www.youku.com/xxx',
+         *      //视频宽高值， 单位px
+         *      width: 200,
+         *      height: 100
+         * },
          * videoAttr2 = {
-     *      //视频地址
-     *      url: 'http://www.youku.com/xxx',
-     *      //视频宽高值， 单位px
-     *      width: 200,
-     *      height: 100
-     * }
+         *      //视频地址
+         *      url: 'http://www.youku.com/xxx',
+         *      //视频宽高值， 单位px
+         *      width: 200,
+         *      height: 100
+         * }
          *
          * //editor 是编辑器实例
          * //该方法将会向编辑器内插入两个视频
@@ -23136,7 +23143,7 @@
             }
             return {
                 x:
-                evt.clientX + me.document.body.scrollLeft - me.document.body.clientLeft,
+                    evt.clientX + me.document.body.scrollLeft - me.document.body.clientLeft,
                 y: evt.clientY + me.document.body.scrollTop - me.document.body.clientTop
             };
         }
@@ -23422,7 +23429,7 @@
                 styles = {
                     top: domUtils.getXY(table).y + "px",
                     left:
-                    domUtils.getXY(cell).x + cell.offsetWidth - cellBorderWidth + "px",
+                        domUtils.getXY(cell).x + cell.offsetWidth - cellBorderWidth + "px",
                     display: "block",
                     height: table.offsetHeight + "px"
                 };
@@ -24905,22 +24912,22 @@
                                     ) {
                                         subMenu.push({
                                             label:
-                                            subItem.label ||
-                                            me.getLang(
-                                                "contextMenu." +
-                                                subItem.cmdName +
-                                                (subItem.value || "")
-                                            ) ||
-                                            "",
+                                                subItem.label ||
+                                                me.getLang(
+                                                    "contextMenu." +
+                                                    subItem.cmdName +
+                                                    (subItem.value || "")
+                                                ) ||
+                                                "",
                                             className:
-                                            "edui-for-" +
-                                            subItem.cmdName +
-                                            (subItem.className
-                                                ? " edui-for-" +
+                                                "edui-for-" +
                                                 subItem.cmdName +
-                                                "-" +
-                                                subItem.className
-                                                : ""),
+                                                (subItem.className
+                                                    ? " edui-for-" +
+                                                    subItem.cmdName +
+                                                    "-" +
+                                                    subItem.className
+                                                    : ""),
                                             onclick: subItem.exec
                                                 ? function () {
                                                     subItem.exec.call(me);
@@ -24976,8 +24983,8 @@
                             contextItems.push({
                                 label: item.label || me.getLang("contextMenu." + item.cmdName),
                                 className:
-                                "edui-for-" +
-                                (item.icon ? item.icon : item.cmdName + (item.value || "")),
+                                    "edui-for-" +
+                                    (item.icon ? item.icon : item.cmdName + (item.value || "")),
                                 onclick: item.exec
                                     ? function () {
                                         item.exec.call(me);
@@ -26222,12 +26229,12 @@
      * //editor是编辑器实例
      * //在编辑器里插入一个“植物大战僵尸”的APP
      * editor.execCommand( 'webapp' , {
- *     title: '植物大战僵尸',
- *     width: 560,
- *     height: 465,
- *     logo: '应用展示的图片',
- *     url: '百度应用的地址'
- * } );
+     *     title: '植物大战僵尸',
+     *     width: 560,
+     *     height: 465,
+     *     logo: '应用展示的图片',
+     *     url: '百度应用的地址'
+     * } );
      * ```
      */
 
@@ -26369,12 +26376,12 @@
                  * //editor是编辑器实例
                  * //在编辑器里插入一个“植物大战僵尸”的APP
                  * editor.execCommand( 'webapp' , {
-             *     title: '植物大战僵尸',
-             *     width: 560,
-             *     height: 465,
-             *     logo: '应用展示的图片',
-             *     url: '百度应用的地址'
-             * } );
+                 *     title: '植物大战僵尸',
+                 *     width: 560,
+                 *     height: 465,
+                 *     logo: '应用展示的图片',
+                 *     url: '百度应用的地址'
+                 * } );
                  * ```
                  */
                 webapp: {
@@ -26537,11 +26544,11 @@
                  * //editor是编辑器实例
                  * //在编辑器里插入一个“植物大战僵尸”的APP
                  * editor.execCommand( 'music' , {
-             *     width: 400,
-             *     height: 95,
-             *     align: "center",
-             *     url: "音乐地址"
-             * } );
+                 *     width: 400,
+                 *     height: 95,
+                 *     align: "center",
+                 *     url: "音乐地址"
+                 * } );
                  * ```
                  */
                 music: {
@@ -27673,8 +27680,8 @@
                  * @example
                  * ```javascript
                  * editor.execCommand('serverparam', function(editor){
-             *     return {'key': 'value'};
-             * });
+                 *     return {'key': 'value'};
+                 * });
                  * editor.queryCommandValue('serverparam'); //返回对象 {'key': 'value'}
                  * ```
                  */
@@ -31254,9 +31261,9 @@
                     var ui = new editorui.Button({
                         className: "edui-for-" + cmd,
                         title:
-                        editor.options.labelMap[cmd] ||
-                        editor.getLang("labelMap." + cmd) ||
-                        "",
+                            editor.options.labelMap[cmd] ||
+                            editor.getLang("labelMap." + cmd) ||
+                            "",
                         onclick: function () {
                             editor.execCommand(cmd);
                         },
@@ -31288,9 +31295,9 @@
             var ui = new editorui.Button({
                 className: "edui-for-cleardoc",
                 title:
-                editor.options.labelMap.cleardoc ||
-                editor.getLang("labelMap.cleardoc") ||
-                "",
+                    editor.options.labelMap.cleardoc ||
+                    editor.getLang("labelMap.cleardoc") ||
+                    "",
                 theme: editor.options.theme,
                 onclick: function () {
                     if (confirm(editor.getLang("confirmClear"))) {
@@ -31320,11 +31327,11 @@
                             var ui = new editorui.Button({
                                 className: "edui-for-" + cmd.replace("float", "") + cmd2,
                                 title:
-                                editor.options.labelMap[cmd.replace("float", "") + cmd2] ||
-                                editor.getLang(
-                                    "labelMap." + cmd.replace("float", "") + cmd2
-                                ) ||
-                                "",
+                                    editor.options.labelMap[cmd.replace("float", "") + cmd2] ||
+                                    editor.getLang(
+                                        "labelMap." + cmd.replace("float", "") + cmd2
+                                    ) ||
+                                    "",
                                 theme: editor.options.theme,
                                 onclick: function () {
                                     editor.execCommand(cmd, cmd2);
@@ -31352,9 +31359,9 @@
                         className: "edui-for-" + cmd,
                         color: "default",
                         title:
-                        editor.options.labelMap[cmd] ||
-                        editor.getLang("labelMap." + cmd) ||
-                        "",
+                            editor.options.labelMap[cmd] ||
+                            editor.getLang("labelMap." + cmd) ||
+                            "",
                         editor: editor,
                         onpickcolor: function (t, color) {
                             editor.execCommand(cmd, color);
@@ -31489,8 +31496,8 @@
                                 },
                                 theme: editor.options.theme,
                                 disabled:
-                                (cmd == "scrawl" && editor.queryCommandState("scrawl") == -1) ||
-                                cmd == "charts"
+                                    (cmd == "scrawl" && editor.queryCommandState("scrawl") == -1) ||
+                                    cmd == "charts"
                             });
                             editorui.buttons[cmd] = ui;
                             editor.addListener("selectionchange", function () {
@@ -31931,9 +31938,9 @@
                 editor: editor,
                 className: "edui-for-lineheight",
                 title:
-                editor.options.labelMap["lineheight"] ||
-                editor.getLang("labelMap.lineheight") ||
-                "",
+                    editor.options.labelMap["lineheight"] ||
+                    editor.getLang("labelMap.lineheight") ||
+                    "",
                 items: items,
                 onbuttonclick: function () {
                     var value = editor.queryCommandValue("LineHeight") || this.value;
@@ -31975,9 +31982,9 @@
                         editor: editor,
                         className: "edui-for-rowspacing" + cmd,
                         title:
-                        editor.options.labelMap["rowspacing" + cmd] ||
-                        editor.getLang("labelMap.rowspacing" + cmd) ||
-                        "",
+                            editor.options.labelMap["rowspacing" + cmd] ||
+                            editor.getLang("labelMap.rowspacing" + cmd) ||
+                            "",
                         items: items,
                         onbuttonclick: function () {
                             var value =
@@ -32076,9 +32083,9 @@
             var cmd = "emotion";
             var ui = new editorui.MultiMenuPop({
                 title:
-                editor.options.labelMap[cmd] ||
-                editor.getLang("labelMap." + cmd + "") ||
-                "",
+                    editor.options.labelMap[cmd] ||
+                    editor.getLang("labelMap." + cmd + "") ||
+                    "",
                 editor: editor,
                 className: "edui-for-" + cmd,
                 iframeUrl: editor.ui.mapUrl(
@@ -32099,9 +32106,9 @@
             var ui = new editorui.AutoTypeSetButton({
                 editor: editor,
                 title:
-                editor.options.labelMap["autotypeset"] ||
-                editor.getLang("labelMap.autotypeset") ||
-                "",
+                    editor.options.labelMap["autotypeset"] ||
+                    editor.getLang("labelMap.autotypeset") ||
+                    "",
                 className: "edui-for-autotypeset",
                 onbuttonclick: function () {
                     editor.execCommand("autotypeset");
@@ -32120,9 +32127,9 @@
                 ui = new editorui.Button({
                     className: "edui-for-" + name,
                     title:
-                    editor.options.labelMap[name] ||
-                    editor.getLang("labelMap." + name) ||
-                    "",
+                        editor.options.labelMap[name] ||
+                        editor.getLang("labelMap." + name) ||
+                        "",
                     onclick: function () {
                     },
                     theme: editor.options.theme,
@@ -32308,9 +32315,9 @@
                         wordCount: true,
                         maximumWords: 10000,
                         wordCountMsg:
-                        editor.options.wordCountMsg || editor.getLang("wordCountMsg"),
+                            editor.options.wordCountMsg || editor.getLang("wordCountMsg"),
                         wordOverFlowMsg:
-                        editor.options.wordOverFlowMsg || editor.getLang("wordOverFlowMsg")
+                            editor.options.wordOverFlowMsg || editor.getLang("wordOverFlowMsg")
                     });
                     var opt = editor.options,
                         max = opt.maximumWords,
@@ -33006,7 +33013,7 @@
             editor.options.editor = editor;
             utils.loadFile(document, {
                 href:
-                editor.options.themePath + editor.options.theme + "/css/neditor.css",
+                    editor.options.themePath + editor.options.theme + "/css/neditor.css",
                 tag: "link",
                 type: "text/css",
                 rel: "stylesheet"
@@ -33123,8 +33130,8 @@
          * * ''opt'' 编辑器的可选参数
          * @example
          *  UE.getEditor('containerId',{onready:function(){//创建一个编辑器实例
-     *      this.setContent('hello')
-     *  }});
+         *      this.setContent('hello')
+         *  }});
          *  UE.getEditor('containerId'); //返回刚创建的实例
          *
          */
