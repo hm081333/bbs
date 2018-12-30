@@ -58,6 +58,82 @@
 
 <a href="javascript:;" class="cd-top"></a><!--返回顶部按钮-->
 
+<style>
+    .openChatBtn {
+        z-index: 999999;
+        top: 0;
+        left: 0;
+        border: 1px solid #D9D9D9;
+        background-color: #fff;
+        border-radius: 2px;
+        box-shadow: 1px 1px 50px rgba(0, 0, 0, .3);
+        position: fixed;
+        padding: 5px 10px;
+        white-space: nowrap;
+        cursor: pointer;
+        display: none;
+    }
+
+    .openChatBtn img {
+        width: 40px;
+        height: 40px;
+        border-radius: 100%;
+        cursor: move;
+    }
+
+    .openChatBtn span {
+        padding-left: 10px;
+        line-height: 40px;
+        vertical-align: top;
+    }
+
+</style>
+
+<div class="openChatBtn">
+    <img src="https://www.workerman.net/laychat/qq-icon.png" draggable="false" alt="">
+    <span>LayChat</span>
+</div>
+
+<script>
+    $(function () {
+        /* 打开聊天的按钮元素 */
+        var $openChatBtn = $('body .openChatBtn'), $openChatBtnImg = $('body .openChatBtn img');
+        /* 按钮边框与图片边框的距离 */
+        var img_offset_x = $openChatBtnImg.offset().left - $openChatBtn.offset().left, img_offset_y = $openChatBtnImg.offset().top - $openChatBtn.offset().top;
+        /* 最大 距离 */
+        var max_left = parseFloat($('html').css('width')) - parseFloat($openChatBtn.css('width')), max_top = window.innerHeight - parseFloat($openChatBtn.css('height')) - 1;
+        /* 按钮默认在右下角 */
+        $openChatBtn.css({"left": max_left, "top": max_top});
+        /* 默认隐藏，避免设置初始位置时闪烁 */
+        $openChatBtn.show();
+        /* 监听按钮按下 */
+        $openChatBtnImg.mousedown(function (e) {
+            var isMove = true;
+            /* 当前按下位置与按钮的边框距离 */
+            var click_offset_x = e.offsetX + img_offset_x, click_offset_y = e.offsetY + img_offset_y;
+            $(document).mousemove(function (e) {
+                if (isMove) {
+                    var new_left = e.pageX - click_offset_x;
+                    var new_top = e.pageY - click_offset_y;
+                    /* 最大 距离 */
+                    var max_left = parseFloat($('html').css('width')) - parseFloat($openChatBtn.css('width')), max_top = window.innerHeight - parseFloat($openChatBtn.css('height')) - 1;
+                    /*不能拖到窗口左边*/
+                    new_left = new_left > 0 ? new_left : 0;
+                    /*不能拖到窗口上边*/
+                    new_top = new_top > 0 ? new_top : 0;
+                    /*不能拖到窗口右边*/
+                    new_left = new_left > max_left ? max_left : new_left;
+                    /*不能拖到窗口下边*/
+                    new_top = new_top > max_top ? max_top : new_top;
+                    $openChatBtn.css({"left": new_left, "top": new_top});
+                }
+            }).mouseup(function () {
+                isMove = false;
+            });
+        });
+    });
+</script>
+
 </body>
 </html>
 <script>
