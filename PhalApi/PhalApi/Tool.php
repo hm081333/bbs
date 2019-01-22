@@ -12,7 +12,7 @@
  */
 class PhalApi_Tool
 {
-    
+
     /**
      * IP地址获取
      * @return string 如：192.168.1.1 失败的情况下，返回空
@@ -31,10 +31,10 @@ class PhalApi_Tool
         } else {
             $ip = '';
         }
-        
+
         return $ip;
     }
-    
+
     /**
      * 随机字符串生成
      *
@@ -48,10 +48,10 @@ class PhalApi_Tool
         if (!$chars) {
             $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         }
-        
+
         return substr(str_shuffle(str_repeat($chars, rand(5, 8))), 0, $len);
     }
-    
+
     /**
      * 生成一个字节的伪随机字符串
      * @param $len
@@ -61,7 +61,7 @@ class PhalApi_Tool
     {
         return openssl_random_pseudo_bytes($len);
     }
-    
+
     /**
      * 获取数组value值不存在时返回默认值
      * 不建议在大循环中使用会有效率问题
@@ -74,10 +74,10 @@ class PhalApi_Tool
      */
     public function arrIndex($arr, $key, $default = '')
     {
-        
+
         return isset($arr[$key]) ? $arr[$key] : $default;
     }
-    
+
     /**
      * 根据路径创建目录或文件
      *
@@ -87,7 +87,7 @@ class PhalApi_Tool
      */
     public function createDir($path)
     {
-        
+
         $dir = explode('/', $path);
         $path = '';
         foreach ($dir as $element) {
@@ -99,7 +99,7 @@ class PhalApi_Tool
             }
         }
     }
-    
+
     /**
      * 删除目录以及子目录等所有文件
      *
@@ -109,7 +109,7 @@ class PhalApi_Tool
      */
     public function deleteDir($path)
     {
-        
+
         $dir = opendir($path);
         while (false !== ($file = readdir($dir))) {
             if (($file != '.') && ($file != '..')) {
@@ -124,14 +124,14 @@ class PhalApi_Tool
         closedir($dir);
         rmdir($path);
     }
-    
+
     /**
      * 清空目录以及子目录等所有文件--不删除目录
      * @param $path
      */
     public function emptyDir($path)
     {
-        
+
         $dir = opendir($path);
         while (false !== ($file = readdir($dir))) {
             if (($file != '.') && ($file != '..')) {
@@ -145,7 +145,7 @@ class PhalApi_Tool
         }
         closedir($dir);
     }
-    
+
     /**
      * 遍历目录。。。无限遍历--注意超时！
      * @param $path
@@ -183,7 +183,7 @@ class PhalApi_Tool
         closedir($dir);
         return $all;
     }
-    
+
     /**
      * 数组转XML格式
      *
@@ -211,7 +211,7 @@ class PhalApi_Tool
         $xml .= "</$root>";
         return $xml;
     }
-    
+
     /**
      * XML格式转数组
      *
@@ -227,7 +227,7 @@ class PhalApi_Tool
         $arr = json_decode(json_encode($xmlstring), true);
         return $arr;
     }
-    
+
     /**
      * 去除字符串空格和回车
      *
@@ -241,7 +241,7 @@ class PhalApi_Tool
         $string = array("", "", "", "", "",);
         return str_replace($pat, $string, $str);
     }
-    
+
     /**
      * 验证手机号码
      * @param string $mobile 手机号码
@@ -251,8 +251,8 @@ class PhalApi_Tool
     {
         return preg_match('/^13[\d]{9}$|^14[5,7]{1}\d{8}$|^15[^4]{1}\d{8}$|^17[0,3,6,7,8]{1}\d{8}$|^18[\d]{9}$/', $mobile) ? true : false;
     }
-    
-    
+
+
     /**
      * 验证邮箱格式
      * @desc 验证邮箱格式
@@ -263,7 +263,7 @@ class PhalApi_Tool
     {
         return strcmp($email, filter_var($email, FILTER_VALIDATE_EMAIL)) === 0 ? true : false;
     }
-    
+
     /**
      * @param string $data
      * @return string
@@ -277,7 +277,7 @@ class PhalApi_Tool
         $decrypted = rtrim($decrypted, "\0");//解密出来的数据后面会出现如图所示的六个红点；这句代码可以处理掉，从而不影响进一步的数据操作
         return $decrypted;
     }
-    
+
     /**
      * @param string $data
      * @return string
@@ -290,7 +290,7 @@ class PhalApi_Tool
         $encode = base64_encode($encrypted);
         return $encode;
     }
-    
+
     /**
      * OPEN_SSL加密
      * @param string $data
@@ -305,7 +305,7 @@ class PhalApi_Tool
         //openssl_encrypt 加密相当于将 mcrypt_encrypt 的加密结果执行一次 base64_encode
         return $encode;
     }
-    
+
     /**
      * OPEN_SSL解密
      * @param string $data
@@ -321,7 +321,7 @@ class PhalApi_Tool
         //$decrypted = rtrim($decrypted, "\0");//解密出来的数据后面会出现如图所示的六个红点；这句代码可以处理掉，从而不影响进一步的数据操作
         return $decrypted;
     }
-    
+
     /**
      * 是否微信打开
      * @return bool
@@ -333,7 +333,7 @@ class PhalApi_Tool
         }
         return false;
     }
-    
+
     public function is_mobile_request()
     {
         $_SERVER['ALL_HTTP'] = isset($_SERVER['ALL_HTTP']) ? $_SERVER['ALL_HTTP'] : '';
@@ -373,7 +373,7 @@ class PhalApi_Tool
         else
             return false;
     }
-    
+
     /**
      * PHP压缩html js css的函数
      * 激进
@@ -393,6 +393,7 @@ class PhalApi_Tool
      */
     public function compress_html($string)
     {
+        return $string;
         $string = str_replace("\r\n", '', $string); //清除换行符
         $string = str_replace("\n", '', $string); //清除换行符
         $string = str_replace("\t", '', $string); //清除制表符
@@ -414,7 +415,7 @@ class PhalApi_Tool
         );
         return preg_replace($pattern, $replace, $string);
     }
-    
+
     /**
      * higrid.net 的 php压缩html函数
      * 没看懂
@@ -423,6 +424,7 @@ class PhalApi_Tool
      */
     public function higrid_compress_html($higrid_uncompress_html_source)
     {
+        return $higrid_uncompress_html_source;
         $chunks = preg_split('/(<pre.*?\/pre>)/ms', $higrid_uncompress_html_source, -1, PREG_SPLIT_DELIM_CAPTURE);
         $higrid_uncompress_html_source = '';//[higrid.net]修改压缩html : 清除换行符,清除制表符,去掉注释标记
         foreach ($chunks as $c) {
@@ -440,12 +442,12 @@ class PhalApi_Tool
         }
         return $higrid_uncompress_html_source;
     }
-    
+
     public function staticPath($path)
     {
         return URL_ROOT . 'static/' . $path;
     }
-    
+
     /**
      * @param $fileName string 上传文件名
      * @param string $path 相对路径-文件夹名
@@ -474,13 +476,13 @@ class PhalApi_Tool
             if ($ext == '...') {
                 return T('图片格式错误');
             }
-            
+
             $info = '/upload/' . $path . '/' . date('Ym');
             $dir = API_ROOT . '/Public/static' . $info;
             if (!file_exists($dir)) {
                 mkdir($dir, 0777);
             }
-            
+
             $url = '/' . NOW_TIME . $ext;
             if (!@move_uploaded_file($_FILES[$fileName]['tmp_name'], $dir . $url)) {
                 return T('上传失败');
@@ -489,7 +491,7 @@ class PhalApi_Tool
             return array('url' => $info . $url);
         }
     }
-    
+
     /**
      * 使用反斜线引用字符串或数组以便于SQL查询
      * 只引用'和\
@@ -513,7 +515,7 @@ class PhalApi_Tool
             return str_replace('\'', '\\\'', str_replace('\\', '\\\\', $s));
         }
     }
-    
+
     /**
      * 获取两段文本之间的文本
      * @param string $text 完整的文本
@@ -534,7 +536,7 @@ class PhalApi_Tool
         }
         return substr($text, $loc1, $loc2 - $loc1);
     }
-    
+
     /**
      * 执行一个通配符表达式匹配
      * [可当preg_match()的简化版本去理解]
@@ -570,7 +572,7 @@ class PhalApi_Tool
         preg_match($exp, $str, $r);
         return $r;
     }
-    
+
     /**
      * 拼接联合查询sql语句条件
      * @param $conditions 查询条件 例如 $where['u.id=?']=1;$where['type>=?']=1
@@ -583,7 +585,7 @@ class PhalApi_Tool
         $where['sql'] = '';
         $where['params'] = array();
         $keys = '';
-        
+
         foreach ($conditions as $key => $condition) {//循环拼接sql语句
             $keys .= $key . ' and ';
             $where['params'][] = $condition;
@@ -597,6 +599,6 @@ class PhalApi_Tool
         $where['sql'] .= $keys;
         return $where;
     }
-    
-    
+
+
 }
