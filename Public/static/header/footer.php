@@ -92,7 +92,11 @@
 <div id="openChatBtn"><img id="drag" src="https://www.workerman.net/laychat/qq-icon.png" draggable="false" alt=""><span>LayChat</span></div>
 <script src="<?php echo URL_ROOT; ?>static/js/drag.js"></script>
 <script>
-    window.onload = dragDrop(document.getElementById('drag'), document.getElementById('openChatBtn'));
+    var clickDom = document.getElementById('drag');
+    var moveDom = document.getElementById('openChatBtn');
+    moveDom.style.left = document.documentElement.clientWidth - moveDom.offsetWidth - 8 + 'px';
+    moveDom.style.top = window.innerHeight - moveDom.offsetHeight + 'px';
+    window.onload = dragDrop(clickDom, moveDom);
 </script>
 
 </body>

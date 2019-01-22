@@ -2,9 +2,7 @@ function dragDrop(clickDom, moveDom) {
     //拖拽功能(主要是触发三个事件：onmousedown\onmousemove\onmouseup)
     //点击某物体时，用clickDom对象即可，move和up是全局区域，也就是整个文档通用，应该使用document对象而不是clickDom对象(否则，采用clickDom对象时物体只能往右方或下方移动)
     clickDom.onmousedown = function (e) {
-        var e = e || window.event; //兼容ie浏览器
-        // console.log(e);
-
+        e = e || window.event; //兼容ie浏览器
         // 点击物体 与需要移动的物体 之间 边距
         var paddingX = 0;
         var paddingY = 0;
@@ -25,25 +23,27 @@ function dragDrop(clickDom, moveDom) {
         }
         // 鼠标移动中
         document.onmousemove = function (e) {
-            var e = e || window.event; //兼容ie浏览器
+            e = e || window.event; //兼容ie浏览器
             var left = e.clientX - diffX;
             var top = e.clientY - diffY;
-
             //控制拖拽物体的范围只能在浏览器视窗内，不允许出现滚动条
-            if (left < 0) {
+            if (left < paddingX) {
                 left = 0;
-            } else if (left > window.innerWidth - clickDom.offsetWidth) {
-                left = window.innerWidth - clickDom.offsetWidth;
+            } else if (left > document.documentElement.clientWidth - moveDom.offsetWidth + paddingX) {// 宽度以html宽度为准 - 防止滚动条占位
+                left = document.documentElement.clientWidth - moveDom.offsetWidth;
+            } else {
+                left = left - paddingX;
             }
-            if (top < 0) {
+            if (top < paddingY) {
                 top = 0;
-            } else if (top > window.innerHeight - clickDom.offsetHeight) {
-                top = window.innerHeight - clickDom.offsetHeight;
+            } else if (top > window.innerHeight - moveDom.offsetHeight + paddingY) {// 高度以窗口高度为准
+                top = window.innerHeight - moveDom.offsetHeight;
+            } else {
+                top = top - paddingY;
             }
-
             //移动时重新得到物体的距离，解决拖动时出现晃动的现象
-            moveDom.style.left = left - paddingX + 'px';
-            moveDom.style.top = top - paddingY + 'px';
+            moveDom.style.left = left + 'px';
+            moveDom.style.top = top + 'px';
         };
         // 松开鼠标点击
         document.onmouseup = function (e) { //当鼠标弹起来的时候不再移动
