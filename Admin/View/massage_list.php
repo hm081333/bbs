@@ -18,7 +18,7 @@
                     <?php echo $row['title']; ?>
                 </td>
                 <td>
-                    <?php echo Domain_message::getTypeNames($row['type']); ?>
+                    <?php echo Domain_Message::getTypeNames($row['type']); ?>
                 </td>
                 <td>
                     <?php echo $row['code']; ?>

@@ -6,9 +6,9 @@
  * Time: 11:53
  */
 
-class Domain_message
+class Domain_Message
 {
-    
+
     public static function getTypeNames($type = false)
     {
         $types = [
@@ -20,6 +20,6 @@ class Domain_message
         }
         return $types;
     }
-    
-    
+
+
 }

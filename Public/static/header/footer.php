@@ -60,7 +60,7 @@
 
 <style>
     .openChatBtn {
-        z-index: 999999;
+        z-index: 99;
         top: 0;
         left: 0;
         border: 1px solid #D9D9D9;
