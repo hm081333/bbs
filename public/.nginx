@@ -1,0 +1,15 @@
+location / {
+    set $rewrite 1;
+    # 常规文件 不需要重写
+    if (-f $request_filename){
+        set $rewrite 0;
+    }
+    # 目录 不需要重写
+    # if (-d $request_filename){
+    #     set $rewrite 0;
+    # }
+    if ($rewrite = 1) {
+        rewrite ^(.*)$ /index.php;
+    }
+    autoindex  off;
+}
