@@ -17,13 +17,13 @@ namespace Common\Domain;
 class Delivery
 {
     use Common;
-    
+
     /**
      * 获取物流状态码对应的物流状态信息
      * @param bool $state
      * @return array|mixed|string
      */
-    public static function getStateName($state = FALSE)
+    public static function getStateName($state = false)
     {
         $status = [
             '0' => '在途',
@@ -34,28 +34,28 @@ class Delivery
             '5' => '派件',
             '6' => '退回',
         ];
-        if ($state === FALSE) {
+        if ($state === false) {
             return $status;
         }
-        if ($state === NULL) {
+        if ($state === null) {
             // return '物流信息不存在';
             return '不存在';
         }
         return $status[$state] ?? '';
     }
-    
+
     /**
      * 查询数据
-     * @param int $limit 每次查询条数
-     * @param int $offset 开始位置
-     * @param array $where 查询条件
-     * @param string $field 字段
-     * @param string $order 排序
+     * @param int    $limit  每次查询条数
+     * @param int    $offset 开始位置
+     * @param array  $where  查询条件
+     * @param string $field  字段
+     * @param string $order  排序
      * @return array a 返回结果集
      * @return int a.total 总条数
      * @return array a.rows 当前查询结果集
      */
-    public static function getList($limit, $offset, $where = [], $field = '*', $order = 'id desc', $count = '*', $id = NULL)
+    public static function getList($limit, $offset, $where = [], $field = '*', $order = 'id desc', $count = '*', $id = null)
     {
         $model = self::getModel();
         $list = $model->getList($limit, $offset, $where, $order, $field, $id, $count);
@@ -66,7 +66,7 @@ class Delivery
         });
         return $list;
     }
-    
+
     /**
      * 获取物流信息
      * @param $id
@@ -111,7 +111,7 @@ class Delivery
         \PhalApi\DI()->response->setMsg(\PhalApi\T('获取成功'));
         return $logistics;// 返回物流信息
     }
-    
+
     /**
      * 添加、编辑物流信息
      * @param $data
@@ -121,7 +121,7 @@ class Delivery
      */
     public static function doInfo($data)
     {
-        $user = self::getDomain('User')::getCurrentUser(TRUE);
+        $user = self::getDomain('User')::getCurrentUser(true);
         $logistics_model = self::getModel('Logistics');
         $log = $logistics_model->getInfo(['code' => $data['code']], 'code,name');
         if (!$log) {
@@ -134,19 +134,23 @@ class Delivery
         $insert_update['sn'] = $data['sn'];// 物流单号
         $insert_update['memo'] = $data['memo'];// 备注
         $insert_update['user_id'] = $user['id'];// 所属会员
+        $insert_update['last_message'] = '';// 上次查询信息
+        $insert_update['last_time'] = 0;// 最后查询时间
+        $insert_update['state'] = 0;// 物流状态
+        $insert_update['end_time'] = 0;// 物流结束时间
         if (!$data['id']) {
             $insert_update['add_time'] = NOW_TIME;// 添加时间
             $insert_update['edit_time'] = NOW_TIME;// 编辑时间
             $update_log_used = $logistics_model->update($log['id'], ['used' => new \NotORM_Literal('used + 1')]);
-            if ($update_log_used === FALSE) {
+            if ($update_log_used === false) {
                 throw new \Exception\InternalServerErrorException(\PhalApi\T('添加失败'));
             }
         } else {
             $insert_update['edit_time'] = NOW_TIME;// 编辑时间
         }
         self::doUpdate($insert_update);
-        return TRUE;
+        return true;
     }
-    
-    
+
+
 }
