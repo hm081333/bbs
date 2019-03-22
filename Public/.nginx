@@ -1,0 +1,57 @@
+server {
+	listen 80;
+	root /var/www/html/bbs/Public;
+
+	# Add index.php to the list if you are using PHP
+	index index.html index.htm index.html index.php;
+
+	server_name test.com;
+
+	location / {
+        set $rewrite 1;
+        # 常规文件 不需要重写
+        if (-f $request_filename){
+            set $rewrite 0;
+        }
+        # 目录 不需要重写
+        # if (-d $request_filename){
+        #     set $rewrite 0;
+        # }
+        if ($rewrite = 1) {
+            rewrite ^(.*)$ /index.php;
+        }
+        autoindex  off;
+    }
+
+	# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+	# location ~ \.php$ {
+	# 	include snippets/fastcgi-php.conf;
+
+	# 	# With php7.2-fpm:
+	# 	fastcgi_pass unix:/run/php/php7.2-fpm.sock;
+	# }
+    location ~ \.php(/|$) {
+        fastcgi_pass unix:/run/php/php7.3-fpm.sock;
+        fastcgi_index  index.php;
+        include        fastcgi.conf;
+        set $fastcgi_script_name2 $fastcgi_script_name;
+        if ($fastcgi_script_name ~ "^(.+\.php)(/.+)$") {
+            set $fastcgi_script_name2 $1;
+            set $path_info $2;
+        }
+        fastcgi_param   PATH_INFO $path_info;
+        fastcgi_param   SCRIPT_FILENAME   $document_root$fastcgi_script_name2;
+        fastcgi_param   SCRIPT_NAME   $fastcgi_script_name2;
+    }
+
+	location ~ \.(htaccess|txt|doc) {
+        deny  all;
+        return 403;
+    }
+    location ~ /(Admin|Bbs|Common|Config|Data|Language|Library|PhalApi|Runtime|Tieba|vendor)/ {
+        deny all;
+        break;
+    }
+}
+
+
