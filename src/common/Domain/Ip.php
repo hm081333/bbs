@@ -34,7 +34,7 @@ class Ip
         $ip_model = self::getModel();
         $old_ip = $ip_model->getInfo(['ip' => $ip]);
         if (!$old_ip) {
-            $data = \PhalApi\DI()->curl->post('http://ip.taobao.com/service/getIpInfo.php', ['ip' => $ip]);
+            $data = \PhalApi\DI()->curl->get("http://ip.taobao.com/service/getIpInfo.php?ip={$ip}");
             $data = json_decode($data, TRUE);
             if (!$data) {
                 throw new \Exception\BadRequestException(\PhalApi\T('获取IP失败'));
