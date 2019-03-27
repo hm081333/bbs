@@ -9,7 +9,7 @@ namespace Exception;
  *
  * @package     Exception
  */
-class Exception extends \Exception
+class Exception extends \PhalApi\Exception
 {
 
     public function __construct($message, $code = 0)

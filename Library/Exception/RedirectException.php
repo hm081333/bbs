@@ -9,7 +9,7 @@ namespace Exception;
  *
  * @package     Exception
  */
-class RedirectException extends \Exception
+class RedirectException extends \PhalApi\Exception
 {
 
     public function __construct($message, $code = 0)

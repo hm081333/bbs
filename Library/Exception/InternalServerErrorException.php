@@ -9,7 +9,7 @@ namespace Exception;
  *
  * @package     Exception
  */
-class InternalServerErrorException extends \Exception
+class InternalServerErrorException extends \PhalApi\Exception
 {
 
     public function __construct($message, $code = 0)
