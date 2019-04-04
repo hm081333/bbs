@@ -9,7 +9,7 @@
 // 只有通过入口访问需要处理
 $uri = $_SERVER['REQUEST_URI'] ?? '';
 if (strpos($uri, '.php') === false || strpos($uri, 'index.php') !== false) {
-    $service = $_REQUEST['s'] ?? 'Common.Base.Index';// 访问服务参数
+    $service = $_REQUEST['s'] ?? ($_REQUEST['s'] = 'Common.Base.Index');// 访问服务参数
     $service = explode('.', $service);// 拆解访问参数
     $moduleRule = $di->config->get('sys.moduleRule');// 模块过滤规则
     if (count($service) == 3) {// 对应PhalApi原来的访问方式
