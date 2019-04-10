@@ -64,6 +64,7 @@ trait Common
      */
     public function allListData()
     {
+        \Common\create_openssl_pkey();die;
         if (get_parent_class() == 'Common\Api\Base') {
             $parent_func = null;
         } else {

@@ -2,9 +2,11 @@
 
 namespace Common;
 
+use function PhalApi\DI;
+
 function arr_unix_formatter(array $arr)
 {
-    $format_fields = \PhalApi\DI()->config->get('app.unix_time_format_field');
+    $format_fields = DI()->config->get('app.unix_time_format_field');
     foreach (array_keys($arr) as $key_name) {
         if (in_array($key_name, $format_fields)) {
             $arr["{$key_name}_unix"] = $arr[$key_name];// 时间戳
@@ -55,7 +57,7 @@ function res_path($path = '')
 function createDir($path)
 {
     if (!is_dir($path) && !mkdir($path, 0777, true)) {
-        \PhalApi\DI()->logger->debug($path);
+        DI()->logger->debug($path);
         createDir(dirname($path));
         mkdir($path, 0777, true);
     }
@@ -84,6 +86,20 @@ function decode(string $data)
     $decrypted = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, SECURITY_KEY, $encryptedData, MCRYPT_MODE_CBC, SECURITY_IV);
     // $decrypted = rtrim($decrypted, "\0");//解密出来的数据后面会出现如图所示的六个红点；这句代码可以处理掉，从而不影响进一步的数据操作
     return $decrypted;
+}
+
+/**
+ * 生成openssl证书
+ */
+function create_openssl_pkey()
+{
+    $openssl_config = DI()->config->get('sys.openssl');
+    $config = ['config' => $openssl_config['configPath']];
+    $res = openssl_pkey_new($config);
+    openssl_pkey_export($res, $privateKey, null, $config);
+    $publicKey = openssl_pkey_get_details($res);
+    file_put_contents($openssl_config['privateKey'], $privateKey);
+    file_put_contents($openssl_config['publicKey'], $publicKey['key']);
 }
 
 /**
@@ -145,8 +161,8 @@ function pwd_verify(string $password, string $hash)
  */
 function fourZeroFour()
 {
-    \PhalApi\DI()->response->setRet(404);
-    \PhalApi\DI()->response->adjustHttpStatus();
+    DI()->response->setRet(404);
+    DI()->response->adjustHttpStatus();
     exit();
 }
 
@@ -250,7 +266,7 @@ function dump($data)
 function getModuleNameSpaceByURI($uri)
 {
     // 模块过滤规则
-    $moduleRule = \PhalApi\DI()->config->get('sys.moduleRule');
+    $moduleRule = DI()->config->get('sys.moduleRule');
     // 正则表达式
     $pattern = '/([\w]+)*([\?\=][\s\S]*)?$/';
     // 正则匹配

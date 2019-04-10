@@ -20,6 +20,12 @@ return [
         'mcrypt_iv' => '12345678',      //8位
     ],
 
+    'openssl' => [
+        'configPath' => "D:\phpStudy\Apache\conf\openssl.cnf",
+        'privateKey' => API_ROOT . '/config/bbs_private.pem',
+        'publicKey' => API_ROOT . '/config/bbs_public.pem',
+    ],
+
     /**
      * 缓存配置
      */
