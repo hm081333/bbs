@@ -7,6 +7,7 @@
 // defined('API_ROOT') || define('API_ROOT', dirname(__FILE__) . '/..');
 defined('API_ROOT') || define('API_ROOT', dirname(dirname(__FILE__)));
 defined('IS_CLI') || define('IS_CLI', (PHP_SAPI == 'cli') ? true : false);
+defined('IS_AJAX') || define('IS_AJAX', ((isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest')) ? true : false);
 
 // 应付命令行执行时无法找到HTTP_HOST下标导致报错
 if (IS_CLI) {

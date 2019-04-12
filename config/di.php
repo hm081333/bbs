@@ -81,14 +81,18 @@ $di->tool = function () {
 };
 
 // 对称加密
-// $di->crypt = function () use ($di) {
-//     return new \PhalApi\Crypt\RSA\MultiPub2PriCrypt();
-// };
+$di->crypt = function () use ($di) {
+    // return new \Crypt\RSA\MultiPub2PriCrypt($di->config->get('sys.openssl'));
+    return new \Crypt\RSA\Pub2PriCrypt($di->config->get('sys.openssl'));
+};
 
 // 支持JsonP的返回
 // if (!empty($_GET['callback'])) {
 //     $di->response = new \PhalApi\Response\JsonpResponse($_GET['callback']);
 // }
+
+// 返回加密字符串
+// $di->response=new \Response\JsonResponse();
 
 // 生成二维码扩展，参考示例：?s=App.Examples_QrCode.Png
 // $di->qrcode = function() {

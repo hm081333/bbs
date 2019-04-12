@@ -5,14 +5,14 @@
     "keywords": [
         "api"
     ],
-    "homepage": "http://www.phalapi.net",
+    "homepage": "http://lyihe2.tk",
     "license": "GPL-3.0+",
     "minimum-stability": "dev",
     "authors": [
         {
-            "name": "Dogstar Huang",
-            "email": "chanzonghuang@gmail.com",
-            "homepage": "http://my.oschina.net/dogstar",
+            "name": "Lonely Ho",
+            "email": "522751485@qq.com",
+            "homepage": "https://github.com/hm081333",
             "role": "Developer"
         }
     ],
@@ -23,14 +23,14 @@
         "ext-mbstring": "*",
         "ext-openssl": "*",
         "ext-json": "*",
-        "phalapi/kernal": "2.3.*",
+        "ext-pdo": "*",
+        "ext-gd": "*",
+        "phalapi/kernal": "2.5.*",
         "phalapi/qrcode": "dev-master",
         "phalapi/cli": "dev-master",
         "phalapi/task": "dev-master",
         "workerman/workerman": "dev-master",
-        "ext-pdo": "*",
-        "workerman/gateway-worker": "dev-master",
-        "ext-gd": "*"
+        "workerman/gateway-worker": "dev-master"
     },
     "autoload": {
         "files": [
@@ -38,8 +38,8 @@
             "src/tieba/functions.php"
         ],
         "psr-4": {
-            "Common\\": "src/common",
             "App\\": "src/app",
+            "Common\\": "src/common",
             "Bbs\\": "src/bbs",
             "Admin\\": "src/admin",
             "TieBa\\": "src/tieba"

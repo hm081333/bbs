@@ -64,42 +64,15 @@ function createDir($path)
 }
 
 /**
- * mcrypt加密（PHP7已废弃）
- * @param string $data
- * @return string
- */
-function encode(string $data)
-{
-    $encrypted = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, SECURITY_KEY, $data, MCRYPT_MODE_CBC, SECURITY_IV);
-    $encode = base64_encode($encrypted);
-    return $encode;
-}
-
-/**
- * mcrypt解密（PHP7已废弃）
- * @param string $data
- * @return string
- */
-function decode(string $data)
-{
-    $encryptedData = base64_decode($data);
-    $decrypted = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, SECURITY_KEY, $encryptedData, MCRYPT_MODE_CBC, SECURITY_IV);
-    // $decrypted = rtrim($decrypted, "\0");//解密出来的数据后面会出现如图所示的六个红点；这句代码可以处理掉，从而不影响进一步的数据操作
-    return $decrypted;
-}
-
-/**
  * 生成openssl证书
  */
 function create_openssl_pkey()
 {
-    $openssl_config = DI()->config->get('sys.openssl');
-    $config = ['config' => $openssl_config['configPath']];
-    $res = openssl_pkey_new($config);
-    openssl_pkey_export($res, $privateKey, null, $config);
-    $publicKey = openssl_pkey_get_details($res);
-    file_put_contents($openssl_config['privateKey'], $privateKey);
-    file_put_contents($openssl_config['publicKey'], $publicKey['key']);
+    $config = DI()->config->get('sys.openssl');// 配置信息
+    $config_args = $config['config'];// 用来调整导出流程，通过指定或者覆盖openssl配置文件选项
+    $pkey = new \Crypt\RSA\KeyGenerator($config_args);
+    file_put_contents($config['privateKey'], $pkey->getPriKey());// 把私钥写入指定路径文件
+    file_put_contents($config['publicKey'], $pkey->getPubKey());// 把公钥写入指定路径文件
 }
 
 /**
@@ -161,9 +134,30 @@ function pwd_verify(string $password, string $hash)
  */
 function fourZeroFour()
 {
+    // header('HTTP/1.1 404 Not Found');
     DI()->response->setRet(404);
     DI()->response->adjustHttpStatus();
+    if (!IS_AJAX) {
+        showFourZeroFourPage();
+    }
     exit();
+}
+
+function showFourZeroFourPage()
+{
+    ob_start();
+    ob_implicit_flush(false);
+
+    $view = server_path('404.html');
+    //检查文件是否存在
+    file_exists($view) ? require $view : exit('404模板文件不存在');
+
+    //获取当前缓冲区内容
+    //$content = ob_get_contents(); // 仅输出
+    $content = ob_get_clean(); // 输出并清空关闭
+    $content = \Tool\HtmlCompress::higrid_compress_html($content); // 正则删除无关代码
+    $content = \Tool\HtmlCompress::compress_html($content); // 正则删除无关代码
+    exit($content);
 }
 
 /**

@@ -66,8 +66,8 @@ class Base extends Api
 
     /**
      * 默认接口服务
-     * @ignore
      * @return array
+     * @ignore
      */
     public function index()
     {
@@ -77,7 +77,6 @@ class Base extends Api
             'time' => $_SERVER['REQUEST_TIME'],
         ];
     }
-
 
 
 }

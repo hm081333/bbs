@@ -9,6 +9,11 @@
 // 只有通过入口访问需要处理
 $uri = $_SERVER['REQUEST_URI'] ?? '';
 if (strpos($uri, '.php') === false || strpos($uri, 'index.php') !== false) {
+    if (isset($_REQUEST['data']) && isset($_POST['data'])) {
+        if ($data = \PhalApi\DI()->crypt->decrypt($_REQUEST['data'])) {
+            $_REQUEST = $_POST = json_decode($data, true);
+        }
+    }
     $service = $_REQUEST['s'] ?? ($_REQUEST['s'] = 'Common.Base.Index');// 访问服务参数
     $service = explode('.', $service);// 拆解访问参数
     $moduleRule = $di->config->get('sys.moduleRule');// 模块过滤规则
@@ -31,7 +36,7 @@ if (strpos($uri, '.php') === false || strpos($uri, 'index.php') !== false) {
     defined('NAME_SPACE') || define('NAME_SPACE', $moduleRule['prefix'][MODULE] ?? '');
     // 不存在与列表中 - 非法访问
     if (!NAME_SPACE) {
-        header('HTTP/1.1 404 Not Found');
+        \Common\fourZeroFour();
         exit();
     }
     // 重构访问服务参数

@@ -11,7 +11,6 @@ defined('NOW_TIME') || define('NOW_TIME', isset($_SERVER['REQUEST_TIME']) ? $_SE
 defined('SERVER_TIME') || define('SERVER_TIME', time());
 defined('back') || define('back', false);
 defined('ISAPP') || define('ISAPP', $di->request->getHeader('Isapp',false));
-defined('IS_AJAX') || define('IS_AJAX', ((isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest')) ? true : false);
 defined('MySQL') || define('MySQL', PHP_OS == 'WINNT' ? "E:\\mariadb\\bin\\" : "");
 defined('PREFIX') || define('PREFIX', $di->config->get('dbs.tables')['__default__']['prefix']);
 defined('SESSION_NAME') || define('SESSION_NAME', '9cf3eeaffa0c8386508f932a354adf70');

@@ -21,7 +21,12 @@ return [
     ],
 
     'openssl' => [
-        'configPath' => "D:\phpStudy\Apache\conf\openssl.cnf",
+        'config' => [
+            'config' => "D:\phpStudy\Apache\conf\openssl.cnf",// 自定义 openssl.conf 文件的路径
+            "digest_alg" => "sha256",// 摘要算法或签名哈希算法
+            "private_key_bits" => 2048,// 指定应该使用多少位来生成私钥
+            "private_key_type" => OPENSSL_KEYTYPE_RSA,// 选择在创建CSR时应该使用哪些扩展
+        ],
         'privateKey' => API_ROOT . '/config/bbs_private.pem',
         'publicKey' => API_ROOT . '/config/bbs_public.pem',
     ],
