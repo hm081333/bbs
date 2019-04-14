@@ -25,7 +25,7 @@
         "ext-json": "*",
         "ext-pdo": "*",
         "ext-gd": "*",
-        "phalapi/kernal": "2.5.*",
+        "phalapi/kernal": "2.*.*",
         "phalapi/qrcode": "dev-master",
         "phalapi/cli": "dev-master",
         "phalapi/task": "dev-master",

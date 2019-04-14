@@ -21,7 +21,7 @@ return [
             'port' => 3306,                    //数据库端口
             'charset' => 'UTF8',                  //数据库字符集
             'option' => [
-                PDO::ATTR_PERSISTENT => TRUE,
+                PDO::ATTR_PERSISTENT => false,
             ],
         ],
     ],
