@@ -62,8 +62,8 @@ class TieBa
     public static function getBaiduId($bduss)
     {
         $url = 'http://wapp.baidu.com/';
-        \PhalApi\DI()->curl->setCookie(['BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(NOW_TIME))]);
-        $data = \PhalApi\DI()->curl->get($url);
+        self::DI()->curl->setCookie(['BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(NOW_TIME))]);
+        $data = self::DI()->curl->get($url);
         return urldecode(\TieBa\textMiddle($data, 'i?un=', '">'));
     }
 
@@ -496,9 +496,9 @@ class TieBa
     public static function getTbs($bduss)
     {
         $url = 'http://tieba.baidu.com/dc/common/tbs';
-        \PhalApi\DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://tieba.baidu.com/', 'X-Forwarded-For: 115.28.1.' . mt_rand(1, 255)]);
-        \PhalApi\DI()->curl->setCookie(["BDUSS" => $bduss]);
-        $x = \PhalApi\DI()->curl->get($url);
+        self::DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://tieba.baidu.com/', 'X-Forwarded-For: 115.28.1.' . mt_rand(1, 255)]);
+        self::DI()->curl->setCookie(["BDUSS" => $bduss]);
+        $x = self::DI()->curl->get($url);
         $x = json_decode($x, TRUE);
         return $x['tbs'];
     }
@@ -587,7 +587,7 @@ class TieBa
         $httpheader[] = "Accept-Encoding:gzip,deflate,sdch";
         $httpheader[] = "Accept-Language:zh-CN,zh;q=0.8";
         $httpheader[] = "Connection:close";
-        \PhalApi\DI()->curl->setHeader($httpheader);
+        self::DI()->curl->setHeader($httpheader);
         $option = [];
         $option[CURLOPT_SSL_VERIFYPEER] = FALSE;
         $option[CURLOPT_SSL_VERIFYHOST] = FALSE;
@@ -610,14 +610,14 @@ class TieBa
             $option[CURLOPT_NOBODY] = 1;
         }
         $option[CURLOPT_ENCODING] = 'gzip';
-        \PhalApi\DI()->curl->setOption($option);
+        self::DI()->curl->setOption($option);
         if ($post) {
             if (is_array($post)) {
                 $post = http_build_query($post);
             }
-            $ret = \PhalApi\DI()->curl->post($url, $post);
+            $ret = self::DI()->curl->post($url, $post);
         } else {
-            $ret = \PhalApi\DI()->curl->get($url);
+            $ret = self::DI()->curl->get($url);
         }
         if (empty($ret)) {
             throw new \Exception\InternalServerErrorException(\PhalApi\T('连接到百度服务器失败'));
@@ -667,7 +667,7 @@ class TieBa
      */
     public static function login(string $time, string $user, string $pwd, string $p, string $vcode = '', string $vcodestr = '')
     {
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('成功'));
+        self::DI()->response->setMsg(\PhalApi\T('成功'));
         $url = 'https://wappass.baidu.com/wp/api/login?v=' . NOW_TIME . '0000';
         $post = 'username=' . $user . '&code=&password=' . $p . '&verifycode=' . $vcode . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . NOW_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&vcodestr=' . $vcodestr . '&countrycode=&servertime=' . $time . '&logLoginType=sdk_login&passAppHash=&passAppVersion=';
         $data = self::get_curl($url, $post);
@@ -731,7 +731,7 @@ class TieBa
      */
     public static function login2(string $type, string $lstr, string $ltoken, string $vcode)
     {
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('成功'));
+        self::DI()->response->setMsg(\PhalApi\T('成功'));
         $url = 'https://wappass.baidu.com/wp/login/sec?type=2&v=' . NOW_TIME . '0000';
         $post = [
             'vcode' => $vcode,

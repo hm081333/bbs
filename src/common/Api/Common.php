@@ -22,12 +22,12 @@ trait Common
                 'offset' => ['name' => 'offset', 'type' => 'int', 'default' => 0, 'desc' => "开始位置"],
                 'limit' => ['name' => 'limit', 'type' => 'int', 'default' => PAGE_NUM, 'desc' => '数量'],
                 'field' => ['name' => 'field', 'type' => 'string', 'default' => '*', 'desc' => '查询字段'],
-                'where' => ['name' => 'where', 'type' => 'array', 'default' => [], 'desc' => '查询条件'],
+                'where' => ['name' => 'where', 'type' => 'array', 'desc' => '查询条件'],
                 'order' => ['name' => 'order', 'type' => 'string', 'default' => 'id desc', 'desc' => '排序方式'],
             ],
             'allListData' => [
                 'field' => ['name' => 'field', 'type' => 'string', 'default' => '*', 'desc' => '查询字段'],
-                'where' => ['name' => 'where', 'type' => 'array', 'default' => [], 'desc' => '查询条件'],
+                'where' => ['name' => 'where', 'type' => 'array', 'desc' => '查询条件'],
                 'order' => ['name' => 'order', 'type' => 'string', 'default' => 'id desc', 'desc' => '排序方式'],
             ],
             'infoData' => [
@@ -116,8 +116,9 @@ trait Common
         }*/
         $classInfo = explode('\\', __CLASS__);// 拆解当前使用的类名
         $className = empty($className) ? end($classInfo) : $className;// 当前使用的类名
-        $class = implode('\\', [NAME_SPACE, 'Domain', $className]);
-        if (NAME_SPACE != 'Common' && !class_exists($class)) {
+        $nameSpace = defined('NAME_SPACE') ? NAME_SPACE : __NAMESPACE__;
+        $class = implode('\\', [$nameSpace, 'Domain', $className]);
+        if ($nameSpace != 'Common' && !class_exists($class)) {
             $class = implode('\\', ['Common', 'Domain', $className]);
         }
         return new $class;
@@ -136,8 +137,9 @@ trait Common
         }*/
         $classInfo = explode('\\', __CLASS__);// 拆解当前使用的类名
         $className = empty($className) ? end($classInfo) : $className;// 当前使用的类名
-        $class = implode('\\', [NAME_SPACE, 'Model', $className]);
-        if (NAME_SPACE != 'Common' && !class_exists($class)) {
+        $nameSpace = defined('NAME_SPACE') ? NAME_SPACE : __NAMESPACE__;
+        $class = implode('\\', [$nameSpace, 'Model', $className]);
+        if ($nameSpace != 'Common' && !class_exists($class)) {
             $class = implode('\\', ['Common', 'Model', $className]);
         }
         return new $class;

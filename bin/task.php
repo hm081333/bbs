@@ -11,7 +11,7 @@ $argv = [
     $param_arr['u'] ?? false,// 备用
 ];
 
-$argv[0] || die('访问无效！');
+$argv[0] || die('Access Invalid!');
 
 set_time_limit(0);
 ignore_user_abort(true);

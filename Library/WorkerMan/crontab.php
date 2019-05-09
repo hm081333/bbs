@@ -18,7 +18,7 @@ $task = new Worker();
 $task->count = 1;
 // 进程任务名称
 $task->name = 'crontab';
-// 30 */1 * * * php /var/www/html/bbs/Library/task.php -a sign >/dev/null 2>&1
+// 30 */1 * * * php /var/www/bbs2-api/bin/task.php -a tieba -t sign >/dev/null 2>&1
 // 分钟(0-59) 小时(0-23) 日期(1-31) 月份(1-12) 星期几(0-7) 命令/脚本
 $task->onWorkerStart = function ($task) {
     // 每1秒执行一次

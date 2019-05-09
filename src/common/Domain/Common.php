@@ -31,7 +31,7 @@ trait Common
     public static function getList($limit, $offset, $where = [], $field = '*', $order = 'id desc', $count = '*', $id = null)
     {
         $model = self::getModel();
-        $list = $model->getList($limit, $offset, $where, $order, $field, $id, $count);
+        $list = $model->getList($limit, $offset, $where ?? [], $order, $field, $id, $count);
         array_walk($list['rows'], function (&$value) {
             $value = \Common\arr_unix_formatter($value);// 格式化数组中的时间戳
             return $value;
@@ -48,7 +48,7 @@ trait Common
     public static function getListByWhere($condition = [], $field = '*', $order = 'id desc', $id = null)
     {
         $model = self::getModel();
-        return $model->getListByWhere($condition, $field, $order, $id);
+        return $model->getListByWhere($condition ?? [], $field, $order, $id);
     }
 
     /**
@@ -61,7 +61,7 @@ trait Common
     public static function getSum($where = [], $field = '*', $id = null)
     {
         $model = self::getModel();
-        return $model->getSum($where, $field, $id);
+        return $model->getSum($where ?? [], $field, $id);
     }
 
     /**
@@ -74,7 +74,7 @@ trait Common
     public static function getMax($where = [], $field = 'id', $id = null)
     {
         $model = self::getModel();
-        return $model->getMax($where, $field, $id);
+        return $model->getMax($where ?? [], $field, $id);
     }
 
     /**
@@ -169,8 +169,9 @@ trait Common
     {
         $classInfo = explode('\\', __CLASS__);// 拆解当前使用的类名
         $className = empty($className) ? end($classInfo) : $className;// 当前使用的类名
-        $class = implode('\\', [NAME_SPACE, 'Domain', $className]);
-        if (NAME_SPACE != 'Common' && !class_exists($class)) {
+        $nameSpace = defined('NAME_SPACE') ? NAME_SPACE : __NAMESPACE__;
+        $class = implode('\\', [$nameSpace, 'Domain', $className]);
+        if ($nameSpace != 'Common' && !class_exists($class)) {
             $class = implode('\\', ['Common', 'Domain', $className]);
         }
         return new $class;
@@ -189,8 +190,9 @@ trait Common
         }*/
         $classInfo = explode('\\', __CLASS__);// 拆解当前使用的类名
         $className = empty($className) ? end($classInfo) : $className;// 当前使用的类名
-        $class = implode('\\', [NAME_SPACE, 'Model', $className]);
-        if (NAME_SPACE != 'Common' && !class_exists($class)) {
+        $nameSpace = defined('NAME_SPACE') ? NAME_SPACE : __NAMESPACE__;
+        $class = implode('\\', [$nameSpace, 'Model', $className]);
+        if ($nameSpace != 'Common' && !class_exists($class)) {
             $class = implode('\\', ['Common', 'Model', $className]);
         }
         return new $class;
