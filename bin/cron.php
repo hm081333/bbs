@@ -33,7 +33,7 @@ try {
             }
             if (date('G', NOW_TIME) == 10) {// 10点发送推送
                 $di->logger->info('推送签到详情信息');
-                $wechat_domain = new \Common\Domain\WeChatMediaPlatform();
+                $wechat_domain = new \Common\Domain\WeChatPublicPlatform();
                 $wechat_domain->sendTieBaSignDetailByCron();
             }
             break;

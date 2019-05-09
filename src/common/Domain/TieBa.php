@@ -197,10 +197,8 @@ class TieBa
     public static function getFid($kw)
     {
         $url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw);
-        DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded', 'Cookie:BAIDUID=' . strtoupper(md5(NOW_TIME))]);
-        $s = DI()->curl->get($url);
-        var_dump($s);
-        die;
+        self::DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded', 'Cookie:BAIDUID=' . strtoupper(md5(NOW_TIME))]);
+        $s = self::DI()->curl->get($url);
         $x = \TieBa\easy_match('<input type="hidden" name="fid" value="*"/>', $s);
         if (isset($x[1])) {
             return $x[1];
@@ -538,9 +536,9 @@ class TieBa
     public static function DoSign_Mobile($kw, $fid, $ck, $tbs)
     {
         $url = 'http://tieba.baidu.com/mo/q/sign?tbs=' . $tbs . '&kw=' . urlencode($kw) . '&is_like=1&fid=' . $fid;
-        DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://tieba.baidu.com/f?kw=' . $kw, 'Host: tieba.baidu.com', 'X-Forwarded-For: 115.28.1.' . mt_rand(1, 255), 'Origin: http://tieba.baidu.com', 'Connection: Keep-Alive']);
-        DI()->curl->setCookie(['BDUSS' => $ck]);
-        return DI()->curl->get($url);
+        self::DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://tieba.baidu.com/f?kw=' . $kw, 'Host: tieba.baidu.com', 'X-Forwarded-For: 115.28.1.' . mt_rand(1, 255), 'Origin: http://tieba.baidu.com', 'Connection: Keep-Alive']);
+        self::DI()->curl->setCookie(['BDUSS' => $ck]);
+        return self::DI()->curl->get($url);
     }
 
     /**
@@ -549,20 +547,20 @@ class TieBa
     public static function DoSign_Default($kw, $fid, $ck)
     {
         $url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw) . '&fid=' . $fid;
-        DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded']);
-        DI()->curl->setCookie(['BDUSS' => $ck]);
-        $s = DI()->curl->get($url);
+        self::DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded']);
+        self::DI()->curl->setCookie(['BDUSS' => $ck]);
+        $s = self::DI()->curl->get($url);
         preg_match('/\<td style=\"text-align:right;\"\>\<a href=\"(.*)\"\>签到\<\/a\>\<\/td\>\<\/tr\>/', $s, $s);
         if (isset($s[1])) {
             $url = 'http://tieba.baidu.com' . $s[1];
-            DI()->curl->setHeader(['Accept: text/html, application/xhtml+xml, */*', 'Accept-Language: zh-Hans-CN,zh-Hans;q=0.8,en-US;q=0.5,en;q=0.3', 'User-Agent: Fucking Phone']);
-            DI()->curl->setCookie(['BDUSS' => $ck]);
-            DI()->curl->get($url);
+            self::DI()->curl->setHeader(['Accept: text/html, application/xhtml+xml, */*', 'Accept-Language: zh-Hans-CN,zh-Hans;q=0.8,en-US;q=0.5,en;q=0.3', 'User-Agent: Fucking Phone']);
+            self::DI()->curl->setCookie(['BDUSS' => $ck]);
+            self::DI()->curl->get($url);
             //临时判断解决方案
             $url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw) . '&fid=' . $fid;
-            DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded']);
-            DI()->curl->setCookie(['BDUSS' => $ck]);
-            $s = DI()->curl->get($url);
+            self::DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded']);
+            self::DI()->curl->setCookie(['BDUSS' => $ck]);
+            $s = self::DI()->curl->get($url);
             //如果找不到这段html则表示没有签到则stripos()返回false，同时is_bool()返回true，最终返回false
             return !is_bool(stripos($s, '<td style="text-align:right;"><span >已签到</span></td>'));
         } else {

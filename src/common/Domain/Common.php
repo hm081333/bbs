@@ -163,7 +163,7 @@ trait Common
     /**
      * 获取指定Domain
      * @param bool $className 指定调用的类
-     * @return \Common\Model\Common|NotORMModel 返回对应的 Model实例
+     * @return mixed
      */
     public static function getDomain($className = false)
     {
@@ -179,7 +179,7 @@ trait Common
     /**
      * 获取当前Domain对应的Model
      * @param bool $className 指定调用的类
-     * @return \Common\Model\Common|NotORMModel 返回对应的 Model实例
+     * @return \Common\Model\Common|\PhalApi\Model\NotORMModel 返回对应的 Model实例
      */
     public static function getModel($className = false)
     {

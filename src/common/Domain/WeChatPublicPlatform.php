@@ -8,15 +8,13 @@
 
 namespace Common\Domain;
 
-use Exception\Exception;
-
 /**
  * 微信公众平台 领域层
  * Class WeChatMediaPlatform
  * @package Common\Domain
  * @author  LYi-Ho 2018-11-26 11:14:57
  */
-class WeChatMediaPlatform
+class WeChatPublicPlatform
 {
     use Common;
     private $appId;
@@ -24,25 +22,33 @@ class WeChatMediaPlatform
 
     public function __construct()
     {
-        $config = self::getDomain('Setting')::getSetting('wechat');
+        $config = $this->settingDomain()::getSetting('wechat');
         $this->appId = $config['app_id'] ?? '';
         $this->appSecret = $config['app_secret'] ?? '';
     }
 
     /**
+     * @return \Common\Domain\Setting
+     */
+    private function settingDomain()
+    {
+        return self::getDomain('Setting');
+    }
+
+    /**
      * 获取access_token
      * @return mixed
-     * @throws Exception
+     * @throws \Exception\Exception
      */
     private function getAccessToken()
     {
         $access_token = self::DI()->cache->get('access_token');
         if (!isset($access_token) || empty($access_token)) {
             // 如果是企业号用以下URL获取access_token
-            // $url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=$this->appId&corpsecret=$this->appSecret";
-            $url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' . $this->appId . '&secret=' . $this->appSecret;
+            // $url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={$this->appId}&corpsecret={$this->appSecret}";
+            $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={$this->appId}&secret={$this->appSecret}";
             $result = self:: DI()->curl->get($url);
-            $result = json_decode($result, TRUE);
+            $result = json_decode($result, true);
             if (empty($result)) {
                 throw new \Exception\Exception(\PhalApi\T('获取access_token失败'));
             } else {
@@ -68,10 +74,10 @@ class WeChatMediaPlatform
         if (!isset($jsapi_ticket) || empty($jsapi_ticket)) {
             $accessToken = $this->getAccessToken();
             // 如果是企业号用以下 URL 获取 ticket
-            // $url = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket?access_token=$accessToken";
-            $url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&access_token=$accessToken";
+            // $url = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket?access_token={$accessToken}";
+            $url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?type=jsapi&access_token={$accessToken}";
             $result = self::DI()->curl->get($url);
-            $result = json_decode($result, TRUE);
+            $result = json_decode($result, true);
             if (empty($result) || $result['errcode'] != 0) {
                 throw new \Exception\Exception(\PhalApi\T('获取jsapi_ticket失败'));
             } else {
@@ -94,7 +100,8 @@ class WeChatMediaPlatform
         if (\Common\isWeChat()) {
             //$scope = 'snsapi_userinfo';
             //若提示“该链接无法访问”，请检查参数是否填写错误，是否拥有scope参数对应的授权作用域权限。
-            $url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' . $this->appId . '&redirect_uri=' . urlencode(URL_ROOT . 'tieba.php') . '&response_type=code&scope=' . $scope . '&state=STATE#wechat_redirect';
+            $redirect_uri = urlencode(URL_ROOT . 'tieba.php');
+            $url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$this->appId} &redirect_uri={$redirect_uri}&response_type=code&scope={$scope}&state=STATE#wechat_redirect";
             Header("Location: $url");
             die;
         }
@@ -108,9 +115,9 @@ class WeChatMediaPlatform
      */
     public function getOpenId($code)
     {
-        $url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $this->appId . '&secret=' . $this->appSecret . '&code=' . $code . '&grant_type=authorization_code';
+        $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid={$this->appId}&secret={$this->appSecret}&code={$code}&grant_type=authorization_code";
         $result = self::DI()->curl->get($url);
-        $result = json_decode($result, TRUE);
+        $result = json_decode($result, true);
         if (!empty($result)) {
             if (isset($result['errmsg'])) {
                 throw new \Exception\Exception(\PhalApi\T($result['errmsg']));
@@ -125,20 +132,20 @@ class WeChatMediaPlatform
      * $scope = 'snsapi_userinfo'的后续
      * @param $code
      * @return mixed
-     * @throws Exception
+     * @throws \Exception\Exception
      */
     public function getSnsApiUserInfo($code)
     {
-        $url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $this->appId . '&secret=' . $this->appSecret . '&code=' . $code . '&grant_type=authorization_code';
+        $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid={$this->appId}&secret={$this->appSecret}&code={$code}&grant_type=authorization_code";
         $result = self::DI()->curl->get($url);
-        $result = json_decode($result, TRUE);
+        $result = json_decode($result, true);
         if (!empty($result)) {
             if (isset($result['errmsg'])) {
                 throw new \Exception\Exception(\PhalApi\T($result['errmsg']));
             }
-            $url = 'https://api.weixin.qq.com/sns/userinfo?access_token=' . $result['access_token'] . '&openid=' . $result['open_id'] . '&lang=zh_CN ';
+            $url = "https://api.weixin.qq.com/sns/userinfo?access_token={$result['access_token']}&openid={$result['open_id']}&lang=zh_CN";
             $result = self::DI()->curl->get($url);
-            $result = json_decode($result, TRUE);
+            $result = json_decode($result, true);
             if (!empty($result)) {
                 if (isset($result['errmsg'])) {
                     throw new \Exception\Exception(\PhalApi\T($result['errmsg']));
@@ -159,9 +166,9 @@ class WeChatMediaPlatform
      */
     public function openIdLogin($code)
     {
-        $url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $this->appId . '&secret=' . $this->appSecret . '&code=' . $code . '&grant_type=authorization_code';
-        $result = DI()->curl->get($url);
-        $result = json_decode($result, TRUE);
+        $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid={$this->appId}&secret={$this->appSecret}&code={$code}&grant_type=authorization_code";
+        $result = self::DI()->curl->get($url);
+        $result = json_decode($result, true);
         if (!empty($result)) {
             if (isset($result['errmsg'])) {
                 throw new \Exception\Exception(\PhalApi\T($result['errmsg']));
@@ -198,7 +205,7 @@ class WeChatMediaPlatform
     /**
      * 生成jsSDK权限验证配置
      * @return array
-     * @throws Exception
+     * @throws \Exception\Exception
      */
     public function getSignPackage()
     {
@@ -227,9 +234,10 @@ class WeChatMediaPlatform
      * @param bool $openid
      * @return mixed
      * @throws \Exception\BadRequestException
+     * @throws \Exception\Exception
      * @throws \Exception\InternalServerErrorException
      */
-    private function sendTiebaSignDetail($openid = FALSE)
+    private function sendTiebaSignDetail($openid = false)
     {
         if (empty($openid)) {
             throw new \Exception\BadRequestException(\PhalApi\T('缺少openid'));
@@ -237,7 +245,7 @@ class WeChatMediaPlatform
         $accessToken = $this->getAccessToken();
         $url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={$accessToken}";
         $result = self::getDomain('TieBa')::getSignStatus($openid);
-        if ($result == FALSE) {
+        if ($result == false) {
             throw new \Exception\InternalServerErrorException(\PhalApi\T('获取状态失败'));
         }
 
@@ -268,11 +276,11 @@ class WeChatMediaPlatform
 
         unset($result);
 
-        $send_json = json_encode($send_array, TRUE);
+        $send_json = json_encode($send_array, true);
         unset($send_array);
 
         $result = self::DI()->curl->post($url, $send_json);
-        $result = json_decode($result, TRUE);
+        $result = json_decode($result, true);
         self::DI()->logger->debug('微信推送结果', $result);
 
         return $result;
@@ -284,7 +292,7 @@ class WeChatMediaPlatform
     public function sendTieBaSignDetailByCron()
     {
         $user_model = self::getModel('User');
-        $users = $user_model->getListByWhere(['open_id IS NOT ?' => NULL, 'sign_notice' => 1], 'open_id');
+        $users = $user_model->getListByWhere(['open_id IS NOT ?' => null, 'sign_notice' => 1], 'open_id');
         foreach ($users as $user) {
             try {
                 $this->sendTiebaSignDetail($user['open_id']);
