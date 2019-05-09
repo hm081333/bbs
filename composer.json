@@ -1,11 +1,11 @@
 {
-    "name": "phalapi/phalapi",
-    "description": "PhalApi v2.x，一个PHP轻量级开源接口框架，致力于快速开发接口服务。",
+    "name": "bbs2/api",
+    "description": "个人作品第3代",
     "type": "project",
     "keywords": [
         "api"
     ],
-    "homepage": "http://lyihe2.tk",
+    "homepage": "http://bbs2.lyihe2.tk",
     "license": "GPL-3.0+",
     "minimum-stability": "dev",
     "authors": [
