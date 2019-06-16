@@ -17,6 +17,9 @@ if (IS_CLI) {
 }
 defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname(dirname($_SERVER['PHP_SELF'])) == '\\' ? '' : dirname($_SERVER['PHP_SELF'])));
 
+if (!file_exists(API_ROOT . '/vendor/autoload.php')) {
+    exit('请先运行 composer install');
+}
 // 引入composer
 require_once API_ROOT . '/vendor/autoload.php';
 

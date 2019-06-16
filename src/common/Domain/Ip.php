@@ -37,7 +37,7 @@ class Ip
             $data = \PhalApi\DI()->curl->get("http://ip.taobao.com/service/getIpInfo.php?ip={$ip}");
             $data = json_decode($data, TRUE);
             if (!$data) {
-                throw new \Exception\BadRequestException(\PhalApi\T('获取IP失败'));
+                throw new \Exception\BadRequestException(\PhalApi\T('获取IP信息失败'));
             }
             if ($data['code'] !== 0) {
                 throw new \Exception\InternalServerErrorException(\PhalApi\T($data['data']));
