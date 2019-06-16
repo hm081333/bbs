@@ -25,6 +25,10 @@ class Ip extends Base
         return $rules;
     }
 
+    /**
+     * 获取IP详细信息
+     * @return array
+     */
     public function getInfo()
     {
         $data = get_object_vars($this);

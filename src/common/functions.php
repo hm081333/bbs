@@ -4,6 +4,21 @@ namespace Common;
 
 use function PhalApi\DI;
 
+function getComposerRequire()
+{
+    $composer = file_get_contents(API_ROOT . '/composer.json');
+    $composer = json_decode($composer, true);
+    $require = array_keys($composer['require']);
+    foreach ($require as $key => &$item) {
+        if (strpos($item, 'ext-') === false) {
+            unset($require[$key]);
+        } else {
+            $item = str_replace('ext-', '', $item);
+        }
+    }
+    return $require;
+}
+
 function arr_unix_formatter(array $arr)
 {
     $format_fields = DI()->config->get('app.unix_time_format_field');

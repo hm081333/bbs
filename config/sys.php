@@ -40,7 +40,7 @@ return [
             // 缓存文件保存路径
             'path' => API_ROOT . '/Runtime',
             // 缓存前缀
-            'prefix' => 'phapapi',
+            'prefix' => 'bbs',
         ],
         // MC缓存服务器参考配置
         'memcache' => [
@@ -51,7 +51,7 @@ return [
             // Memcache权重，多个用英文逗号分割
             'weight' => 0,
             // Memcache key prefix
-            'prefix' => 'phalapi_',
+            'prefix' => 'bbs_',
         ],
         // Redis缓存服务器参考配置
         'redis' => [
@@ -64,7 +64,7 @@ return [
             // Redis端口,默认为6379
             'port' => 6379,
             // Redis key prefix
-            'prefix' => 'phalapi:',
+            'prefix' => 'bbs:',
             // Redis 身份验证
             'auth' => '',
             // Redis库,默认0

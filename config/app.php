@@ -30,6 +30,58 @@ return [
     ],
 
     /**
+     * 计划任务配置
+     */
+    'Task' => [
+        //MQ队列设置，可根据使用需要配置
+        'mq' => [
+            'file' => [
+                'path' => API_ROOT . '/Runtime',
+                'prefix' => 'bbs_task',
+            ],
+            'redis' => [
+                'host' => '127.0.0.1',
+                'port' => 6379,
+                'prefix' => 'bbs_task:',
+                'auth' => '',
+            ],
+            'mc' => [
+                'host' => '127.0.0.1',
+                'port' => 11211,
+            ],
+        ],
+
+        //Runner设置，如果使用远程调度方式，请加此配置
+        'runner' => [
+            'remote' => [
+                'host' => 'http://library.phalapi.net/demo/',
+                'timeoutMS' => 3000,
+            ],
+        ],
+    ],
+
+    /**
+     * 扩展类库 - Redis扩展
+     */
+    'redis' => [
+        //Redis链接配置项
+        'servers' => [
+            'host' => '127.0.0.1',        //Redis服务器地址
+            'port' => '6379',             //Redis端口号
+            'prefix' => 'bbs_',         //Redis-key前缀
+            'auth' => '',          //Redis链接密码
+        ],
+        // Redis分库对应关系操作时直接使用名称无需使用数字来切换Redis库
+        'DB' => [
+            'developers' => 1,
+            'user' => 2,
+            'code' => 3,
+        ],
+        //使用阻塞式读取队列时的等待时间单位/秒
+        'blocking' => 5,
+    ],
+
+    /**
      * 需要格式化的时间戳字段
      */
     'unix_time_format_field' => [

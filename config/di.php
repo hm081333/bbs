@@ -61,8 +61,15 @@ $di->notorm = new \Database\NotORMDatabase($di->config->get('dbs'), $di->debug);
 // 缓存 - Memcache/Memcached
 $di->cache = function () use ($di) {
     // return new \PhalApi\Cache\MemcacheCache($di->config->get('sys.cache.memcache'));
-    return new \PhalApi\Cache\FileCache($di->config->get('sys.cache.file'));
+    // return new \PhalApi\Cache\FileCache($di->config->get('sys.cache.file'));
+    return new \PhalApi\Cache\RedisCache($di->config->get('sys.cache.redis'));
 };
+
+// 惰性加载Redis
+/*$di->redis = function () use ($di) {
+    // return new \PhalApi\Redis\Lite($di->config->get("app.redis.servers"));
+    return new \PhalApi\Cache\RedisCache($di->config->get('sys.cache.redis'));
+};*/
 
 // COOKIE
 $di->cookie = function () use ($di) {

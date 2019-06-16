@@ -49,5 +49,14 @@ return [
          * ),
          * ),
          */
+        //10张表，可根据需要，自行调整表前缀、主键名和路由
+        'task_mq' => [
+            'prefix' => 'ly_',
+            'key' => 'id',
+            'map' => [
+                ['db' => 'db_master'],
+                ['start' => 0, 'end' => 9, 'db' => 'db_master'],
+            ],
+        ],
     ],
 ];

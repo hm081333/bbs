@@ -28,10 +28,10 @@ class TieBa
     public static function noSignTieba($tieba_id, $no)
     {
         $result = self::getModel()->update($tieba_id, ['no' => $no]);
-        if ($result === FALSE) {
+        if ($result === false) {
             throw new \Exception\InternalServerErrorException(\PhalApi\T('操作失败'));
         }
-        return TRUE;
+        return true;
     }
 
     /**
@@ -77,7 +77,7 @@ class TieBa
         set_time_limit(0);
         $baiduid_model = self::getModel('BaiDuId');
         if (empty($user_id)) {
-            $user = \Common\Domain\User::getCurrentUser(TRUE);// 获取登录状态
+            $user = \Common\Domain\User::getCurrentUser(true);// 获取登录状态
             $user_id = $user['id'];
         }
         $bx = $baiduid_model->getListByWhere(['user_id' => $user_id]);
@@ -108,7 +108,7 @@ class TieBa
         $bid = self::getUserid($bname);
         $pn = 1;
         $a = 0;
-        while (TRUE) {
+        while (true) {
             if (empty($bid)) {
                 break;
             }
@@ -148,7 +148,7 @@ class TieBa
     {
         $url = "http://tieba.baidu.com/home/get/panel?ie=utf-8&un={$name}";
         $ur = self::DI()->curl->get($url);
-        $ur = json_decode($ur, TRUE);
+        $ur = json_decode($ur, true);
         $userid = $ur['data']['id'];
         return $userid;
     }
@@ -183,9 +183,9 @@ class TieBa
         $data['sign'] = $sign;
         self::DI()->curl->setHeader($head);
         self::DI()->curl->setCookie(['BDUSS' => $bduss]);
-        self::DI()->curl->setOption([CURLOPT_SSL_VERIFYPEER => FALSE, CURLOPT_FOLLOWLOCATION => TRUE]);
+        self::DI()->curl->setOption([CURLOPT_SSL_VERIFYPEER => false, CURLOPT_FOLLOWLOCATION => true]);
         $rt = self::DI()->curl->post($url, $data);
-        $rt = json_decode($rt, TRUE);
+        $rt = json_decode($rt, true);
         return $rt;
     }
 
@@ -203,7 +203,7 @@ class TieBa
         if (isset($x[1])) {
             return $x[1];
         } else {
-            return FALSE;
+            return false;
         }
     }
 
@@ -221,22 +221,31 @@ class TieBa
         $total_sign_tieba = $tieba_model->getCount($where); // 该条件下所有贴吧数量
         $limit = 100; // 100条100条循环拿
         $count = ceil($total_sign_tieba / $limit); // 循环100条的次数
-        $else = 0; // 已遍历的数量
         for ($i = 1; $i <= $count; $i++) {
-            $qs = $tieba_model->getList($limit, 0, $where, 'id asc', '*');
-            $else += $qs['total'];
-            $q = [];
-            foreach ($qs['rows'] as $index => $qss) {
-                $q[] = [
-                    'id' => $qss['id'],
-                    'baidu_id' => $qss['baidu_id'],
-                    'fid' => $qss['fid'],
-                    'tieba' => $qss['tieba'],
-                ];
-            }
-            shuffle($q);
-            foreach ($q as $x) {
-                self::doSign($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
+            $tieba_list = $tieba_model->queryRows("
+            SELECT
+                `t`.`tieba`,
+                `t`.`id`,
+                `t`.`baidu_id`,
+                `t`.`fid`,
+                `bid`.`bduss` 
+            FROM
+                `ly_tieba` AS `t`
+                LEFT JOIN `ly_baiduid` AS `bid` ON `t`.`baidu_id` = `bid`.`id` 
+            WHERE
+                `t`.`no` = ? 
+                AND `t`.`status` != ? 
+            ORDER BY
+                `t`.`id` 
+                LIMIT ?,?
+            ", [
+                0,// 不忽略签到
+                0, // 签到状态不为0==签到出错
+                0,// 偏移量
+                $limit,// 数量
+            ]);
+            foreach ($tieba_list as $item) {
+                self::doSign($item['tieba'], $item['id'], $item['bduss'], $item['fid']);
             }
         }
     }
@@ -247,7 +256,7 @@ class TieBa
      * @return array
      * @throws \Exception\BadRequestException
      */
-    public static function getSignStatus($openid = FALSE)
+    public static function getSignStatus($openid = false)
     {
         if (empty($openid)) {
             throw new \Exception\BadRequestException(\PhalApi\T('缺少openid'));
@@ -296,33 +305,34 @@ class TieBa
         $day_time = \DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
         //处理所有未签到的贴吧
         $tieba_model = self::getModel();
-        $where = [];
-        $where['no = ?'] = 0; // 不忽略签到
-        $where['latest < ?'] = $day_time['begin']; // 今天没有签到
-        $total_sign_tieba = $tieba_model->getCount($where); // 该条件下所有贴吧数量
-        $limit = 100; // 100条100条循环拿
-        $count = ceil($total_sign_tieba / $limit); // 循环100条的次数
-        $else = 0; // 已遍历的数量
-        for ($i = 1; $i <= $count; $i++) {
-            $qs = $tieba_model->getList($limit, 0, $where, 'id asc', '*');
-            $else += $qs['total'];
-            $q = [];
-            foreach ($qs['rows'] as $index => $qss) {
-                $q[] = [
-                    'id' => $qss['id'],
-                    //'user_id' => $qss['user_id'],
-                    'baidu_id' => $qss['baidu_id'],
-                    'fid' => $qss['fid'],
-                    'tieba' => $qss['tieba'],
-                    //'no' => $qss['no'],
-                    //'status' => $qss['status'],
-                    //'latest' => $qss['latest'],
-                    //'last_error' => $qss['last_error']
-                ];
+        while (true) {
+            $tieba_list = $tieba_model->queryRows("
+            SELECT
+                `t`.`tieba`,
+                `t`.`id`,
+                `t`.`baidu_id`,
+                `t`.`fid`,
+                `bid`.`bduss` 
+            FROM
+                `ly_tieba` AS `t`
+                LEFT JOIN `ly_baiduid` AS `bid` ON `t`.`baidu_id` = `bid`.`id` 
+            WHERE
+                `t`.`no` = ? 
+                AND `t`.`latest` < ? 
+            ORDER BY
+                `t`.`id` 
+                LIMIT ?,?
+            ", [
+                0,// 不忽略签到
+                $day_time['begin'], // 今天没有签到
+                0,// 偏移量
+                100,// 数量 - 100条100条循环拿
+            ]);
+            if (empty($tieba_list)) {
+                break;
             }
-            shuffle($q);
-            foreach ($q as $x) {
-                self::doSign($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
+            foreach ($tieba_list as $item) {
+                self::doSign($item['tieba'], $item['id'], $item['bduss'], $item['fid']);
             }
         }
     }
@@ -336,30 +346,36 @@ class TieBa
         $day_time = \DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
         //处理所有未签到的贴吧
         $tieba_model = self::getModel();
-        $where = [];
-        $where['baidu_id = ?'] = $baidu_id; // 该贴吧用户
-        $where['no = ?'] = 0; // 不忽略签到
-        $where['latest < ?'] = $day_time['begin']; // 今天没有签到
-        $limit = 100; // 100条100条循环拿
-        $offset = 0; // 已遍历的数量
-        while (TRUE) {
-            $tieBaList = $tieba_model->getListLimitByWhere($limit, $offset, $where, 'id asc', '*');
-            if (!$tieBaList) {
+        while (true) {
+            $tieba_list = $tieba_model->queryRows("
+            SELECT
+                `t`.`id`,
+                `t`.`tieba`,
+                `t`.`fid`,
+                `bid`.`bduss`  
+            FROM
+                `ly_tieba` AS `t`
+                LEFT JOIN `ly_baiduid` AS `bid` ON `t`.`baidu_id` = `bid`.`id` 
+            WHERE
+                `bid`.`id` = ? 
+                AND `t`.`no` = ? 
+                AND `t`.`latest` < ?
+            ORDER BY `t`.`id` 
+                LIMIT ?,?
+            ",
+                [
+                    $baidu_id,// 该贴吧用户
+                    0,// 不忽略签到
+                    $day_time['begin'],// 今天没有签到
+                    0,// 从0开始取
+                    100,// 100条100条循环拿
+                ]
+            );
+            if (empty($tieba_list)) {
                 break;
             }
-            $offset += $limit;
-            $signs = [];
-            foreach ($tieBaList as $index => $tieBa) {
-                $signs[] = [
-                    'id' => $tieBa['id'],
-                    'baidu_id' => $tieBa['baidu_id'],
-                    'fid' => $tieBa['fid'],
-                    'tieba' => $tieBa['tieba'],
-                ];
-            }
-            shuffle($signs);
-            foreach ($signs as $sign) {
-                self::doSign($sign['tieba'], $sign['id'], $sign['baidu_id'], $sign['fid']);
+            foreach ($tieba_list as $item) {
+                self::doSign($item['tieba'], $item['id'], $item['bduss'], $item['fid']);
             }
         }
     }
@@ -372,73 +388,108 @@ class TieBa
         set_time_limit(0);
         $day_time = \DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
         //处理所有未签到的贴吧
-        $tieba_model = new Model_Tieba();
-        $where = [];
-        $where['b.user_id = ?'] = $user_id; // 该会员
-        $where['t.no = ?'] = 0; // 不忽略签到
-        $where['t.latest < ?'] = $day_time['begin']; // 今天没有签到
-        $total_sign_tieba = $tieba_model->getTiebasByJoinCount($where)[0]['c']; // 该条件下所有贴吧数量
-        $limit = 100; // 100条100条循环拿
-        $count = ceil($total_sign_tieba / $limit); // 循环100条的次数
-        $else = 0; // 已遍历的数量
-        for ($i = 1; $i <= $count; $i++) {
-            $qs = $tieba_model->getTiebasByJoin($limit, 0, $where, '*', 't.id asc');
-            $else += $qs['total'];
-            $q = [];
-            foreach ($qs['rows'] as $index => $qss) {
-                $q[] = [
-                    'id' => $qss['id'],
-                    'baidu_id' => $qss['baidu_id'],
-                    'fid' => $qss['fid'],
-                    'tieba' => $qss['tieba'],
-                ];
+        $tieba_model = self::getModel('Tieba');
+        while (true) {
+            $tieba_list = $tieba_model->queryRows("
+            SELECT
+                `t`.`id`,
+                `t`.`tieba`,
+                `t`.`fid`,
+                `bid`.`bduss`  
+            FROM
+                `ly_tieba` AS `t`
+                LEFT JOIN `ly_baiduid` AS `bid` ON `t`.`baidu_id` = `bid`.`id` 
+            WHERE
+                `bid`.`user_id` = ? 
+                AND `t`.`no` = ? 
+                AND `t`.`latest` < ?
+            ORDER BY `t`.`id` 
+                LIMIT ?,?
+            ",
+                [
+                    $user_id,// 该会员
+                    0,// 不忽略签到
+                    $day_time['begin'],// 今天没有签到
+                    0,// 从0开始取
+                    100,// 100条100条循环拿
+                ]
+            );
+            if (empty($tieba_list)) {
+                break;
             }
-            shuffle($q);
-            foreach ($q as $x) {
-                self::doSign($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
+            foreach ($tieba_list as $item) {
+                self::doSign($item['tieba'], $item['id'], $item['bduss'], $item['fid']);
             }
         }
     }
 
     /**
      * 执行一个贴吧的签到
+     * @param $tieba_id
+     * @return array|mixed
+     * @throws \Exception\BadRequestException
      */
     public static function doSignByTieBaId($tieba_id)
     {
-        $x = self::getModel()->get($tieba_id);
-        return self::doSign($x['tieba'], $x['id'], $x['baidu_id'], $x['fid']);
+        // $x = self::getModel()->get($tieba_id);
+        $tieba_info = self::getModel()->queryRows("
+        SELECT
+            `t`.`tieba`,
+            `t`.`fid`,
+            `bid`.`bduss` 
+        FROM
+            `ly_tieba` AS `t`
+            LEFT JOIN `ly_baiduid` AS `bid` ON `t`.`baidu_id` = `bid`.`id` 
+        WHERE
+            `t`.`id` =?
+        ",
+            [
+                $tieba_id,
+            ]
+        );
+        $tieba_info = $tieba_info[0] ?? [];
+        if (empty($tieba_info)) {
+            throw new \Exception\BadRequestException(\PhalApi\T('您没有该贴吧'));
+        }
+        self::doSign($tieba_info['tieba'], $tieba_id, $tieba_info['bduss'], $tieba_info['fid']);
+        return self::getInfo($tieba_id);
     }
 
     /**
      * 对一个贴吧执行完整的签到任务
+     * @param $kw
+     * @param $id
+     * @param $bduss
+     * @param $fid
+     * @return array|mixed
      */
-    public static function doSign($kw, $id, $baidu_id, $fid)
+    public static function doSign($kw, $id, $bduss, $fid)
     {
         $again_error_id = 160002; //重复签到错误代码
         $again_error_id_2 = 1101; //特殊的重复签到错误代码！！！签到过快=已签到
         $again_error_id_3 = 1102; //特殊的重复签到错误代码！！！签到过快=已签到
-        $status_succ = FALSE;
-        $baiduid_model = self::getModel('BaiDuId');
-        $bdid = $baiduid_model->get($baidu_id, 'bduss');
-        $ck = $bdid['bduss'];
+        $status_succ = false;
+        $ck = $bduss;
         $kw = addslashes($kw);
         $tieba_model = self::getModel();
 
+        $update_data = [];
+
         if (empty($fid)) {
             $fid = self::getFid($kw);//贴吧唯一ID
-            $tieba_model->update($id, ['fid' => $fid]);
+            $update_data = array_merge($update_data, ['fid' => $fid]);
         }
 
         //三种签到方式依次尝试
         $tbs = self::getTbs($ck);
         //客户端
-        if ($status_succ === FALSE) {
+        if ($status_succ === false) {
             $r = self::DoSign_Client($kw, $fid, $ck, $tbs);
-            $v = json_decode($r, TRUE);
-            if ($v != $r && $v != NULL) {//decode失败时会直接返回原文或NULL
+            $v = json_decode($r, true);
+            if ($v != $r && $v != null) {//decode失败时会直接返回原文或NULL
                 $time = $v['time'];
                 if (empty($v['error_code']) || $v['error_code'] == $again_error_id) {
-                    $status_succ = TRUE;
+                    $status_succ = true;
                 } else {
                     $error_code = $v['error_code'];
                     $error_msg = $v['error_msg'];
@@ -467,13 +518,14 @@ class TieBa
             }
         }*/
 
-        if ($status_succ === TRUE) {
-            $tieba_model->update($id, ['latest' => $time, 'status' => 0, 'last_error' => '']);
+        if ($status_succ === true) {
+            $update_data = array_merge($update_data, ['latest' => $time, 'status' => 0, 'last_error' => '']);
         } else {
-            $tieba_model->update($id, ['latest' => $time, 'status' => $error_code, 'last_error' => $error_msg]);
-            //$tieba_model->update($id, array('status' => $error_code, 'last_error' => $error_msg));
+            $update_data = array_merge($update_data, ['latest' => $time, 'status' => $error_code, 'last_error' => $error_msg]);
         }
-        return self::getInfo($id);
+        $tieba_model->update($id, $update_data);
+        // return self::getInfo($id);
+        return true;
     }
 
     /**
@@ -499,7 +551,7 @@ class TieBa
         self::DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://tieba.baidu.com/', 'X-Forwarded-For: 115.28.1.' . mt_rand(1, 255)]);
         self::DI()->curl->setCookie(["BDUSS" => $bduss]);
         $x = self::DI()->curl->get($url);
-        $x = json_decode($x, TRUE);
+        $x = json_decode($x, true);
         return $x['tbs'];
     }
 
@@ -564,7 +616,7 @@ class TieBa
             //如果找不到这段html则表示没有签到则stripos()返回false，同时is_bool()返回true，最终返回false
             return !is_bool(stripos($s, '<td style="text-align:right;"><span >已签到</span></td>'));
         } else {
-            return TRUE;
+            return true;
         }
     }
 
@@ -580,7 +632,7 @@ class TieBa
      * @return mixed
      * @throws \Exception\InternalServerErrorException
      */
-    private static function get_curl($url, $post = FALSE, $referer = TRUE, $cookie = FALSE, $header = FALSE, $ua = FALSE, $nobaody = FALSE)
+    private static function get_curl($url, $post = false, $referer = true, $cookie = false, $header = false, $ua = false, $nobaody = false)
     {
         $httpheader = [];
         $httpheader[] = "Accept:application/json";
@@ -589,10 +641,10 @@ class TieBa
         $httpheader[] = "Connection:close";
         self::DI()->curl->setHeader($httpheader);
         $option = [];
-        $option[CURLOPT_SSL_VERIFYPEER] = FALSE;
-        $option[CURLOPT_SSL_VERIFYHOST] = FALSE;
+        $option[CURLOPT_SSL_VERIFYPEER] = false;
+        $option[CURLOPT_SSL_VERIFYHOST] = false;
         if ($header) {
-            $option[CURLOPT_HEADER] = TRUE;
+            $option[CURLOPT_HEADER] = true;
         }
         if ($cookie) {
             $option[CURLOPT_COOKIE] = $cookie;
@@ -634,7 +686,7 @@ class TieBa
     {
         $url = 'https://wappass.baidu.com/wp/api/security/antireplaytoken?tpl=tb&v=' . NOW_TIME . '0000';
         $data = self::get_curl($url);
-        $arr = json_decode($data, TRUE);
+        $arr = json_decode($data, true);
         if ($arr['errno'] == 110000) {
             return ['code' => 0, 'time' => $arr['time']];
         } else {
@@ -671,11 +723,11 @@ class TieBa
         $url = 'https://wappass.baidu.com/wp/api/login?v=' . NOW_TIME . '0000';
         $post = 'username=' . $user . '&code=&password=' . $p . '&verifycode=' . $vcode . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . NOW_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&vcodestr=' . $vcodestr . '&countrycode=&servertime=' . $time . '&logLoginType=sdk_login&passAppHash=&passAppVersion=';
         $data = self::get_curl($url, $post);
-        $arr = json_decode($data, TRUE);
+        $arr = json_decode($data, true);
         if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
             if (!empty($arr['data']['loginProxy'])) {
                 $data = self::get_curl($arr['data']['loginProxy']);
-                $arr = json_decode($data, TRUE);
+                $arr = json_decode($data, true);
             }
             $data = $arr['data']['xml'];
             preg_match('!<uname>(.*?)</uname>!i', $data, $user);
@@ -709,7 +761,7 @@ class TieBa
     {
         $url = 'https://wappass.baidu.com/wp/login/sec?ajax=1&v=' . NOW_TIME . '0000&vcode=&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . NOW_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&showtype=' . $type . '&lstr=' . rawurlencode($lstr) . '&ltoken=' . $ltoken;
         $data = self::get_curl($url, 0);
-        $arr = json_decode($data, TRUE);
+        $arr = json_decode($data, true);
         if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
             return ['code' => 0];
         } else if (array_key_exists('errInfo', $arr)) {
@@ -763,11 +815,11 @@ class TieBa
         ];
         // $post = 'vcode=' . $vcode . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . NOW_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&showtype=' . $type . '&lstr=' . rawurlencode($lstr) . '&ltoken=' . $ltoken;
         $data = self::get_curl($url, $post);
-        $arr = json_decode($data, TRUE);
+        $arr = json_decode($data, true);
         if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
             if (!empty($arr['data']['loginProxy'])) {
                 $data = self::get_curl($arr['data']['loginProxy'], 0);
-                $arr = json_decode($data, TRUE);
+                $arr = json_decode($data, true);
             }
             $data = $arr['data']['xml'];
             // preg_match('!<uname>(.*?)</uname>!i', $data, $user);
@@ -800,7 +852,7 @@ class TieBa
         }
         $url = 'https://wappass.baidu.com/wp/api/login/check?tt=' . NOW_TIME . '9117&username=' . $user . '&countrycode=&clientfrom=wap&sub_source=leadsetpwd&tpl=tb';
         $data = self::get_curl($url);
-        $arr = json_decode($data, TRUE);
+        $arr = json_decode($data, true);
         if ($arr['errInfo'] && $arr['errInfo']['no'] == '0' && empty($arr['data']['codeString'])) {
             return ['code' => 0];
         } else if ($arr['errInfo'] && $arr['errInfo']['no'] == '0') {
@@ -863,7 +915,7 @@ class TieBa
         ];
         // $post = 'mobilenum=' . $phone2 . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . SERVER_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=E528690-4ADF-47A5-BA87-1FD76D2583EA&agreement=1&vcodesign=&vcodestr=&sms=1&username=' . $phone . '&countrycode=';
         $data = self::get_curl($url, $post);
-        $arr = json_decode($data, TRUE);
+        $arr = json_decode($data, true);
         if ($arr['errInfo'] && $arr['errInfo']['no'] == '0') {
             return ['code' => 0, 'msg' => $arr['errInfo']['msg']];
         } else {
@@ -902,7 +954,7 @@ class TieBa
         ];
         // $post = 'username=' . $phone . '&tpl=tb&clientfrom=native&countrycode=&gid=E528690-4ADF-47A5-BA87-1FD76D2583EA&dialogVerifyCode=' . $vcode . '&vcodesign=' . $vcodesign . '&vcodestr=' . $vcodestr;
         $data = self::get_curl($url, $post);
-        $arr = json_decode($data, TRUE);
+        $arr = json_decode($data, true);
         if ($arr['errInfo'] && $arr['errInfo']['no'] == '0') {
             return ['code' => 0, 'msg' => $arr['errInfo']['msg']];
         } else if ($arr['errInfo']['no'] == '50020') {
@@ -971,11 +1023,11 @@ class TieBa
         // $post = 'smsvc=' . $smsvc . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . SERVER_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&lang=zh-cn&regLink=1&action=login&loginmerge=&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=E528690-4ADF-47A5-BA87-1FD76D2583EA&agreement=1&vcodesign=&vcodestr=&smsverify=1&sms=1&mobilenum=' . $phone . '&username=' . $phone . '&countrycode=&passAppHash=&passAppVersion=';
 
         $data = self::get_curl($url, $post);
-        $arr = json_decode($data, TRUE);
+        $arr = json_decode($data, true);
         if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
             if (!empty($arr['data']['loginProxy'])) {
                 $data = self::get_curl($arr['data']['loginProxy']);
-                $arr = json_decode($data, TRUE);
+                $arr = json_decode($data, true);
             }
             $data = $arr['data']['xml'];
             // preg_match('!<uname>(.*?)</uname>!i', $data, $user);
@@ -1005,7 +1057,7 @@ class TieBa
         // $data = self::get_curl($url, FALSE, 'https://passport.baidu.com/v2/?login');
         $data = self::get_curl($url);
         preg_match('/callback\((.*?)\)/', $data, $match);
-        $arr = json_decode($match[1], TRUE);
+        $arr = json_decode($match[1], true);
         if (array_key_exists('errno', $arr) && $arr['errno'] == 0) {
             return ['code' => 0, 'imgurl' => $arr['imgurl'], 'sign' => $arr['sign'], 'link' => 'https://wappass.baidu.com/wp/?qrlogin&t=' . NOW_TIME . '&error=0&sign=' . $arr['sign'] . '&cmd=login&lp=pc&tpl=&uaonly='];
         } else {
@@ -1024,12 +1076,12 @@ class TieBa
         $url = 'https://passport.baidu.com/channel/unicast?channel_id=' . $sign . '&tpl=pp&gid=07D9D20-91EB-43D8-8553-16A98A0B24AA&apiver=v3&tt=' . NOW_TIME . '0000&callback=callback';
         $data = self::get_curl($url);
         preg_match('/callback\((.*?)\)/', $data, $match);
-        $arr = json_decode($match[1], TRUE);
+        $arr = json_decode($match[1], true);
         if (array_key_exists('errno', $arr) && $arr['errno'] == 0) {
-            $arr = json_decode($arr['channel_v'], TRUE);
-            $data = self::get_curl('https://passport.baidu.com/v2/api/bdusslogin?bduss=' . $arr['v'] . '&u=https%3A%2F%2Fpassport.baidu.com%2F&qrcode=1&tpl=pp&apiver=v3&tt=' . NOW_TIME . '0000&callback=callback', FALSE, TRUE, FALSE, TRUE);
+            $arr = json_decode($arr['channel_v'], true);
+            $data = self::get_curl('https://passport.baidu.com/v2/api/bdusslogin?bduss=' . $arr['v'] . '&u=https%3A%2F%2Fpassport.baidu.com%2F&qrcode=1&tpl=pp&apiver=v3&tt=' . NOW_TIME . '0000&callback=callback', false, true, false, true);
             preg_match('/callback\((.*?)\)/', $data, $match);
-            $arr = json_decode($match[1], TRUE);
+            $arr = json_decode($match[1], true);
             if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
                 $data = str_replace('=deleted', '', $data);
                 preg_match('!BDUSS=(.*?);!i', $data, $bduss);

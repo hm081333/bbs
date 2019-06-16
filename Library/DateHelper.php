@@ -36,6 +36,54 @@ class DateHelper
     }
 
     /**
+     * 指定相对某月前多少天或后多少天
+     * @param int  $day_num   天偏移量
+     * @param int  $month_num 月偏移量
+     * @param bool $once_day  只输出指定的一天
+     * @param bool $echo_date 打印日期
+     * @return array
+     */
+    public static function getMonthDayTime($day_num = -1, $month_num = 0, $once_day = false, $echo_date = false)
+    {
+        $result = [];
+        if ($day_num == 0) {// 本月时间
+            $result['begin'] = strtotime(date('Y-m-01') . ($month_num < 0 ? ' ' : ' + ') . $month_num . ' month');
+            $result['end'] = strtotime(date('Y-m-01') . ($month_num + 1 < 0 ? ' ' : ' + ') . ($month_num + 1) . ' month') - 1;
+            if ($echo_date) {
+                $result['begin_date'] = date('Y-m-d H:i:s', $result['begin']);
+                $result['end_date'] = date('Y-m-d H:i:s', $result['end']);
+            }
+        } else {// 倒数几天、顺数几天
+            $month_time_str = ($day_num < 0 ? 'last ' : 'first ') . 'day of ' . ($month_num < 0 ? '' : '+') . $month_num . ' month';// 指定月的第一天或最后一天 表达式
+            $month_date = date('Y-m-d', strtotime($month_time_str));// 时间短语
+            if ($once_day) {
+                $day_time_str = $month_date . ($day_num < 0 ? ' -' : ' +') . (abs($day_num) - 1) . ' day';
+                $result['begin'] = strtotime($day_time_str);
+                $result['end'] = $result['begin'] + 86400 - 1;
+                if ($echo_date) {
+                    $result['begin_date'] = date('Y-m-d H:i:s', $result['begin']);
+                    $result['end_date'] = date('Y-m-d H:i:s', $result['end']);
+                }
+            } else {
+                for (
+                    $i = 0;
+                    $i < abs($day_num);// 绝对值
+                    $i++
+                ) {
+                    $day_time_str = $month_date . ($day_num < 0 ? ' -' : ' +') . $i . ' day';
+                    $result[$i]['begin'] = strtotime($day_time_str);
+                    $result[$i]['end'] = $result[$i]['begin'] + 86400 - 1;// 这个日期的结束时间
+                    if ($echo_date) {
+                        $result[$i]['begin_date'] = date('Y-m-d H:i:s', $result[$i]['begin']);
+                        $result[$i]['end_date'] = date('Y-m-d H:i:s', $result[$i]['end']);
+                    }
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
      * 获取某一周的时间间隔
      * @param int $num 0:表示当周的时间
      * @return array
