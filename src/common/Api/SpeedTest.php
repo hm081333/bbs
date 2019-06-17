@@ -33,7 +33,6 @@ class SpeedTest extends Base
      */
     public function pingJitter()
     {
-        // empty.php?r=0.8055999159949765
         header("HTTP/1.1 200 OK");
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
         header("Cache-Control: post-check=0, pre-check=0", false);
@@ -48,7 +47,6 @@ class SpeedTest extends Base
      */
     public function download()
     {
-        // garbage.php?r=0.1992105603920531&ckSize=100
         // 禁用压缩
         @ini_set('zlib.output_compression', 'Off');
         @ini_set('output_buffering', 'Off');

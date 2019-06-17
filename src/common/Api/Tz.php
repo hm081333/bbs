@@ -157,7 +157,8 @@ class Tz extends Base
      */
     public function enableFunction()
     {
-        return get_defined_functions();
+        $funcs = get_defined_functions();
+        return $funcs['internal'] ?? [];
     }
 
     /**
