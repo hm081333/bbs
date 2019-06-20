@@ -7,7 +7,6 @@
  * @author      dogstar <chanzonghuang@gmail.com> 2017-07-13
  */
 
-// use PhalApi\Loader;
 use PhalApi\Config\FileConfig;
 use PhalApi\Logger;
 use PhalApi\Logger\FileLogger;
@@ -16,7 +15,8 @@ use PhalApi\Logger\FileLogger;
 
 /** ---------------- 基本注册 必要服务组件 ---------------- **/
 
-$di = \PhalApi\DI();
+// $di = \PhalApi\DI();
+$di = \Common\DI();
 
 // 配置
 $di->config = new FileConfig(API_ROOT . '/config');
@@ -43,12 +43,8 @@ $di->logger = new FileLogger(API_ROOT . '/runtime', Logger::LOG_LEVEL_DEBUG | Lo
 // 自动加载
 // $di->loader = new Loader(API_ROOT, 'Library');
 
-// 自动加载 - 重定义
-require_once API_ROOT . '/Library/Loader.php';
-$di->loader = new Loader(API_ROOT, 'Library');
-
 // 数据操作 - 基于NotORM - 重定义创建PDO实例的方法
-$di->notorm = new \Database\NotORMDatabase($di->config->get('dbs'), $di->debug);
+$di->notorm = new \Library\Database\NotORMDatabase($di->config->get('dbs'), $di->debug);
 
 // JSON中文输出
 // $di->response = new \PhalApi\Response\JsonResponse(JSON_UNESCAPED_UNICODE);
@@ -58,6 +54,9 @@ $di->notorm = new \Database\NotORMDatabase($di->config->get('dbs'), $di->debug);
 // 签名验证服务
 // $di->filter = new \PhalApi\Filter\SimpleMD5Filter();
 
+// 序列化 - Serialize
+$di->serialize = new \Library\Serialize();
+
 // 缓存 - Memcache/Memcached
 $di->cache = function () use ($di) {
     // return new \PhalApi\Cache\MemcacheCache($di->config->get('sys.cache.memcache'));
@@ -66,10 +65,10 @@ $di->cache = function () use ($di) {
 };
 
 // 惰性加载Redis
-/*$di->redis = function () use ($di) {
-    // return new \PhalApi\Redis\Lite($di->config->get("app.redis.servers"));
-    return new \PhalApi\Cache\RedisCache($di->config->get('sys.cache.redis'));
-};*/
+$di->redis = function () use ($di) {
+    return new \PhalApi\Redis\Lite($di->config->get("app.redis.servers"));
+    // return new \PhalApi\Cache\RedisCache($di->config->get('sys.cache.redis'));
+};
 
 // COOKIE
 $di->cookie = function () use ($di) {
@@ -82,15 +81,15 @@ $di->curl = function () use ($di) {
     return new \PhalApi\CUrl(5);
 };
 
-//tool工具
+// tool工具
 $di->tool = function () {
     return new \PhalApi\Tool();
 };
 
 // 对称加密
 $di->crypt = function () use ($di) {
-    // return new \Crypt\RSA\MultiPub2PriCrypt($di->config->get('sys.openssl'));
-    return new \Crypt\RSA\Pub2PriCrypt($di->config->get('sys.openssl'));
+    // return new \Library\Crypt\RSA\MultiPub2PriCrypt($di->config->get('sys.openssl'));
+    return new \Library\Crypt\RSA\Pub2PriCrypt($di->config->get('sys.openssl'));
 };
 
 // 支持JsonP的返回

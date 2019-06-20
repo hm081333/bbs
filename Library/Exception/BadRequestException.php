@@ -1,6 +1,6 @@
 <?php
 
-namespace Exception;
+namespace Library\Exception;
 
 /**
  * BadRequestException 客户端非法请求

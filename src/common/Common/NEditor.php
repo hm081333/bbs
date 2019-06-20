@@ -8,12 +8,17 @@
 
 namespace Common\Common;
 
+use function Common\DI;
+
 class NEditor
 {
 
+    /**
+     * @return mixed
+     */
     public static function getConfig()
     {
-        return \PhalApi\DI()->config->get('neditor');
+        return DI()->config->get('neditor');
     }
 
     /**
@@ -77,9 +82,9 @@ class NEditor
          * )
          */
         $result = $up->getFileInfo();
-        \PhalApi\DI()->logger->debug(json_encode($up->getFileInfo()));
+        DI()->logger->debug(json_encode($up->getFileInfo()));
         if (strtolower($result['state']) != 'success') {
-            throw new \Exception\BadRequestException(\PhalApi\T($result['state']));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T($result['state']));
         }
         /* 返回数据 */
         return $up->getFileInfo();
@@ -153,10 +158,10 @@ class NEditor
      */
     public static function getfiles($path, $allowFiles, &$files = [])
     {
-        if (!is_dir($path)) return NULL;
+        if (!is_dir($path)) return null;
         if (substr($path, strlen($path) - 1) != '/') $path .= '/';
         $handle = opendir($path);
-        while (FALSE !== ($file = readdir($handle))) {
+        while (false !== ($file = readdir($handle))) {
             if ($file != '.' && $file != '..') {
                 $path2 = $path . $file;
                 if (is_dir($path2)) {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Task\Progress\Trigger;
+namespace Library\Task\Progress\Trigger;
 
-use PhalApi\Exception\InternalServerErrorException;
+use Library\Exception\InternalServerErrorException;
 use function PhalApi\T;
 use PhalApi\Task\Progress\Trigger;
 

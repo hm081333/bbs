@@ -1,5 +1,6 @@
 <?php
 
+namespace Library;
 
 /**
  * UEditor编辑器通用上传类
@@ -106,7 +107,7 @@ class Uploader
         }
 
         //创建目录失败
-        if (!file_exists($dirname) && !mkdir($dirname, 0777, TRUE)) {
+        if (!file_exists($dirname) && !mkdir($dirname, 0777, true)) {
             $this->stateInfo = $this->getStateInfo("ERROR_CREATE_DIR");
             return;
         } else if (!is_writeable($dirname)) {
@@ -146,7 +147,7 @@ class Uploader
         }
 
         //创建目录失败
-        if (!file_exists($dirname) && !mkdir($dirname, 0777, TRUE)) {
+        if (!file_exists($dirname) && !mkdir($dirname, 0777, true)) {
             $this->stateInfo = $this->getStateInfo("ERROR_CREATE_DIR");
             return;
         } else if (!is_writeable($dirname)) {
@@ -199,10 +200,10 @@ class Uploader
         ob_start();
         $context = stream_context_create(
             ['http' => [
-                'follow_location' => FALSE // don't follow redirects
+                'follow_location' => false // don't follow redirects
             ]]
         );
-        readfile($imgUrl . '?' . $queryString, FALSE, $context);
+        readfile($imgUrl . '?' . $queryString, false, $context);
         $img = ob_get_contents();
         ob_end_clean();
         preg_match("/[\/]([^\/]*)[\.]?[^\.\/]*$/", $imgUrl, $m);
@@ -222,7 +223,7 @@ class Uploader
         }
 
         //创建目录失败
-        if (!file_exists($dirname) && !mkdir($dirname, 0777, TRUE)) {
+        if (!file_exists($dirname) && !mkdir($dirname, 0777, true)) {
             $this->stateInfo = $this->getStateInfo("ERROR_CREATE_DIR");
             return;
         } else if (!is_writeable($dirname)) {

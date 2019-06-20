@@ -32,7 +32,7 @@ class QQLogin
     public static function wxLogin(string $uuid = '', string $last = '')
     {
         if (empty($uuid)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('uuid不能为空'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('uuid不能为空'));
         }
         $param = ['uuid' => $uuid];
         if (!empty($last)) {
@@ -86,7 +86,7 @@ class QQLogin
     {
         $url = 'https://ssl.ptlogin2.qq.com/ptqrshow?appid=716027609&e=2&l=M&s=4&d=72&v=4&t=0.2616844' . NOW_TIME . '&daid=383&pt_3rd_aid=100312028';
         // $arr = self::get_curl($url, 0, 0, $cookie, 1, 0, 0, 1);
-        $arr = self::get_curl($url, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, TRUE);
+        $arr = self::get_curl($url, false, false, false, true, false, false, true);
         preg_match('/qrsig=(.*?);/', $arr['header'], $match);
         if ($qrsig = $match[1]) {
             return [
@@ -105,14 +105,14 @@ class QQLogin
     /**
      * 二维码登录
      * @param string $qrsig
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\Exception
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function qrLogin(string $qrsig = '')
     {
         if (empty($qrsig)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('qrsig不能为空'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('qrsig不能为空'));
         }
         $url = 'https://ssl.ptlogin2.qq.com/ptqrlogin?u1=https%3A%2F%2Fgraph.qq.com%2Foauth2.0%2Flogin_jump&ptqrtoken=' . self::getqrtoken($qrsig) . '&ptredirect=0&h=1&t=1&g=1&from_ui=1&ptlang=2052&action=1-0-' . NOW_TIME . '000&js_ver=10289&js_type=1&login_sig=fCmEYUeoOds1DTeFIFt2IpGUVa471vZXwy6vQlhx2bOL1CnNRtnCe8J0kv9fTQ1Y&pt_uistyle=40&aid=716027609&daid=383&pt_3rd_aid=100312028&';
         $ret = self::get_curl($url, 0, 'https://xui.ptlogin2.qq.com/cgi-bin/xlogin', 'qrsig=' . $qrsig . '; ', 1);
@@ -135,7 +135,7 @@ class QQLogin
                     if ($mkey = $mkey[1]) {
                         $url = 'https://graph.qq.com/oauth2.0/authorize';
                         $post = 'response_type=code&client_id=100312028&redirect_uri=https%3A%2F%2Fpassport.baidu.com%2Fphoenix%2Faccount%2Fafterauth%3Fmkey%3D' . $mkey . '&scope=get_user_info%2Cadd_share%2Cget_other_info%2Cget_fanslist%2Cget_idollist%2Cadd_idol%2Cget_simple_userinfo&state=' . time() . '&switch=&from_ptlogin=1&src=1&update_auth=1&openapi=80901010&g_tk=' . self::getGTK($pskey[1]) . '&auth_time=' . time() . '928&ui=D693AB27-C4CD-4C11-A090-A3EFE7C218EC';
-                        $data = self::get_curl($url, $post, FALSE, $cookie, TRUE);
+                        $data = self::get_curl($url, $post, false, $cookie, true);
                         preg_match("/Location: (.*?)\r\n/", $data, $match);
                         if ($match[1]) {
                             $data = self::get_curl($match[1], 0, 0, 'mkey=' . $mkey . ';', 1);
@@ -146,37 +146,37 @@ class QQLogin
                             preg_match('/displayname: \'(.*?)\'/', $data, $displayname);
                         } else {
                             // exit('ptuiCB("6","","登录成功，回调百度失败！");');
-                            throw new \Exception\Exception(\PhalApi\T("登录成功，回调百度失败！"), 6);
+                            throw new \Library\Exception\Exception(\PhalApi\T("登录成功，回调百度失败！"), 6);
                         }
                     } else {
                         // exit('ptuiCB("6","","登录成功，获取mkey失败！");');
-                        throw new \Exception\Exception(\PhalApi\T("登录成功，获取mkey失败！", 6));
+                        throw new \Library\Exception\Exception(\PhalApi\T("登录成功，获取mkey失败！", 6));
                     }
                 }
                 if ($bduss[1] && $stoken[1] && $ptoken[1]) {
                     // exit('ptuiCB("0","' . self::getUserid($uname[1]) . '","' . $uname[1] . '","' . $displayname[1] . '","' . $bduss[1] . '","' . $stoken[1] . '","' . $ptoken[1] . '");');
                     \Common\Domain\BaiDuId::add($displayname[1], $bduss[1]);
-                    \PhalApi\DI()->response->setMsg(\PhalApi\T('登录成功'));
+                    self::DI()->response->setMsg(\PhalApi\T('登录成功'));
                 } else {
                     // exit('ptuiCB("6","","登录成功，获取相关信息失败！");');
-                    throw new \Exception\Exception(\PhalApi\T("登录成功，获取相关信息失败！"), 6);
+                    throw new \Library\Exception\Exception(\PhalApi\T("登录成功，获取相关信息失败！"), 6);
                 }
             } else if ($r[0] == 65) {
                 // exit('ptuiCB("1","","二维码已失效。");');
-                throw new \Exception\Exception(\PhalApi\T("二维码已失效。"), 1);
+                throw new \Library\Exception\Exception(\PhalApi\T("二维码已失效。"), 1);
             } else if ($r[0] == 66) {
                 // exit('ptuiCB("2","","二维码未失效。");');
-                throw new \Exception\Exception(\PhalApi\T("二维码未失效。"), 2);
+                throw new \Library\Exception\Exception(\PhalApi\T("二维码未失效。"), 2);
             } else if ($r[0] == 67) {
                 // exit('ptuiCB("3","","正在验证二维码。");');
-                throw new \Exception\Exception(\PhalApi\T("正在验证二维码。"), 3);
+                throw new \Library\Exception\Exception(\PhalApi\T("正在验证二维码。"), 3);
             } else {
                 // exit('ptuiCB("6","","' . str_replace('"', '\'', $r[4]) . '");');
-                throw new \Exception\Exception(\PhalApi\T(str_replace('"', '\'', $r[4])), 6);
+                throw new \Library\Exception\Exception(\PhalApi\T(str_replace('"', '\'', $r[4])), 6);
             }
         } else {
             // exit('ptuiCB("6","","' . $ret . '");');
-            throw new \Exception\Exception(\PhalApi\T($ret), 6);
+            throw new \Library\Exception\Exception(\PhalApi\T($ret), 6);
         }
     }
 
@@ -207,7 +207,7 @@ class QQLogin
     {
         $ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36';
         $data = self::get_curl('http://tieba.baidu.com/home/get/panel?ie=utf-8&un=' . urlencode($uname), 0, 0, 0, 0, $ua);
-        $arr = json_decode($data, TRUE);
+        $arr = json_decode($data, true);
         $userid = $arr['data']['id'];
         return $userid;
     }
@@ -223,12 +223,12 @@ class QQLogin
         return $hash & 2147483647;
     }
 
-    private static function get_curl($url, $post = FALSE, $referer = FALSE, $cookie = FALSE, $header = FALSE, $ua = FALSE, $nobaody = FALSE, $split = FALSE)
+    private static function get_curl($url, $post = false, $referer = false, $cookie = false, $header = false, $ua = false, $nobaody = false, $split = false)
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         $httpheader[] = "Accept: application/json";
         $httpheader[] = "Accept-Encoding: gzip,deflate,sdch";
         $httpheader[] = "Accept-Language: zh-CN,zh;q=0.8";
@@ -239,7 +239,7 @@ class QQLogin
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
         }
         if ($header) {
-            curl_setopt($ch, CURLOPT_HEADER, TRUE);
+            curl_setopt($ch, CURLOPT_HEADER, true);
         }
         if ($cookie) {
             curl_setopt($ch, CURLOPT_COOKIE, $cookie);
@@ -272,10 +272,15 @@ class QQLogin
         return $ret;
     }
 
+    /**
+     * @param $image
+     * @return array
+     * @throws \Library\Exception\InternalServerErrorException
+     */
     public static function getQqLoginUrl($image)
     {
-        $data = \PhalApi\DI()->curl->post('http://api.cccyun.cc/api/qrcode_noauth.php', 'image=' . urlencode($image));
-        $arr = json_decode($data, TRUE);
+        $data = self::DI()->curl->post('http://api.cccyun.cc/api/qrcode_noauth.php', 'image=' . urlencode($image));
+        $arr = json_decode($data, true);
         if ($arr['code'] == 1) {
             return [
                 "code" => 0,
@@ -283,9 +288,9 @@ class QQLogin
                 "url" => $arr['url'],
             ];
         } else if (array_key_exists('msg', $arr)) {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T($arr['msg']));
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T($arr['msg']));
         } else {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T($data));
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T($data));
         }
     }
 }

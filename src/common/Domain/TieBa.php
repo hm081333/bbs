@@ -23,13 +23,13 @@ class TieBa
      * @param $tieba_id
      * @param $no
      * @return bool
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function noSignTieba($tieba_id, $no)
     {
         $result = self::getModel()->update($tieba_id, ['no' => $no]);
         if ($result === false) {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('操作失败'));
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('操作失败'));
         }
         return true;
     }
@@ -37,8 +37,8 @@ class TieBa
     /**
      * 添加BDUSS
      * @param $bduss
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function addBduss($bduss)
     {
@@ -49,7 +49,7 @@ class TieBa
         $bduss = \TieBa\sqlAdds($bduss);
         $baidu_name = \TieBa\sqlAdds(self::getBaiduId($bduss));
         if (empty($baidu_name)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('您的 BDUSS Cookie 信息有误，请核验后重新绑定'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('您的 BDUSS Cookie 信息有误，请核验后重新绑定'));
         }
         \Common\Domain\BaiDuId::add($baidu_name, $bduss);
     }
@@ -70,7 +70,7 @@ class TieBa
     /**
      * 扫描指定用户的所有贴吧并储存--用于一键刷新
      * @param string $user_id UserID，如果留空，表示当前用户的UID
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public static function scanTiebaByUser($user_id = '')
     {
@@ -254,17 +254,17 @@ class TieBa
      * 获取签到状态
      * @param bool $openid
      * @return array
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public static function getSignStatus($openid = false)
     {
         if (empty($openid)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('缺少openid'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('缺少openid'));
         }
         $user_model = self::getModel('User');
         $user = $user_model->getInfo(['open_id=?' => $openid], 'id,user_name');
         if (!$user) {
-            throw new \Exception\BadRequestException(\PhalApi\T('没找到该用户'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('没找到该用户'));
         }
         $h = date('G', NOW_TIME);
         if ($h < 11) {
@@ -280,7 +280,7 @@ class TieBa
         $tieba_model = self::getModel('TieBa');
         $total = $tieba_model->getCount(['user_id=?' => $user['id']]);
         if ($total <= 0) {
-            throw new \Exception\BadRequestException(\PhalApi\T('该用户没有贴吧账号'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('该用户没有贴吧账号'));
         }
         $success_count = $tieba_model->getCount(['user_id=?' => $user['id'], 'no=?' => 0, 'status=?' => 0, 'latest>=?' => $day_time['begin'], 'latest<=?' => $day_time['end']]);//签到成功
         $fail_count = $tieba_model->getCount(['user_id=?' => $user['id'], 'no=?' => 0, 'status>?' => 0, 'latest>=?' => $day_time['begin'], 'latest<=?' => $day_time['end']]);//签到失败
@@ -427,7 +427,7 @@ class TieBa
      * 执行一个贴吧的签到
      * @param $tieba_id
      * @return array|mixed
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public static function doSignByTieBaId($tieba_id)
     {
@@ -449,7 +449,7 @@ class TieBa
         );
         $tieba_info = $tieba_info[0] ?? [];
         if (empty($tieba_info)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('您没有该贴吧'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('您没有该贴吧'));
         }
         self::doSign($tieba_info['tieba'], $tieba_id, $tieba_info['bduss'], $tieba_info['fid']);
         return self::getInfo($tieba_id);
@@ -630,7 +630,7 @@ class TieBa
      * @param int $ua
      * @param int $nobaody
      * @return mixed
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     private static function get_curl($url, $post = false, $referer = true, $cookie = false, $header = false, $ua = false, $nobaody = false)
     {
@@ -672,7 +672,7 @@ class TieBa
             $ret = self::DI()->curl->get($url);
         }
         if (empty($ret)) {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('连接到百度服务器失败'));
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('连接到百度服务器失败'));
         }
         return $ret;
     }
@@ -680,7 +680,7 @@ class TieBa
     /**
      * 获取ServerTime
      * @return array
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function serverTime()
     {
@@ -698,7 +698,7 @@ class TieBa
      * 获取验证码图片
      * @param $vCodeStr
      * @return mixed
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function getVCPic($vCodeStr)
     {
@@ -715,7 +715,7 @@ class TieBa
      * @param string $vcode
      * @param string $vcodestr
      * @return array
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function login(string $time, string $user, string $pwd, string $p, string $vcode = '', string $vcodestr = '')
     {
@@ -745,7 +745,7 @@ class TieBa
         } else if (array_key_exists('errInfo', $arr)) {
             return ['code' => $arr['errInfo']['no'], 'msg' => $arr['errInfo']['msg']];
         } else {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('登录失败，原因未知'));
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('登录失败，原因未知'));
         }
     }
 
@@ -755,7 +755,7 @@ class TieBa
      * @param $lstr
      * @param $ltoken
      * @return array
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function sendCode($type, $lstr, $ltoken)
     {
@@ -767,7 +767,7 @@ class TieBa
         } else if (array_key_exists('errInfo', $arr)) {
             return ['code' => $arr['errInfo']['no'], 'msg' => $arr['errInfo']['msg']];
         } else {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('发生验证码失败，原因未知'));
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('发生验证码失败，原因未知'));
         }
     }
 
@@ -778,8 +778,8 @@ class TieBa
      * @param string $ltoken
      * @param string $vcode
      * @return array
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function login2(string $type, string $lstr, string $ltoken, string $vcode)
     {
@@ -834,7 +834,7 @@ class TieBa
         } else if (array_key_exists('errInfo', $arr)) {
             return ['code' => $arr['errInfo']['no'], 'msg' => $arr['errInfo']['msg']];
         } else {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('登录失败，原因未知'));
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('登录失败，原因未知'));
         }
     }
 
@@ -842,13 +842,13 @@ class TieBa
      * 检测是否需要验证码
      * @param $user
      * @return array
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function checkVC($user)
     {
         if (empty($user)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('请先输入用户名'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('请先输入用户名'));
         }
         $url = 'https://wappass.baidu.com/wp/api/login/check?tt=' . NOW_TIME . '9117&username=' . $user . '&countrycode=&clientfrom=wap&sub_source=leadsetpwd&tpl=tb';
         $data = self::get_curl($url);
@@ -866,16 +866,16 @@ class TieBa
      * 手机验证码登录，获取手机号是否存在
      * @param $phone
      * @return array
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function getPhone($phone)
     {
         if (empty($phone)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('请先输入手机号'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('请先输入手机号'));
         }
         if (strlen($phone) != 11) {
-            throw new \Exception\BadRequestException(\PhalApi\T('请输入正确的手机号'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('请输入正确的手机号'));
         }
         $phone2 = '';
         for ($i = 0; $i < 11; $i++) {
@@ -930,16 +930,16 @@ class TieBa
      * @param string $vcodestr
      * @param string $vcodesign
      * @return array
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function sendSms($phone, $vcode = '', $vcodestr = '', $vcodesign = '')
     {
         if (empty($phone)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('请先输入手机号'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('请先输入手机号'));
         }
         if (strlen($phone) != 11) {
-            throw new \Exception\BadRequestException(\PhalApi\T('请输入正确的手机号'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('请输入正确的手机号'));
         }
         $url = 'https://wappass.baidu.com/wp/api/login/sms?v=' . NOW_TIME . '0000';
         $post = [
@@ -969,19 +969,19 @@ class TieBa
      * @param $phone
      * @param $smsvc
      * @return array
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function login3($phone, $smsvc)
     {
         if (empty($phone)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('手机号不能为空'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('手机号不能为空'));
         }
         if (strlen($phone) != 11) {
-            throw new \Exception\BadRequestException(\PhalApi\T('请输入正确的手机号'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('请输入正确的手机号'));
         }
         if (empty($smsvc)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('验证码不能为空'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('验证码不能为空'));
         }
 
         $url = 'https://wappass.baidu.com/wp/api/login?v=' . NOW_TIME . '0000';
@@ -1042,14 +1042,14 @@ class TieBa
         } else if (array_key_exists('errInfo', $arr)) {
             return ['code' => $arr['errInfo']['no'], 'msg' => $arr['errInfo']['msg']];
         } else {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('登录失败，原因未知'));
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('登录失败，原因未知'));
         }
     }
 
     /**
      * 获取扫码登录二维码
      * @return array
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function getQRCode()
     {
@@ -1068,8 +1068,8 @@ class TieBa
     /**
      * 扫码登录操作
      * @param $sign
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function qrLogin($sign)
     {
@@ -1093,17 +1093,17 @@ class TieBa
                 // $userid = self::getUserid($arr['data']['userName']);
                 // return ['code' => 0, 'uid' => $userid, 'user' => $arr['data']['userName'], 'displayname' => $arr['data']['displayname'], 'mail' => $arr['data']['mail'], 'phone' => $arr['data']['phoneNumber'], 'bduss' => $bduss[1], 'ptoken' => $ptoken[1], 'stoken' => $stoken[1]];
             } else if (array_key_exists('errInfo', $arr)) {
-                throw new \Exception\InternalServerErrorException(\PhalApi\T($arr['errInfo']['msg']));
+                throw new \Library\Exception\InternalServerErrorException(\PhalApi\T($arr['errInfo']['msg']));
                 // return ['code' => $arr['errInfo']['no'], 'msg' => $arr['errInfo']['msg']];
             } else {
-                throw new \Exception\InternalServerErrorException(\PhalApi\T('登录失败，原因未知'));
+                throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('登录失败，原因未知'));
                 // return ['code' => '-1', 'msg' => '登录失败，原因未知'];
             }
         } else if (array_key_exists('errno', $arr)) {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('未检测到登录状态'));
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('未检测到登录状态'));
             // return ['code' => $arr['errno']];
         } else {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('登录失败，原因未知'));
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('登录失败，原因未知'));
             // return ['code' => '-1', 'msg' => '登录失败，原因未知'];
         }
     }

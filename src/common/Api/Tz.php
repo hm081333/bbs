@@ -2,6 +2,7 @@
 
 namespace Common\Api;
 
+use function Common\DI;
 use Exception\Exception;
 use PDO;
 
@@ -225,7 +226,7 @@ class Tz extends Base
      */
     public function databaseSupport()
     {
-        $dbs = \PhalApi\DI()->config->get('dbs.servers.db_master');
+        $dbs = DI()->config->get('dbs.servers.db_master');
         return [
             'MySQL' => \Common\Domain\Tz::isfun("mysql_close"),
             'MySQLi' => \Common\Domain\Tz::iscls("mysqli") ? mysqli_connect($dbs['host'], $dbs['user'], $dbs['password'], $dbs['name'])->server_info : false,

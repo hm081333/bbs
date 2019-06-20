@@ -27,7 +27,7 @@ class Logistics
      */
     public static function queryLogistics(string $code, string $sn)
     {
-        $result = \PhalApi\DI()->curl->get('http://www.kuaidi100.com/query?type=' . $code . '&postid=' . $sn);
-        return json_decode($result, TRUE);
+        $result = self::DI()->curl->get('http://www.kuaidi100.com/query?type=' . $code . '&postid=' . $sn);
+        return json_decode($result, true);
     }
 }

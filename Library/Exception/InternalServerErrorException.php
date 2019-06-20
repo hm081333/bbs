@@ -1,6 +1,6 @@
 <?php
 
-namespace Exception;
+namespace Library\Exception;
 
 /**
  * InternalServerErrorException 服务器运行异常错误

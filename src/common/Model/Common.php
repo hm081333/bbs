@@ -24,7 +24,7 @@ trait Common
      * 默认表名为：[表前缀] + 全部小写的匹配表名
      * @throws \PhalApi_Exception_InternalServerError
      */
-    public function getName($id = NULL)
+    public function getName($id = null)
     {
         $table = $this->getTableName($id);
         return $this->getTablePrefix($table) . $table;
@@ -55,7 +55,7 @@ trait Common
      */
     protected function loadTablePrefixs()
     {
-        $tables = \PhalApi\DI()->config->get('dbs.tables');
+        $tables = self::DI()->config->get('dbs.tables');
         if (empty($tables)) {
             throw new \PhalApi_Exception_InternalServerError(T('dbs.tables should not be empty'));
         }
@@ -75,7 +75,7 @@ trait Common
      * @param string $field  字段
      * @return array total：记录总数  rows:分段结果集
      */
-    public function getList($limit = 10, $offset = 0, $where = [], $order = 'id desc', $field = '*', $id = NULL, $count = '*')
+    public function getList($limit = 10, $offset = 0, $where = [], $order = 'id desc', $field = '*', $id = null, $count = '*')
     {
         $total = $this->getORM($id)->where($where)->count($count);
         $lists = $this->getORM($id)->where($where)->select($field)->limit($offset, $limit)->order($order)->fetchAll();
@@ -100,7 +100,7 @@ trait Common
      * @param string $field
      * @return mixed
      */
-    public function getListLimitByWhere($limit = 10, $offset = 0, $condition = [], $order = 'id desc', $field = '*', $id = NULL)
+    public function getListLimitByWhere($limit = 10, $offset = 0, $condition = [], $order = 'id desc', $field = '*', $id = null)
     {
         return $this->getORM($id)->where($condition)->select($field)->limit($offset, $limit)->order($order)->fetchAll();
     }
@@ -111,7 +111,7 @@ trait Common
      * @param string $field
      * @return mixed
      */
-    public function getInfo($condition = [], $field = '*', $id = NULL)
+    public function getInfo($condition = [], $field = '*', $id = null)
     {
         return $this->getORM($id)->where($condition)->select($field)->fetchOne();
     }
@@ -122,7 +122,7 @@ trait Common
      * @param string $field
      * @return mixed
      */
-    public function getSum($condition = [], $field = 'id', $id = NULL)
+    public function getSum($condition = [], $field = 'id', $id = null)
     {
         return $this->getORM($id)->where($condition)->sum($field);
     }
@@ -133,7 +133,7 @@ trait Common
      * @param string $field
      * @return mixed
      */
-    public function getMax($condition = [], $field = 'id', $id = NULL)
+    public function getMax($condition = [], $field = 'id', $id = null)
     {
         return $this->getORM($id)->where($condition)->max($field);
     }
@@ -144,7 +144,7 @@ trait Common
      * @param string $field
      * @return mixed
      */
-    public function getInfoByOrder($condition = [], $field = '*', $order = 'id desc', $id = NULL)
+    public function getInfoByOrder($condition = [], $field = '*', $order = 'id desc', $id = null)
     {
         return $this->getORM($id)->where($condition)->order($order)->select($field)->fetchOne();
     }
@@ -155,7 +155,7 @@ trait Common
      * @param string $field
      * @return mixed
      */
-    public function getListByWhere($condition = [], $field = '*', $order = 'id desc', $id = NULL)
+    public function getListByWhere($condition = [], $field = '*', $order = 'id desc', $id = null)
     {
         return $this->getORM($id)->where($condition)->select($field)->order($order)->fetchAll();
     }
@@ -166,10 +166,10 @@ trait Common
      * @param array $data
      * @return boolean|int 执行成功返回影响条数，失败返回false
      */
-    public function updateByWhere($where, $data, $id = NULL)
+    public function updateByWhere($where, $data, $id = null)
     {
         if (!is_array($where)) {//更新条件不是数组，不允许更新，防止造成全表的更新
-            return FALSE;
+            return false;
         }
         $this->formatExtData($data);
         return $this->getORM($id)->where($where)->update($data);
@@ -181,11 +181,11 @@ trait Common
      * @param array  $params 更新或者插入条件和更新或者插入数据
      * @return boolean|int 执行成功返回影响条数，失败返回false
      */
-    public function queryExecute($sql, $params = [], $id = NULL)
+    public function queryExecute($sql, $params = [], $id = null)
     {
         $return = $this->getORM($id)->query($sql, $params);
         if (!$return) {
-            return FALSE;
+            return false;
         }
         return $return->rowCount();
     }
@@ -196,7 +196,7 @@ trait Common
      * @param array  $params 更新或者插入条件和更新或者插入数据
      * @return boolean|array 执行成功返回影响条数，失败返回false
      */
-    public function queryRows($sql, $params = [], $id = NULL)
+    public function queryRows($sql, $params = [], $id = null)
     {
         return $this->getORM($id)->queryRows($sql, $params);
     }
@@ -207,10 +207,10 @@ trait Common
      * @return boolean|int 执行成功返回影响条数，失败返回false
      * @throws Exception
      */
-    public function deleteByWhere($condition = [], $id = NULL)
+    public function deleteByWhere($condition = [], $id = null)
     {
         if (!is_array($condition)) {//删除条件不是数组，不允许删除，防止造成全表的删除
-            return FALSE;
+            return false;
         }
         return $this->getORM($id)->where($condition)->delete();
     }

@@ -2,7 +2,15 @@
 
 namespace Common;
 
-use function PhalApi\DI;
+/**
+ * 获取DI
+ * 相当于DependenceInjection::one()
+ * @return \Library\DependenceInjection
+ */
+function DI()
+{
+    return \Library\DependenceInjection::one();
+}
 
 function getComposerRequire()
 {
@@ -85,7 +93,7 @@ function create_openssl_pkey()
 {
     $config = DI()->config->get('sys.openssl');// 配置信息
     $config_args = $config['config'];// 用来调整导出流程，通过指定或者覆盖openssl配置文件选项
-    $pkey = new \Crypt\RSA\KeyGenerator($config_args);
+    $pkey = new \Library\Crypt\RSA\KeyGenerator($config_args);
     file_put_contents($config['privateKey'], $pkey->getPriKey());// 把私钥写入指定路径文件
     file_put_contents($config['publicKey'], $pkey->getPubKey());// 把公钥写入指定路径文件
 }
@@ -170,8 +178,8 @@ function showFourZeroFourPage()
     //获取当前缓冲区内容
     //$content = ob_get_contents(); // 仅输出
     $content = ob_get_clean(); // 输出并清空关闭
-    $content = \Tool\HtmlCompress::higrid_compress_html($content); // 正则删除无关代码
-    $content = \Tool\HtmlCompress::compress_html($content); // 正则删除无关代码
+    $content = \Library\Tool\HtmlCompress::higrid_compress_html($content); // 正则删除无关代码
+    $content = \Library\Tool\HtmlCompress::compress_html($content); // 正则删除无关代码
     exit($content);
 }
 

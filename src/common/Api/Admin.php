@@ -28,7 +28,7 @@ class Admin extends Base
      * 登录接口
      * @desc 根据账号和密码进行登录操作
      * @return array
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public function signIn()
     {

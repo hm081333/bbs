@@ -1,6 +1,6 @@
 <?php
 
-namespace Exception;
+namespace Library\Exception;
 
 /**
  * RedirectException 重定向

@@ -38,7 +38,7 @@ class WeChatPublicPlatform
     /**
      * 获取access_token
      * @return mixed
-     * @throws \Exception\Exception
+     * @throws \Library\Exception\Exception
      */
     private function getAccessToken()
     {
@@ -50,7 +50,7 @@ class WeChatPublicPlatform
             $result = self:: DI()->curl->get($url);
             $result = json_decode($result, true);
             if (empty($result)) {
-                throw new \Exception\Exception(\PhalApi\T('获取access_token失败'));
+                throw new \Library\Exception\Exception(\PhalApi\T('获取access_token失败'));
             } else {
                 $access_token = $result['access_token'];
                 $expires_in = $result['expires_in'];
@@ -66,7 +66,7 @@ class WeChatPublicPlatform
      * 通过access_token来获取jsapi_ticket
      * jsapi_ticket是公众号jsapi_ticket的有效期为7200秒用于调用微信JS接口的临时票据
      * @return mixed
-     * @throws \Exception\Exception
+     * @throws \Library\Exception\Exception
      */
     private function getJsApiTicket()
     {
@@ -79,7 +79,7 @@ class WeChatPublicPlatform
             $result = self::DI()->curl->get($url);
             $result = json_decode($result, true);
             if (empty($result) || $result['errcode'] != 0) {
-                throw new \Exception\Exception(\PhalApi\T('获取jsapi_ticket失败'));
+                throw new \Library\Exception\Exception(\PhalApi\T('获取jsapi_ticket失败'));
             } else {
                 $jsapi_ticket = $result['ticket'];
                 $expires_in = $result['expires_in'];
@@ -111,7 +111,7 @@ class WeChatPublicPlatform
      * 通过code拉取openid和access_token
      * @param $code
      * @return mixed
-     * @throws \Exception\Exception
+     * @throws \Library\Exception\Exception
      */
     public function getOpenId($code)
     {
@@ -120,11 +120,11 @@ class WeChatPublicPlatform
         $result = json_decode($result, true);
         if (!empty($result)) {
             if (isset($result['errmsg'])) {
-                throw new \Exception\Exception(\PhalApi\T($result['errmsg']));
+                throw new \Library\Exception\Exception(\PhalApi\T($result['errmsg']));
             }
             return $result;
         } else {
-            throw new \Exception\Exception(\PhalApi\T('失败'));
+            throw new \Library\Exception\Exception(\PhalApi\T('失败'));
         }
     }
 
@@ -132,7 +132,7 @@ class WeChatPublicPlatform
      * $scope = 'snsapi_userinfo'的后续
      * @param $code
      * @return mixed
-     * @throws \Exception\Exception
+     * @throws \Library\Exception\Exception
      */
     public function getSnsApiUserInfo($code)
     {
@@ -141,28 +141,28 @@ class WeChatPublicPlatform
         $result = json_decode($result, true);
         if (!empty($result)) {
             if (isset($result['errmsg'])) {
-                throw new \Exception\Exception(\PhalApi\T($result['errmsg']));
+                throw new \Library\Exception\Exception(\PhalApi\T($result['errmsg']));
             }
             $url = "https://api.weixin.qq.com/sns/userinfo?access_token={$result['access_token']}&openid={$result['open_id']}&lang=zh_CN";
             $result = self::DI()->curl->get($url);
             $result = json_decode($result, true);
             if (!empty($result)) {
                 if (isset($result['errmsg'])) {
-                    throw new \Exception\Exception(\PhalApi\T($result['errmsg']));
+                    throw new \Library\Exception\Exception(\PhalApi\T($result['errmsg']));
                 }
                 return $result;
             } else {
-                throw new \Exception\Exception(\PhalApi\T('失败'));
+                throw new \Library\Exception\Exception(\PhalApi\T('失败'));
             }
         } else {
-            throw new \Exception\Exception(\PhalApi\T('失败'));
+            throw new \Library\Exception\Exception(\PhalApi\T('失败'));
         }
     }
 
     /**
      * 通过获取的openid达到自动登陆的效果
      * @param $code
-     * @throws \Exception\Exception
+     * @throws \Library\Exception\Exception
      */
     public function openIdLogin($code)
     {
@@ -171,7 +171,7 @@ class WeChatPublicPlatform
         $result = json_decode($result, true);
         if (!empty($result)) {
             if (isset($result['errmsg'])) {
-                throw new \Exception\Exception(\PhalApi\T($result['errmsg']));
+                throw new \Library\Exception\Exception(\PhalApi\T($result['errmsg']));
             }
             $open_id = $result['openid'];
             $user_model = self::getModel('User');
@@ -183,7 +183,7 @@ class WeChatPublicPlatform
                 $_SESSION['user_auth'] = $user['auth'];
             }
         } else {
-            throw new \Exception\Exception(\PhalApi\T('失败'));
+            throw new \Library\Exception\Exception(\PhalApi\T('失败'));
         }
     }
 
@@ -205,7 +205,7 @@ class WeChatPublicPlatform
     /**
      * 生成jsSDK权限验证配置
      * @return array
-     * @throws \Exception\Exception
+     * @throws \Library\Exception\Exception
      */
     public function getSignPackage()
     {
@@ -233,20 +233,20 @@ class WeChatPublicPlatform
      * 发送贴吧签到详情
      * @param bool $openid
      * @return mixed
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\Exception
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
+     * @throws \Library\Exception\InternalServerErrorException
      */
     private function sendTiebaSignDetail($openid = false)
     {
         if (empty($openid)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('缺少openid'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('缺少openid'));
         }
         $accessToken = $this->getAccessToken();
         $url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={$accessToken}";
         $result = self::getDomain('TieBa')::getSignStatus($openid);
         if ($result == false) {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('获取状态失败'));
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('获取状态失败'));
         }
 
         $send_array = [];

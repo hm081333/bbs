@@ -1,6 +1,6 @@
 <?php
 
-namespace Crypt\RSA;
+namespace Library\Crypt\RSA;
 
 /**
  * KeyGenerator 生成器

@@ -27,7 +27,7 @@ class Admin extends \Common\Api\Admin
     /**
      * 修改管理员信息
      * @desc 修改管理员信息
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public function doInfo()
     {

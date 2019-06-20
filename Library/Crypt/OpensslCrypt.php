@@ -1,6 +1,6 @@
 <?php
 
-namespace Crypt;
+namespace Library\Crypt;
 
 /**
  * Openssl Openssl加密

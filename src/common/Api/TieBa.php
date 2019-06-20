@@ -2,6 +2,8 @@
 
 namespace Common\Api;
 
+use function Common\DI;
+
 /**
  * 贴吧 接口服务类
  * TieBa
@@ -106,7 +108,7 @@ class TieBa extends Base
 
     /**
      * 更新BDUSS
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public function doInfo()
     {
@@ -122,7 +124,7 @@ class TieBa extends Base
      */
     public function doSignByTieBaId()
     {
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('签到成功'));
+        DI()->response->setMsg(\PhalApi\T('签到成功'));
         return self::getDomain()::doSignByTieBaId($this->tieba_id);
     }
 
@@ -131,7 +133,7 @@ class TieBa extends Base
      */
     public function doSignByBaiDuId()
     {
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('签到成功'));
+        DI()->response->setMsg(\PhalApi\T('签到成功'));
         self::getDomain()::doSignByBaiDuId($this->baidu_id);
     }
 
@@ -151,7 +153,7 @@ class TieBa extends Base
      */
     public function refreshTieBa()
     {
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('刷新成功'));
+        DI()->response->setMsg(\PhalApi\T('刷新成功'));
         self::getDomain()::scanTiebaByPid($this->baidu_id);
     }
 
@@ -268,9 +270,9 @@ class TieBa extends Base
 
     /**
      * 获取QQ二维码登录状态
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\Exception
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public function qqQrLogin()
     {
@@ -280,7 +282,7 @@ class TieBa extends Base
     /**
      * 跳转QQ APP 登录
      * @return array
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public function getQqLoginUrl()
     {

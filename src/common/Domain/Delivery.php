@@ -72,7 +72,7 @@ class Delivery
      * @param $id
      * @return string|array
      * @throws \ErrorException
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      * @throws \PhalApi_Exception_BadRequest
      */
     public static function getDeliveryInfo($id)
@@ -108,7 +108,7 @@ class Delivery
             $update['id'] = $delivery['id'];
             self::doUpdate($update);
         }
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('获取成功'));
+        self::DI()->response->setMsg(\PhalApi\T('获取成功'));
         return $logistics;// 返回物流信息
     }
 
@@ -116,8 +116,8 @@ class Delivery
      * 添加、编辑物流信息
      * @param $data
      * @return bool
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function doInfo($data)
     {
@@ -125,7 +125,7 @@ class Delivery
         $logistics_model = self::getModel('Logistics');
         $log = $logistics_model->getInfo(['code' => $data['code']], 'code,name');
         if (!$log) {
-            throw new \Exception\BadRequestException(\PhalApi\T('不存在该快递公司代码，请联系管理员'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('不存在该快递公司代码，请联系管理员'));
         }
         $insert_update = [];
         $insert_update['id'] = $data['id'];// 物流ID
@@ -143,7 +143,7 @@ class Delivery
             $insert_update['edit_time'] = NOW_TIME;// 编辑时间
             $update_log_used = $logistics_model->update($log['id'], ['used' => new \NotORM_Literal('used + 1')]);
             if ($update_log_used === false) {
-                throw new \Exception\InternalServerErrorException(\PhalApi\T('添加失败'));
+                throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('添加失败'));
             }
         } else {
             $insert_update['edit_time'] = NOW_TIME;// 编辑时间

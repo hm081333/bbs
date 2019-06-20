@@ -10,7 +10,7 @@
 $uri = $_SERVER['REQUEST_URI'] ?? '';
 if (strpos($uri, '.php') === false || strpos($uri, 'index.php') !== false) {
     if (isset($_REQUEST['data']) && isset($_POST['data'])) {
-        if ($data = \PhalApi\DI()->crypt->decrypt($_REQUEST['data'])) {
+        if ($data = $di->crypt->decrypt($_REQUEST['data'])) {
             $_REQUEST = $_POST = json_decode($data, true);
         }
     }

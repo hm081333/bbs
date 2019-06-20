@@ -1,6 +1,6 @@
 <?php
 
-namespace Crypt\RSA;
+namespace Library\Crypt\RSA;
 
 /**
  * MultiPub2PriCrypt 超长RSA加密
@@ -9,14 +9,14 @@ namespace Crypt\RSA;
  *
  * @package     Crypt\RSA
  */
-class MultiPub2PriCrypt extends \Crypt\RSA\MultiBase
+class MultiPub2PriCrypt extends \Library\Crypt\RSA\MultiBase
 {
 
     protected $pub2pri;
 
     public function __construct($config)
     {
-        $this->pub2pri = new \Crypt\RSA\Pub2PriCrypt($config);
+        $this->pub2pri = new \Library\Crypt\RSA\Pub2PriCrypt($config);
 
         parent::__construct();
     }

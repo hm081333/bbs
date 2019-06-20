@@ -8,6 +8,8 @@
 
 namespace Common\Domain;
 
+use function Common\DI;
+
 /**
  * 用户 领域层
  * Class User
@@ -36,24 +38,24 @@ class User
      * 用户登录
      * @param $data
      * @return mixed
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public static function doSignIn($data)
     {
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('登陆成功'));
+        DI()->response->setMsg(\PhalApi\T('登陆成功'));
         $user_name = $data['user_name'];   // 账号参数
         $password = $data['password'];   // 密码参数
         $remember = $data['remember'];   // 记住登录
         if (empty($user_name)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('请输入账号'));// 抛出普通错误 T标签翻译
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('请输入账号'));// 抛出普通错误 T标签翻译
         } else if (empty($password)) {
-            throw new \Exception\BadRequestException(\PhalApi\T('请输入密码'));// 抛出普通错误 T标签翻译
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('请输入密码'));// 抛出普通错误 T标签翻译
         }
         $user = self::getInfoByWhere(['user_name' => $user_name], '*');
         if (!$user) {
-            throw new \Exception\BadRequestException(\PhalApi\T('用户不存在'));// 抛出客户端错误 T标签翻译
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('用户不存在'));// 抛出客户端错误 T标签翻译
         } else if (!\Common\pwd_verify($password, $user['password'])) {
-            throw new \Exception\BadRequestException(\PhalApi\T('密码错误'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('密码错误'));
         } else {
             $update = [];
             $update['token'] = '';
@@ -62,11 +64,11 @@ class User
             }
             if ($remember) {
                 $update['token'] = $user['token'] = md5(USER_TOKEN . md5(uniqid(mt_rand())));
-                // \PhalApi\DI()->cookie->set(USER_TOKEN, \Common\encrypt(serialize($user)));
+                // DI()->cookie->set(USER_TOKEN, \Common\encrypt(serialize($user)));
             }
             $update['id'] = $user['id'];// 待更新的会员ID
             self::doUpdate($update);
-            //将用户信息存入SESSION中
+            // 将用户信息存入SESSION中
             self::setUserToken($user);
             return [
                 'user' => self::getCurrentUserInfo($user),
@@ -82,7 +84,7 @@ class User
     public static function setUserToken(array $user)
     {
         //将用户信息存入SESSION中
-        $_SESSION[USER_TOKEN] = \Common\encrypt(serialize($user));// 保存在session
+        $_SESSION[USER_TOKEN] = \Common\encrypt(DI()->serialize->encrypt($user));// 保存在session
     }
 
     /**
@@ -91,7 +93,7 @@ class User
      */
     public static function getUserToken()
     {
-        return unserialize(\Common\decrypt($_SESSION[USER_TOKEN] ?? ''));// Session中的会员信息
+        return DI()->serialize->decrypt(\Common\decrypt($_SESSION[USER_TOKEN] ?? ''));// Session中的会员信息
     }
 
     /**
@@ -107,7 +109,7 @@ class User
      */
     public static function doSignOut()
     {
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('退出成功'));
+        DI()->response->setMsg(\PhalApi\T('退出成功'));
         self::unsetUserToken();
     }
 
@@ -115,12 +117,12 @@ class User
      * 用户注册
      * @param $data
      * @return mixed
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function doSignUp($data)
     {
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('注册成功'));
+        DI()->response->setMsg(\PhalApi\T('注册成功'));
         $user_name = $data['user_name'];   // 账号参数
         // $password = $data['password'];   // 密码参数
         $email = $data['email'];   // 邮箱参数
@@ -130,11 +132,11 @@ class User
         $user_model = self::getModel();
         $checkUser = $user_model->getCount(['user_name' => $user_name], 'id');
         if ($checkUser) {
-            throw new \Exception\BadRequestException(\PhalApi\T('用户名已注册'));// 抛出客户端错误 T标签翻译
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('用户名已注册'));// 抛出客户端错误 T标签翻译
         }
         $checkEmail = $user_model->getCount(['email' => $email], 'id');
         if ($checkEmail) {
-            throw new \Exception\BadRequestException(\PhalApi\T('邮箱已注册'));// 抛出客户端错误 T标签翻译
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('邮箱已注册'));// 抛出客户端错误 T标签翻译
         }
 
         $insert_data = $data;
@@ -145,7 +147,7 @@ class User
         $insert_id = $user_model->insert($insert_data);
 
         if (!$insert_id) {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('注册失败'));// 抛出服务端错误 T标签翻译
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('注册失败'));// 抛出服务端错误 T标签翻译
         }
 
         $user = self::getInfo($insert_id);// 获取会员信息
@@ -160,15 +162,15 @@ class User
      * 取得当前登录会员
      * @param bool $thr
      * @return array|mixed
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public static function getCurrentUser(bool $thr = false)
     {
         if (!isset(self::$user)) {
             $user = self::getUserToken();// 获取Session中存储的会员信息
             if (!$user) {
-                // $user_token = \PhalApi\DI()->request->getHeader(USER_TOKEN,false);// 获取header中携带的Token
-                $auth = \PhalApi\DI()->request->getHeader('Auth', false);// 获取header中携带的Token
+                // $user_token = DI()->request->getHeader(USER_TOKEN,false);// 获取header中携带的Token
+                $auth = DI()->request->getHeader('Auth', false);// 获取header中携带的Token
                 $user_token = substr($auth, strlen(ADMIN_TOKEN));// 截取Token
                 if (!empty($user_token)) {
                     $user = self::getInfoByWhere(['token' => $user_token]);// 用Token换取会员信息
@@ -180,7 +182,7 @@ class User
             self::$user = !$user ? [] : $user;// 获取不到会员时给空，注意不能不赋值
         }
         if ($thr && !self::$user) {
-            throw new \Exception\BadRequestException(\PhalApi\T('请登录'), 1);
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('请登录'), 1);
         }
         return self::$user;
     }

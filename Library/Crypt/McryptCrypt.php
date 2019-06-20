@@ -1,6 +1,6 @@
 <?php
 
-namespace Crypt;
+namespace Library\Crypt;
 
 /**
  * Mcrypt 原始mcrypt加密

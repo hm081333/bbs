@@ -6,7 +6,7 @@
  * Time: 08:46:04
  */
 
-namespace Tool;
+namespace Library\Tool;
 
 
 /**

@@ -8,13 +8,11 @@
 
 namespace Common\Domain;
 
-use PhalApi\Model\NotORMModel;
-
 trait Common
 {
     private static function DI()
     {
-        return \PhalApi\DI();
+        return \Common\DI();
     }
 
     /**
@@ -124,12 +122,12 @@ trait Common
      * 更新或者插入数据
      * @param array $data 更新或者插入的数据
      * @return array
-     * @throws \Exception\BadRequestException 错误抛出异常
+     * @throws \Library\Exception\BadRequestException 错误抛出异常
      */
     public static function doUpdate($data)
     {
         $model = self::getModel();
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('操作成功'));
+        self::DI()->response->setMsg(\PhalApi\T('操作成功'));
         if (!empty($data['id'])) {//更新
             $id = $data['id'];
             unset($data['id']);
@@ -140,7 +138,7 @@ trait Common
             $result = $model->insert($data);
         }
         if (!$result) {
-            throw new \Exception\BadRequestException(\PhalApi\T('操作失败'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('操作失败'));
         }
         return ['id' => $result];
     }
@@ -148,15 +146,15 @@ trait Common
     /**
      * 根据ID删除数据
      * @param integer $id 删除信息的ID
-     * @throws \Exception\BadRequestException  错误抛出异常
+     * @throws \Library\Exception\BadRequestException  错误抛出异常
      */
     public static function delInfo($id)
     {
         $model = self::getModel();
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('删除成功'));
+        self::DI()->response->setMsg(\PhalApi\T('删除成功'));
         $result = $model->delete($id);
         if (!$result) {
-            throw new \Exception\BadRequestException(\PhalApi\T('删除失败'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('删除失败'));
         }
     }
 

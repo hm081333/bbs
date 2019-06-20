@@ -1,5 +1,7 @@
 <?php
 
+namespace Library;
+
 /**
  * 时间辅助类
  * Class DateHelper

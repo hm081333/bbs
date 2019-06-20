@@ -29,6 +29,7 @@
         "ext-date": "*",
         "ext-session": "*",
         "ext-bcmath": "*",
+        "ext-igbinary": "*",
         "phalapi/kernal": "2.*.*",
         "phalapi/qrcode": "dev-master",
         "phalapi/cli": "dev-master",
@@ -43,6 +44,7 @@
             "src/tieba/functions.php"
         ],
         "psr-4": {
+            "Library\\": "Library",
             "App\\": "src/app",
             "Common\\": "src/common",
             "Bbs\\": "src/bbs",

@@ -26,6 +26,9 @@ require_once API_ROOT . '/vendor/autoload.php';
 // 时区设置
 date_default_timezone_set('Asia/Shanghai');
 
+// 引入 igbinary
+include API_ROOT . '/config/igbinary.php';
+
 // 引入GZIP
 include API_ROOT . '/config/gzip.php';
 

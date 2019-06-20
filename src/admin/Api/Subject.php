@@ -26,7 +26,7 @@ class Subject extends \Common\Api\Subject
     /**
      * 修改课程信息
      * @desc 修改课程信息
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public function doInfo()
     {

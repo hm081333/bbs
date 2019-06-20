@@ -2,6 +2,7 @@
 
 namespace Task\Runner;
 
+use function Common\DI;
 use PhalApi\Exception\InternalServerErrorException;
 use PhalApi\Task\Runner;
 use PhalApi\Request;
@@ -46,7 +47,7 @@ class LocalRunner extends Runner
                 $rs['fail']++;
                 $failList[] = $params;
 
-                \PhalApi\DI()->logger->error('task occur exception to go',
+                DI()->logger->error('task occur exception to go',
                     ['service' => $service, 'params' => $params, 'error' => $ex->getMessage()]);
             }
         } else {
@@ -70,7 +71,7 @@ class LocalRunner extends Runner
                         $rs['fail']++;
                         $failList[] = $params;
 
-                        \PhalApi\DI()->logger->error('task occur exception to go',
+                        DI()->logger->error('task occur exception to go',
                             ['service' => $service, 'params' => $params, 'error' => $ex->getMessage()]);
                     }
                 }
@@ -97,15 +98,15 @@ class LocalRunner extends Runner
     {
         $params['service'] = $service;
 
-        \PhalApi\DI()->request = new Request($params);
-        \PhalApi\DI()->response = new JsonResponse();
+        DI()->request = new Request($params);
+        DI()->response = new JsonResponse();
 
         $phalapi = new PhalApi();
         $rs = $phalapi->response();
         $apiRs = $rs->getResult();
 
         if ($apiRs['ret'] != 200) {
-            \PhalApi\DI()->logger->debug('task local go fail',
+            DI()->logger->debug('task local go fail',
                 ['servcie' => $service, 'params' => $params, 'rs' => $apiRs]);
 
             return false;

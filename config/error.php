@@ -39,7 +39,7 @@ function error_handler($errno, $errstr, $errfile, $errline, $type = 'STRICT_REEO
     if (is_array($type)) {
         $type = 'STRICT_REEOR|';
     }
-    \PhalApi\DI()->logger->error($type . $errno . '   ' . $errstr . "\n Error on line   " . $errfile . '   ' . $errline . "\n");
+    \Common\DI()->logger->error($type . $errno . '   ' . $errstr . "\n Error on line   " . $errfile . '   ' . $errline . "\n");
 }
 
 register_shutdown_function('fatal_handler');// 捕获系统级错误

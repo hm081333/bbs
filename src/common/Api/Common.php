@@ -91,7 +91,7 @@ trait Common
     /**
      * 删除数据
      * @desc 删除数据
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public function delInfo()
     {

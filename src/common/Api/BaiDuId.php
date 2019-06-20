@@ -23,7 +23,7 @@ class BaiDuId extends Base
 
     /**
      * 更新BDUSS
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public function doInfo()
     {

@@ -21,15 +21,15 @@ class BaiDuId
     /**
      * 删除百度ID - 覆盖Domain的删除函数
      * @param int $id
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function delInfo($id)
     {
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('删除成功'));
+        self::DI()->response->setMsg(\PhalApi\T('删除成功'));
         $del_tieba = self::getModel('TieBa')->deleteByWhere(['baidu_id' => $id]);
         $del_baiduid = self::getModel()->delete($id);
-        if ($del_tieba === FALSE || $del_baiduid === FALSE) {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('删除失败'));
+        if ($del_tieba === false || $del_baiduid === false) {
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('删除失败'));
         }
     }
 
@@ -37,21 +37,21 @@ class BaiDuId
      * 添加百度ID
      * @param $name
      * @param $bduss
-     * @throws \Exception\BadRequestException
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function add($name, $bduss)
     {
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('添加成功'));
-        $user = \Common\Domain\User::getCurrentUser(TRUE);
+        self::DI()->response->setMsg(\PhalApi\T('添加成功'));
+        $user = \Common\Domain\User::getCurrentUser(true);
         $modelBaiDuId = self::getModel();
         $check = $modelBaiDuId->getInfo(['name' => $name], 'id');
         if ($check) {
-            throw new \Exception\BadRequestException(\PhalApi\T('该账号已经绑定过了'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('该账号已经绑定过了'));
         }
         $insert_rs = $modelBaiDuId->insert(['user_id' => $user['id'], 'bduss' => $bduss, 'name' => $name]);
-        if ($insert_rs === FALSE) {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('添加失败'));
+        if ($insert_rs === false) {
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('添加失败'));
         }
     }
 

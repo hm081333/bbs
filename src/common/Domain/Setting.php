@@ -42,16 +42,16 @@ class Setting
      * 更新配置
      * @param string $name
      * @param array  $data
-     * @throws \Exception\InternalServerErrorException
+     * @throws \Library\Exception\InternalServerErrorException
      */
     public static function updateSetting(string $name, array $data = [])
     {
-        \PhalApi\DI()->response->setMsg(\PhalApi\T('操作成功'));
+        self::DI()->response->setMsg(\PhalApi\T('操作成功'));
         $data = serialize($data);// 序列化 存进数据库的是一个序列
         $setting_model = self::getModel();
         $result = $setting_model->update(1, [$name => $data]);
         if ($result === FALSE) {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('更新失败'));
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('更新失败'));
         }
         $setting = self::getSetting();// 获取原有设置参数数据
         $setting[$name] = $data;// 替换当前修改的数据

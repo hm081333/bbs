@@ -1,6 +1,6 @@
 <?php
 
-namespace Crypt\RSA;
+namespace Library\Crypt\RSA;
 
 /**
  * Pri2PubCrypt RSA原始加密

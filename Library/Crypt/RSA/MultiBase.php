@@ -1,6 +1,6 @@
 <?php
 
-namespace Crypt\RSA;
+namespace Library\Crypt\RSA;
 
 /**
  * MultiBase RSA加密层超类
@@ -13,7 +13,7 @@ namespace Crypt\RSA;
  *
  * @package     Crypt\RSA
  */
-abstract class MultiBase
+abstract class MultiBase implements \PhalApi\Crypt
 {
 
     /**

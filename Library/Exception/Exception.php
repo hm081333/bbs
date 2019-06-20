@@ -1,6 +1,6 @@
 <?php
 
-namespace Exception;
+namespace Library\Exception;
 
 /**
  * Exception 普通抛出

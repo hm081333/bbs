@@ -14,8 +14,8 @@ class Base extends Api
 {
     use Common;
 
-    protected $session_user = [];
-    protected $session_admin = [];
+    protected $session_user = null;
+    protected $session_admin = null;
 
     /**
      * 接口参数规则
@@ -40,7 +40,7 @@ class Base extends Api
     /**
      * 用户身份验证
      * @desc 可由开发人员根据需要重载，此通用操作一般可以使用委托或者放置在应用接口基类
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     protected function userCheck()
     {
@@ -57,8 +57,8 @@ class Base extends Api
                     $this->session_admin = \Common\Domain\Admin::getCurrentAdmin(true);// 获取登录状态
                     break;
                 case 'common':
-                    $this->session_user = \Common\Domain\User::getCurrentUser();// 获取会员登录状态
-                    $this->session_admin = \Common\Domain\Admin::getCurrentAdmin();// 获取管理员登录状态
+                    // $this->session_user = \Common\Domain\User::getCurrentUser();// 获取会员登录状态
+                    // $this->session_admin = \Common\Domain\Admin::getCurrentAdmin();// 获取管理员登录状态
                     break;
             }
         }

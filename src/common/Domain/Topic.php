@@ -42,10 +42,10 @@ class Topic
         }*/
         $topic_id = $topic_model->insert($insert_data);
         if ($topic_id) {
-            \PhalApi\DI()->response->setMsg(\PhalApi\T('发布成功'));
+            self::DI()->response->setMsg(\PhalApi\T('发布成功'));
             return ['topic_id' => $topic_id];
         } else {
-            throw new \Exception\InternalServerErrorException(\PhalApi\T('发布失败'), 2);// 抛出服务端错误
+            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('发布失败'), 2);// 抛出服务端错误
         }
     }
 }

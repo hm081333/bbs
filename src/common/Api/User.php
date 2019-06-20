@@ -46,7 +46,7 @@ class User extends Base
 
     /**
      * 会员信息接口
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public function infoData()
     {
@@ -60,7 +60,7 @@ class User extends Base
         $user_id = $user_info['id'];
         $user_info = $domain_user::getCurrentUserInfo($user_info);
         if (!$user_info) {
-            throw new \Exception\BadRequestException(\PhalApi\T('没有找到该用户'));
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('没有找到该用户'));
         }
         $user_info['topic_count'] = self::getModel('Topic')->getCount(['user_id' => $user_id]);
         $user_info['reply_count'] = self::getModel('Reply')->getCount(['user_id' => $user_id]);
@@ -71,7 +71,7 @@ class User extends Base
      * 登录接口
      * @desc 根据账号和密码进行登录操作
      * @return array
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public function signIn()
     {
@@ -102,7 +102,7 @@ class User extends Base
     /**
      * 修改会员信息
      * @desc 修改会员信息
-     * @throws \Exception\BadRequestException
+     * @throws \Library\Exception\BadRequestException
      */
     public function doInfo()
     {
