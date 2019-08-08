@@ -11,7 +11,9 @@ define('IS_JSON', true);
 //die();
 
 $_SERVER["HTTP_ACCEPT_ENCODING"] = ''; // gzip判断
-$GLOBALS['HTTP_RAW_POST_DATA'] = file_get_contents("php://input"); // PHP7.0
+if (version_compare(PHP_VERSION, '7.0', '>=')) {
+    $GLOBALS['HTTP_RAW_POST_DATA'] = file_get_contents("php://input"); // PHP7.0
+}
 if (!isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
     die('Access denied!');
 }
@@ -21,12 +23,12 @@ defined('URL_ROOT') || define('URL_ROOT', (isset($_SERVER['HTTPS']) && 'on' === 
 require_once dirname(__FILE__) . '/Public/init.php';
 
 //装载项目代码和扩展类库
-DI()->loader->addDirs(array('Common', 'Library'));
+DI()->loader->addDirs(['Common', 'Library']);
 
 /** ---------------- 微信轻聊版 ---------------- **/
 $setting = Domain_Setting::getSetting('wechat');
 $token = isset($setting['token']) ? $setting['token'] : '';// 配置的Token
-$wechat=new Domain_Wechat();
+$wechat = new Domain_Wechat();
 
 $robot = new Wechat_Lite($token, true);
 $rs = $robot->response();
