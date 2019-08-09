@@ -57,8 +57,8 @@ class Base extends Api
                     $this->session_admin = \Common\Domain\Admin::getCurrentAdmin(true);// 获取登录状态
                     break;
                 case 'common':
-                    // $this->session_user = \Common\Domain\User::getCurrentUser();// 获取会员登录状态
-                    // $this->session_admin = \Common\Domain\Admin::getCurrentAdmin();// 获取管理员登录状态
+                    $this->session_user = \Common\Domain\User::getCurrentUser();// 获取会员登录状态
+                    $this->session_admin = \Common\Domain\Admin::getCurrentAdmin();// 获取管理员登录状态
                     break;
             }
         }
