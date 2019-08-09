@@ -22,7 +22,7 @@ trait Common
                 'offset' => ['name' => 'offset', 'type' => 'int', 'default' => 0, 'desc' => "开始位置"],
                 'limit' => ['name' => 'limit', 'type' => 'int', 'default' => PAGE_NUM, 'desc' => '数量'],
                 'field' => ['name' => 'field', 'type' => 'string', 'default' => '*', 'desc' => '查询字段'],
-                'where' => ['name' => 'where', 'type' => 'array', 'desc' => '查询条件'],
+                'where' => ['name' => 'where', 'type' => 'array', 'default' => [], 'desc' => '查询条件'],
                 'order' => ['name' => 'order', 'type' => 'string', 'default' => 'id desc', 'desc' => '排序方式'],
             ],
             'allListData' => [
