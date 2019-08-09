@@ -15,13 +15,21 @@ function DI()
 function getComposerRequire()
 {
     $composer = file_get_contents(API_ROOT . '/composer.json');
+    // 解码JSON字符串
     $composer = json_decode($composer, true);
-    $require = array_keys($composer['require']);
-    foreach ($require as $key => &$item) {
-        if (strpos($item, 'ext-') === false) {
-            unset($require[$key]);
-        } else {
-            $item = str_replace('ext-', '', $item);
+    // composer引入类库
+    // $require = $composer['require'];
+    // 类库名称
+    // $require_name = array_keys($require);
+    $require = [
+        'ext' => [],
+        'packages' => [],
+    ];
+    foreach ($composer['require'] as $name => $item) {
+        if (strpos($name, 'ext-') !== false) {
+            $require['ext'][] = str_replace('ext-', '', $name);
+        } else if ($name != 'php') {
+            $require['packages'][] = $name;
         }
     }
     return $require;

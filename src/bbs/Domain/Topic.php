@@ -8,7 +8,7 @@
 
 namespace Bbs\Domain;
 
-class Topic
+class Topic extends \Common\Domain\Topic
 {
     use \Common\Domain\Common;
 

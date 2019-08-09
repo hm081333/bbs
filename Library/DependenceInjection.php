@@ -33,20 +33,21 @@ namespace Library;
  *       };
  * ```
  *
- * @property \PhalApi\Request                 $request         请求
- * @property \PhalApi\Response\JsonResponse   $response        结果响应
- * @property \Library\Serialize               $serialize       序列化
- * @property \PhalApi\Cache\RedisCache        $cache           缓存
- * @property \Library\Crypt\RSA\Pub2PriCrypt  $crypt           加密
- * @property \PhalApi\Config                  $config          配置
- * @property \PhalApi\Logger                  $logger          日记
- * @property \Library\Database\NotORMDatabase $notorm          数据库
- * @property \PhalApi\Loader                  $loader          自动加载
- * @property \PhalApi\Helper\Tracer           $tracer          全球追踪器
- * @property \PhalApi\Redis\Lite              $redis           Redis 拓展类
- * @property \PhalApi\Cookie                  $cookie          COOKIE操作
- * @property \PhalApi\CUrl                    $curl            CURL请求类
- * @property \PhalApi\Tool                    $tool            工具集合类
+ * @property \PhalApi\Request                        $request         请求
+ * @property \PhalApi\Response\JsonResponse          $response        结果响应
+ * @property \Library\Serialize                      $serialize       序列化
+ * @property \PhalApi\Cache\RedisCache               $cache           缓存
+ * @property \Library\Crypt\RSA\Pub2PriCrypt         $crypt           加密
+ * @property \PhalApi\Config                         $config          配置
+ * @property \PhalApi\Logger                         $logger          日记
+ * @property \Library\Database\NotORMDatabase        $notorm          数据库
+ * @property \PhalApi\Loader                         $loader          自动加载
+ * @property \PhalApi\Helper\Tracer                  $tracer          全球追踪器
+ * @property \PhalApi\Redis\Lite                     $redis           Redis 拓展类
+ * @property \PhalApi\Cookie                         $cookie          COOKIE操作
+ * @property \PhalApi\CUrl                           $curl            CURL请求类
+ * @property \PhalApi\Tool                           $tool            工具集合类
+ * @property \EasyWeChat\OfficialAccount\Application $wechat          微信工具
  * @package     PhalApi\DependenceInjection
  * @link        http://docs.phalconphp.com/en/latest/reference/di.html 实现统一的资源设置、获取与管理，支持延时加载
  * @license     http://www.phalapi.net/license GPL 协议

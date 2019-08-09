@@ -39,7 +39,7 @@ function error_handler($errno, $errstr, $errfile, $errline, $type = 'STRICT_REEO
     if (is_array($type)) {
         $type = 'STRICT_REEOR|';
     }
-    \Common\DI()->logger->error($type . $errno . '   ' . $errstr . "\n Error on line   " . $errfile . '   ' . $errline . "\n");
+    \Common\DI()->logger->error($type . $errno . '   ' . $errstr . PHP_EOL . ' Error on line   ' . $errfile . '   ' . $errline . PHP_EOL);
 }
 
 register_shutdown_function('fatal_handler');// 捕获系统级错误

@@ -3,7 +3,8 @@ return [ //前后端通信相关的配置,注释只允许使用多行方式
     /*上传图片配置项*/
     'imageActionName' => 'uploadimage', //执行上传图片的action名称
     'imageFieldName' => 'upfile', //提交的图片表单名称
-    'imageMaxSize' => 2048000, //上传大小限制，单位B
+    // 'imageMaxSize' => 2048000, //上传大小限制，单位B
+    'imageMaxSize' => 30720000, //上传大小限制，单位B - 30MB
     'imageAllowFiles' => //上传图片格式显示
         [
             0 => '.png',

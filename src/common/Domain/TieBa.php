@@ -8,6 +8,7 @@
 
 namespace Common\Domain;
 
+
 /**
  * 贴吧 领域层
  * TieBa
@@ -276,7 +277,7 @@ class TieBa
         } else {
             $greeting = '晚上好！';
         }
-        $day_time = \DateHelper::getDayTime();
+        $day_time = \Library\DateHelper::getDayTime();
         $tieba_model = self::getModel('TieBa');
         $total = $tieba_model->getCount(['user_id=?' => $user['id']]);
         if ($total <= 0) {
@@ -302,7 +303,7 @@ class TieBa
     public static function doSignAll()
     {
         set_time_limit(0);
-        $day_time = \DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
+        $day_time = \Library\DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
         //处理所有未签到的贴吧
         $tieba_model = self::getModel();
         while (true) {
@@ -343,7 +344,7 @@ class TieBa
     public static function doSignByBaiDuId($baidu_id)
     {
         set_time_limit(0);
-        $day_time = \DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
+        $day_time = \Library\DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
         //处理所有未签到的贴吧
         $tieba_model = self::getModel();
         while (true) {
@@ -386,7 +387,7 @@ class TieBa
     public static function doSignByUserId($user_id)
     {
         set_time_limit(0);
-        $day_time = \DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
+        $day_time = \Library\DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
         //处理所有未签到的贴吧
         $tieba_model = self::getModel('Tieba');
         while (true) {

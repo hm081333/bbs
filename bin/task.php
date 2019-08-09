@@ -37,6 +37,11 @@ try {
                 $wechat_domain->sendTieBaSignDetailByCron();
             }
             break;
+        case 'send':
+            $di->logger->info('推送签到详情信息');
+            $wechat_domain = new \Common\Domain\WeChatPublicPlatform();
+            $wechat_domain->sendTieBaSignDetailByCron();
+            break;
         default:
             break;
     }
