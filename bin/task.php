@@ -27,20 +27,15 @@ try {
                     $di->logger->info('执行定时:贴吧重试签到');
                     \Common\Domain\TieBa::doRetryAll();// 重试所有出错贴吧
                     break;
+                case 'send_info':
+                    $di->logger->info('推送签到详情信息');
+                    $wechat_domain = new \Common\Domain\WeChatPublicPlatform();
+                    $wechat_domain->sendTieBaSignDetailByCron();
+                    break;
                 default:
                     return;
                     break;
             }
-            if (date('G', NOW_TIME) == 10) {// 10点发送推送
-                $di->logger->info('推送签到详情信息');
-                $wechat_domain = new \Common\Domain\WeChatPublicPlatform();
-                $wechat_domain->sendTieBaSignDetailByCron();
-            }
-            break;
-        case 'send':
-            $di->logger->info('推送签到详情信息');
-            $wechat_domain = new \Common\Domain\WeChatPublicPlatform();
-            $wechat_domain->sendTieBaSignDetailByCron();
             break;
         default:
             break;
