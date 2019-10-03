@@ -8,9 +8,6 @@
 
 namespace Common\Domain;
 
-use function Common\DI;
-use Common\Model\Test;
-
 /**
  * IP地址 领域层
  * Class Ip
@@ -37,7 +34,7 @@ class Ip
         $ip_model = self::getModel();
         $old_ip = $ip_model->getInfo(['ip' => $ip]);
         if (!$old_ip) {
-            $data = DI()->curl->get("http://ip.taobao.com/service/getIpInfo.php?ip={$ip}");
+            $data = self::DI()->curl->get("http://ip.taobao.com/service/getIpInfo.php?ip={$ip}");
             $data = json_decode($data, true);
             if (!$data) {
                 throw new \Library\Exception\BadRequestException(\PhalApi\T('获取IP信息失败'));
