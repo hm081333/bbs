@@ -36,6 +36,8 @@ if ($di->debug) {
 
 // 日记纪录
 $di->logger = new FileLogger(API_ROOT . '/runtime', Logger::LOG_LEVEL_DEBUG | Logger::LOG_LEVEL_INFO | Logger::LOG_LEVEL_ERROR);
+// 引入异常捕获
+include API_ROOT . '/config/error.php';
 
 // 数据操作 - 基于NotORM
 // $di->notorm = new NotORMDatabase($di->config->get('dbs'), $di->debug);
