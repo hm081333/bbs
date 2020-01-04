@@ -29,7 +29,7 @@ if (strpos($uri, '.php') === false || strpos($uri, 'index.php') !== false) {
         // 当前访问模块
         defined('MODULE') || define('MODULE', strtolower(empty($module) ? $moduleRule['default'] : $module));
     } else {
-        $return = false;
+        // $return = false;
         defined('MODULE') || define('MODULE', '');
     }
     // 当前访问模块 命名空间名称
