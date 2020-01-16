@@ -41,11 +41,11 @@ try {
             switch ($argv[1]) {
                 case 'bean':// 签到领京豆
                     $di->logger->info('执行定时:签到领京豆');
-                    \Common\Domain\JdSign::doSignAll();// 签到所有贴吧
+                    \Common\Domain\JdSign::doBeanSignAll();// 签到领京豆
                     break;
                 case 'plant':// 种豆得豆
                     $di->logger->info('执行定时:种豆得豆');
-                    \Common\Domain\JdSign::doRetryAll();// 重试所有出错贴吧
+                    \Common\Domain\JdSign::doPlantBeanAll();// 种豆得豆
                     break;
                 case 'test':
                     \Common\Domain\JdSign::test();
