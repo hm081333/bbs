@@ -136,7 +136,7 @@ function decrypt(string $data, string $method = 'AES-256-CFB')
 /**
  * 密码加密方法
  * @param string     $password 需要加密的密码
- * @param int        $algo     加密模式
+ * @param int|string $algo     加密模式
  * @param array|NULL $options  加密选项
  * @return bool|string
  */
@@ -244,7 +244,7 @@ function download($path, $file)
     //检查请求是否包含Range段，
     //如果包括，取出并修改$range_start和$range_end
     if (isset($_SERVER['HTTP_RANGE'])) { //http_range表示请求一个实体/文件的一个部分,用这个实现多线程下载和断点续传！
-        list($a, $range_info) = explode("=", $_SERVER['HTTP_RANGE']);
+        [$a, $range_info] = explode("=", $_SERVER['HTTP_RANGE']);
         preg_match("/(\d*)-(\d*)/", $range_info, $matches);
         if ($matches[1]) {
             $range_start = (int)$matches[1];

@@ -37,6 +37,24 @@ try {
                     break;
             }
             break;
+        case 'jd':
+            switch ($argv[1]) {
+                case 'bean':// 签到领京豆
+                    $di->logger->info('执行定时:签到领京豆');
+                    \Common\Domain\JdSign::doSignAll();// 签到所有贴吧
+                    break;
+                case 'plant':// 种豆得豆
+                    $di->logger->info('执行定时:种豆得豆');
+                    \Common\Domain\JdSign::doRetryAll();// 重试所有出错贴吧
+                    break;
+                case 'test':
+                    \Common\Domain\JdSign::test();
+                    break;
+                default:
+                    return;
+                    break;
+            }
+            break;
         default:
             break;
     }
