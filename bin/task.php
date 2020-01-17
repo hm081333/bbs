@@ -47,6 +47,10 @@ try {
                     $di->logger->info('执行定时:种豆得豆');
                     \Common\Domain\JdSign::doPlantBeanAll();// 种豆得豆
                     break;
+                case 'vvipclub':// 京享值领京豆
+                    $di->logger->info('执行定时:京享值领京豆');
+                    \Common\Domain\JdSign::doVVipClubAll();// 京享值领京豆
+                    break;
                 case 'test':
                     \Common\Domain\JdSign::test();
                     break;

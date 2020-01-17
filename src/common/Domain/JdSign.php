@@ -9,6 +9,7 @@
 namespace Common\Domain;
 
 
+use Library\DateHelper;
 use Library\Exception\Exception;
 
 /**
@@ -23,6 +24,7 @@ class JdSign
 
     static $user_cookie = [];
     static $roundId = '';
+    static $paradiseUuid = '';
 
     /**
      * 设置京东签到项目
@@ -101,7 +103,7 @@ class JdSign
      */
     public static function test()
     {
-        return self::doPlantBeanAll();
+        return self::vvipclub_shaking();
     }
 
     /**
@@ -111,7 +113,7 @@ class JdSign
      */
     public static function doBeanSignAll()
     {
-        $modelJdSign = self::getModel('jdSign');
+        $modelJdSign = self::getModel('JdSign');
         $offset = 0;
         $limit = 100;
         while (true) {
@@ -122,7 +124,7 @@ class JdSign
                 'ly_jd_sign.status' => 1,
                 // 登录状态为正常
                 'jd_user.status' => 1,
-            ], 'ly_jd_sign.id asc', 'ly_jd_sign.id,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+            ], 'ly_jd_sign.id asc', 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
             if (empty($jd_sign_list)) {
                 break;
             }
@@ -146,7 +148,8 @@ class JdSign
      */
     public static function doBeanSign(int $jd_sign_id, array $jd_sign_info = [])
     {
-        $modelJdSign = self::getModel('jdSign');
+        $sign_key = 'bean';
+        $modelJdSign = self::getModel('JdSign');
         if (empty($jd_sign_info)) {
             if (empty($jd_sign_id)) {
                 throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
@@ -154,17 +157,25 @@ class JdSign
             $jd_sign_info = $modelJdSign->getInfo([
                 'ly_jd_sign.id' => intval($jd_sign_id),
                 // 类型为签到
-                'ly_jd_sign.sign_key' => 'bean',
+                'ly_jd_sign.sign_key' => $sign_key,
                 // 任务状态为正常
                 'ly_jd_sign.status' => 1,
                 // 登录状态为正常
                 'jd_user.status' => 1,
-            ], 'ly_jd_sign.id,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
         }
         if (empty($jd_sign_info)) {
             throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|bean"));
         }
         $jd_sign_id = intval($jd_sign_info['id']);
+
+        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
+        $day_begin = strtotime(date('Y-m-d'));
+        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+            return;
+            // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
+        }
+
         // 设置请求所需的cookie
         self::$user_cookie = [
             'pt_key' => $jd_sign_info['pt_key'],
@@ -181,11 +192,15 @@ class JdSign
                 $return_data = self::beanSign();
                 $modelJdSign->updateByWhere([
                     'id' => $jd_sign_id,
-                    'sign_key' => 'bean',
+                    'sign_key' => $sign_key,
                     'status' => 1,
                 ], [
                     'last_time' => time(),
-                    'return_data' => serialize($return_data),
+                    'return_data' => serialize([
+                        'status' => $return_data['status'],
+                        'dailyAward' => $return_data['dailyAward'],
+                        'signTime' => time(),
+                    ]),
                 ]);
                 break;
             case 3:
@@ -203,7 +218,7 @@ class JdSign
      */
     public static function doPlantBeanAll()
     {
-        $modelJdSign = self::getModel('jdSign');
+        $modelJdSign = self::getModel('JdSign');
         $offset = 0;
         $limit = 100;
         while (true) {
@@ -233,12 +248,13 @@ class JdSign
      * 执行种豆得豆
      * @param int   $jd_sign_id
      * @param array $jd_sign_info
+     * @throws Exception
      * @throws \Library\Exception\BadRequestException
-     * @throws \Library\Exception\Exception
      */
     public static function doPlantBean(int $jd_sign_id, array $jd_sign_info = [])
     {
-        $modelJdSign = self::getModel('jdSign');
+        $sign_key = 'plant';
+        $modelJdSign = self::getModel('JdSign');
         if (empty($jd_sign_info)) {
             if (empty($jd_sign_id)) {
                 throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
@@ -246,7 +262,7 @@ class JdSign
             $jd_sign_info = $modelJdSign->getInfo([
                 'ly_jd_sign.id' => intval($jd_sign_id),
                 // 类型为签到
-                'ly_jd_sign.sign_key' => 'plant',
+                'ly_jd_sign.sign_key' => $sign_key,
                 // 任务状态为正常
                 'ly_jd_sign.status' => 1,
                 // 登录状态为正常
@@ -258,11 +274,13 @@ class JdSign
         }
         $jd_sign_id = intval($jd_sign_info['id']);
 
-        $last_return_data = unserialize($jd_sign_info['return_data']);
-        $next_time = $last_return_data['next_time'] ?? 0;
-        if ($next_time > time()) {
-            throw new \Library\Exception\Exception(\PhalApi\T('未到下次收取时间'));
-        }
+        // $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
+        // $next_time = $jd_sign_info['return_data']['next_time'] ?? 0;
+        // if ($next_time > time()) {
+        //     return;
+        //     // throw new \Library\Exception\Exception(\PhalApi\T('未到下次收取时间'));
+        // }
+
         // 设置请求所需的cookie
         self::$user_cookie = [
             'pt_key' => $jd_sign_info['pt_key'],
@@ -271,24 +289,32 @@ class JdSign
         ];
         // 现持有营养液数量 - 初始值
         $nutrients = 0;
+        $return_data = [];
         // 种豆得豆相关信息
         $plant_info = self::plantBeanInfo();
+        // 持有数量
         $nutrients = $plant_info['nutrients'];
+        // 下次收取时间
+        $return_data['next_time'] = $plant_info['nextReceiveTime'];
         // 可收取营养液数量大于0
         if ($plant_info['nutrCount'] > 0) {
             $receive_info = self::receiveNutrients();
+            // 持有数量
             $nutrients = $receive_info['nutrients'];
+            // 下次收取时间
+            $receive_info['next_time'] = $plant_info['nextReceiveTime'];
         }
+        // 帮好友收取
+        $plant_friend_reward = self::receivePlantFriend();
+        // 收取得到的奖励累积到本次该收取的数量
+        $nutrients += $plant_friend_reward;
         // 持有营养液
         if ($nutrients > 0) {
             // 使用营养液 培养京豆
             self::cultureBean();
         }
 
-        $return_data = [
-            // 下次收取时间
-            'next_time' => $plant_info['nextReceiveTime'],
-        ];
+        // 状态2：7点再来领取
         if ($plant_info['timeNutrientsResState'] == 2) {
             // 明天早上7点的时间戳
             $return_data['next_time'] = strtotime(date('Y-m-d 7:00:00') . '+ 1 day');
@@ -296,7 +322,108 @@ class JdSign
 
         $modelJdSign->updateByWhere([
             'id' => $jd_sign_id,
-            'sign_key' => 'plant',
+            'sign_key' => $sign_key,
+            'status' => 1,
+        ], [
+            'last_time' => time(),
+            'return_data' => serialize($return_data),
+        ]);
+
+    }
+
+    /**
+     * 执行京享值领京豆 - 所有
+     * @throws \Library\Exception\BadRequestException
+     */
+    public static function doVVipClubAll()
+    {
+        $modelJdSign = self::getModel('JdSign');
+        $offset = 0;
+        $limit = 100;
+        while (true) {
+            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+                // 类型为京享值领京豆
+                'ly_jd_sign.sign_key' => 'vvipclub',
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id asc', 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+            if (empty($jd_sign_list)) {
+                break;
+            }
+            foreach ($jd_sign_list as $jd_sign_info) {
+                try {
+                    self::doVVipClub(0, $jd_sign_info);
+                } catch (Exception $e) {
+                    self::DI()->logger->info("执行京享值领京豆|异常|{$e->getMessage()}", $jd_sign_info);
+                }
+            }
+            $offset += $limit;
+        }
+    }
+
+    /**
+     * 执行京享值领京豆
+     * @param int   $jd_sign_id
+     * @param array $jd_sign_info
+     * @throws Exception
+     * @throws \Library\Exception\BadRequestException
+     */
+    public static function doVVipClub(int $jd_sign_id, array $jd_sign_info = [])
+    {
+        $sign_key = 'vvipclub';
+        $modelJdSign = self::getModel('JdSign');
+        if (empty($jd_sign_info)) {
+            if (empty($jd_sign_id)) {
+                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
+            }
+            $jd_sign_info = $modelJdSign->getInfo([
+                'ly_jd_sign.id' => intval($jd_sign_id),
+                // 类型为签到
+                'ly_jd_sign.sign_key' => $sign_key,
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+        }
+        if (empty($jd_sign_info)) {
+            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|bean"));
+        }
+        $jd_sign_id = intval($jd_sign_info['id']);
+
+        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
+        $day_begin = strtotime(date('Y-m-d'));
+        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+            return;
+            // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
+        }
+
+        // 设置请求所需的cookie
+        self::$user_cookie = [
+            'pt_key' => $jd_sign_info['pt_key'],
+            'pt_pin' => $jd_sign_info['pt_pin'],
+            'pt_token' => $jd_sign_info['pt_token'],
+        ];
+
+        $return_data = [];
+        // 京享值领京豆相关信息
+        $luckyBox_info = self::vvipclub_luckyBox();
+        if ($luckyBox_info['freeTimes'] <= 0) {
+            return;
+        }
+
+        for ($i = 0; $i < $luckyBox_info['freeTimes']; $i++) {
+            self::vvipclub_shaking();
+        }
+
+        // 明天早上7点的时间戳
+        $return_data['next_time'] = strtotime(date('Y-m-d 7:00:00') . '+ 1 day');
+
+        $modelJdSign->updateByWhere([
+            'id' => $jd_sign_id,
+            'sign_key' => $sign_key,
             'status' => 1,
         ], [
             'last_time' => time(),
@@ -333,16 +460,27 @@ class JdSign
     {
         self::DI()->curl->setCookie(self::$user_cookie);
         $res = self::DI()->curl->json_get($url);
-        $code = $res['code'] ?? false;
-        if ($code === false) {
-            throw new \Library\Exception\Exception(\PhalApi\T('接口异常'));
-        }
-        $data = $res['data'] ?? [];
-        $errorCode = $res['errorCode'] ?? false;
-        $errorMessage = $res['errorMessage'] ?? false;
-        if (!empty($errorMessage)) {
-            self::DI()->logger->error("请求返回错误|URL|{$url}", $res);
-            throw new \Library\Exception\Exception($res['errorMessage']);
+        if (isset($res['success'])) {
+            $data = [];
+            if ($res['success']) {
+                $data = $res['data'];
+            } else {
+                self::DI()->logger->error('请求失败', $res);
+                throw new \Library\Exception\Exception($res['message']);
+            }
+        } else {
+            $code = $res['code'] ?? false;
+            if ($code === false) {
+                self::DI()->logger->error('接口异常', $res);
+                throw new \Library\Exception\Exception(\PhalApi\T('接口异常'));
+            }
+            $data = $res['data'] ?? [];
+            $errorCode = $res['errorCode'] ?? false;
+            $errorMessage = $res['errorMessage'] ?? false;
+            if (!empty($errorMessage)) {
+                self::DI()->logger->error("请求返回错误|URL|{$url}", $res);
+                throw new \Library\Exception\Exception($res['errorMessage']);
+            }
         }
         return $data;
     }
@@ -606,6 +744,120 @@ class JdSign
     }
 
     /**
+     * 种豆得豆好友收集营养液
+     * @return array
+     * @throws Exception
+     */
+    public static function receivePlantFriend()
+    {
+        // 可收集好友列表页码
+        $pageNum = 1;
+        // 获取奖励的总数量
+        $nutrients = 0;
+        while (true) {
+            // 可收集好友列表
+            $list = self::plantFriendList($pageNum);
+            if (empty($list)) {
+                break;
+            }
+            foreach ($list as $item) {
+                // 可收集数量
+                $nutrCount = $item['nutrCount'] ?? 0;
+                if ($nutrCount > 0) {
+                    self::$paradiseUuid = $item['paradiseUuid'];
+                    $collect_res = self::collectUserNutr();
+                    // 累积总奖励
+                    $nutrients += $collect_res['collectNutrRewards'];
+                }
+            }
+            // 页码+1 - 下一页
+            $pageNum += 1;
+        }
+        return $nutrients;
+        // return [
+        //     'nutrients' => $nutrients,
+        // ];
+    }
+
+    /**
+     * 种豆得豆好友列表
+     * @param int $pageNum
+     * @return array|mixed
+     * @throws Exception
+     */
+    public static function plantFriendList($pageNum = 1)
+    {
+        $base_url = 'https://api.m.jd.com/client.action';
+        $query_params = [
+            'functionId' => 'plantFriendList',
+            'body' => json_encode([
+                'pageNum' => (string)$pageNum,
+                'monitor_source' => 'plant_m_plant_index',
+                'monitor_refer' => 'plantFriendList',
+                'version' => '8.4.0.0',
+            ]),
+            'appid' => 'ld',
+            'client' => 'android',
+            'clientVersion' => ' nexus 5 build/mra58n) applewebkit/537.36 (khtml, like gecko) chrome/79.0.3945.117 mobile safari/537.36',
+            'networkType' => '',
+            'osVersion' => '',
+            'uuid' => '',
+            // 'jsonp' => 'jsonp_1578980968527_84080',
+        ];
+
+        $url = $base_url . '?' . http_build_query($query_params);
+
+        $data = self::requestData($url);
+
+        self::DI()->logger->debug('种豆得豆好友列表', $data);
+
+        return $data['friendInfoList'] ?? [];
+    }
+
+    /**
+     * 收取用户的营养液
+     * @return array|mixed
+     * @throws Exception
+     */
+    public static function collectUserNutr()
+    {
+        $base_url = 'https://api.m.jd.com/client.action';
+        $query_params = [
+            'functionId' => 'collectUserNutr',
+            'body' => json_encode([
+                'paradiseUuid' => self::$paradiseUuid,
+                'roundId' => self::$roundId,
+                'monitor_source' => 'plant_m_plant_index',
+                'monitor_refer' => 'collectUserNutr',
+                'version' => '8.4.0.0',
+            ]),
+            'appid' => 'ld',
+            'client' => 'android',
+            'clientVersion' => ' nexus 5 build/mra58n) applewebkit/537.36 (khtml, like gecko) chrome/79.0.3945.117 mobile safari/537.36',
+            'networkType' => '',
+            'osVersion' => '',
+            'uuid' => '',
+            // 'jsonp' => 'jsonp_1578980968527_84080',
+        ];
+
+        $url = $base_url . '?' . http_build_query($query_params);
+
+        $data = self::requestData($url);
+
+        self::DI()->logger->debug('收取用户的营养液', $data);
+
+        // 收取结果 1 收取成功 2 没有可收取的营养液 3
+        $collectResult = $data['collectResult'];
+        // 帮忙收取获得的奖励 营养液 数量
+        $collectNutrRewards = $data['collectNutrRewards'] ?? 0;
+
+        return [
+            'collectResult' => $collectResult,
+            'collectNutrRewards' => $collectNutrRewards,
+        ];
+    }
+
+    /**
      * 培养京豆
      * @throws Exception
      */
@@ -634,6 +886,63 @@ class JdSign
         $data = self::requestData($url);
 
         self::DI()->logger->debug('培养京豆', $data);
+
+        return $data;
+    }
+
+    /**
+     * 京享值领京豆 信息
+     * @return mixed
+     * @throws Exception
+     */
+    public static function vvipclub_luckyBox()
+    {
+        $base_url = 'https://api.m.jd.com/client.action';
+        $query_params = [
+            'functionId' => 'vvipclub_luckyBox',
+            'body' => json_encode([
+                'info' => 'freeTimes,title,beanNum,useBeanNum,imgUrl',
+            ]),
+            'appid' => 'vip_h5',
+        ];
+
+        $url = $base_url . '?' . http_build_query($query_params);
+        $data = self::requestData($url);
+
+        self::DI()->logger->debug('京享值领京豆', $data);
+
+        return $data;
+    }
+
+    /**
+     * 京享值领京豆 摇一摇
+     * @return mixed
+     * @throws Exception
+     */
+    public static function vvipclub_shaking()
+    {
+        $base_url = 'https://api.m.jd.com/client.action';
+        $query_params = [
+            'functionId' => 'vvipclub_shaking',
+            'body' => json_encode([
+                'type' => '0',
+                'riskInfo' => [
+                    'platform' => 3,
+                    'pageClickKey' => 'MJDVip_Shake',
+                    'eid' => 'AT44TEP6BH5QHGV7AE5NED2EY6TBYYTNOXO7FYXGWRNVVPCZBM7KSACH3WX6CCH6NJYSBNDFKZELYB2UTWRFXK5NHQ',
+                    'fp' => '7f8a82fdd6584f4afcba1f69f1eebe42',
+                    'shshshfp' => '3a6f70a53124ab6c1c14dac8c8f6553e',
+                    'shshshfpa' => 'b57728e0-9c76-3ba0-cad4-b6a185c849a4-1567159746',
+                    'shshshfpb' => 'tVBqHpN7OyXYgPxIVBqY9vg==',
+                ],
+            ]),
+            'appid' => 'vip_h5',
+        ];
+
+        $url = $base_url . '?' . http_build_query($query_params);
+        $data = self::requestData($url);
+
+        self::DI()->logger->debug('京享值领京豆 摇一摇', $data);
 
         return $data;
     }
