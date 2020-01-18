@@ -10,7 +10,6 @@ namespace Common\Domain;
 
 
 use Library\DateHelper;
-use Library\Exception\Exception;
 
 /**
  * 京东签到 领域层
@@ -99,11 +98,11 @@ class JdSign
 
     /**
      * 测试 钩子
-     * @throws \Library\Exception\Exception
+     * @throws \Library\Exception\BadRequestException
      */
     public static function test()
     {
-        return self::vvipclub_shaking();
+        return self::doVVipClubAll();
     }
 
     /**
@@ -131,7 +130,7 @@ class JdSign
             foreach ($jd_sign_list as $jd_sign_info) {
                 try {
                     self::doBeanSign(0, $jd_sign_info);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     self::DI()->logger->info("执行签到领京豆|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
@@ -236,7 +235,7 @@ class JdSign
             foreach ($jd_sign_list as $jd_sign_info) {
                 try {
                     self::doPlantBean(0, $jd_sign_info);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     self::DI()->logger->info("执行种豆得豆|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
@@ -248,8 +247,8 @@ class JdSign
      * 执行种豆得豆
      * @param int   $jd_sign_id
      * @param array $jd_sign_info
-     * @throws Exception
      * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
      */
     public static function doPlantBean(int $jd_sign_id, array $jd_sign_info = [])
     {
@@ -355,7 +354,7 @@ class JdSign
             foreach ($jd_sign_list as $jd_sign_info) {
                 try {
                     self::doVVipClub(0, $jd_sign_info);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     self::DI()->logger->info("执行京享值领京豆|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
@@ -367,8 +366,8 @@ class JdSign
      * 执行京享值领京豆
      * @param int   $jd_sign_id
      * @param array $jd_sign_info
-     * @throws Exception
      * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
      */
     public static function doVVipClub(int $jd_sign_id, array $jd_sign_info = [])
     {
@@ -407,6 +406,9 @@ class JdSign
             'pt_token' => $jd_sign_info['pt_token'],
         ];
 
+        // 完成所有任务，获取免费次数
+        self::vvipclub_doTaskAll();
+
         $return_data = [];
         // 京享值领京豆相关信息
         $luckyBox_info = self::vvipclub_luckyBox();
@@ -419,7 +421,7 @@ class JdSign
         }
 
         // 明天早上7点的时间戳
-        $return_data['next_time'] = strtotime(date('Y-m-d 7:00:00') . '+ 1 day');
+        $return_data['signTime'] = time();
 
         $modelJdSign->updateByWhere([
             'id' => $jd_sign_id,
@@ -594,7 +596,7 @@ class JdSign
     /**
      * 种豆得豆 信息
      * @return array
-     * @throws Exception
+     * @throws \Library\Exception\Exception
      */
     public static function plantBeanInfo()
     {
@@ -705,7 +707,7 @@ class JdSign
     /**
      * 收取营养液
      * @return array
-     * @throws Exception
+     * @throws \Library\Exception\Exception
      */
     public static function receiveNutrients()
     {
@@ -746,7 +748,7 @@ class JdSign
     /**
      * 种豆得豆好友收集营养液
      * @return array
-     * @throws Exception
+     * @throws \Library\Exception\Exception
      */
     public static function receivePlantFriend()
     {
@@ -768,6 +770,8 @@ class JdSign
                     $collect_res = self::collectUserNutr();
                     // 累积总奖励
                     $nutrients += $collect_res['collectNutrRewards'];
+                    // 间隔 1s 防止出现 抱歉，活动太火爆了 提示
+                    sleep(2);
                 }
             }
             // 页码+1 - 下一页
@@ -783,7 +787,7 @@ class JdSign
      * 种豆得豆好友列表
      * @param int $pageNum
      * @return array|mixed
-     * @throws Exception
+     * @throws \Library\Exception\Exception
      */
     public static function plantFriendList($pageNum = 1)
     {
@@ -808,8 +812,11 @@ class JdSign
         $url = $base_url . '?' . http_build_query($query_params);
 
         $data = self::requestData($url);
+        if (isset($data['tips'])) {
+            return [];
+        }
 
-        self::DI()->logger->debug('种豆得豆好友列表', $data);
+        // self::DI()->logger->debug('种豆得豆好友列表', $data);
 
         return $data['friendInfoList'] ?? [];
     }
@@ -817,7 +824,7 @@ class JdSign
     /**
      * 收取用户的营养液
      * @return array|mixed
-     * @throws Exception
+     * @throws \Library\Exception\Exception
      */
     public static function collectUserNutr()
     {
@@ -859,7 +866,7 @@ class JdSign
 
     /**
      * 培养京豆
-     * @throws Exception
+     * @throws \Library\Exception\Exception
      */
     public static function cultureBean()
     {
@@ -893,7 +900,7 @@ class JdSign
     /**
      * 京享值领京豆 信息
      * @return mixed
-     * @throws Exception
+     * @throws \Library\Exception\Exception
      */
     public static function vvipclub_luckyBox()
     {
@@ -917,7 +924,7 @@ class JdSign
     /**
      * 京享值领京豆 摇一摇
      * @return mixed
-     * @throws Exception
+     * @throws \Library\Exception\Exception
      */
     public static function vvipclub_shaking()
     {
@@ -929,11 +936,11 @@ class JdSign
                 'riskInfo' => [
                     'platform' => 3,
                     'pageClickKey' => 'MJDVip_Shake',
-                    'eid' => 'AT44TEP6BH5QHGV7AE5NED2EY6TBYYTNOXO7FYXGWRNVVPCZBM7KSACH3WX6CCH6NJYSBNDFKZELYB2UTWRFXK5NHQ',
-                    'fp' => '7f8a82fdd6584f4afcba1f69f1eebe42',
-                    'shshshfp' => '3a6f70a53124ab6c1c14dac8c8f6553e',
-                    'shshshfpa' => 'b57728e0-9c76-3ba0-cad4-b6a185c849a4-1567159746',
-                    'shshshfpb' => 'tVBqHpN7OyXYgPxIVBqY9vg==',
+                    // 'eid' => 'AT44TEP6BH5QHGV7AE5NED2EY6TBYYTNOXO7FYXGWRNVVPCZBM7KSACH3WX6CCH6NJYSBNDFKZELYB2UTWRFXK5NHQ',
+                    // 'fp' => '7f8a82fdd6584f4afcba1f69f1eebe42',
+                    // 'shshshfp' => '3a6f70a53124ab6c1c14dac8c8f6553e',
+                    // 'shshshfpa' => 'b57728e0-9c76-3ba0-cad4-b6a185c849a4-1567159746',
+                    // 'shshshfpb' => 'tVBqHpN7OyXYgPxIVBqY9vg==',
                 ],
             ]),
             'appid' => 'vip_h5',
@@ -942,9 +949,117 @@ class JdSign
         $url = $base_url . '?' . http_build_query($query_params);
         $data = self::requestData($url);
 
-        self::DI()->logger->debug('京享值领京豆 摇一摇', $data);
+        // self::DI()->logger->debug('京享值领京豆 摇一摇', $data);
 
         return $data;
+    }
+
+    /**
+     * 京享值领京豆 完成所有任务
+     * @throws \Library\Exception\Exception
+     */
+    public static function vvipclub_doTaskAll()
+    {
+        $list = self::vvipclub_lotteryTaskList();
+        foreach ($list as $item) {
+            $taskName = $item['taskName'];
+            $item = self::vvipclub_lotteryTaskInfo($taskName);
+            // 不存在该任务 信息
+            if (empty($item)) {
+                continue;
+            }
+            $item = $item[0] ?? [];
+            // 该任务已完成
+            if ($item['currentFinishTimes'] >= $item['totalPrizeTimes']) {
+                continue;
+            }
+            // 任务列表
+            $taskItems = $item['taskItems'];
+            for ($i = $item['currentFinishTimes']; $i < $item['totalPrizeTimes']; $i++) {
+                $taskItemId = $taskItems[$i]['id'];
+                self::vvipclub_doTask($taskName, $taskItemId);
+            }
+        }
+    }
+
+    /**
+     * 京享值领京豆 完成任务
+     * @param $taskName
+     * @param $taskItemId
+     * @return bool|mixed
+     */
+    public static function vvipclub_doTask($taskName, $taskItemId)
+    {
+        $base_url = 'https://api.m.jd.com/client.action';
+        $query_params = [
+            'appid' => 'vip_h5',
+            'functionId' => 'vvipclub_doTask',
+            'body' => json_encode([
+                'taskName' => $taskName,
+                'taskItemId' => $taskItemId,
+            ]),
+        ];
+
+        $url = $base_url . '?' . http_build_query($query_params);
+        try {
+            $data = self::requestData($url);
+            // self::DI()->logger->debug('京享值领京豆 完成任务', $data);
+            return $data;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * 京享值领京豆 任务列表
+     * @return mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function vvipclub_lotteryTaskList()
+    {
+        $base_url = 'https://api.m.jd.com/client.action';
+        $query_params = [
+            'appid' => 'vip_h5',
+            'functionId' => 'vvipclub_lotteryTask',
+            // 'body' => json_encode([
+            //     'info' => 'shareTask,browseTask,attentionTask',
+            //     'withItem' => false,
+            // ]),
+        ];
+
+        $url = $base_url . '?' . http_build_query($query_params);
+        $data = self::requestData($url);
+
+        // self::DI()->logger->debug('京享值领京豆 任务列表', $data);
+
+        return $data;
+    }
+
+    /**
+     * 京享值领京豆 任务详情
+     * @param $taskName
+     * @return bool|mixed
+     */
+    public static function vvipclub_lotteryTaskInfo($taskName)
+    {
+        $base_url = 'https://api.m.jd.com/client.action';
+        $query_params = [
+            'appid' => 'vip_h5',
+            'functionId' => 'vvipclub_lotteryTask',
+            'body' => json_encode([
+                'info' => $taskName,
+                'withItem' => true,
+            ]),
+        ];
+
+        $url = $base_url . '?' . http_build_query($query_params);
+        try {
+            $data = self::requestData($url);
+            // self::DI()->logger->debug('京享值领京豆 任务详情', $data);
+            return $data;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
