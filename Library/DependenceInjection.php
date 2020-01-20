@@ -45,7 +45,7 @@ namespace Library;
  * @property \PhalApi\Helper\Tracer                  $tracer          全球追踪器
  * @property \PhalApi\Redis\Lite                     $redis           Redis 拓展类
  * @property \PhalApi\Cookie                         $cookie          COOKIE操作
- * @property \PhalApi\CUrl                           $curl            CURL请求类
+ * @property \Library\CUrl                           $curl            CURL请求类
  * @property \PhalApi\Tool                           $tool            工具集合类
  * @property \EasyWeChat\OfficialAccount\Application $wechat          微信工具
  * @package     PhalApi\DependenceInjection

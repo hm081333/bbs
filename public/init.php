@@ -34,11 +34,9 @@ include API_ROOT . '/config/gzip.php';
 
 // 引入DI服务
 include API_ROOT . '/config/di.php';
+
 // 引入微信公众号服务
 include API_ROOT . '/config/wechat.php';
-
-// 引入异常捕获
-include API_ROOT . '/config/error.php';
 
 if (!IS_CLI) {
     // 引入伪静态服务 重写请求服务

@@ -51,7 +51,8 @@
             "Common\\": "src/common",
             "Bbs\\": "src/bbs",
             "Admin\\": "src/admin",
-            "TieBa\\": "src/tieba"
+            "TieBa\\": "src/tieba",
+            "Sign\\": "src/sign"
         }
     }
 }

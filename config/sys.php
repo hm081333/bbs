@@ -11,7 +11,7 @@ return [
     /**
      * 默认环境配置
      */
-    'debug' => false,
+    'debug' => true,
 
     /**
      * 加密
@@ -101,6 +101,7 @@ return [
             // 'app' => 'App',
             'bbs' => 'Bbs',
             'tieba' => 'TieBa',
+            'sign' => 'Sign',
             'admin' => 'Admin',
             'common' => 'Common',
         ],
