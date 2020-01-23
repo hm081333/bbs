@@ -7,6 +7,7 @@ use Common\Model\User;
 use EasyWeChat\Kernel\Messages\NewsItem as ReturnNewsItem;
 use EasyWeChat\Kernel\Messages\News as ReturnNews;
 use EasyWeChat\Kernel\Messages\Text as ReturnText;
+use function Common\DI;
 
 /**
  * Created by PhpStorm.
@@ -75,26 +76,29 @@ class Text implements \EasyWeChat\Kernel\Contracts\EventHandlerInterface
                 $ask = \Common\Domain\TuLing::get($payload['Content']);
                 \Common\DI()->logger->debug('图灵回复', $ask);
                 switch ($ask['code']) {
-                    case 100000:
-                    case 40007:
+                    case '100000':
+                    case '40007':
                         $outMessage = new ReturnText('');
                         // $outMessage->content = $ask['text'];
                         $outMessage->setAttribute('content', $ask['text']);
                         return $outMessage;
                         break;
-                    case 200000 && empty($ask['list']):
-                        // case 302000 && empty($ask['list']):
-                        $items = [
-                            new ReturnNewsItem([
-                                'title' => $payload['Content'],
-                                'description' => $ask['text'],
-                                'url' => $ask['url'],
-                                // 'image'       => $ask['url'],
-                            ]),
-                        ];
-                        return new ReturnNews($items);
+                    case '40004':
+                        // 亲爱的，当天请求次数已用完。
+                        return new ReturnText('亲爱的，当天请求次数已用完。');
                         break;
                     default:
+                        if (empty($ask['list'])){
+                            $items = [
+                                new ReturnNewsItem([
+                                    'title' => $payload['Content'],
+                                    'description' => $ask['text'],
+                                    'url' => $ask['url'],
+                                    // 'image'       => $ask['url'],
+                                ]),
+                            ];
+                            return new ReturnNews($items);
+                        }
                         $items = [];
                         foreach ($ask['list'] as $key => $rs) {
                             if ($key >= 8) {
