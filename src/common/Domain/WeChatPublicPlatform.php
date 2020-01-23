@@ -134,9 +134,10 @@ class WeChatPublicPlatform
     /**
      * 发送贴吧签到详情
      * @param bool $openid
-     * @return mixed
+     * @return array|\EasyWeChat\Kernel\Support\Collection|object|\Psr\Http\Message\ResponseInterface|string
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidArgumentException
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
      * @throws \Library\Exception\BadRequestException
-     * @throws \Library\Exception\Exception
      * @throws \Library\Exception\InternalServerErrorException
      */
     private function sendTiebaSignDetail($openid = false)

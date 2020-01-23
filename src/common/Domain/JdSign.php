@@ -766,7 +766,7 @@ class JdSign
                 // 可收集数量
                 $nutrCount = $item['nutrCount'] ?? 0;
                 // 数量少的不收取，因为数量少的肯定不会有奖励
-                if ($nutrCount >= 2) {
+                if ($nutrCount >= 3) {
                     self::$paradiseUuid = $item['paradiseUuid'];
                     $collect_res = self::collectUserNutr();
                     // 累积总奖励
