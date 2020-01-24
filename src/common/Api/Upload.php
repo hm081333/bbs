@@ -22,6 +22,10 @@ class Upload extends Base
         return $rules;
     }
 
+    /**
+     * CKFinder控件上传图片
+     * @throws \Library\Exception\BadRequestException
+     */
     public function CKFinder()
     {
         $config = \Common\DI()->config->get('neditor');
