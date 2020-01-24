@@ -419,6 +419,7 @@ class JdSign
 
         for ($i = 0; $i < $luckyBox_info['freeTimes']; $i++) {
             self::vvipclub_shaking();
+            sleep(2);
         }
 
         // 明天早上7点的时间戳
@@ -521,6 +522,7 @@ class JdSign
 
         for ($i = 0; $i < $info['lotteryCount']; $i++) {
             self::lotteryDraw();
+            sleep(2);
         }
 
         // 明天早上7点的时间戳
@@ -1082,6 +1084,7 @@ class JdSign
             for ($i = $item['currentFinishTimes']; $i < $item['totalPrizeTimes']; $i++) {
                 $taskItemId = $taskItems[$i]['id'];
                 self::vvipclub_doTask($taskName, $taskItemId);
+                sleep(2);
             }
         }
     }
