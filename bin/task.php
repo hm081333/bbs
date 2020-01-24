@@ -51,6 +51,10 @@ try {
                     $di->logger->info('执行定时:京享值领京豆');
                     \Common\Domain\JdSign::doVVipClubAll();// 京享值领京豆
                     break;
+                case 'wheelSurf':// 京享值领京豆
+                    $di->logger->info('执行定时:福利转盘');
+                    \Common\Domain\JdSign::doWheelSurfAll();// 福利转盘
+                    break;
                 case 'test':
                     \Common\Domain\JdSign::test();
                     break;

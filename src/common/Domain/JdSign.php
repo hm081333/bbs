@@ -24,10 +24,11 @@ class JdSign
     static $user_cookie = [];
     static $roundId = '';
     static $paradiseUuid = '';
+    static $lotteryCode = '';
 
     /**
      * 设置京东签到项目
-     * @param int   $jd_user_id
+     * @param int $jd_user_id
      * @param array $data
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -42,7 +43,7 @@ class JdSign
         $user_id = intval($user['id']);
 
         $modelJdSign = self::getModel();
-        $modelJdUser = self::getModel('jdUser');
+        $modelJdUser = self::getModel('JdUser');
         $jd_user_info = $modelJdUser->getInfo([
             'id' => $jd_user_id,
             'user_id' => $user_id,
@@ -102,7 +103,7 @@ class JdSign
      */
     public static function test()
     {
-        return self::doVVipClubAll();
+        return self::doWheelSurfAll();
     }
 
     /**
@@ -140,7 +141,7 @@ class JdSign
 
     /**
      * 执行签到领京豆
-     * @param int   $jd_sign_id
+     * @param int $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -164,7 +165,7 @@ class JdSign
             ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
         }
         if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|bean"));
+            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
         }
         $jd_sign_id = intval($jd_sign_info['id']);
 
@@ -245,7 +246,7 @@ class JdSign
 
     /**
      * 执行种豆得豆
-     * @param int   $jd_sign_id
+     * @param int $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -269,7 +270,7 @@ class JdSign
             ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
         }
         if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|bean"));
+            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
         }
         $jd_sign_id = intval($jd_sign_info['id']);
 
@@ -364,7 +365,7 @@ class JdSign
 
     /**
      * 执行京享值领京豆
-     * @param int   $jd_sign_id
+     * @param int $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -388,7 +389,7 @@ class JdSign
             ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
         }
         if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|bean"));
+            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
         }
         $jd_sign_id = intval($jd_sign_info['id']);
 
@@ -418,6 +419,108 @@ class JdSign
 
         for ($i = 0; $i < $luckyBox_info['freeTimes']; $i++) {
             self::vvipclub_shaking();
+        }
+
+        // 明天早上7点的时间戳
+        $return_data['signTime'] = time();
+
+        $modelJdSign->updateByWhere([
+            'id' => $jd_sign_id,
+            'sign_key' => $sign_key,
+            'status' => 1,
+        ], [
+            'last_time' => time(),
+            'return_data' => serialize($return_data),
+        ]);
+
+    }
+
+    /**
+     * 福利转盘 - 所有
+     * @throws \Library\Exception\BadRequestException
+     */
+    public static function doWheelSurfAll()
+    {
+        $modelJdSign = self::getModel('JdSign');
+        $offset = 0;
+        $limit = 100;
+        while (true) {
+            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+                // 类型为京享值领京豆
+                'ly_jd_sign.sign_key' => 'wheelSurf',
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id asc', 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+            if (empty($jd_sign_list)) {
+                break;
+            }
+            foreach ($jd_sign_list as $jd_sign_info) {
+                try {
+                    self::doWheelSurf(0, $jd_sign_info);
+                } catch (\Exception $e) {
+                    self::DI()->logger->info("福利转盘|异常|{$e->getMessage()}", $jd_sign_info);
+                }
+            }
+            $offset += $limit;
+        }
+    }
+
+    /**
+     * 福利转盘
+     * @param int $jd_sign_id
+     * @param array $jd_sign_info
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
+     */
+    public static function doWheelSurf(int $jd_sign_id, array $jd_sign_info = [])
+    {
+        $sign_key = 'wheelSurf';
+        $modelJdSign = self::getModel('JdSign');
+        if (empty($jd_sign_info)) {
+            if (empty($jd_sign_id)) {
+                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
+            }
+            $jd_sign_info = $modelJdSign->getInfo([
+                'ly_jd_sign.id' => intval($jd_sign_id),
+                // 类型为签到
+                'ly_jd_sign.sign_key' => $sign_key,
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+        }
+        if (empty($jd_sign_info)) {
+            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
+        }
+        $jd_sign_id = intval($jd_sign_info['id']);
+
+        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
+        $day_begin = strtotime(date('Y-m-d'));
+        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+            return;
+            // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
+        }
+
+        // 设置请求所需的cookie
+        self::$user_cookie = [
+            'pt_key' => $jd_sign_info['pt_key'],
+            'pt_pin' => $jd_sign_info['pt_pin'],
+            'pt_token' => $jd_sign_info['pt_token'],
+        ];
+
+        $return_data = [];
+        // 京享值领京豆相关信息
+        $info = self::wheelSurfIndex();
+
+        if ($info['lotteryCount'] <= 0) {
+            return;
+        }
+
+        for ($i = 0; $i < $info['lotteryCount']; $i++) {
+            self::lotteryDraw();
         }
 
         // 明天早上7点的时间戳
@@ -1057,6 +1160,68 @@ class JdSign
         try {
             $data = self::requestData($url);
             // self::DI()->logger->debug('京享值领京豆 任务详情', $data);
+            return $data;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * 福利转盘 详情
+     * @return mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function wheelSurfIndex()
+    {
+        $base_url = 'https://api.m.jd.com/client.action';
+        $query_params = [
+            'functionId' => 'wheelSurfIndex',
+            'body' => json_encode([
+                'actId' => 'jgpqtzjhvaoym',
+                'appSource' => 'jdhome',
+            ]),
+            'appid' => 'ld',
+            'client' => 'android',
+            'clientVersion' => ' nexus 5 build/mra58n) applewebkit/537.36 (khtml, like gecko) chrome/79.0.3945.117 mobile safari/537.36',
+            'networkType' => '',
+            'osVersion' => '',
+            'uuid' => '',
+        ];
+
+        $url = $base_url . '?' . http_build_query($query_params);
+        $data = self::requestData($url);
+        self::$lotteryCode = $data['lotteryCode'] ?? '';
+        // self::DI()->logger->debug('福利转盘 详情', $data);
+        return $data;
+    }
+
+    /**
+     * 福利转盘 抽奖
+     * @return mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function lotteryDraw()
+    {
+        $base_url = 'https://api.m.jd.com/client.action';
+        $query_params = [
+            'functionId' => 'lotteryDraw',
+            'body' => json_encode([
+                'actId' => 'jgpqtzjhvaoym',
+                'appSource' => 'jdhome',
+                'lotteryCode' => self::$lotteryCode,
+            ]),
+            'appid' => 'ld',
+            'client' => 'android',
+            'clientVersion' => ' nexus 5 build/mra58n) applewebkit/537.36 (khtml, like gecko) chrome/79.0.3945.117 mobile safari/537.36',
+            'networkType' => '',
+            'osVersion' => '',
+            'uuid' => '',
+        ];
+
+        $url = $base_url . '?' . http_build_query($query_params);
+        try {
+            $data = self::requestData($url);
+            // self::DI()->logger->debug('福利转盘 抽奖', $data);
             return $data;
         } catch (\Exception $e) {
             return false;
