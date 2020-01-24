@@ -82,7 +82,7 @@ class NEditor
          * )
          */
         $result = $up->getFileInfo();
-        DI()->logger->debug(json_encode($up->getFileInfo()));
+        // DI()->logger->debug(json_encode($up->getFileInfo()));
         if (strtolower($result['state']) != 'success') {
             throw new \Library\Exception\BadRequestException(\PhalApi\T($result['state']));
         }

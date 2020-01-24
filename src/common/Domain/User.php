@@ -170,7 +170,7 @@ class User
             $user = self::getUserToken();// 获取Session中存储的会员信息
             if (!$user) {
                 // $user_token = DI()->request->getHeader(USER_TOKEN,false);// 获取header中携带的Token
-                $auth = DI()->request->getHeader('Auth', false);// 获取header中携带的Token
+                $auth = self::DI()->request->getHeader('auth', false);// 获取header中携带的Token
                 $user_token = substr($auth, strlen(ADMIN_TOKEN));// 截取Token
                 if (!empty($user_token)) {
                     $user = self::getInfoByWhere(['token' => $user_token]);// 用Token换取会员信息
