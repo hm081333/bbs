@@ -51,9 +51,33 @@ try {
                     $di->logger->info('执行定时:京享值领京豆');
                     \Common\Domain\JdSign::doVVipClubAll();// 京享值领京豆
                     break;
-                case 'wheelSurf':// 京享值领京豆
+                case 'wheelSurf':// 福利转盘
                     $di->logger->info('执行定时:福利转盘');
                     \Common\Domain\JdSign::doWheelSurfAll();// 福利转盘
+                    break;
+                case 'jrSign':// 京东金融APP签到
+                    $di->logger->info('执行定时:京东金融APP签到');
+                    \Common\Domain\JdSign::doJRSignAll();// 京东金融APP签到
+                    break;
+                case 'doubleSign':// 领取双签礼包
+                    $di->logger->info('执行定时:领取双签礼包');
+                    \Common\Domain\JdSign::doDoubleSignAll();// 领取双签礼包
+                    break;
+                case 'jrRiseLimit':// 提升白条额度
+                    $di->logger->info('执行定时:提升白条额度');
+                    \Common\Domain\JdSign::doJRRiseLimitAll();// 提升白条额度
+                    break;
+                case 'jrFlopReward':// 翻牌赢钢镚
+                    $di->logger->info('执行定时:翻牌赢钢镚');
+                    \Common\Domain\JdSign::doJRFlopRewardAll();// 翻牌赢钢镚
+                    break;
+                case 'jrLottery':// 金币抽奖
+                    $di->logger->info('执行定时:金币抽奖');
+                    \Common\Domain\JdSign::doJRLotteryAll();// 金币抽奖
+                    break;
+                case 'jrSignRecords':// 每日赚京豆签到
+                    $di->logger->info('执行定时:每日赚京豆签到');
+                    \Common\Domain\JdSign::doJRSignRecordsAll();// 每日赚京豆签到
                     break;
                 case 'test':
                     \Common\Domain\JdSign::test();

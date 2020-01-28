@@ -3,8 +3,14 @@
 30 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a tieba -t sign >/dev/null 2>&1
 30 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a tieba -t retry >/dev/null 2>&1
 0 10 * * * php /var/www/html/bbs2-api/bin/task.php -a tieba -t send_info >/dev/null 2>&1
+*/10 * * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t plant >/dev/null 2>&1
 30 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t bean >/dev/null 2>&1
-30 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t wheelSurf >/dev/null 2>&1
-30 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t vvipclub >/dev/null 2>&1
-*/5 * * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t plant >/dev/null 2>&1
+32 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t jrSign >/dev/null 2>&1
+34 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t doubleSign >/dev/null 2>&1
+40 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t wheelSurf >/dev/null 2>&1
+42 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t vvipclub >/dev/null 2>&1
+44 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t jrRiseLimit >/dev/null 2>&1
+46 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t jrFlopReward >/dev/null 2>&1
+48 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t jrLottery >/dev/null 2>&1
+50 */1 * * * php /var/www/html/bbs2-api/bin/task.php -a jd -t jrSignRecords >/dev/null 2>&1
 10 10 * * * /var/www/html/bbs2-api/bin/auto_backup.sh

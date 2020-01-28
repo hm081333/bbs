@@ -99,17 +99,13 @@ class JdSign
 
     /**
      * 测试 钩子
-     * @throws \Library\Exception\BadRequestException
      */
     public static function test()
     {
-        return self::doWheelSurfAll();
     }
 
     /**
      * 执行签到领京豆 - 所有
-     * @throws \Library\Exception\BadRequestException
-     * @throws \Library\Exception\Exception
      */
     public static function doBeanSignAll()
     {
@@ -214,7 +210,6 @@ class JdSign
 
     /**
      * 执行种豆得豆 - 所有
-     * @throws \Library\Exception\BadRequestException
      */
     public static function doPlantBeanAll()
     {
@@ -314,6 +309,14 @@ class JdSign
             self::cultureBean();
         }
 
+        // awardState： 1：培养中 5：待领取 6：已领取
+        // beanState： 2：发芽 4：成豆
+        $last_round_info = $plant_info['last_round'];
+        // 上轮京豆未收取
+        if ($last_round_info['awardState'] == 5) {
+            #TODO 收取京豆
+        }
+
         // 状态2：7点再来领取
         if ($plant_info['timeNutrientsResState'] == 2) {
             // 明天早上7点的时间戳
@@ -333,7 +336,6 @@ class JdSign
 
     /**
      * 执行京享值领京豆 - 所有
-     * @throws \Library\Exception\BadRequestException
      */
     public static function doVVipClubAll()
     {
@@ -437,8 +439,7 @@ class JdSign
     }
 
     /**
-     * 福利转盘 - 所有
-     * @throws \Library\Exception\BadRequestException
+     * 执行 福利转盘 - 所有
      */
     public static function doWheelSurfAll()
     {
@@ -469,7 +470,7 @@ class JdSign
     }
 
     /**
-     * 福利转盘
+     * 执行 福利转盘
      * @param int $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
@@ -540,6 +541,583 @@ class JdSign
     }
 
     /**
+     * 执行 京东金融APP签到 - 所有
+     */
+    public static function doJRSignAll()
+    {
+        $modelJdSign = self::getModel('JdSign');
+        $offset = 0;
+        $limit = 100;
+        while (true) {
+            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+                // 类型为京享值领京豆
+                'ly_jd_sign.sign_key' => 'jrSign',
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id asc', 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+            if (empty($jd_sign_list)) {
+                break;
+            }
+            foreach ($jd_sign_list as $jd_sign_info) {
+                try {
+                    self::doJRSign(0, $jd_sign_info);
+                } catch (\Exception $e) {
+                    self::DI()->logger->info("京东金融APP签到|异常|{$e->getMessage()}", $jd_sign_info);
+                }
+            }
+            $offset += $limit;
+        }
+    }
+
+    /**
+     * 执行 京东金融APP签到
+     * @param int $jd_sign_id
+     * @param array $jd_sign_info
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
+     */
+    public static function doJRSign(int $jd_sign_id, array $jd_sign_info = [])
+    {
+        $sign_key = 'jrSign';
+        $modelJdSign = self::getModel('JdSign');
+        if (empty($jd_sign_info)) {
+            if (empty($jd_sign_id)) {
+                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
+            }
+            $jd_sign_info = $modelJdSign->getInfo([
+                'ly_jd_sign.id' => intval($jd_sign_id),
+                // 类型为签到
+                'ly_jd_sign.sign_key' => $sign_key,
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+        }
+        if (empty($jd_sign_info)) {
+            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
+        }
+        $jd_sign_id = intval($jd_sign_info['id']);
+
+        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
+        $day_begin = strtotime(date('Y-m-d'));
+        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+            return;
+            // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
+        }
+
+        // 设置请求所需的cookie
+        self::$user_cookie = [
+            'pt_key' => $jd_sign_info['pt_key'],
+            'pt_pin' => $jd_sign_info['pt_pin'],
+            'pt_token' => $jd_sign_info['pt_token'],
+        ];
+
+        $return_data = [];
+        // 京享值领京豆相关信息
+        $isSign = self::JRSignInfo();
+
+        if ($isSign) {
+            return;
+        }
+
+        self::JRSign();
+
+        // 明天早上7点的时间戳
+        $return_data['signTime'] = time();
+
+        $modelJdSign->updateByWhere([
+            'id' => $jd_sign_id,
+            'sign_key' => $sign_key,
+            'status' => 1,
+        ], [
+            'last_time' => time(),
+            'return_data' => serialize($return_data),
+        ]);
+
+    }
+
+    /**
+     * 执行 领取双签礼包 - 所有
+     */
+    public static function doDoubleSignAll()
+    {
+        $modelJdSign = self::getModel('JdSign');
+        $offset = 0;
+        $limit = 100;
+        while (true) {
+            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+                // 类型为京享值领京豆
+                'ly_jd_sign.sign_key' => 'doubleSign',
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id asc', 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+            if (empty($jd_sign_list)) {
+                break;
+            }
+            foreach ($jd_sign_list as $jd_sign_info) {
+                try {
+                    self::doDoubleSign(0, $jd_sign_info);
+                } catch (\Exception $e) {
+                    self::DI()->logger->info("领取双签礼包|异常|{$e->getMessage()}", $jd_sign_info);
+                }
+            }
+            $offset += $limit;
+        }
+    }
+
+    /**
+     * 执行 领取双签礼包
+     * @param int $jd_sign_id
+     * @param array $jd_sign_info
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
+     */
+    public static function doDoubleSign(int $jd_sign_id, array $jd_sign_info = [])
+    {
+        $sign_key = 'doubleSign';
+        $modelJdSign = self::getModel('JdSign');
+        if (empty($jd_sign_info)) {
+            if (empty($jd_sign_id)) {
+                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
+            }
+            $jd_sign_info = $modelJdSign->getInfo([
+                'ly_jd_sign.id' => intval($jd_sign_id),
+                // 类型为签到
+                'ly_jd_sign.sign_key' => $sign_key,
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+        }
+        if (empty($jd_sign_info)) {
+            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
+        }
+        $jd_sign_id = intval($jd_sign_info['id']);
+
+        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
+        $day_begin = strtotime(date('Y-m-d'));
+        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+            return;
+            // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
+        }
+
+        // 设置请求所需的cookie
+        self::$user_cookie = [
+            'pt_key' => $jd_sign_info['pt_key'],
+            'pt_pin' => $jd_sign_info['pt_pin'],
+            'pt_token' => $jd_sign_info['pt_token'],
+        ];
+
+        $return_data = [];
+
+        self::doubleSign();
+
+        // 明天早上7点的时间戳
+        $return_data['signTime'] = time();
+
+        $modelJdSign->updateByWhere([
+            'id' => $jd_sign_id,
+            'sign_key' => $sign_key,
+            'status' => 1,
+        ], [
+            'last_time' => time(),
+            'return_data' => serialize($return_data),
+        ]);
+
+    }
+
+    /**
+     * 执行 京东金融APP - 提升白条额度 - 所有
+     */
+    public static function doJRRiseLimitAll()
+    {
+        $modelJdSign = self::getModel('JdSign');
+        $offset = 0;
+        $limit = 100;
+        while (true) {
+            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+                // 类型为京享值领京豆
+                'ly_jd_sign.sign_key' => 'jrRiseLimit',
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id asc', 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+            if (empty($jd_sign_list)) {
+                break;
+            }
+            foreach ($jd_sign_list as $jd_sign_info) {
+                try {
+                    self::doJRRiseLimit(0, $jd_sign_info);
+                } catch (\Exception $e) {
+                    self::DI()->logger->info("提升白条额度|异常|{$e->getMessage()}", $jd_sign_info);
+                }
+            }
+            $offset += $limit;
+        }
+    }
+
+    /**
+     * 执行 京东金融APP - 提升白条额度
+     * @param int $jd_sign_id
+     * @param array $jd_sign_info
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
+     */
+    public static function doJRRiseLimit(int $jd_sign_id, array $jd_sign_info = [])
+    {
+        $sign_key = 'jrRiseLimit';
+        $modelJdSign = self::getModel('JdSign');
+        if (empty($jd_sign_info)) {
+            if (empty($jd_sign_id)) {
+                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
+            }
+            $jd_sign_info = $modelJdSign->getInfo([
+                'ly_jd_sign.id' => intval($jd_sign_id),
+                // 类型为签到
+                'ly_jd_sign.sign_key' => $sign_key,
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+        }
+        if (empty($jd_sign_info)) {
+            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
+        }
+        $jd_sign_id = intval($jd_sign_info['id']);
+
+        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
+        $day_begin = strtotime(date('Y-m-d'));
+        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+            return;
+            // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
+        }
+
+        // 设置请求所需的cookie
+        self::$user_cookie = [
+            'pt_key' => $jd_sign_info['pt_key'],
+            'pt_pin' => $jd_sign_info['pt_pin'],
+            'pt_token' => $jd_sign_info['pt_token'],
+        ];
+
+        $return_data = [];
+
+        $info = self::JRRiseLimitInfo();
+        self::JRRiseLimit($info);
+
+        // 明天早上7点的时间戳
+        $return_data['signTime'] = time();
+
+        $modelJdSign->updateByWhere([
+            'id' => $jd_sign_id,
+            'sign_key' => $sign_key,
+            'status' => 1,
+        ], [
+            'last_time' => time(),
+            'return_data' => serialize($return_data),
+        ]);
+
+    }
+
+    /**
+     * 执行 京东金融APP - 翻牌赢钢镚 - 所有
+     */
+    public static function doJRFlopRewardAll()
+    {
+        $modelJdSign = self::getModel('JdSign');
+        $offset = 0;
+        $limit = 100;
+        while (true) {
+            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+                // 类型为京享值领京豆
+                'ly_jd_sign.sign_key' => 'jrFlopReward',
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id asc', 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+            if (empty($jd_sign_list)) {
+                break;
+            }
+            foreach ($jd_sign_list as $jd_sign_info) {
+                try {
+                    self::doJRFlopReward(0, $jd_sign_info);
+                } catch (\Exception $e) {
+                    self::DI()->logger->info("翻牌赢钢镚|异常|{$e->getMessage()}", $jd_sign_info);
+                }
+            }
+            $offset += $limit;
+        }
+    }
+
+    /**
+     * 执行 京东金融APP - 翻牌赢钢镚
+     * @param int $jd_sign_id
+     * @param array $jd_sign_info
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
+     */
+    public static function doJRFlopReward(int $jd_sign_id, array $jd_sign_info = [])
+    {
+        $sign_key = 'jrFlopReward';
+        $modelJdSign = self::getModel('JdSign');
+        if (empty($jd_sign_info)) {
+            if (empty($jd_sign_id)) {
+                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
+            }
+            $jd_sign_info = $modelJdSign->getInfo([
+                'ly_jd_sign.id' => intval($jd_sign_id),
+                // 类型为签到
+                'ly_jd_sign.sign_key' => $sign_key,
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+        }
+        if (empty($jd_sign_info)) {
+            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
+        }
+        $jd_sign_id = intval($jd_sign_info['id']);
+
+        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
+        $day_begin = strtotime(date('Y-m-d'));
+        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+            return;
+            // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
+        }
+
+        // 设置请求所需的cookie
+        self::$user_cookie = [
+            'pt_key' => $jd_sign_info['pt_key'],
+            'pt_pin' => $jd_sign_info['pt_pin'],
+            'pt_token' => $jd_sign_info['pt_token'],
+        ];
+
+        $return_data = [];
+
+        // 查询是否能翻牌
+        $can_flop = self::JRFlopRewardInfo();
+        if (!$can_flop) {
+            return;
+        }
+
+        self::JRFlopReward();
+
+        // 明天早上7点的时间戳
+        $return_data['signTime'] = time();
+
+        $modelJdSign->updateByWhere([
+            'id' => $jd_sign_id,
+            'sign_key' => $sign_key,
+            'status' => 1,
+        ], [
+            'last_time' => time(),
+            'return_data' => serialize($return_data),
+        ]);
+
+    }
+
+    /**
+     * 执行 京东金融APP - 金币抽奖 - 所有
+     */
+    public static function doJRLotteryAll()
+    {
+        $modelJdSign = self::getModel('JdSign');
+        $offset = 0;
+        $limit = 100;
+        while (true) {
+            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+                // 类型为京享值领京豆
+                'ly_jd_sign.sign_key' => 'jrLottery',
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id asc', 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+            if (empty($jd_sign_list)) {
+                break;
+            }
+            foreach ($jd_sign_list as $jd_sign_info) {
+                try {
+                    self::doJRLottery(0, $jd_sign_info);
+                } catch (\Exception $e) {
+                    self::DI()->logger->info("金币抽奖|异常|{$e->getMessage()}", $jd_sign_info);
+                }
+            }
+            $offset += $limit;
+        }
+    }
+
+    /**
+     * 执行 京东金融APP - 金币抽奖
+     * @param int $jd_sign_id
+     * @param array $jd_sign_info
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
+     */
+    public static function doJRLottery(int $jd_sign_id, array $jd_sign_info = [])
+    {
+        $sign_key = 'jrLottery';
+        $modelJdSign = self::getModel('JdSign');
+        if (empty($jd_sign_info)) {
+            if (empty($jd_sign_id)) {
+                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
+            }
+            $jd_sign_info = $modelJdSign->getInfo([
+                'ly_jd_sign.id' => intval($jd_sign_id),
+                // 类型为签到
+                'ly_jd_sign.sign_key' => $sign_key,
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+        }
+        if (empty($jd_sign_info)) {
+            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
+        }
+        $jd_sign_id = intval($jd_sign_info['id']);
+
+        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
+        $day_begin = strtotime(date('Y-m-d'));
+        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+            return;
+            // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
+        }
+
+        // 设置请求所需的cookie
+        self::$user_cookie = [
+            'pt_key' => $jd_sign_info['pt_key'],
+            'pt_pin' => $jd_sign_info['pt_pin'],
+            'pt_token' => $jd_sign_info['pt_token'],
+        ];
+
+        $return_data = [];
+
+        // 查询是否能翻牌
+        $info = self::JRLotteryInfo();
+        if ($info === false || $info > 0) {
+            return;
+        }
+
+        self::JRLottery();
+
+        // 明天早上7点的时间戳
+        $return_data['signTime'] = time();
+
+        $modelJdSign->updateByWhere([
+            'id' => $jd_sign_id,
+            'sign_key' => $sign_key,
+            'status' => 1,
+        ], [
+            'last_time' => time(),
+            'return_data' => serialize($return_data),
+        ]);
+
+    }
+
+    /**
+     * 执行 京东金融APP - 每日赚京豆签到 - 所有
+     */
+    public static function doJRSignRecordsAll()
+    {
+        $modelJdSign = self::getModel('JdSign');
+        $offset = 0;
+        $limit = 100;
+        while (true) {
+            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+                // 类型为京享值领京豆
+                'ly_jd_sign.sign_key' => 'jrSignRecords',
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id asc', 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+            if (empty($jd_sign_list)) {
+                break;
+            }
+            foreach ($jd_sign_list as $jd_sign_info) {
+                try {
+                    self::doJRSignRecords(0, $jd_sign_info);
+                } catch (\Exception $e) {
+                    self::DI()->logger->info("每日赚京豆签到|异常|{$e->getMessage()}", $jd_sign_info);
+                }
+            }
+            $offset += $limit;
+        }
+    }
+
+    /**
+     * 执行 京东金融APP - 每日赚京豆签到
+     * @param int $jd_sign_id
+     * @param array $jd_sign_info
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
+     */
+    public static function doJRSignRecords(int $jd_sign_id, array $jd_sign_info = [])
+    {
+        $sign_key = 'jrSignRecords';
+        $modelJdSign = self::getModel('JdSign');
+        if (empty($jd_sign_info)) {
+            if (empty($jd_sign_id)) {
+                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
+            }
+            $jd_sign_info = $modelJdSign->getInfo([
+                'ly_jd_sign.id' => intval($jd_sign_id),
+                // 类型为签到
+                'ly_jd_sign.sign_key' => $sign_key,
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+        }
+        if (empty($jd_sign_info)) {
+            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
+        }
+        $jd_sign_id = intval($jd_sign_info['id']);
+
+        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
+        $day_begin = strtotime(date('Y-m-d'));
+        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+            // return;
+            // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
+        }
+
+        // 设置请求所需的cookie
+        self::$user_cookie = [
+            'pt_key' => $jd_sign_info['pt_key'],
+            'pt_pin' => $jd_sign_info['pt_pin'],
+            'pt_token' => $jd_sign_info['pt_token'],
+        ];
+
+        $return_data = [];
+
+        self::JRSignRecords();
+
+        // 明天早上7点的时间戳
+        $return_data['signTime'] = time();
+
+        $modelJdSign->updateByWhere([
+            'id' => $jd_sign_id,
+            'sign_key' => $sign_key,
+            'status' => 1,
+        ], [
+            'last_time' => time(),
+            'return_data' => serialize($return_data),
+        ]);
+
+    }
+
+    /**
      * 京豆 签到状态
      * @param bool $status
      * @return array|mixed
@@ -563,7 +1141,7 @@ class JdSign
      * @return mixed
      * @throws \Library\Exception\Exception
      */
-    public static function requestData($url)
+    public static function jdRequest($url)
     {
         self::DI()->curl->setCookie(self::$user_cookie);
         $res = self::DI()->curl->json_get($url);
@@ -599,8 +1177,7 @@ class JdSign
      */
     public static function beanSignInfo()
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'findBeanIndex',
             'body' => json_encode([
                 'source' => '',
@@ -615,12 +1192,9 @@ class JdSign
             'networkType' => '',
             'osVersion' => '',
             'uuid' => '',
-            // 'jsonp' => 'jsonp_1578980968527_84080',
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
-
-        $data = self::requestData($url);
+        $data = self::jdRequest($url);
         // 签到状态 根据测试, 1 表示已签到, 2 表示未签到, 3 表示未登录
         $sign_status = $data['status'] ?? 0;
         // if ($sign_status == 1) {
@@ -645,20 +1219,12 @@ class JdSign
      */
     public static function beanSign()
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'signBeanIndex',
             'body' => json_encode([
                 // 'source' => '',
                 'monitor_refer' => '',
                 'rnVersion' => '3.9',
-                'fp' => '-1',
-                'shshshfp' => '-1',
-                'shshshfpa' => '-1',
-                'referUrl' => '-1',
-                'userAgent' => '-1',
-                'jda' => '-1',
-                // 'rnClient' => '1',
                 'monitor_source' => 'bean_m_bean_index',
             ]),
             'appid' => 'ld',
@@ -667,12 +1233,10 @@ class JdSign
             'networkType' => '',
             'osVersion' => '',
             'uuid' => '',
-            // 'jsonp' => 'jsonp_1578980968527_84080',
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
-
-        $data = self::requestData($url);
+        $data = self::jdRequest($url);
+        self::DI()->logger->debug('京东APP签到', $data);
         return $data;
         /*{
             "signedRan": "B",
@@ -705,8 +1269,7 @@ class JdSign
      */
     public static function plantBeanInfo()
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'plantBeanIndex',
             'body' => json_encode([
                 'monitor_refer' => '',
@@ -722,12 +1285,9 @@ class JdSign
             'networkType' => '',
             'osVersion' => '',
             'uuid' => '',
-            // 'jsonp' => 'jsonp_1578980968527_84080',
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
-
-        $data = self::requestData($url);
+        $data = self::jdRequest($url);
 
         /*{
             "entryId": "2tpyf45pvqnbyoqbns6eertieu",
@@ -775,6 +1335,9 @@ class JdSign
         // $entryId = $data['entryId'];
         // 每轮信息数组
         $roundList = $data['roundList'];
+        // self::DI()->logger->debug('roundList', $roundList);
+        // 上轮信息
+        $last_round_info = $roundList[0] ?? [];
         // 本轮信息
         $this_round_info = $roundList[1] ?? [];
         // 本轮ID
@@ -793,6 +1356,7 @@ class JdSign
 
         return [
             // 'entryId' => $entryId,
+            'last_round' => $last_round_info,
             'roundId' => $this_round_id,
             'nutrients' => $this_round_nutrients,
             // 'timeNutrientsRes' => $timeNutrientsRes,
@@ -800,13 +1364,6 @@ class JdSign
             'nextReceiveTime' => $nextReceiveTime,
             'nutrCount' => $nutrCount,
         ];
-
-        // var_dump(date('Y-m-d H:i:s', $nextReceiveTime));
-        // die;
-        //
-        //
-        // self::DI()->logger->debug('种豆得豆 信息', $data);
-        // die;
     }
 
     /**
@@ -816,8 +1373,7 @@ class JdSign
      */
     public static function receiveNutrients()
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'receiveNutrients',
             'body' => json_encode([
                 'roundId' => self::$roundId,
@@ -831,12 +1387,9 @@ class JdSign
             'networkType' => '',
             'osVersion' => '',
             'uuid' => '',
-            // 'jsonp' => 'jsonp_1578980968527_84080',
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
-
-        $data = self::requestData($url);
+        $data = self::jdRequest($url);
         // 本次收取数量
         $nutrients = $data['nutrients'];
         // 下次收取时间 时间戳
@@ -897,8 +1450,7 @@ class JdSign
      */
     public static function plantFriendList($pageNum = 1)
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'plantFriendList',
             'body' => json_encode([
                 'pageNum' => (string)$pageNum,
@@ -912,12 +1464,9 @@ class JdSign
             'networkType' => '',
             'osVersion' => '',
             'uuid' => '',
-            // 'jsonp' => 'jsonp_1578980968527_84080',
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
-
-        $data = self::requestData($url);
+        $data = self::jdRequest($url);
         if (isset($data['tips'])) {
             return [];
         }
@@ -934,8 +1483,7 @@ class JdSign
      */
     public static function collectUserNutr()
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'collectUserNutr',
             'body' => json_encode([
                 'paradiseUuid' => self::$paradiseUuid,
@@ -950,12 +1498,9 @@ class JdSign
             'networkType' => '',
             'osVersion' => '',
             'uuid' => '',
-            // 'jsonp' => 'jsonp_1578980968527_84080',
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
-
-        $data = self::requestData($url);
+        $data = self::jdRequest($url);
 
         self::DI()->logger->debug('收取用户的营养液', $data);
 
@@ -976,8 +1521,7 @@ class JdSign
      */
     public static function cultureBean()
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'cultureBean',
             'body' => json_encode([
                 'roundId' => self::$roundId,
@@ -991,12 +1535,9 @@ class JdSign
             'networkType' => '',
             'osVersion' => '',
             'uuid' => '',
-            // 'jsonp' => 'jsonp_1578980968527_84080',
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
-
-        $data = self::requestData($url);
+        $data = self::jdRequest($url);
 
         self::DI()->logger->debug('培养京豆', $data);
 
@@ -1010,17 +1551,15 @@ class JdSign
      */
     public static function vvipclub_luckyBox()
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'vvipclub_luckyBox',
             'body' => json_encode([
                 'info' => 'freeTimes,title,beanNum,useBeanNum,imgUrl',
             ]),
             'appid' => 'vip_h5',
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
-        $data = self::requestData($url);
+        $data = self::jdRequest($url);
 
         self::DI()->logger->debug('京享值领京豆', $data);
 
@@ -1034,26 +1573,19 @@ class JdSign
      */
     public static function vvipclub_shaking()
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'vvipclub_shaking',
             'body' => json_encode([
                 'type' => '0',
                 'riskInfo' => [
                     'platform' => 3,
                     'pageClickKey' => 'MJDVip_Shake',
-                    // 'eid' => 'AT44TEP6BH5QHGV7AE5NED2EY6TBYYTNOXO7FYXGWRNVVPCZBM7KSACH3WX6CCH6NJYSBNDFKZELYB2UTWRFXK5NHQ',
-                    // 'fp' => '7f8a82fdd6584f4afcba1f69f1eebe42',
-                    // 'shshshfp' => '3a6f70a53124ab6c1c14dac8c8f6553e',
-                    // 'shshshfpa' => 'b57728e0-9c76-3ba0-cad4-b6a185c849a4-1567159746',
-                    // 'shshshfpb' => 'tVBqHpN7OyXYgPxIVBqY9vg==',
                 ],
             ]),
             'appid' => 'vip_h5',
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
-        $data = self::requestData($url);
+        $data = self::jdRequest($url);
 
         // self::DI()->logger->debug('京享值领京豆 摇一摇', $data);
 
@@ -1097,19 +1629,17 @@ class JdSign
      */
     public static function vvipclub_doTask($taskName, $taskItemId)
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'appid' => 'vip_h5',
             'functionId' => 'vvipclub_doTask',
             'body' => json_encode([
                 'taskName' => $taskName,
                 'taskItemId' => $taskItemId,
             ]),
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
         try {
-            $data = self::requestData($url);
+            $data = self::jdRequest($url);
             // self::DI()->logger->debug('京享值领京豆 完成任务', $data);
             return $data;
         } catch (\Exception $e) {
@@ -1124,18 +1654,16 @@ class JdSign
      */
     public static function vvipclub_lotteryTaskList()
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'appid' => 'vip_h5',
             'functionId' => 'vvipclub_lotteryTask',
             // 'body' => json_encode([
             //     'info' => 'shareTask,browseTask,attentionTask',
             //     'withItem' => false,
             // ]),
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
-        $data = self::requestData($url);
+        $data = self::jdRequest($url);
 
         // self::DI()->logger->debug('京享值领京豆 任务列表', $data);
 
@@ -1149,19 +1677,17 @@ class JdSign
      */
     public static function vvipclub_lotteryTaskInfo($taskName)
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'appid' => 'vip_h5',
             'functionId' => 'vvipclub_lotteryTask',
             'body' => json_encode([
                 'info' => $taskName,
                 'withItem' => true,
             ]),
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
         try {
-            $data = self::requestData($url);
+            $data = self::jdRequest($url);
             // self::DI()->logger->debug('京享值领京豆 任务详情', $data);
             return $data;
         } catch (\Exception $e) {
@@ -1176,8 +1702,7 @@ class JdSign
      */
     public static function wheelSurfIndex()
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'wheelSurfIndex',
             'body' => json_encode([
                 'actId' => 'jgpqtzjhvaoym',
@@ -1189,10 +1714,9 @@ class JdSign
             'networkType' => '',
             'osVersion' => '',
             'uuid' => '',
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
-        $data = self::requestData($url);
+        $data = self::jdRequest($url);
         self::$lotteryCode = $data['lotteryCode'] ?? '';
         // self::DI()->logger->debug('福利转盘 详情', $data);
         return $data;
@@ -1205,8 +1729,7 @@ class JdSign
      */
     public static function lotteryDraw()
     {
-        $base_url = 'https://api.m.jd.com/client.action';
-        $query_params = [
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'lotteryDraw',
             'body' => json_encode([
                 'actId' => 'jgpqtzjhvaoym',
@@ -1219,16 +1742,480 @@ class JdSign
             'networkType' => '',
             'osVersion' => '',
             'uuid' => '',
-        ];
+        ]);
 
-        $url = $base_url . '?' . http_build_query($query_params);
         try {
-            $data = self::requestData($url);
+            $data = self::jdRequest($url);
             // self::DI()->logger->debug('福利转盘 抽奖', $data);
             return $data;
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * 京东金融 APP 请求操作
+     * @param $url
+     * @param bool $data
+     * @return bool
+     * @throws \Library\Exception\Exception
+     */
+    public static function jrRequest($url, $data = false)
+    {
+        self::DI()->curl->setCookie(self::$user_cookie);
+
+        $res = empty($data) ? self::DI()->curl->json_get($url) : self::DI()->curl->json_post($url, $data);
+        $resultCode = $res['resultCode'] ?? 0;
+
+        if ($resultCode == 3) {
+            throw new \Library\Exception\Exception(\PhalApi\T('请更新登录状态cookie'));
+        } else if ($resultCode == 0) {
+            $data = $res['resultData'];
+        } else {
+            self::DI()->logger->debug('京东金融返回未知状态', $res);
+            throw new \Library\Exception\Exception(\PhalApi\T('请求失败'));
+        }
+
+        // resBusiCode
+        // 15 已经领取过
+        // 24 当天未签到
+
+        return $data;
+    }
+
+    /**
+     * 京东金融APP签到 信息
+     * @return bool|mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function JRSignInfo()
+    {
+        $url = self::buildURL('https://ms.jr.jd.com/gw/generic/gry/h5/m/querySignHistory');
+        $form_data = [
+            'reqData' => json_encode([
+                'channelSource' => 'JRAPP',
+                'riskDeviceParam' => json_encode([
+                ]),
+            ]),
+        ];
+        $res = self::jrRequest($url, $form_data);
+        // self::DI()->logger->debug('京东金融APP签到 信息', $res);
+        if ($res['resBusiCode'] != 0) {
+            throw new \Library\Exception\Exception($res['resBusiMsg']);
+        }
+        // 内容
+        $data = $res['resBusiData'] ?? [];
+        // 今天是否已签到 - 默认值为true，防止获取失败一直重复尝试签到
+        $isSign = $data['isSign'] ?? true;
+        return $isSign;
+    }
+
+    /**
+     * 京东金融APP签到 今天签到结果
+     * @return array|mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function JRTodaySignResult()
+    {
+        $url = self::buildURL('https://ms.jr.jd.com/gw/generic/gry/h5/m/queryTodaySignResult');
+        $form_data = [
+            'reqData' => json_encode([
+                'channelSource' => 'JRAPP',
+                'riskDeviceParam' => json_encode([
+                ]),
+            ]),
+        ];
+
+        $res = self::jrRequest($url, $form_data);
+        // self::DI()->logger->debug('京东金融APP签到', $res);
+        if ($res['resBusiCode'] != 0) {
+            throw new \Library\Exception\Exception($res['resBusiMsg']);
+        }
+        $data = $res['resBusiData'] ?? [];
+        return $data;
+    }
+
+    /**
+     * 京东金融APP签到
+     * @return array|mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function JRSign()
+    {
+        $url = self::buildURL('https://ms.jr.jd.com/gw/generic/gry/h5/m/signIn');
+        $form_data = [
+            'reqData' => json_encode([
+                'channelSource' => 'JRAPP',
+                'riskDeviceParam' => json_encode([
+                ]),
+            ]),
+        ];
+
+        $res = self::jrRequest($url, $form_data);
+        self::DI()->logger->debug('京东金融APP签到', $res);
+        if ($res['resBusiCode'] != 0) {
+            throw new \Library\Exception\Exception($res['resBusiMsg']);
+        }
+        $data = $res['resBusiData'] ?? [];
+        return $data;
+    }
+
+    /**
+     * 京东APP、京东金融APP 领取双签礼包
+     * @return array|mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function doubleSign()
+    {
+        $url = self::buildURL('https://nu.jr.jd.com/gw/generic/jrm/h5/m/process');
+        $form_data = [
+            'reqData' => json_encode([
+                'actCode' => 'FBBFEC496C',
+                // 双签相关请求类型：9 获取双签相关信息 3 领取双签礼包 12 双签领取结果
+                'type' => 3,
+                'frontParam' => [
+                    'channel' => 'JR'
+                ],
+                'riskDeviceParam' => json_encode([
+                ]),
+            ]),
+        ];
+
+        $res = self::jrRequest($url, $form_data);
+        if ($res['code'] != 200) {
+            self::DI()->logger->error("领取双签礼包|{$res['msg']}", $res);
+            throw new \Library\Exception\Exception($res['msg']);
+        }
+        $res = $res['data'];
+        if ($res['businessCode'] != '000sq') {
+            self::DI()->logger->error("领取双签礼包|{$res['businessMsg']}", $res);
+            throw new \Library\Exception\Exception($res['businessMsg']);
+        }
+        $data = $res['businessData'] ?? [];
+        if ($data['businessCode'] != '000sq') {
+            self::DI()->logger->error("领取双签礼包|{$data['businessMsg']}", $data);
+            throw new \Library\Exception\Exception($data['businessMsg']);
+        }
+        return $data;
+    }
+
+    /**
+     * 京东金融APP 提升白条额度信息
+     * @return array|mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function JRRiseLimitInfo()
+    {
+        $url = self::buildURL('https://ms.jr.jd.com/gw/generic/bt/h5/m/getRiseLimitItems');
+
+        $form_data = [
+            'reqData' => json_encode([
+                "riskDeviceInfo" => [
+                    "appId" => "com.jd.jinrong",
+                ],
+            ]),
+        ];
+
+        $res = self::jrRequest($url, $form_data);
+        if ($res['code'] != '0000') {
+            self::DI()->logger->error("提升白条额度信息|{$res['error_msg']}", $res);
+            throw new \Library\Exception\Exception($res['error_msg']);
+        }
+        $raiseItemList = $res['raiseItemList'] ?? [];
+        $raiseItem = $raiseItemList[0] ?? [];
+        // 编号 $raiseItem['uniqueCode']
+        // 状态 $raiseItem['itemStatus'] 0 可领取 4 不可领取
+        // 额度提升数量 $raiseItem['changeLimit']
+
+        if (empty($raiseItem) || $raiseItem['itemStatus'] != 0) {
+            return [];
+        }
+
+        return $raiseItem;
+    }
+
+    /**
+     * 京东金融APP 提升白条额度
+     * @param array $raiseItem
+     * @return array|mixed|void
+     * @throws \Library\Exception\Exception
+     */
+    public static function JRRiseLimit($raiseItem = [])
+    {
+        if (empty($raiseItem)) {
+            return;
+        }
+
+        $url = self::buildURL('https://ms.jr.jd.com/gw/generic/bt/h5/m/receiveDailyQuotaPackage');
+        $form_data = [
+            'reqData' => json_encode([
+                "packageId" => $raiseItem['uniqueCode'],
+            ]),
+        ];
+
+        $res = self::jrRequest($url, $form_data);
+
+        // self::DI()->logger->debug('提升白条额度', $res);
+
+        if (empty($res['result'])) {
+            self::DI()->logger->error("提升白条额度", $res);
+            throw new \Library\Exception\Exception('返回数据结构异常');
+        }
+        $data = $res['result'];
+        if ($data['code'] != '0' || $data['issuccess'] != 1) {
+            self::DI()->logger->error("提升白条额度|{$data['error_msg']}", $data);
+            throw new \Library\Exception\Exception($data['error_msg']);
+        }
+        return $res;
+    }
+
+    /**
+     * 京东金融APP 翻牌赢钢镚 信息
+     * @return int
+     * @throws \Library\Exception\Exception
+     */
+    public static function JRFlopRewardInfo()
+    {
+        $url = self::buildURL('https://gps.jd.com/activity/signin/reward/home', [
+            'uaType' => 2,
+            'platCode' => 3
+        ]);
+
+        self::DI()->curl->setCookie(self::$user_cookie);
+        $res = self::DI()->curl->json_get($url);
+
+        if ($res['code'] != 1) {
+            self::DI()->logger->error("翻牌赢钢镚 信息|{$res['msg']}", $res);
+            throw new \Library\Exception\Exception($res['msg']);
+        }
+
+        $data = $res['data'];
+        if ($data['result'] != 0) {
+            self::DI()->logger->error("翻牌赢钢镚 信息|返回数据异常", $data);
+            throw new \Library\Exception\Exception('返回数据异常');
+        }
+        $isAllowSignin = 0;
+        if (isset($data['isAllowSignin'])) {
+            $isAllowSignin = $data['isAllowSignin'];
+        } else if (isset($data['total']) && isset($data['used'])) {
+            $isAllowSignin = $data['total'] > $data['used'] ? 1 : 0;
+        } else {
+            self::DI()->logger->error("翻牌赢钢镚 信息|返回数据发生变化", $data);
+        }
+
+        return $isAllowSignin;
+    }
+
+    /**
+     * 京东金融APP 翻牌赢钢镚
+     * @return mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function JRFlopReward()
+    {
+        $url = self::buildURL('https://gps.jd.com/activity/signin/reward/choice', [
+            'uaType' => 2,
+            'position' => 1,
+            'platCode' => 3,
+        ]);
+
+        self::DI()->curl->setCookie(self::$user_cookie);
+        $res = self::DI()->curl->json_get($url);
+
+        if ($res['code'] != 1) {
+            self::DI()->logger->error("翻牌赢钢镚|{$res['msg']}", $res);
+            throw new \Library\Exception\Exception($res['msg']);
+        }
+
+        $data = $res['data'];
+        if ($data['result'] != 0) {
+            self::DI()->logger->error("翻牌赢钢镚|返回数据异常", $data);
+            throw new \Library\Exception\Exception('返回数据异常');
+        }
+
+        // self::DI()->logger->info("翻牌赢钢镚", $data);
+        return $data;
+    }
+
+    /**
+     * 京东金融APP 金币抽奖 信息
+     * @return bool|mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function JRLotteryInfo()
+    {
+        $url = self::buildURL('https://ms.jr.jd.com/gw/generic/hy/h5/m/lotteryInfo', [
+            'reqData' => json_encode([
+                'actKey' => 'AbeQry',
+            ]),
+        ]);
+
+        $res = self::jrRequest($url);
+
+        if ($res['code'] != '0000') {
+            self::DI()->logger->error("金币抽奖 信息|{$res['msg']}", $res);
+            throw new \Library\Exception\Exception($res['msg']);
+        }
+        self::DI()->logger->info("金币抽奖 信息", $res);
+
+        $data = $res['data'];
+        // 设定，消耗0金币为免费抽奖，返回数组错误时返回false
+        $lotteryCoins = $data['lotteryCoins'] ?? false;
+
+        return $lotteryCoins;
+    }
+
+    /**
+     * 京东金融APP 金币抽奖
+     * @return bool|mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function JRLottery()
+    {
+        $url = self::buildURL('https://ms.jr.jd.com/gw/generic/hy/h5/m/lottery', [
+            'reqData' => json_encode([
+                'actKey' => 'AbeQry',
+            ]),
+        ]);
+
+        self::DI()->curl->setHeader(['Referer' => 'https://m.jr.jd.com/member/coinlottery/index.html?channel=01-qd-190306']);
+        $res = self::jrRequest($url);
+        self::DI()->curl->unsetHeader('Referer');
+        self::DI()->logger->info("金币抽奖", $res);
+
+        // if ($res['code'] != '1000') {
+        //     self::DI()->logger->error("金币抽奖|{$res['msg']}", $res);
+        //     throw new \Library\Exception\Exception($res['msg']);
+        // }
+        //
+        // $data = $res['data'];
+
+        return true;
+    }
+
+    /**
+     * 京东金融APP 每日赚京豆 - 签到
+     * @return bool|mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function JRSignRewardGift()
+    {
+        $url = self::buildURL('https://ms.jr.jd.com/gw/generic/zc/h5/m/signRewardGift');
+
+        self::DI()->curl->setHeader(['Referer' => 'https://jddx.jd.com/m/jddnew/money/index.html?from=dlqfl']);
+        $res = self::jrRequest($url, [
+            'reqData' => json_encode([
+                'bizLine' => 2,
+                'signDate' => date('Ymd'),
+                'deviceInfo' => [
+                ],
+                'clientType' => 'sms',
+                'clientVersion' => '11.0',
+            ])
+        ]);
+        self::DI()->curl->unsetHeader('Referer');
+
+        if ($res['resultCode'] != '00000') {
+            self::DI()->logger->error("每日赚京豆 - 签到|{$res['resultMsg']}", $res);
+            throw new \Library\Exception\Exception($res['resultMsg']);
+        }
+
+        $data = $res['data'];
+        self::DI()->logger->info("每日赚京豆 - 签到", $data);
+
+        return $res;
+    }
+
+    /**
+     * 京东金融APP 每日赚京豆 - 连续签到信息
+     * @return bool|mixed
+     * @throws \Library\Exception\Exception
+     */
+    public static function JRSignRecords()
+    {
+        $url = self::buildURL('https://ms.jr.jd.com/gw/generic/zc/h5/m/signRecords');
+
+        self::DI()->curl->setHeader(['Referer' => 'https://jddx.jd.com/m/jddnew/money/index.html?from=dlqfl']);
+        $res = self::jrRequest($url, [
+            'reqData' => json_encode([
+                'bizLine' => 2,
+                'deviceInfo' => [
+                    // 'openUUID' => '',
+                    'optType' => 'https://jddx.jd.com/m/jddnew/money/index.html?from=dlqfl',
+                ],
+                'clientType' => 'sms',
+                'clientVersion' => '11.0'
+            ])
+        ]);
+        self::DI()->curl->unsetHeader('Referer');
+
+        if ($res['resultCode'] != '00000') {
+            self::DI()->logger->error("每日赚京豆 - 连续签到信息|{$res['resultMsg']}", $res);
+            throw new \Library\Exception\Exception($res['resultMsg']);
+        }
+
+        $data = $res['data'];
+        if (empty($data['signRecords'])) {
+            self::DI()->logger->info("每日赚京豆 - 连续签到信息", $data);
+            return;
+        }
+
+        foreach ($data['signRecords'] as $signRecord) {
+            if ($signRecord['signDate'] == date('Ymd')) {
+                if ($signRecord['signStatus'] == 2) {
+                    self::JRSignRewardGift();
+                }
+                break;
+            }
+        }
+
+        return $res;
+    }
+
+    /**
+     * 构架请求
+     * @param string $url 请求地址
+     * @param array|string $params 请求参数
+     * @return string
+     * @throws \Library\Exception\Exception
+     */
+    public static function buildURL($url, $params = [])
+    {
+        $url_info = parse_url($url);
+        if (!$url_info) {
+            throw new \Library\Exception\Exception('非法请求地址');
+        }
+        // URL携带的参数转成数组
+        parse_str($url_info['query'] ?? '', $query);
+        // 有传入请求参数
+        if (!empty($params)) {
+            if (is_string($params)) {
+                // 如果开头是 ? 把 ? 去掉
+                if (strpos($params, '?') === 0) {
+                    $params = substr($params, 1);
+                }
+                // 参数转成数组
+                parse_str($params, $params);
+            }
+        } else {
+            $params = [];
+        }
+        // 传入参数替换原有参数
+        $params = array_merge($query, $params);
+        // 参数数组构建为请求字符串
+        $params = http_build_query($params);
+
+        $scheme = isset($url_info['scheme']) ? $url_info['scheme'] . ':' : '';
+        $pass = isset($url_info['pass']) ? ':' . $url_info['pass'] : '';
+        $user = isset($url_info['user']) ? $url_info['user'] . $pass . '@' : '';
+        $host = $url_info['host'] ?? '';
+        $port = isset($url_info['port']) ? ':' . $url_info['port'] : '';
+        $path = $url_info['path'] ?? '';
+        $query = empty($params) ? '' : '?' . $params;
+        $fragment = isset($url_info['fragment']) ? '#' . $url_info['fragment'] : '';
+        // scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
+
+        return $scheme . '//' . $user . $host . $port . $path . $query . $fragment;
     }
 
     /**
