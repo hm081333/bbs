@@ -135,12 +135,12 @@ function decrypt(string $data, string $method = 'AES-256-CFB')
 
 /**
  * 密码加密方法
- * @param string     $password 需要加密的密码
- * @param int|string $algo     加密模式
- * @param array|NULL $options  加密选项
+ * @param string $password 需要加密的密码
+ * @param string|int $algo 加密模式
+ * @param array|NULL $options 加密选项
  * @return bool|string
  */
-function pwd_hash(string $password, int $algo = PASSWORD_DEFAULT, array $options = null)
+function pwd_hash(string $password, $algo = PASSWORD_DEFAULT, array $options = null)
 {
     if (empty($options)) {
         return password_hash($password, $algo);
@@ -152,7 +152,7 @@ function pwd_hash(string $password, int $algo = PASSWORD_DEFAULT, array $options
 /**
  * 密码验证方法
  * @param string $password 需要对比的密码
- * @param string $hash     加密后的密码
+ * @param string $hash 加密后的密码
  * @return bool
  */
 function pwd_verify(string $password, string $hash)
@@ -308,6 +308,7 @@ function getModuleNameSpaceByURI($uri)
 /**
  * 清空目录以及子目录等所有文件--不删除目录
  * @param $path
+ * @return bool
  */
 function emptyDir($path)
 {
@@ -326,29 +327,18 @@ function emptyDir($path)
         }
     }
     closedir($dir);
+    return true;
 }
 
 /**
  * 删除目录以及子目录等所有文件
  * - 请注意不要删除重要目录！
  * @param string $path 需要删除目录路径
+ * @return bool
  */
 function deleteDir($path)
 {
-    if (!is_dir($path)) {
-        return false;
-    }
-    $dir = opendir($path);
-    while (false !== ($file = readdir($dir))) {
-        if (($file != '.') && ($file != '..')) {
-            $full = $path . '/' . $file;
-            if (is_dir($full)) {
-                \Common\deleteDir($full);
-            } else {
-                unlink($full);
-            }
-        }
-    }
-    closedir($dir);
+    emptyDir($path);
     rmdir($path);
+    return true;
 }
