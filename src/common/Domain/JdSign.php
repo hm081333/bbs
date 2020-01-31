@@ -287,6 +287,20 @@ class JdSign
         $return_data = [];
         // 种豆得豆相关信息
         $plant_info = self::plantBeanInfo();
+        // 种豆得豆任务
+        $awardList = $plant_info['awardList'];
+        foreach ($awardList as $award) {
+            // limitFlag为2代表任务已完成
+            // if ($award['limitFlag'] == 2) continue;
+            if (isset($award['childAwardList'])) {
+                foreach ($award['childAwardList'] as $childAward) {
+                    self::doPlantBeanAward($childAward);
+                }
+                unset($childAward);
+            } else {
+                self::doPlantBeanAward($award);
+            }
+        }
         // 持有数量
         $nutrients = $plant_info['nutrients'];
         // 下次收取时间
@@ -421,7 +435,6 @@ class JdSign
 
         for ($i = 0; $i < $luckyBox_info['freeTimes']; $i++) {
             self::vvipclub_shaking();
-            sleep(2);
         }
 
         // 明天早上7点的时间戳
@@ -523,7 +536,6 @@ class JdSign
 
         for ($i = 0; $i < $info['lotteryCount']; $i++) {
             self::lotteryDraw();
-            sleep(2);
         }
 
         // 明天早上7点的时间戳
@@ -717,6 +729,8 @@ class JdSign
         $return_data = [];
 
         self::doubleSign();
+        // 领取双签送的营养液
+        self::receiveNutrientsTask('7');
 
         // 明天早上7点的时间戳
         $return_data['signTime'] = time();
@@ -1138,13 +1152,14 @@ class JdSign
     /**
      * 请求操作
      * @param $url
-     * @return mixed
+     * @param bool $data
+     * @return array|bool
      * @throws \Library\Exception\Exception
      */
-    public static function jdRequest($url)
+    public static function jdRequest($url, $data = false)
     {
         self::DI()->curl->setCookie(self::$user_cookie);
-        $res = self::DI()->curl->json_get($url);
+        $res = $data === false ? self::DI()->curl->json_get($url) : self::DI()->curl->json_post($url, $data);
         if (isset($res['success'])) {
             $data = [];
             if ($res['success']) {
@@ -1159,7 +1174,7 @@ class JdSign
                 self::DI()->logger->error('接口异常', $res);
                 throw new \Library\Exception\Exception(\PhalApi\T('接口异常'));
             }
-            $data = $res['data'] ?? [];
+            $data = $res['data'] ?? $res;
             $errorCode = $res['errorCode'] ?? false;
             $errorMessage = $res['errorMessage'] ?? false;
             if (!empty($errorMessage)) {
@@ -1167,6 +1182,7 @@ class JdSign
                 throw new \Library\Exception\Exception($res['errorMessage']);
             }
         }
+        sleep(2);
         return $data;
     }
 
@@ -1353,6 +1369,8 @@ class JdSign
         $nextReceiveTime = substr($timeNutrientsRes['nextReceiveTime'] ?? '0', 0, 10);
         // 本次可领取数量
         $nutrCount = $timeNutrientsRes['nutrCount'] ?? 0;
+        // 任务列表
+        $awardList = $data['awardList'];
 
         return [
             // 'entryId' => $entryId,
@@ -1363,6 +1381,7 @@ class JdSign
             'timeNutrientsResState' => $timeNutrientsResState,
             'nextReceiveTime' => $nextReceiveTime,
             'nutrCount' => $nutrCount,
+            'awardList' => $awardList,
         ];
     }
 
@@ -1404,6 +1423,339 @@ class JdSign
     }
 
     /**
+     * 完成种豆得豆任务
+     * @param bool $info
+     * @return bool
+     * @throws \Library\Exception\Exception
+     */
+    public static function doPlantBeanAward($info = false)
+    {
+        // limitFlag为2代表任务已完成
+        if ($info === false || $info['limitFlag'] == 2) return false;
+
+        // var_dump($info['awardName'] . ' ---- ' . $info['awardType']);
+        // 每日签到 ---- 1
+        // 浏览店铺 ---- 3
+        // 关注商品 ---- 5
+        // 邀请好友 ---- 2
+        // 医药会场 ---- 4
+        // 金融双签 ---- 7
+        switch (intval($info['awardType'])) {
+            case 3:
+                self::shopTaskList();
+                break;
+            case 4:
+                self::purchaseRewardTask();
+                break;
+            case 5:
+                self::productTaskList();
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    /**
+     * 种豆得豆任务
+     * @param bool $awardType 7签到
+     * @return array|bool|void
+     * @throws \Library\Exception\Exception
+     */
+    public static function receiveNutrientsTask($awardType = false)
+    {
+        if ($awardType === false) {
+            return;
+        }
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
+            'functionId' => 'receiveNutrientsTask',
+        ]);
+
+        $data = self::jdRequest($url, [
+            'body' => json_encode([
+                'monitor_refer' => 'plant_receiveNutrientsTask',
+                'monitor_source' => 'plant_app_plant_index',
+                'awardType' => (string)$awardType,
+                'version' => '8.4.0.0',
+            ]),
+            'appid' => 'ld',
+            'client' => 'android',
+            'clientVersion' => ' nexus 5 build/mra58n) applewebkit/537.36 (khtml, like gecko) chrome/79.0.3945.117 mobile safari/537.36',
+            'networkType' => '',
+            'osVersion' => '',
+            'uuid' => '',
+        ]);
+
+        self::DI()->logger->debug("完成奖励营养液的任务|awardType|{$awardType}", $data);
+
+        return $data;
+    }
+
+    /**
+     * 种豆得豆任务 - 逛逛会场
+     * @return array|bool
+     * @throws \Library\Exception\Exception
+     */
+    public static function purchaseRewardTask()
+    {
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
+            'functionId' => 'purchaseRewardTask',
+        ]);
+
+        $data = self::jdRequest($url, [
+            'body' => json_encode([
+                'monitor_refer' => 'plant_purchaseRewardTask',
+                'monitor_source' => 'plant_app_plant_index',
+                'roundId' => self::$roundId,
+                'version' => '8.4.0.0',
+            ]),
+            'appid' => 'ld',
+            'client' => 'android',
+            'clientVersion' => ' nexus 5 build/mra58n) applewebkit/537.36 (khtml, like gecko) chrome/79.0.3945.117 mobile safari/537.36',
+            'networkType' => '',
+            'osVersion' => '',
+            'uuid' => '',
+        ]);
+
+        self::DI()->logger->debug("完成奖励营养液的任务 - 逛逛会场", $data);
+
+        return $data;
+    }
+
+    /**
+     * 种豆得豆任务 - 关注店铺 - 列表
+     * @return array|bool
+     * @throws \Library\Exception\Exception
+     */
+    public static function shopTaskList()
+    {
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
+            'functionId' => 'shopTaskList',
+        ]);
+
+        $data = self::jdRequest($url, [
+            'body' => json_encode([
+                'monitor_refer' => 'plant_shopList',
+                'monitor_source' => 'plant_app_plant_index',
+                'version' => '8.4.0.0',
+            ]),
+            'appid' => 'ld',
+            'client' => 'android',
+            'clientVersion' => ' nexus 5 build/mra58n) applewebkit/537.36 (khtml, like gecko) chrome/79.0.3945.117 mobile safari/537.36',
+            'networkType' => '',
+            'osVersion' => '',
+            'uuid' => '',
+        ]);
+
+        // self::DI()->logger->debug("种豆得豆任务 - 关注店铺 - 列表", $data);
+
+        $goodShopList = $data['goodShopList'] ?? [];
+        $moreShopList = $data['moreShopList'] ?? [];
+        foreach ($goodShopList as $item) {
+            // 任务状态为2表示还能领取营养液
+            if ($item['taskState'] == 2) {
+                self::shopNutrientsTask($item['shopId'], $item['shopTaskId']);
+            }
+        }
+        unset($goodShopList, $item);
+        foreach ($moreShopList as $item) {
+            // 任务状态为2表示还能领取营养液
+            if ($item['taskState'] == 2) {
+                self::shopNutrientsTask($item['shopId'], $item['shopTaskId']);
+            }
+        }
+        unset($moreShopList, $item);
+
+        return true;
+    }
+
+    /**
+     * 种豆得豆任务 - 关注店铺
+     * @param $shopId
+     * @param $shopTaskId
+     * @return array|bool
+     * @throws \Library\Exception\Exception
+     */
+    public static function shopNutrientsTask($shopId = false, $shopTaskId = false)
+    {
+        if (!$shopId || !$shopTaskId) {
+            return false;
+        }
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
+            'functionId' => 'shopNutrientsTask',
+        ]);
+
+        $data = self::jdRequest($url, [
+            'body' => json_encode([
+                'monitor_refer' => 'plant_shopNutrientsTask',
+                'monitor_source' => 'plant_app_plant_index',
+                'shopId' => (string)$shopId,
+                'shopTaskId' => (string)$shopTaskId,
+                'version' => '8.4.0.0',
+            ]),
+            'appid' => 'ld',
+            'client' => 'android',
+            'clientVersion' => ' nexus 5 build/mra58n) applewebkit/537.36 (khtml, like gecko) chrome/79.0.3945.117 mobile safari/537.36',
+            'networkType' => '',
+            'osVersion' => '',
+            'uuid' => '',
+        ]);
+        self::DI()->logger->debug("种豆得豆任务 - 关注店铺", $data);
+        // 取消关注店铺
+        self::JDFollowShop($shopId);
+
+        return $data;
+    }
+
+    /**
+     * 关注店铺、取消关注店铺
+     * @param bool $shopId
+     * @param bool $follow
+     * @return array|bool
+     * @throws \Library\Exception\Exception
+     */
+    public static function JDFollowShop($shopId = false, $follow = false)
+    {
+        if (!$shopId) {
+            return false;
+        }
+        $follow = !$follow ? 'DelShopFav' : 'AddShopFav';
+        $url = self::buildURL("https://wq.jd.com/fav/shop/{$follow}", [
+            'shopId' => (string)$shopId,
+            'venderId' => (string)$shopId,
+            'sceneval' => '2',
+            'g_login_type' => '1',
+            // 'callback' => 'jsonpCBKO',
+            'g_ty' => 'ls',
+        ]);
+        self::DI()->curl->setCookie(self::$user_cookie);
+        self::DI()->curl->setHeader([
+            'referer' => "https://shop.m.jd.com/?shopId={$shopId}"
+        ]);
+        $data = self::DI()->curl->json_get($url);
+        self::DI()->curl->unsetHeader('referer');
+        if ($data['iRet'] != 0) {
+            throw new \Library\Exception\Exception($data['errMsg']);
+        }
+
+        // self::DI()->logger->debug('关注店铺、取消关注店铺', $data);
+
+        return true;
+    }
+
+    /**
+     * 种豆得豆任务 - 关注商品 - 列表
+     * @return array|bool
+     * @throws \Library\Exception\Exception
+     */
+    public static function productTaskList()
+    {
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
+            'functionId' => 'productTaskList',
+        ]);
+
+        $data = self::jdRequest($url, [
+            'body' => json_encode([
+                'monitor_refer' => 'plant_productTaskList',
+                'monitor_source' => 'plant_app_plant_index',
+                'version' => '8.4.0.0',
+            ]),
+            'appid' => 'ld',
+            'client' => 'android',
+            'clientVersion' => ' nexus 5 build/mra58n) applewebkit/537.36 (khtml, like gecko) chrome/79.0.3945.117 mobile safari/537.36',
+            'networkType' => '',
+            'osVersion' => '',
+            'uuid' => '',
+        ]);
+
+        // self::DI()->logger->debug("种豆得豆任务 - 关注商品 - 列表", $data);
+
+        $productInfoList = $data['productInfoList'] ?? [];
+        foreach ($productInfoList as $item) {
+            foreach ($item as $info) {
+                // 任务状态为2表示还能领取营养液
+                if ($info['taskState'] == 2) {
+                    self::productNutrientsTask($info['skuId'], $info['productTaskId']);
+                }
+            }
+        }
+        unset($productInfoList, $item);
+
+        return true;
+    }
+
+    /**
+     * 种豆得豆任务 - 关注店铺
+     * @param $skuId
+     * @param $productTaskId
+     * @return array|bool
+     * @throws \Library\Exception\Exception
+     */
+    public static function productNutrientsTask($skuId = false, $productTaskId = false)
+    {
+        if (!$skuId || !$productTaskId) {
+            return false;
+        }
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
+            'functionId' => 'productNutrientsTask',
+        ]);
+
+        $data = self::jdRequest($url, [
+            'body' => json_encode([
+                'monitor_refer' => 'plant_productNutrientsTask',
+                'monitor_source' => 'plant_app_plant_index',
+                'productTaskId' => (string)$productTaskId,
+                'skuId' => (string)$skuId,
+                'version' => '8.4.0.0',
+            ]),
+            'appid' => 'ld',
+            'client' => 'android',
+            'clientVersion' => ' nexus 5 build/mra58n) applewebkit/537.36 (khtml, like gecko) chrome/79.0.3945.117 mobile safari/537.36',
+            'networkType' => '',
+            'osVersion' => '',
+            'uuid' => '',
+        ]);
+        self::DI()->logger->debug("种豆得豆任务 - 关注店铺", $data);
+        // 取消收藏商品
+        self::JDFavoriteGood($skuId);
+
+        return $data;
+    }
+
+    /**
+     * 收藏商品、取消收藏商品
+     * @param bool $skuId
+     * @param bool $favorite
+     * @return array|bool
+     * @throws \Library\Exception\Exception
+     */
+    public static function JDFavoriteGood($skuId = false, $favorite = false)
+    {
+        if (!$skuId) {
+            return false;
+        }
+        $favorite = !$favorite ? 'FavCommDel' : 'FavCommAdd';
+        $url = self::buildURL("https://wq.jd.com/fav/comm/{$favorite}", [
+            // 'shopId' => (string)'',
+            'commId' => (string)$skuId,
+            'sceneval' => '2',
+        ]);
+        self::DI()->curl->setCookie(self::$user_cookie);
+        self::DI()->curl->setHeader([
+            'referer' => "https://shop.m.jd.com/?shopId={$skuId}"
+        ]);
+        $data = self::DI()->curl->json_get($url);
+        self::DI()->curl->unsetHeader('referer');
+        if ($data['iRet'] != 0) {
+            throw new \Library\Exception\Exception($data['errMsg']);
+        }
+
+        // self::DI()->logger->debug('关注店铺、取消关注店铺', $data);
+
+        return true;
+    }
+
+    /**
      * 种豆得豆好友收集营养液
      * @return array
      * @throws \Library\Exception\Exception
@@ -1430,7 +1782,7 @@ class JdSign
                     // 累积总奖励
                     $nutrients += $collect_res['collectNutrRewards'];
                     // 间隔 1s 防止出现 抱歉，活动太火爆了 提示
-                    sleep(2);
+                    // sleep(2);
                 }
             }
             // 页码+1 - 下一页
@@ -1616,7 +1968,6 @@ class JdSign
             for ($i = $item['currentFinishTimes']; $i < $item['totalPrizeTimes']; $i++) {
                 $taskItemId = $taskItems[$i]['id'];
                 self::vvipclub_doTask($taskName, $taskItemId);
-                sleep(2);
             }
         }
     }
@@ -1780,6 +2131,7 @@ class JdSign
         // 15 已经领取过
         // 24 当天未签到
 
+        sleep(2);
         return $data;
     }
 
