@@ -1685,7 +1685,7 @@ class JdSign
     }
 
     /**
-     * 种豆得豆任务 - 关注店铺
+     * 种豆得豆任务 - 关注商品
      * @param $skuId
      * @param $productTaskId
      * @return array|bool
@@ -1715,7 +1715,7 @@ class JdSign
             'osVersion' => '',
             'uuid' => '',
         ]);
-        self::DI()->logger->debug("种豆得豆任务 - 关注店铺", $data);
+        self::DI()->logger->debug("种豆得豆任务 - 关注商品", $data);
         // 取消收藏商品
         self::JDFavoriteGood($skuId);
 
