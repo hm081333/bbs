@@ -186,6 +186,16 @@ class JdSign
             case 2:
                 // 进行签到
                 $return_data = self::beanSign();
+                $award = [];
+                if ($return_data['awardType'] == 1) {
+                    // 普通签到奖励
+                    $award = $return_data['dailyAward'];
+                } else if ($return_data['awardType'] == 2) {
+                    // 连续签到奖励
+                    $award = $return_data['continuityAward'];
+                } else {
+                    self::DI()->logger->error('京东APP签到|未知签到奖励类型', $return_data);
+                }
                 $modelJdSign->updateByWhere([
                     'id' => $jd_sign_id,
                     'sign_key' => $sign_key,
@@ -194,7 +204,7 @@ class JdSign
                     'last_time' => time(),
                     'return_data' => serialize([
                         'status' => $return_data['status'],
-                        'dailyAward' => $return_data['dailyAward'],
+                        'dailyAward' => $award,
                         'signTime' => time(),
                     ]),
                 ]);
@@ -1252,7 +1262,7 @@ class JdSign
         ]);
 
         $data = self::jdRequest($url);
-        self::DI()->logger->debug('京东APP签到', $data);
+        // self::DI()->logger->debug('京东APP签到', $data);
         return $data;
         /*{
             "signedRan": "B",
