@@ -1262,7 +1262,7 @@ class JdSign
         ]);
 
         $data = self::jdRequest($url);
-        // self::DI()->logger->debug('京东APP签到', $data);
+        self::DI()->logger->debug('京东APP签到', $data);
         return $data;
         /*{
             "signedRan": "B",
