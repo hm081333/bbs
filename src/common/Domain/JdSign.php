@@ -297,6 +297,7 @@ class JdSign
         $return_data = [];
         // 种豆得豆相关信息
         $plant_info = self::plantBeanInfo();
+        self::$roundId = $plant_info['roundId'];
         // 种豆得豆任务
         $awardList = $plant_info['awardList'];
         foreach ($awardList as $award) {
@@ -317,7 +318,7 @@ class JdSign
         $return_data['next_time'] = $plant_info['nextReceiveTime'];
         // 可收取营养液数量大于0
         if ($plant_info['nutrCount'] > 0) {
-            $receive_info = self::receiveNutrients();
+            $receive_info = self::receiveNutrients($plant_info['roundId']);
             // 持有数量
             $nutrients = $receive_info['nutrients'];
             // 下次收取时间
@@ -330,15 +331,16 @@ class JdSign
         // 持有营养液
         if ($nutrients > 0) {
             // 使用营养液 培养京豆
-            self::cultureBean();
+            self::cultureBean($plant_info['roundId']);
         }
 
         // awardState： 1：培养中 5：待领取 6：已领取
         // beanState： 2：发芽 4：成豆
         $last_round_info = $plant_info['last_round'];
         // 上轮京豆未收取
-        if ($last_round_info['awardState'] == 5) {
-            #TODO 收取京豆
+        if (isset($last_round_info['roundId']) && $last_round_info['awardState'] == 5) {
+            // 收取京豆
+            self::receivedBean($last_round_info['roundId']);
         }
 
         // 状态2：7点再来领取
@@ -1368,7 +1370,7 @@ class JdSign
         $this_round_info = $roundList[1] ?? [];
         // 本轮ID
         $this_round_id = $this_round_info['roundId'];
-        self::$roundId = $this_round_id;
+        // self::$roundId = $this_round_id;
         // 本轮现持有营养液数量
         $this_round_nutrients = $this_round_info['nutrients'] ?? 0;
         // 可获取营养液信息
@@ -1397,15 +1399,19 @@ class JdSign
 
     /**
      * 收取营养液
-     * @return array
+     * @param bool $roundId
+     * @return array|bool
      * @throws \Library\Exception\Exception
      */
-    public static function receiveNutrients()
+    public static function receiveNutrients($roundId = false)
     {
+        if (!$roundId) {
+            return false;
+        }
         $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'receiveNutrients',
             'body' => json_encode([
-                'roundId' => self::$roundId,
+                'roundId' => $roundId,
                 'monitor_source' => 'plant_m_plant_index',
                 'monitor_refer' => 'plant_receiveNutrients',
                 'version' => '8.4.0.0',
@@ -1879,14 +1885,19 @@ class JdSign
 
     /**
      * 培养京豆
+     * @param bool|string $roundId
+     * @return array|bool
      * @throws \Library\Exception\Exception
      */
-    public static function cultureBean()
+    public static function cultureBean($roundId = false)
     {
+        if (!$roundId) {
+            return false;
+        }
         $url = self::buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'cultureBean',
             'body' => json_encode([
-                'roundId' => self::$roundId,
+                'roundId' => $roundId,
                 'monitor_source' => 'plant_m_plant_index',
                 'monitor_refer' => 'plant_index',
                 'version' => '8.4.0.0',
@@ -1902,6 +1913,40 @@ class JdSign
         $data = self::jdRequest($url);
 
         self::DI()->logger->debug('培养京豆', $data);
+
+        return $data;
+    }
+
+    /**
+     * 收取京豆
+     * @param $roundId
+     * @return array|bool
+     * @throws \Library\Exception\Exception
+     */
+    public static function receivedBean($roundId = false)
+    {
+        if (!$roundId) {
+            return false;
+        }
+        $url = self::buildURL('https://api.m.jd.com/client.action', [
+            'functionId' => 'receivedBean',
+            'body' => json_encode([
+                'monitor_refer' => 'plant_index',
+                'monitor_source' => 'plant_m_plant_index',
+                'roundId' => $roundId,
+                'version' => '8.4.0.0',
+            ]),
+            'appid' => 'ld',
+            'client' => 'android',
+            'clientVersion' => ' nexus 5 build/mra58n) applewebkit/537.36 (khtml, like gecko) chrome/79.0.3945.117 mobile safari/537.36',
+            'networkType' => '',
+            'osVersion' => '',
+            'uuid' => '',
+        ]);
+
+        $data = self::jdRequest($url);
+
+        self::DI()->logger->debug('收取京豆', $data);
 
         return $data;
     }
