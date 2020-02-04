@@ -1266,28 +1266,6 @@ class JdSign
         $data = self::jdRequest($url);
         self::DI()->logger->debug('京东APP签到', $data);
         return $data;
-        /*{
-            "signedRan": "B",
-            "status": "2",
-            "beanUserType": 1,
-            "awardType": "1",
-            "dailyAward": {
-                "type": "1",
-                "title": "今天已签到，",
-                "subTitle": "获得奖励",
-                "beanAward": {
-                    "beanCount": "3"
-                }
-            }
-        }*/
-
-        // $sign_status = $data['status'];
-        // $sign_dailyAward = $data['dailyAward'];
-        // $sign_awardType = $data['awardType'];
-        //
-        // self::DI()->logger->debug('京豆签到', $data);
-        // die;
-
     }
 
     /**
@@ -1316,49 +1294,6 @@ class JdSign
         ]);
 
         $data = self::jdRequest($url);
-
-        /*{
-            "entryId": "2tpyf45pvqnbyoqbns6eertieu",
-            "roundList": [
-                {
-                    "roundId": "vowiazorildtmoqbns6eertieu",
-                    "roundState": "1",
-                    "headImgUrl": "https://m.360buyimg.com/njmobilecms/jfs/t1/90318/19/8959/35705/5e08d1a1Eafe96b32/0f06adcc4c617431.png",
-                    "awardState": "6",
-                    "awardBeans": "23",
-                    "beanState": "3",
-                    "growth": "55",
-                    "redDot": "2",
-                    "tipBeanEndTitle": "本轮已开奖"
-                },
-                {
-                    "roundId": "n3kp6xjxvxogcoqbns6eertieu",
-                    "roundState": "2",
-                    "headImgUrl": "https://m.360buyimg.com/njmobilecms/jfs/t1/110630/15/2959/35624/5e0b74c4Ed04cc99f/865a0f6b7a21fbb6.png",
-                    "awardState": "1",
-                    "beanState": "2",
-                    "growth": "12",
-                    "nutrients": "3",
-                    "redDot": "2"
-                },
-                {
-                    "roundId": "cmkhsqh32ln22oqbns6eertieu",
-                    "roundState": "3",
-                    "headImgUrl": "https://m.360buyimg.com/njmobilecms/jfs/t1/93656/5/9179/35440/5e0b769cE36df9a0c/5771b3d8f3ad7f50.png",
-                    "awardState": "1",
-                    "growth": "0",
-                    "nutrients": "0",
-                    "redDot": "2"
-                }
-            ],
-            "accessFlag": "2",
-            "roundAccessFag": "2",
-            "timeNutrientsRes": {
-                "state": "1",
-                "bottleState": "3",
-                "nutrCount": "1"
-            }
-        }*/
 
         // $entryId = $data['entryId'];
         // 每轮信息数组
@@ -2079,7 +2014,8 @@ class JdSign
     /**
      * 京享值领京豆 任务详情
      * @param $taskName
-     * @return bool|mixed
+     * @return array|bool
+     * @throws \Library\Exception\Exception
      */
     public static function vvipclub_lotteryTaskInfo($taskName)
     {
