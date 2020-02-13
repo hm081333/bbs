@@ -28,7 +28,7 @@ class JdSign
 
     /**
      * 设置京东签到项目
-     * @param int $jd_user_id
+     * @param int   $jd_user_id
      * @param array $data
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -137,7 +137,7 @@ class JdSign
 
     /**
      * 执行签到领京豆
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -251,7 +251,7 @@ class JdSign
 
     /**
      * 执行种豆得豆
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -393,7 +393,7 @@ class JdSign
 
     /**
      * 执行京享值领京豆
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -496,7 +496,7 @@ class JdSign
 
     /**
      * 执行 福利转盘
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -597,7 +597,7 @@ class JdSign
 
     /**
      * 执行 京东金融APP签到
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -696,7 +696,7 @@ class JdSign
 
     /**
      * 执行 领取双签礼包
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -791,7 +791,7 @@ class JdSign
 
     /**
      * 执行 京东金融APP - 提升白条额度
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -885,7 +885,7 @@ class JdSign
 
     /**
      * 执行 京东金融APP - 翻牌赢钢镚
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -984,7 +984,7 @@ class JdSign
 
     /**
      * 执行 京东金融APP - 金币抽奖
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -1083,7 +1083,7 @@ class JdSign
 
     /**
      * 执行 京东金融APP - 每日赚京豆签到
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @throws \Library\Exception\BadRequestException
      * @throws \Library\Exception\Exception
@@ -1163,7 +1163,7 @@ class JdSign
 
     /**
      * 请求操作
-     * @param $url
+     * @param      $url
      * @param bool $data
      * @return array|bool
      * @throws \Library\Exception\Exception
@@ -1172,6 +1172,7 @@ class JdSign
     {
         self::DI()->curl->setCookie(self::$user_cookie);
         $res = $data === false ? self::DI()->curl->json_get($url) : self::DI()->curl->json_post($url, $data);
+        // self::DI()->logger->debug('', $res);
         if (isset($res['success'])) {
             $data = [];
             if ($res['success']) {
@@ -1185,6 +1186,12 @@ class JdSign
             if ($code === false) {
                 self::DI()->logger->error('接口异常', $res);
                 throw new \Library\Exception\Exception(\PhalApi\T('接口异常'));
+            } else if ($code == 0) {
+                // 正常
+            } else if ($code == 3) {
+                throw new \Library\Exception\Exception(\PhalApi\T('请更新登录状态cookie'));
+            } else {
+                self::DI()->logger->error('京东返回未知状态|jdRequest', $res);
             }
             $data = $res['data'] ?? $res;
             $errorCode = $res['errorCode'] ?? false;
@@ -1294,6 +1301,7 @@ class JdSign
         ]);
 
         $data = self::jdRequest($url);
+        // self::DI()->logger->debug('种豆得豆 信息', $data);
 
         // $entryId = $data['entryId'];
         // 每轮信息数组
@@ -1581,7 +1589,7 @@ class JdSign
         ]);
         self::DI()->curl->setCookie(self::$user_cookie);
         self::DI()->curl->setHeader([
-            'referer' => "https://shop.m.jd.com/?shopId={$shopId}"
+            'referer' => "https://shop.m.jd.com/?shopId={$shopId}",
         ]);
         $data = self::DI()->curl->json_get($url);
         self::DI()->curl->unsetHeader('referer');
@@ -1693,7 +1701,7 @@ class JdSign
         ]);
         self::DI()->curl->setCookie(self::$user_cookie);
         self::DI()->curl->setHeader([
-            'referer' => "https://shop.m.jd.com/?shopId={$skuId}"
+            'referer' => "https://shop.m.jd.com/?shopId={$skuId}",
         ]);
         $data = self::DI()->curl->json_get($url);
         self::DI()->curl->unsetHeader('referer');
@@ -2097,7 +2105,7 @@ class JdSign
 
     /**
      * 京东金融 APP 请求操作
-     * @param $url
+     * @param      $url
      * @param bool $data
      * @return bool
      * @throws \Library\Exception\Exception
@@ -2217,7 +2225,7 @@ class JdSign
                 // 双签相关请求类型：9 获取双签相关信息 3 领取双签礼包 12 双签领取结果
                 'type' => 3,
                 'frontParam' => [
-                    'channel' => 'JR'
+                    'channel' => 'JR',
                 ],
                 'riskDeviceParam' => json_encode([
                 ]),
@@ -2321,7 +2329,7 @@ class JdSign
     {
         $url = self::buildURL('https://gps.jd.com/activity/signin/reward/home', [
             'uaType' => 2,
-            'platCode' => 3
+            'platCode' => 3,
         ]);
 
         self::DI()->curl->setCookie(self::$user_cookie);
@@ -2454,7 +2462,7 @@ class JdSign
                 ],
                 'clientType' => 'sms',
                 'clientVersion' => '11.0',
-            ])
+            ]),
         ]);
         self::DI()->curl->unsetHeader('Referer');
 
@@ -2487,8 +2495,8 @@ class JdSign
                     'optType' => 'https://jddx.jd.com/m/jddnew/money/index.html?from=dlqfl',
                 ],
                 'clientType' => 'sms',
-                'clientVersion' => '11.0'
-            ])
+                'clientVersion' => '11.0',
+            ]),
         ]);
         self::DI()->curl->unsetHeader('Referer');
 
@@ -2517,7 +2525,7 @@ class JdSign
 
     /**
      * 构架请求
-     * @param string $url 请求地址
+     * @param string       $url    请求地址
      * @param array|string $params 请求参数
      * @return string
      * @throws \Library\Exception\Exception
