@@ -42,8 +42,8 @@ class JdSign
         $jd_user_id = intval($jd_user_id);
         $user_id = intval($user['id']);
 
-        $modelJdSign = self::getModel();
-        $modelJdUser = self::getModel('JdUser');
+        $modelJdSign = self::Model_JdSign();
+        $modelJdUser = self::Model_JdUser();
         $jd_user_info = $modelJdUser->getInfo([
             'id' => $jd_user_id,
             'user_id' => $user_id,
@@ -105,15 +105,119 @@ class JdSign
     }
 
     /**
+     * 京东会员 逻辑层
+     * @return \Common\Domain\JdUser
+     */
+    public static function Domain_JdUser()
+    {
+        return self::getDomain('JdUser');
+    }
+
+    /**
+     * 京东会员 数据层
+     * @return \Common\Model\JdUser|\Common\Model\Common|\PhalApi\Model\NotORMModel
+     */
+    public static function Model_JdUser()
+    {
+        return self::getModel('JdUser');
+    }
+
+    /**
+     * 京东签到项 数据层
+     * @return \Common\Model\JdSign|\Common\Model\Common|\PhalApi\Model\NotORMModel
+     */
+    public static function Model_JdSign()
+    {
+        return self::getModel('JdSign');
+    }
+
+    /**
+     * 获取京东签到项数据
+     * @param string $sign_key
+     * @param int    $jd_sign_id
+     * @param array  $jd_sign_info
+     * @return array|mixed
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\Exception
+     */
+    public static function getJDSignInfo(string $sign_key, int $jd_sign_id, array $jd_sign_info = [])
+    {
+        if (empty($jd_sign_info)) {
+            if (empty($jd_sign_id)) {
+                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
+            }
+            $jd_sign_info = self::Model_JdSign()->getInfo([
+                'ly_jd_sign.id' => intval($jd_sign_id),
+                // 类型为签到
+                'ly_jd_sign.sign_key' => $sign_key,
+                // 任务状态为正常
+                'ly_jd_sign.status' => 1,
+                // 登录状态为正常
+                'jd_user.status' => 1,
+            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
+        }
+        if (empty($jd_sign_info)) {
+            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
+        }
+        return self::parseSignInfo($jd_sign_info);
+    }
+
+    /**
+     * 格式化京东签到项数据
+     */
+    public static function parseSignInfo($data = [])
+    {
+        if (isset($data['return_data'])) {
+            $data['return_data'] = unserialize($data['return_data']);
+        }
+        $data['return_data']['sign_time'] = $data['return_data']['sign_time'] ?? 0;
+        // 设置请求所需的cookie
+        self::$user_cookie = [
+            'pt_key' => $data['pt_key'],
+            'pt_pin' => $data['pt_pin'],
+            'pt_token' => $data['pt_token'],
+        ];
+        return $data;
+    }
+
+    /**
+     * 初始化签到更新数据
+     * @param array $data
+     * @return array
+     */
+    public static function initUpdateSignData($data = [])
+    {
+        return array_merge([
+            // 上次运行时间
+            'last_time' => time(),
+            'return_data' => [
+                // 签到状态
+                'status' => 0,
+                // 今天 获得京豆数量
+                'bean_award_day' => 0,
+                // 总共 获得京豆数量
+                'bean_award_total' => 0,
+                // 今天 获得营养液数量
+                'nutrients_day' => 0,
+                // 总共 获得营养液数量
+                'nutrients_total' => 0,
+                // 签到时间
+                'sign_time' => time(),
+                // 下次运行时间
+                'next_time' => strtotime(date('Y-m-d')) + 86400,
+            ],
+        ], $data);
+    }
+
+    /**
      * 执行签到领京豆 - 所有
      */
     public static function doBeanSignAll()
     {
-        $modelJdSign = self::getModel('JdSign');
         $offset = 0;
         $limit = 100;
         while (true) {
-            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+            $jd_sign_list = self::Model_JdSign()->getListLimitByWhere($limit, $offset, [
                 // 类型为签到
                 'ly_jd_sign.sign_key' => 'bean',
                 // 任务状态为正常
@@ -128,7 +232,7 @@ class JdSign
                 try {
                     self::doBeanSign(0, $jd_sign_info);
                 } catch (\Exception $e) {
-                    self::DI()->logger->info("执行签到领京豆|异常|{$e->getMessage()}", $jd_sign_info);
+                    self::DI()->logger->error("执行签到领京豆|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
             $offset += $limit;
@@ -145,39 +249,16 @@ class JdSign
     public static function doBeanSign(int $jd_sign_id, array $jd_sign_info = [])
     {
         $sign_key = 'bean';
-        $modelJdSign = self::getModel('JdSign');
-        if (empty($jd_sign_info)) {
-            if (empty($jd_sign_id)) {
-                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
-            }
-            $jd_sign_info = $modelJdSign->getInfo([
-                'ly_jd_sign.id' => intval($jd_sign_id),
-                // 类型为签到
-                'ly_jd_sign.sign_key' => $sign_key,
-                // 任务状态为正常
-                'ly_jd_sign.status' => 1,
-                // 登录状态为正常
-                'jd_user.status' => 1,
-            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
-        }
-        if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
-        }
-        $jd_sign_id = intval($jd_sign_info['id']);
 
-        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
+        $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
+
+        // 今天的开始时间戳
         $day_begin = strtotime(date('Y-m-d'));
-        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+        if (($jd_sign_info['return_data']['sign_time'] ?? 0) >= $day_begin) {
             return;
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
 
-        // 设置请求所需的cookie
-        self::$user_cookie = [
-            'pt_key' => $jd_sign_info['pt_key'],
-            'pt_pin' => $jd_sign_info['pt_pin'],
-            'pt_token' => $jd_sign_info['pt_token'],
-        ];
         $sign_info = self::beanSignInfo();
         switch ($sign_info['status']) {
             case 1:
@@ -185,31 +266,34 @@ class JdSign
                 break;
             case 2:
                 // 进行签到
-                $return_data = self::beanSign();
+                $sign_res = self::beanSign();
                 $award = [];
-                if ($return_data['awardType'] == 1) {
+                if ($sign_res['awardType'] == 1) {
                     // 普通签到奖励
-                    $award = $return_data['dailyAward'];
-                } else if ($return_data['awardType'] == 2) {
+                    $award = $sign_res['dailyAward'];
+                } else if ($sign_res['awardType'] == 2) {
                     // 连续签到奖励
-                    $award = $return_data['continuityAward'];
+                    $award = $sign_res['continuityAward'];
                 } else {
-                    self::DI()->logger->error('京东APP签到|未知签到奖励类型', $return_data);
+                    self::DI()->logger->error('京东APP签到|未知签到奖励类型', $sign_res);
                 }
-                $modelJdSign->updateByWhere([
-                    'id' => $jd_sign_id,
+
+                self::Model_JdSign()->updateByWhere([
+                    'id' => intval($jd_sign_info['id']),
                     'sign_key' => $sign_key,
                     'status' => 1,
-                ], [
-                    'last_time' => time(),
-                    'return_data' => serialize([
-                        'status' => $return_data['status'],
-                        'dailyAward' => $award,
-                        'signTime' => time(),
-                    ]),
-                ]);
+                ], self::initUpdateSignData([
+                    'return_data' => [
+                        'status' => $sign_res['status'],
+                        'bean_award_day' => $award['beanAward']['beanCount'],
+                        'bean_award_total' => (($jd_sign_info['return_data']['bean_award_total'] ?? 0) + $award['beanAward']['beanCount']),
+                    ],
+                ]));
                 break;
             case 3:
+                /** @var $domainJdUser \Common\Domain\JdUser */
+                $domainJdUser = self::Domain_JdUser();
+                $domainJdUser::loginStatusExpired(self::$user_cookie);
                 throw new \Library\Exception\Exception(\PhalApi\T('请更新登录状态cookie'));
                 break;
             default:
@@ -223,11 +307,10 @@ class JdSign
      */
     public static function doPlantBeanAll()
     {
-        $modelJdSign = self::getModel('JdSign');
         $offset = 0;
         $limit = 100;
         while (true) {
-            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+            $jd_sign_list = self::Model_JdSign()->getListLimitByWhere($limit, $offset, [
                 // 类型为种豆得豆
                 'ly_jd_sign.sign_key' => 'plant',
                 // 任务状态为正常
@@ -242,7 +325,7 @@ class JdSign
                 try {
                     self::doPlantBean(0, $jd_sign_info);
                 } catch (\Exception $e) {
-                    self::DI()->logger->info("执行种豆得豆|异常|{$e->getMessage()}", $jd_sign_info);
+                    self::DI()->logger->error("执行种豆得豆|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
             $offset += $limit;
@@ -259,44 +342,20 @@ class JdSign
     public static function doPlantBean(int $jd_sign_id, array $jd_sign_info = [])
     {
         $sign_key = 'plant';
-        $modelJdSign = self::getModel('JdSign');
-        if (empty($jd_sign_info)) {
-            if (empty($jd_sign_id)) {
-                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
-            }
-            $jd_sign_info = $modelJdSign->getInfo([
-                'ly_jd_sign.id' => intval($jd_sign_id),
-                // 类型为签到
-                'ly_jd_sign.sign_key' => $sign_key,
-                // 任务状态为正常
-                'ly_jd_sign.status' => 1,
-                // 登录状态为正常
-                'jd_user.status' => 1,
-            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
-        }
-        if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
-        }
-        $jd_sign_id = intval($jd_sign_info['id']);
 
-        // $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
-        // $next_time = $jd_sign_info['return_data']['next_time'] ?? 0;
-        // if ($next_time > time()) {
+        $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
+
+        // if (($jd_sign_info['return_data']['next_time'] ?? 0) > time()) {
         //     return;
         //     // throw new \Library\Exception\Exception(\PhalApi\T('未到下次收取时间'));
         // }
 
-        // 设置请求所需的cookie
-        self::$user_cookie = [
-            'pt_key' => $jd_sign_info['pt_key'],
-            'pt_pin' => $jd_sign_info['pt_pin'],
-            'pt_token' => $jd_sign_info['pt_token'],
-        ];
-        // 现持有营养液数量 - 初始值
-        $nutrients = 0;
-        $return_data = [];
+        // 获得京豆数量
+        $bean_award = 0;
         // 种豆得豆相关信息
         $plant_info = self::plantBeanInfo();
+        // 现持有营养液数量
+        $nutrients = ($plant_info['nutrients'] ?? 0);
         self::$roundId = $plant_info['roundId'];
         // 种豆得豆任务
         $awardList = $plant_info['awardList'];
@@ -305,29 +364,24 @@ class JdSign
             // if ($award['limitFlag'] == 2) continue;
             if (isset($award['childAwardList'])) {
                 foreach ($award['childAwardList'] as $childAward) {
-                    self::doPlantBeanAward($childAward);
+                    $nutrients += self::doPlantBeanAward($childAward);
                 }
                 unset($childAward);
             } else {
-                self::doPlantBeanAward($award);
+                $nutrients += self::doPlantBeanAward($award);
             }
         }
-        // 持有数量
-        $nutrients = $plant_info['nutrients'];
-        // 下次收取时间
-        $return_data['next_time'] = $plant_info['nextReceiveTime'];
+
         // 可收取营养液数量大于0
         if ($plant_info['nutrCount'] > 0) {
-            $receive_info = self::receiveNutrients($plant_info['roundId']);
+            $receiveNutrientsRes = self::receiveNutrients($plant_info['roundId']);
             // 持有数量
-            $nutrients = $receive_info['nutrients'];
+            $nutrients += $receiveNutrientsRes['nutrients'];
             // 下次收取时间
-            $receive_info['next_time'] = $plant_info['nextReceiveTime'];
+            // $receiveNutrientsRes['next_time'] = $plant_info['nextReceiveTime'];
         }
-        // 帮好友收取
-        $plant_friend_reward = self::receivePlantFriend();
-        // 收取得到的奖励累积到本次该收取的数量
-        $nutrients += $plant_friend_reward;
+        // 帮好友收取、收取得到的奖励累积到本次该收取的数量
+        $nutrients += self::receivePlantFriend();
         // 持有营养液
         if ($nutrients > 0) {
             // 使用营养液 培养京豆
@@ -340,23 +394,28 @@ class JdSign
         // 上轮京豆未收取
         if (isset($last_round_info['roundId']) && $last_round_info['awardState'] == 5) {
             // 收取京豆
-            self::receivedBean($last_round_info['roundId']);
+            $receivedBeanRes = self::receivedBean($last_round_info['roundId']);
+            $bean_award = $receivedBeanRes['awardBean'];
         }
 
-        // 状态2：7点再来领取
-        if ($plant_info['timeNutrientsResState'] == 2) {
-            // 明天早上7点的时间戳
-            $return_data['next_time'] = strtotime(date('Y-m-d 7:00:00') . '+ 1 day');
-        }
-
-        $modelJdSign->updateByWhere([
-            'id' => $jd_sign_id,
+        self::Model_JdSign()->updateByWhere([
+            'id' => intval($jd_sign_info['id']),
             'sign_key' => $sign_key,
             'status' => 1,
-        ], [
-            'last_time' => time(),
-            'return_data' => serialize($return_data),
-        ]);
+        ], self::initUpdateSignData([
+            'return_data' => [
+                // 今天 获得京豆数量
+                'bean_award_day' => (strtotime(date('Y-m-d')) > $jd_sign_info['return_data']['next_time']) ? $bean_award : (($jd_sign_info['return_data']['bean_award_day'] ?? 0) + $bean_award),
+                // 总共 获得京豆数量
+                'bean_award_total' => (($jd_sign_info['return_data']['bean_award_total'] ?? 0) + $bean_award),
+                // 今天 获得营养液数量 每天清空
+                'nutrients_day' => (strtotime(date('Y-m-d')) > $jd_sign_info['return_data']['next_time']) ? $nutrients : (($jd_sign_info['return_data']['nutrients_day'] ?? 0) + $nutrients),
+                // 总共 获得营养液数量
+                'nutrients_total' => (($jd_sign_info['return_data']['nutrients_total'] ?? 0) + $nutrients),
+                // 下次运行时间、状态2：7点再来领取
+                'next_time' => $plant_info['timeNutrientsResState'] == 2 ? strtotime(date('Y-m-d 7:00:00') . '+ 1 day') : $plant_info['nextReceiveTime'],
+            ],
+        ]));
 
     }
 
@@ -365,11 +424,10 @@ class JdSign
      */
     public static function doVVipClubAll()
     {
-        $modelJdSign = self::getModel('JdSign');
         $offset = 0;
         $limit = 100;
         while (true) {
-            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+            $jd_sign_list = self::Model_JdSign()->getListLimitByWhere($limit, $offset, [
                 // 类型为京享值领京豆
                 'ly_jd_sign.sign_key' => 'vvipclub',
                 // 任务状态为正常
@@ -384,7 +442,7 @@ class JdSign
                 try {
                     self::doVVipClub(0, $jd_sign_info);
                 } catch (\Exception $e) {
-                    self::DI()->logger->info("执行京享值领京豆|异常|{$e->getMessage()}", $jd_sign_info);
+                    self::DI()->logger->error("执行京享值领京豆|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
             $offset += $limit;
@@ -401,44 +459,16 @@ class JdSign
     public static function doVVipClub(int $jd_sign_id, array $jd_sign_info = [])
     {
         $sign_key = 'vvipclub';
-        $modelJdSign = self::getModel('JdSign');
-        if (empty($jd_sign_info)) {
-            if (empty($jd_sign_id)) {
-                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
-            }
-            $jd_sign_info = $modelJdSign->getInfo([
-                'ly_jd_sign.id' => intval($jd_sign_id),
-                // 类型为签到
-                'ly_jd_sign.sign_key' => $sign_key,
-                // 任务状态为正常
-                'ly_jd_sign.status' => 1,
-                // 登录状态为正常
-                'jd_user.status' => 1,
-            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
-        }
-        if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
-        }
-        $jd_sign_id = intval($jd_sign_info['id']);
+        $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
 
-        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
-        $day_begin = strtotime(date('Y-m-d'));
-        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+        if (($jd_sign_info['return_data']['sign_time'] ?? 0) >= strtotime(date('Y-m-d'))) {
             return;
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
 
-        // 设置请求所需的cookie
-        self::$user_cookie = [
-            'pt_key' => $jd_sign_info['pt_key'],
-            'pt_pin' => $jd_sign_info['pt_pin'],
-            'pt_token' => $jd_sign_info['pt_token'],
-        ];
-
         // 完成所有任务，获取免费次数
         self::vvipclub_doTaskAll();
 
-        $return_data = [];
         // 京享值领京豆相关信息
         $luckyBox_info = self::vvipclub_luckyBox();
         if ($luckyBox_info['freeTimes'] <= 0) {
@@ -449,17 +479,12 @@ class JdSign
             self::vvipclub_shaking();
         }
 
-        // 明天早上7点的时间戳
-        $return_data['signTime'] = time();
-
-        $modelJdSign->updateByWhere([
-            'id' => $jd_sign_id,
+        self::Model_JdSign()->updateByWhere([
+            'id' => intval($jd_sign_info['id']),
             'sign_key' => $sign_key,
             'status' => 1,
-        ], [
-            'last_time' => time(),
-            'return_data' => serialize($return_data),
-        ]);
+        ], self::initUpdateSignData([
+        ]));
 
     }
 
@@ -468,11 +493,10 @@ class JdSign
      */
     public static function doWheelSurfAll()
     {
-        $modelJdSign = self::getModel('JdSign');
         $offset = 0;
         $limit = 100;
         while (true) {
-            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+            $jd_sign_list = self::Model_JdSign()->getListLimitByWhere($limit, $offset, [
                 // 类型为京享值领京豆
                 'ly_jd_sign.sign_key' => 'wheelSurf',
                 // 任务状态为正常
@@ -487,7 +511,7 @@ class JdSign
                 try {
                     self::doWheelSurf(0, $jd_sign_info);
                 } catch (\Exception $e) {
-                    self::DI()->logger->info("福利转盘|异常|{$e->getMessage()}", $jd_sign_info);
+                    self::DI()->logger->error("福利转盘|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
             $offset += $limit;
@@ -504,41 +528,13 @@ class JdSign
     public static function doWheelSurf(int $jd_sign_id, array $jd_sign_info = [])
     {
         $sign_key = 'wheelSurf';
-        $modelJdSign = self::getModel('JdSign');
-        if (empty($jd_sign_info)) {
-            if (empty($jd_sign_id)) {
-                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
-            }
-            $jd_sign_info = $modelJdSign->getInfo([
-                'ly_jd_sign.id' => intval($jd_sign_id),
-                // 类型为签到
-                'ly_jd_sign.sign_key' => $sign_key,
-                // 任务状态为正常
-                'ly_jd_sign.status' => 1,
-                // 登录状态为正常
-                'jd_user.status' => 1,
-            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
-        }
-        if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
-        }
-        $jd_sign_id = intval($jd_sign_info['id']);
+        $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
 
-        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
-        $day_begin = strtotime(date('Y-m-d'));
-        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+        if (($jd_sign_info['return_data']['sign_time'] ?? 0) >= strtotime(date('Y-m-d'))) {
             return;
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
 
-        // 设置请求所需的cookie
-        self::$user_cookie = [
-            'pt_key' => $jd_sign_info['pt_key'],
-            'pt_pin' => $jd_sign_info['pt_pin'],
-            'pt_token' => $jd_sign_info['pt_token'],
-        ];
-
-        $return_data = [];
         // 京享值领京豆相关信息
         $info = self::wheelSurfIndex();
 
@@ -550,17 +546,12 @@ class JdSign
             self::lotteryDraw();
         }
 
-        // 明天早上7点的时间戳
-        $return_data['signTime'] = time();
-
-        $modelJdSign->updateByWhere([
-            'id' => $jd_sign_id,
+        self::Model_JdSign()->updateByWhere([
+            'id' => intval($jd_sign_info['id']),
             'sign_key' => $sign_key,
             'status' => 1,
-        ], [
-            'last_time' => time(),
-            'return_data' => serialize($return_data),
-        ]);
+        ], self::initUpdateSignData([
+        ]));
 
     }
 
@@ -569,11 +560,10 @@ class JdSign
      */
     public static function doJRSignAll()
     {
-        $modelJdSign = self::getModel('JdSign');
         $offset = 0;
         $limit = 100;
         while (true) {
-            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+            $jd_sign_list = self::Model_JdSign()->getListLimitByWhere($limit, $offset, [
                 // 类型为京享值领京豆
                 'ly_jd_sign.sign_key' => 'jrSign',
                 // 任务状态为正常
@@ -588,7 +578,7 @@ class JdSign
                 try {
                     self::doJRSign(0, $jd_sign_info);
                 } catch (\Exception $e) {
-                    self::DI()->logger->info("京东金融APP签到|异常|{$e->getMessage()}", $jd_sign_info);
+                    self::DI()->logger->error("京东金融APP签到|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
             $offset += $limit;
@@ -605,41 +595,13 @@ class JdSign
     public static function doJRSign(int $jd_sign_id, array $jd_sign_info = [])
     {
         $sign_key = 'jrSign';
-        $modelJdSign = self::getModel('JdSign');
-        if (empty($jd_sign_info)) {
-            if (empty($jd_sign_id)) {
-                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
-            }
-            $jd_sign_info = $modelJdSign->getInfo([
-                'ly_jd_sign.id' => intval($jd_sign_id),
-                // 类型为签到
-                'ly_jd_sign.sign_key' => $sign_key,
-                // 任务状态为正常
-                'ly_jd_sign.status' => 1,
-                // 登录状态为正常
-                'jd_user.status' => 1,
-            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
-        }
-        if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
-        }
-        $jd_sign_id = intval($jd_sign_info['id']);
+        $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
 
-        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
-        $day_begin = strtotime(date('Y-m-d'));
-        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+        if (($jd_sign_info['return_data']['sign_time'] ?? 0) >= strtotime(date('Y-m-d'))) {
             return;
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
 
-        // 设置请求所需的cookie
-        self::$user_cookie = [
-            'pt_key' => $jd_sign_info['pt_key'],
-            'pt_pin' => $jd_sign_info['pt_pin'],
-            'pt_token' => $jd_sign_info['pt_token'],
-        ];
-
-        $return_data = [];
         // 京享值领京豆相关信息
         $isSign = self::JRSignInfo();
 
@@ -649,17 +611,12 @@ class JdSign
 
         self::JRSign();
 
-        // 明天早上7点的时间戳
-        $return_data['signTime'] = time();
-
-        $modelJdSign->updateByWhere([
-            'id' => $jd_sign_id,
+        self::Model_JdSign()->updateByWhere([
+            'id' => intval($jd_sign_info['id']),
             'sign_key' => $sign_key,
             'status' => 1,
-        ], [
-            'last_time' => time(),
-            'return_data' => serialize($return_data),
-        ]);
+        ], self::initUpdateSignData([
+        ]));
 
     }
 
@@ -668,11 +625,10 @@ class JdSign
      */
     public static function doDoubleSignAll()
     {
-        $modelJdSign = self::getModel('JdSign');
         $offset = 0;
         $limit = 100;
         while (true) {
-            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+            $jd_sign_list = self::Model_JdSign()->getListLimitByWhere($limit, $offset, [
                 // 类型为京享值领京豆
                 'ly_jd_sign.sign_key' => 'doubleSign',
                 // 任务状态为正常
@@ -687,7 +643,7 @@ class JdSign
                 try {
                     self::doDoubleSign(0, $jd_sign_info);
                 } catch (\Exception $e) {
-                    self::DI()->logger->info("领取双签礼包|异常|{$e->getMessage()}", $jd_sign_info);
+                    self::DI()->logger->error("领取双签礼包|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
             $offset += $limit;
@@ -704,57 +660,33 @@ class JdSign
     public static function doDoubleSign(int $jd_sign_id, array $jd_sign_info = [])
     {
         $sign_key = 'doubleSign';
-        $modelJdSign = self::getModel('JdSign');
-        if (empty($jd_sign_info)) {
-            if (empty($jd_sign_id)) {
-                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
-            }
-            $jd_sign_info = $modelJdSign->getInfo([
-                'ly_jd_sign.id' => intval($jd_sign_id),
-                // 类型为签到
-                'ly_jd_sign.sign_key' => $sign_key,
-                // 任务状态为正常
-                'ly_jd_sign.status' => 1,
-                // 登录状态为正常
-                'jd_user.status' => 1,
-            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
-        }
-        if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
-        }
-        $jd_sign_id = intval($jd_sign_info['id']);
+        $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
 
-        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
-        $day_begin = strtotime(date('Y-m-d'));
-        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+        if (($jd_sign_info['return_data']['sign_time'] ?? 0) >= strtotime(date('Y-m-d'))) {
             return;
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
 
-        // 设置请求所需的cookie
-        self::$user_cookie = [
-            'pt_key' => $jd_sign_info['pt_key'],
-            'pt_pin' => $jd_sign_info['pt_pin'],
-            'pt_token' => $jd_sign_info['pt_token'],
-        ];
-
-        $return_data = [];
-
         self::doubleSign();
         // 领取双签送的营养液
-        self::receiveNutrientsTask('7');
+        $nutrients = self::receiveNutrientsTask('7');
 
-        // 明天早上7点的时间戳
-        $return_data['signTime'] = time();
-
-        $modelJdSign->updateByWhere([
-            'id' => $jd_sign_id,
+        self::Model_JdSign()->updateByWhere([
+            'id' => intval($jd_sign_info['id']),
             'sign_key' => $sign_key,
             'status' => 1,
-        ], [
-            'last_time' => time(),
-            'return_data' => serialize($return_data),
-        ]);
+        ], self::initUpdateSignData([
+            'return_data' => [
+                // 今天 获得京豆数量
+                'bean_award_day' => 0,
+                // 总共 获得京豆数量
+                'bean_award_total' => 0,
+                // 今天 获得营养液数量
+                'nutrients_day' => (strtotime(date('Y-m-d')) > $jd_sign_info['return_data']['next_time']) ? $nutrients : (($jd_sign_info['return_data']['nutrients_day'] ?? 0) + $nutrients),
+                // 总共 获得营养液数量
+                'nutrients_total' => (($jd_sign_info['return_data']['nutrients_day'] ?? 0) + $nutrients),
+            ],
+        ]));
 
     }
 
@@ -763,11 +695,10 @@ class JdSign
      */
     public static function doJRRiseLimitAll()
     {
-        $modelJdSign = self::getModel('JdSign');
         $offset = 0;
         $limit = 100;
         while (true) {
-            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+            $jd_sign_list = self::Model_JdSign()->getListLimitByWhere($limit, $offset, [
                 // 类型为京享值领京豆
                 'ly_jd_sign.sign_key' => 'jrRiseLimit',
                 // 任务状态为正常
@@ -782,7 +713,7 @@ class JdSign
                 try {
                     self::doJRRiseLimit(0, $jd_sign_info);
                 } catch (\Exception $e) {
-                    self::DI()->logger->info("提升白条额度|异常|{$e->getMessage()}", $jd_sign_info);
+                    self::DI()->logger->error("提升白条额度|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
             $offset += $limit;
@@ -799,56 +730,22 @@ class JdSign
     public static function doJRRiseLimit(int $jd_sign_id, array $jd_sign_info = [])
     {
         $sign_key = 'jrRiseLimit';
-        $modelJdSign = self::getModel('JdSign');
-        if (empty($jd_sign_info)) {
-            if (empty($jd_sign_id)) {
-                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
-            }
-            $jd_sign_info = $modelJdSign->getInfo([
-                'ly_jd_sign.id' => intval($jd_sign_id),
-                // 类型为签到
-                'ly_jd_sign.sign_key' => $sign_key,
-                // 任务状态为正常
-                'ly_jd_sign.status' => 1,
-                // 登录状态为正常
-                'jd_user.status' => 1,
-            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
-        }
-        if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
-        }
-        $jd_sign_id = intval($jd_sign_info['id']);
+        $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
 
-        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
-        $day_begin = strtotime(date('Y-m-d'));
-        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+        if (($jd_sign_info['return_data']['sign_time'] ?? 0) >= strtotime(date('Y-m-d'))) {
             return;
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
 
-        // 设置请求所需的cookie
-        self::$user_cookie = [
-            'pt_key' => $jd_sign_info['pt_key'],
-            'pt_pin' => $jd_sign_info['pt_pin'],
-            'pt_token' => $jd_sign_info['pt_token'],
-        ];
-
-        $return_data = [];
-
         $info = self::JRRiseLimitInfo();
         self::JRRiseLimit($info);
 
-        // 明天早上7点的时间戳
-        $return_data['signTime'] = time();
-
-        $modelJdSign->updateByWhere([
-            'id' => $jd_sign_id,
+        self::Model_JdSign()->updateByWhere([
+            'id' => intval($jd_sign_info['id']),
             'sign_key' => $sign_key,
             'status' => 1,
-        ], [
-            'last_time' => time(),
-            'return_data' => serialize($return_data),
-        ]);
+        ], self::initUpdateSignData([
+        ]));
 
     }
 
@@ -857,11 +754,10 @@ class JdSign
      */
     public static function doJRFlopRewardAll()
     {
-        $modelJdSign = self::getModel('JdSign');
         $offset = 0;
         $limit = 100;
         while (true) {
-            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+            $jd_sign_list = self::Model_JdSign()->getListLimitByWhere($limit, $offset, [
                 // 类型为京享值领京豆
                 'ly_jd_sign.sign_key' => 'jrFlopReward',
                 // 任务状态为正常
@@ -876,7 +772,7 @@ class JdSign
                 try {
                     self::doJRFlopReward(0, $jd_sign_info);
                 } catch (\Exception $e) {
-                    self::DI()->logger->info("翻牌赢钢镚|异常|{$e->getMessage()}", $jd_sign_info);
+                    self::DI()->logger->error("翻牌赢钢镚|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
             $offset += $limit;
@@ -893,41 +789,12 @@ class JdSign
     public static function doJRFlopReward(int $jd_sign_id, array $jd_sign_info = [])
     {
         $sign_key = 'jrFlopReward';
-        $modelJdSign = self::getModel('JdSign');
-        if (empty($jd_sign_info)) {
-            if (empty($jd_sign_id)) {
-                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
-            }
-            $jd_sign_info = $modelJdSign->getInfo([
-                'ly_jd_sign.id' => intval($jd_sign_id),
-                // 类型为签到
-                'ly_jd_sign.sign_key' => $sign_key,
-                // 任务状态为正常
-                'ly_jd_sign.status' => 1,
-                // 登录状态为正常
-                'jd_user.status' => 1,
-            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
-        }
-        if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
-        }
-        $jd_sign_id = intval($jd_sign_info['id']);
+        $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
 
-        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
-        $day_begin = strtotime(date('Y-m-d'));
-        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+        if (($jd_sign_info['return_data']['sign_time'] ?? 0) >= strtotime(date('Y-m-d'))) {
             return;
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
-
-        // 设置请求所需的cookie
-        self::$user_cookie = [
-            'pt_key' => $jd_sign_info['pt_key'],
-            'pt_pin' => $jd_sign_info['pt_pin'],
-            'pt_token' => $jd_sign_info['pt_token'],
-        ];
-
-        $return_data = [];
 
         // 查询是否能翻牌
         $can_flop = self::JRFlopRewardInfo();
@@ -937,17 +804,12 @@ class JdSign
 
         self::JRFlopReward();
 
-        // 明天早上7点的时间戳
-        $return_data['signTime'] = time();
-
-        $modelJdSign->updateByWhere([
-            'id' => $jd_sign_id,
+        self::Model_JdSign()->updateByWhere([
+            'id' => intval($jd_sign_info['id']),
             'sign_key' => $sign_key,
             'status' => 1,
-        ], [
-            'last_time' => time(),
-            'return_data' => serialize($return_data),
-        ]);
+        ], self::initUpdateSignData([
+        ]));
 
     }
 
@@ -956,11 +818,10 @@ class JdSign
      */
     public static function doJRLotteryAll()
     {
-        $modelJdSign = self::getModel('JdSign');
         $offset = 0;
         $limit = 100;
         while (true) {
-            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+            $jd_sign_list = self::Model_JdSign()->getListLimitByWhere($limit, $offset, [
                 // 类型为京享值领京豆
                 'ly_jd_sign.sign_key' => 'jrLottery',
                 // 任务状态为正常
@@ -975,7 +836,7 @@ class JdSign
                 try {
                     self::doJRLottery(0, $jd_sign_info);
                 } catch (\Exception $e) {
-                    self::DI()->logger->info("金币抽奖|异常|{$e->getMessage()}", $jd_sign_info);
+                    self::DI()->logger->error("金币抽奖|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
             $offset += $limit;
@@ -992,41 +853,12 @@ class JdSign
     public static function doJRLottery(int $jd_sign_id, array $jd_sign_info = [])
     {
         $sign_key = 'jrLottery';
-        $modelJdSign = self::getModel('JdSign');
-        if (empty($jd_sign_info)) {
-            if (empty($jd_sign_id)) {
-                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
-            }
-            $jd_sign_info = $modelJdSign->getInfo([
-                'ly_jd_sign.id' => intval($jd_sign_id),
-                // 类型为签到
-                'ly_jd_sign.sign_key' => $sign_key,
-                // 任务状态为正常
-                'ly_jd_sign.status' => 1,
-                // 登录状态为正常
-                'jd_user.status' => 1,
-            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
-        }
-        if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
-        }
-        $jd_sign_id = intval($jd_sign_info['id']);
+        $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
 
-        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
-        $day_begin = strtotime(date('Y-m-d'));
-        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+        if (($jd_sign_info['return_data']['sign_time'] ?? 0) >= strtotime(date('Y-m-d'))) {
             return;
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
-
-        // 设置请求所需的cookie
-        self::$user_cookie = [
-            'pt_key' => $jd_sign_info['pt_key'],
-            'pt_pin' => $jd_sign_info['pt_pin'],
-            'pt_token' => $jd_sign_info['pt_token'],
-        ];
-
-        $return_data = [];
 
         // 查询是否能翻牌
         $info = self::JRLotteryInfo();
@@ -1036,17 +868,12 @@ class JdSign
 
         self::JRLottery();
 
-        // 明天早上7点的时间戳
-        $return_data['signTime'] = time();
-
-        $modelJdSign->updateByWhere([
-            'id' => $jd_sign_id,
+        self::Model_JdSign()->updateByWhere([
+            'id' => intval($jd_sign_info['id']),
             'sign_key' => $sign_key,
             'status' => 1,
-        ], [
-            'last_time' => time(),
-            'return_data' => serialize($return_data),
-        ]);
+        ], self::initUpdateSignData([
+        ]));
 
     }
 
@@ -1055,11 +882,10 @@ class JdSign
      */
     public static function doJRSignRecordsAll()
     {
-        $modelJdSign = self::getModel('JdSign');
         $offset = 0;
         $limit = 100;
         while (true) {
-            $jd_sign_list = $modelJdSign->getListLimitByWhere($limit, $offset, [
+            $jd_sign_list = self::Model_JdSign()->getListLimitByWhere($limit, $offset, [
                 // 类型为京享值领京豆
                 'ly_jd_sign.sign_key' => 'jrSignRecords',
                 // 任务状态为正常
@@ -1074,7 +900,7 @@ class JdSign
                 try {
                     self::doJRSignRecords(0, $jd_sign_info);
                 } catch (\Exception $e) {
-                    self::DI()->logger->info("每日赚京豆签到|异常|{$e->getMessage()}", $jd_sign_info);
+                    self::DI()->logger->error("每日赚京豆签到|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
             $offset += $limit;
@@ -1091,55 +917,21 @@ class JdSign
     public static function doJRSignRecords(int $jd_sign_id, array $jd_sign_info = [])
     {
         $sign_key = 'jrSignRecords';
-        $modelJdSign = self::getModel('JdSign');
-        if (empty($jd_sign_info)) {
-            if (empty($jd_sign_id)) {
-                throw new \Library\Exception\BadRequestException(\PhalApi\T('错误请求'));
-            }
-            $jd_sign_info = $modelJdSign->getInfo([
-                'ly_jd_sign.id' => intval($jd_sign_id),
-                // 类型为签到
-                'ly_jd_sign.sign_key' => $sign_key,
-                // 任务状态为正常
-                'ly_jd_sign.status' => 1,
-                // 登录状态为正常
-                'jd_user.status' => 1,
-            ], 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token');
-        }
-        if (empty($jd_sign_info)) {
-            throw new \Library\Exception\Exception(\PhalApi\T("不存在该签到或用户未开启该签到|jd_sign_id|{$jd_sign_id}|sign_key|{$sign_key}"));
-        }
-        $jd_sign_id = intval($jd_sign_info['id']);
+        $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
 
-        $jd_sign_info['return_data'] = unserialize($jd_sign_info['return_data']);
-        $day_begin = strtotime(date('Y-m-d'));
-        if (($jd_sign_info['return_data']['signTime'] ?? 0) >= $day_begin) {
+        if (($jd_sign_info['return_data']['sign_time'] ?? 0) >= strtotime(date('Y-m-d'))) {
             // return;
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
 
-        // 设置请求所需的cookie
-        self::$user_cookie = [
-            'pt_key' => $jd_sign_info['pt_key'],
-            'pt_pin' => $jd_sign_info['pt_pin'],
-            'pt_token' => $jd_sign_info['pt_token'],
-        ];
-
-        $return_data = [];
-
         self::JRSignRecords();
 
-        // 明天早上7点的时间戳
-        $return_data['signTime'] = time();
-
-        $modelJdSign->updateByWhere([
+        self::Model_JdSign()->updateByWhere([
             'id' => $jd_sign_id,
             'sign_key' => $sign_key,
             'status' => 1,
-        ], [
-            'last_time' => time(),
-            'return_data' => serialize($return_data),
-        ]);
+        ], self::initUpdateSignData([
+        ]));
 
     }
 
@@ -1190,7 +982,7 @@ class JdSign
                 // 正常
             } else if ($code == 3) {
                 /** @var $domainJdUser \Common\Domain\JdUser */
-                $domainJdUser = self::getDomain('JdUser');
+                $domainJdUser = self::Domain_JdUser();
                 $domainJdUser::loginStatusExpired(self::$user_cookie);
                 throw new \Library\Exception\Exception(\PhalApi\T('请更新登录状态cookie'));
             } else {
@@ -1393,29 +1185,29 @@ class JdSign
     public static function doPlantBeanAward($info = false)
     {
         // limitFlag为2代表任务已完成
-        if ($info === false || $info['limitFlag'] == 2) return false;
+        if ($info === false || $info['limitFlag'] == 2) return 0;
 
         // var_dump($info['awardName'] . ' ---- ' . $info['awardType']);
         // 每日签到 ---- 1
-        // 浏览店铺 ---- 3
-        // 关注商品 ---- 5
         // 邀请好友 ---- 2
+        // 浏览店铺 ---- 3
         // 医药会场 ---- 4
+        // 关注商品 ---- 5
         // 金融双签 ---- 7
         switch (intval($info['awardType'])) {
             case 3:
-                self::shopTaskList();
+                return self::shopTaskList();
                 break;
             case 4:
-                self::purchaseRewardTask();
+                return self::purchaseRewardTask();
                 break;
             case 5:
-                self::productTaskList();
+                return self::productTaskList();
                 break;
             default:
                 break;
         }
-        return true;
+        return 0;
     }
 
     /**
@@ -1450,7 +1242,7 @@ class JdSign
 
         self::DI()->logger->debug("完成奖励营养液的任务|awardType|{$awardType}", $data);
 
-        return $data;
+        return $data['nutrNum'] ?? 0;
     }
 
     /**
@@ -1481,7 +1273,7 @@ class JdSign
 
         self::DI()->logger->debug("完成奖励营养液的任务 - 逛逛会场", $data);
 
-        return $data;
+        return $data['nutrState'] == 1 ? 1 : 0;
     }
 
     /**
@@ -1511,24 +1303,26 @@ class JdSign
 
         // self::DI()->logger->debug("种豆得豆任务 - 关注店铺 - 列表", $data);
 
+        // 奖励的营养液数量
+        $nutrients = 0;
         $goodShopList = $data['goodShopList'] ?? [];
         $moreShopList = $data['moreShopList'] ?? [];
         foreach ($goodShopList as $item) {
             // 任务状态为2表示还能领取营养液
             if ($item['taskState'] == 2) {
-                self::shopNutrientsTask($item['shopId'], $item['shopTaskId']);
+                $nutrients += self::shopNutrientsTask($item['shopId'], $item['shopTaskId']);
             }
         }
         unset($goodShopList, $item);
         foreach ($moreShopList as $item) {
             // 任务状态为2表示还能领取营养液
             if ($item['taskState'] == 2) {
-                self::shopNutrientsTask($item['shopId'], $item['shopTaskId']);
+                $nutrients += self::shopNutrientsTask($item['shopId'], $item['shopTaskId']);
             }
         }
         unset($moreShopList, $item);
 
-        return true;
+        return $nutrients;
     }
 
     /**
@@ -1566,7 +1360,7 @@ class JdSign
         // 取消关注店铺
         self::JDFollowShop($shopId);
 
-        return $data;
+        return $data['nutrCount'] ?? 0;
     }
 
     /**
@@ -1632,18 +1426,20 @@ class JdSign
 
         // self::DI()->logger->debug("种豆得豆任务 - 关注商品 - 列表", $data);
 
+        // 奖励的营养液数量
+        $nutrients = 0;
         $productInfoList = $data['productInfoList'] ?? [];
         foreach ($productInfoList as $item) {
             foreach ($item as $info) {
                 // 任务状态为2表示还能领取营养液
                 if ($info['taskState'] == 2) {
-                    self::productNutrientsTask($info['skuId'], $info['productTaskId']);
+                    $nutrients += self::productNutrientsTask($info['skuId'], $info['productTaskId']);
                 }
             }
         }
         unset($productInfoList, $item);
 
-        return true;
+        return $nutrients;
     }
 
     /**
@@ -1681,7 +1477,7 @@ class JdSign
         // 取消收藏商品
         self::JDFavoriteGood($skuId);
 
-        return $data;
+        return $data['nutrCount'] ?? 0;
     }
 
     /**
@@ -1751,9 +1547,6 @@ class JdSign
             $pageNum += 1;
         }
         return $nutrients;
-        // return [
-        //     'nutrients' => $nutrients,
-        // ];
     }
 
     /**
@@ -1914,7 +1707,7 @@ class JdSign
 
         $data = self::jdRequest($url);
 
-        self::DI()->logger->debug('京享值领京豆', $data);
+        self::DI()->logger->debug('京享值领京豆 信息', $data);
 
         return $data;
     }
@@ -1940,7 +1733,7 @@ class JdSign
 
         $data = self::jdRequest($url);
 
-        // self::DI()->logger->debug('京享值领京豆 摇一摇', $data);
+        self::DI()->logger->debug('京享值领京豆 摇一摇', $data);
 
         return $data;
     }
@@ -2099,7 +1892,7 @@ class JdSign
 
         try {
             $data = self::jdRequest($url);
-            // self::DI()->logger->debug('福利转盘 抽奖', $data);
+            self::DI()->logger->debug('福利转盘 抽奖', $data);
             return $data;
         } catch (\Exception $e) {
             return false;
@@ -2122,7 +1915,7 @@ class JdSign
 
         if ($resultCode == 3) {
             /** @var $domainJdUser \Common\Domain\JdUser */
-            $domainJdUser = self::getDomain('JdUser');
+            $domainJdUser = self::Domain_JdUser();
             $domainJdUser::loginStatusExpired(self::$user_cookie);
             throw new \Library\Exception\Exception(\PhalApi\T('请更新登录状态cookie'));
         } else if ($resultCode == 0) {
@@ -2239,6 +2032,7 @@ class JdSign
         ];
 
         $res = self::jrRequest($url, $form_data);
+        self::DI()->logger->debug('领取双签礼包', $res);
         if ($res['code'] != 200) {
             self::DI()->logger->error("领取双签礼包|{$res['msg']}", $res);
             throw new \Library\Exception\Exception($res['msg']);
