@@ -2121,6 +2121,9 @@ class JdSign
         $resultCode = $res['resultCode'] ?? 0;
 
         if ($resultCode == 3) {
+            /** @var $domainJdUser \Common\Domain\JdUser */
+            $domainJdUser = self::getDomain('JdUser');
+            $domainJdUser::loginStatusExpired(self::$user_cookie);
             throw new \Library\Exception\Exception(\PhalApi\T('请更新登录状态cookie'));
         } else if ($resultCode == 0) {
             $data = $res['resultData'];
