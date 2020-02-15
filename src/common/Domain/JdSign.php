@@ -345,6 +345,7 @@ class JdSign
 
         $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
 
+        $day_begin = strtotime(date('Y-m-d'));
         // if (($jd_sign_info['return_data']['next_time'] ?? 0) > time()) {
         //     return;
         //     // throw new \Library\Exception\Exception(\PhalApi\T('未到下次收取时间'));
@@ -405,11 +406,11 @@ class JdSign
         ], self::initUpdateSignData([
             'return_data' => [
                 // 今天 获得京豆数量
-                'bean_award_day' => (strtotime(date('Y-m-d')) > $jd_sign_info['return_data']['next_time']) ? $bean_award : (($jd_sign_info['return_data']['bean_award_day'] ?? 0) + $bean_award),
+                'bean_award_day' => ($day_begin > $jd_sign_info['return_data']['next_time']) ? $bean_award : (($jd_sign_info['return_data']['bean_award_day'] ?? 0) + $bean_award),
                 // 总共 获得京豆数量
                 'bean_award_total' => (($jd_sign_info['return_data']['bean_award_total'] ?? 0) + $bean_award),
                 // 今天 获得营养液数量 每天清空
-                'nutrients_day' => (strtotime(date('Y-m-d')) > $jd_sign_info['return_data']['next_time']) ? $nutrients : (($jd_sign_info['return_data']['nutrients_day'] ?? 0) + $nutrients),
+                'nutrients_day' => ($day_begin > $jd_sign_info['return_data']['next_time']) ? $nutrients : (($jd_sign_info['return_data']['nutrients_day'] ?? 0) + $nutrients),
                 // 总共 获得营养液数量
                 'nutrients_total' => (($jd_sign_info['return_data']['nutrients_total'] ?? 0) + $nutrients),
                 // 下次运行时间、状态2：7点再来领取
@@ -662,7 +663,8 @@ class JdSign
         $sign_key = 'doubleSign';
         $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
 
-        if (($jd_sign_info['return_data']['sign_time'] ?? 0) >= strtotime(date('Y-m-d'))) {
+        $day_begin = strtotime(date('Y-m-d'));
+        if (($jd_sign_info['return_data']['sign_time'] ?? 0) >= $day_begin) {
             return;
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
@@ -682,7 +684,7 @@ class JdSign
                 // 总共 获得京豆数量
                 'bean_award_total' => 0,
                 // 今天 获得营养液数量
-                'nutrients_day' => (strtotime(date('Y-m-d')) > $jd_sign_info['return_data']['next_time']) ? $nutrients : (($jd_sign_info['return_data']['nutrients_day'] ?? 0) + $nutrients),
+                'nutrients_day' => ($day_begin > $jd_sign_info['return_data']['next_time']) ? $nutrients : (($jd_sign_info['return_data']['nutrients_day'] ?? 0) + $nutrients),
                 // 总共 获得营养液数量
                 'nutrients_total' => (($jd_sign_info['return_data']['nutrients_day'] ?? 0) + $nutrients),
             ],
@@ -919,18 +921,26 @@ class JdSign
         $sign_key = 'jrSignRecords';
         $jd_sign_info = self::getJDSignInfo($sign_key, $jd_sign_id, $jd_sign_info);
 
-        if (($jd_sign_info['return_data']['sign_time'] ?? 0) >= strtotime(date('Y-m-d'))) {
-            // return;
+        $day_begin = strtotime(date('Y-m-d'));
+        if ($jd_sign_info['return_data']['sign_time'] >= $day_begin) {
+            return;
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
 
-        self::JRSignRecords();
+        // 获得京豆数量
+        $bean_award = self::JRSignRecords();
 
         self::Model_JdSign()->updateByWhere([
             'id' => $jd_sign_id,
             'sign_key' => $sign_key,
             'status' => 1,
         ], self::initUpdateSignData([
+            'return_data' => [
+                // 今天 获得京豆数量
+                'bean_award_day' => ($day_begin > $jd_sign_info['return_data']['next_time']) ? $bean_award : (($jd_sign_info['return_data']['bean_award_day'] ?? 0) + $bean_award),
+                // 总共 获得京豆数量
+                'bean_award_total' => (($jd_sign_info['return_data']['bean_award_total'] ?? 0) + $bean_award),
+            ],
         ]));
 
     }
@@ -2246,7 +2256,7 @@ class JdSign
 
     /**
      * 京东金融APP 每日赚京豆 - 签到
-     * @return bool|mixed
+     * @return int
      * @throws \Library\Exception\Exception
      */
     public static function JRSignRewardGift()
@@ -2274,12 +2284,12 @@ class JdSign
         $data = $res['data'];
         self::DI()->logger->info("每日赚京豆 - 签到", $data);
 
-        return $res;
+        return $data['rewardAmount'] ?? 0;
     }
 
     /**
      * 京东金融APP 每日赚京豆 - 连续签到信息
-     * @return bool|mixed
+     * @return int
      * @throws \Library\Exception\Exception
      */
     public static function JRSignRecords()
@@ -2308,19 +2318,21 @@ class JdSign
         $data = $res['data'];
         if (empty($data['signRecords'])) {
             self::DI()->logger->info("每日赚京豆 - 连续签到信息", $data);
-            return;
+            return 0;
         }
 
+        // 获得京豆数量
+        $bean_award = 0;
         foreach ($data['signRecords'] as $signRecord) {
             if ($signRecord['signDate'] == date('Ymd')) {
                 if ($signRecord['signStatus'] == 2) {
-                    self::JRSignRewardGift();
+                    $bean_award += self::JRSignRewardGift();
                 }
                 break;
             }
         }
 
-        return $res;
+        return $bean_award;
     }
 
     /**
