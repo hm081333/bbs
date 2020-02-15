@@ -114,7 +114,7 @@ class Admin
             $admin = self::getAdminToken();// 获取Session中存储的管理员信息
             if (!$admin) {
                 // $admin_token = DI()->request->getHeader(ADMIN_TOKEN, false);// 获取header中携带的Token
-                $auth = DI()->request->getHeader('auth', false);// 获取header中携带的Token
+                $auth = DI()->request->getHeader('Auth', false);// 获取header中携带的Token
                 $admin_token = substr($auth, strlen(ADMIN_TOKEN));// 截取Token
                 if (!empty($admin_token)) {
                     $admin = self::getInfoByWhere(['token' => $admin_token]);// 用Token换取管理员信息

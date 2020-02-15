@@ -8,6 +8,17 @@
 
 namespace Common\Domain;
 
+use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
+use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
+use EasyWeChat\Kernel\Support\Collection;
+use Exception;
+use Library\Exception\BadRequestException;
+use Library\Exception\InternalServerErrorException;
+use Psr\Http\Message\ResponseInterface;
+use function Common\DI;
+use function Common\isWeChat;
+use function PhalApi\T;
+
 /**
  * 微信公众平台 领域层
  * Class WeChatMediaPlatform
@@ -28,7 +39,7 @@ class WeChatPublicPlatform
     }
 
     /**
-     * @return \Common\Domain\Setting
+     * @return Setting
      */
     private function settingDomain()
     {
@@ -41,7 +52,7 @@ class WeChatPublicPlatform
      */
     public function getOpenIdCode($scope = 'snsapi_base')
     {
-        if (\Common\isWeChat()) {
+        if (isWeChat()) {
             //$scope = 'snsapi_userinfo';
             //若提示“该链接无法访问”，请检查参数是否填写错误，是否拥有scope参数对应的授权作用域权限。
             $redirect_uri = urlencode(URL_ROOT . 'tieba.php');
@@ -64,11 +75,11 @@ class WeChatPublicPlatform
         $result = json_decode($result, true);
         if (!empty($result)) {
             if (isset($result['errmsg'])) {
-                throw new \Library\Exception\Exception(\PhalApi\T($result['errmsg']));
+                throw new \Library\Exception\Exception(T($result['errmsg']));
             }
             return $result;
         } else {
-            throw new \Library\Exception\Exception(\PhalApi\T('失败'));
+            throw new \Library\Exception\Exception(T('失败'));
         }
     }
 
@@ -85,21 +96,21 @@ class WeChatPublicPlatform
         $result = json_decode($result, true);
         if (!empty($result)) {
             if (isset($result['errmsg'])) {
-                throw new \Library\Exception\Exception(\PhalApi\T($result['errmsg']));
+                throw new \Library\Exception\Exception(T($result['errmsg']));
             }
             $url = "https://api.weixin.qq.com/sns/userinfo?access_token={$result['access_token']}&openid={$result['open_id']}&lang=zh_CN";
             $result = self::DI()->curl->get($url);
             $result = json_decode($result, true);
             if (!empty($result)) {
                 if (isset($result['errmsg'])) {
-                    throw new \Library\Exception\Exception(\PhalApi\T($result['errmsg']));
+                    throw new \Library\Exception\Exception(T($result['errmsg']));
                 }
                 return $result;
             } else {
-                throw new \Library\Exception\Exception(\PhalApi\T('失败'));
+                throw new \Library\Exception\Exception(T('失败'));
             }
         } else {
-            throw new \Library\Exception\Exception(\PhalApi\T('失败'));
+            throw new \Library\Exception\Exception(T('失败'));
         }
     }
 
@@ -115,7 +126,7 @@ class WeChatPublicPlatform
         $result = json_decode($result, true);
         if (!empty($result)) {
             if (isset($result['errmsg'])) {
-                throw new \Library\Exception\Exception(\PhalApi\T($result['errmsg']));
+                throw new \Library\Exception\Exception(T($result['errmsg']));
             }
             $open_id = $result['openid'];
             $user_model = self::getModel('User');
@@ -127,31 +138,31 @@ class WeChatPublicPlatform
                 $_SESSION['user_auth'] = $user['auth'];
             }
         } else {
-            throw new \Library\Exception\Exception(\PhalApi\T('失败'));
+            throw new \Library\Exception\Exception(T('失败'));
         }
     }
 
     /**
      * 发送贴吧签到详情
      * @param bool $openid
-     * @return array|\EasyWeChat\Kernel\Support\Collection|object|\Psr\Http\Message\ResponseInterface|string
-     * @throws \EasyWeChat\Kernel\Exceptions\InvalidArgumentException
-     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
-     * @throws \Library\Exception\BadRequestException
-     * @throws \Library\Exception\InternalServerErrorException
+     * @return array|Collection|object|ResponseInterface|string
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
      */
     private function sendTiebaSignDetail($openid = false)
     {
         if (empty($openid)) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('缺少openid'));
+            throw new BadRequestException(T('缺少openid'));
         }
 
         $info = self::getDomain('TieBa')::getSignStatus($openid);
         if ($info == false) {
-            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('获取状态失败'));
+            throw new InternalServerErrorException(T('获取状态失败'));
         }
 
-        $result = \Common\DI()->wechat->template_message->send([
+        $result = DI()->wechat->template_message->send([
             'touser' => $openid,
             'template_id' => 'Ogvc_rROWerSHvfgo1IOJIL103bso0H3jLYEAwTuKKg',
             'url' => 'http://bbs2.lyihe2.tk/tieba',
@@ -193,6 +204,62 @@ class WeChatPublicPlatform
     }
 
     /**
+     * 发送京东登录状态过期警告
+     * @param array $jd_user_info
+     * @return array|Collection|object|ResponseInterface|string
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     */
+    public function sendJDLoginStatusExpiredWarn($jd_user_info = [])
+    {
+        if (empty($jd_user_info)) throw new BadRequestException(T('非法请求'));
+        /** @var $user_model \Common\Model\User */
+        $user_model = self::getModel('User');
+        $user_info = $user_model->get(intval($jd_user_info['user_id']));
+        if (!$user_info) throw new InternalServerErrorException(T('获取状态失败'));
+
+        $openid = $user_info['open_id'];
+        if (empty($openid)) return false;
+
+        $h = date('G', NOW_TIME);
+        if ($h < 11) {
+            $greeting = '早上好！';
+        } else if ($h < 13) {
+            $greeting = '中午好！';
+        } else if ($h < 17) {
+            $greeting = '下午好！';
+        } else {
+            $greeting = '晚上好！';
+        }
+
+        $result = DI()->wechat->template_message->send([
+            'touser' => $openid,
+            'template_id' => 'm4MFI5pcseC177w2-a-Tm-6XvhWsYf02pNCEIr2eCeo',
+            'url' => 'http://bbs2.lyihe2.tk/sign',
+            'data' => [
+                'user_name' => [
+                    'value' => $user_info['user_name'],
+                    'color' => '#173177',
+                ],
+                'greeting' => [
+                    'value' => $greeting,
+                    'color' => '#173177',
+                ],
+                'jd_user_name' => [
+                    'value' => $jd_user_info['jd_user_name'],
+                    'color' => '#173177',
+                ],
+            ],
+        ]);
+
+        self::DI()->logger->debug('微信推送结果', $result);
+
+        return $result;
+    }
+
+    /**
      * 公众号发送贴吧签到日志
      */
     public function sendTieBaSignDetailByCron()
@@ -202,7 +269,7 @@ class WeChatPublicPlatform
         foreach ($users as $user) {
             try {
                 $this->sendTiebaSignDetail($user['open_id']);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 self::DI()->logger->error($e->getMessage());
             }
         }

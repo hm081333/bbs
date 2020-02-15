@@ -25,9 +25,7 @@ class JdUser
             1 => '正常',
             2 => '已过期',
         ];
-        if ($status === false) {
-            return $names;
-        }
+        if ($status === false) return $names;
         return $names[$status];
     }
 
@@ -96,5 +94,43 @@ class JdUser
 
     }
 
+    /**
+     * 修改账号状态
+     * @param     $id
+     * @param int $status
+     * @return int|TRUE
+     */
+    public static function changeStatus($id, $status = 2)
+    {
+        $modelJdUser = self::getModel();
+        return $modelJdUser->update($id, ['status' => $status]);
+    }
+
+    /**
+     * 登录状态过期
+     * @param array $user_cookie
+     * @return bool
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidArgumentException
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
+     * @throws \Library\Exception\BadRequestException
+     * @throws \Library\Exception\InternalServerErrorException
+     */
+    public static function loginStatusExpired(array $user_cookie)
+    {
+        $status = 2;
+        $modelJdUser = self::getModel();
+        $info = $modelJdUser->getInfo([
+            'pt_key' => $user_cookie['pt_key'],
+            'pt_pin' => $user_cookie['pt_pin'],
+            'pt_token' => $user_cookie['pt_token'],
+        ]);
+        if (!$info) return false;
+        $res = self::changeStatus($info['id'], $status);
+        if ($res === false) return false;
+        /** @var $wechat \Common\Domain\WeChatPublicPlatform */
+        $wechat = self::getDomain('WeChatPublicPlatform');
+        $wechat->sendJDLoginStatusExpiredWarn($info);
+        return true;
+    }
 
 }

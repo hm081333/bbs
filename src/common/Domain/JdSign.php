@@ -1189,6 +1189,9 @@ class JdSign
             } else if ($code == 0) {
                 // 正常
             } else if ($code == 3) {
+                /** @var $domainJdUser \Common\Domain\JdUser */
+                $domainJdUser = self::getDomain('JdUser');
+                $domainJdUser::loginStatusExpired(self::$user_cookie);
                 throw new \Library\Exception\Exception(\PhalApi\T('请更新登录状态cookie'));
             } else {
                 self::DI()->logger->error('京东返回未知状态|jdRequest', $res);
