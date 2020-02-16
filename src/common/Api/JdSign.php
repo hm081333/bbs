@@ -16,7 +16,7 @@ class JdSign extends Base
         $rules = parent::getRules();
         $rules['doInfo'] = [
             'jd_user_id' => ['name' => 'jd_user_id', 'type' => 'int', 'min' => 1, 'require' => true, 'desc' => '京东用户ID'],
-            'data' => ['name' => 'data', 'type' => 'array', 'default' => [], 'desc' => '选择的签到项'],
+            'open_signs' => ['name' => 'open_signs', 'type' => 'array', 'default' => [], 'desc' => '选择的签到项'],
         ];
         return $rules;
     }
@@ -54,7 +54,7 @@ class JdSign extends Base
      */
     public function doInfo()
     {
-        self::getDomain()::doInfo($this->jd_user_id, $this->data);
+        self::getDomain()->doInfo($this->jd_user_id, $this->open_signs);
     }
 
 

@@ -12,6 +12,24 @@ function DI()
     return \Library\DependenceInjection::one();
 }
 
+/**
+ * 多维数组合并
+ * @param array $array1
+ * @param array $array2
+ * @return array
+ */
+function multi_array_merge($array1, $array2)
+{
+    foreach ($array2 as $key => $value) {
+        if (is_array($value) && (isset($array1[$key]) && is_array($array1[$key]))) {
+            $array1[$key] = multi_array_merge($array1[$key], $value);
+        } else {
+            $array1[$key] = $value;
+        }
+    }
+    return $array1;
+}
+
 function getComposerRequire()
 {
     $composer = file_get_contents(API_ROOT . '/composer.json');

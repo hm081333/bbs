@@ -18,6 +18,14 @@ class JdUser
 {
     use Common;
 
+    /**
+     * @return \Common\Domain\JdSign
+     */
+    public static function Domain_JdSign()
+    {
+        return self::getDomain('JdSign');
+    }
+
     public static function statusNames($status = false)
     {
         $names = [
@@ -46,7 +54,7 @@ class JdUser
         $user = \Common\Domain\User::getCurrentUser(true);
         $modelJdUser = self::getModel();
         // 获取京东用户信息
-        $jd_user_info = self::getDomain('JdSign')::getJDUserInfo($data);
+        $jd_user_info = self::Domain_JdSign()->getJDUserInfo($data);
         $data = [
             'jd_user_name' => $jd_user_info['user_name'],
             'jd_nick_name' => $jd_user_info['nick_name'],
