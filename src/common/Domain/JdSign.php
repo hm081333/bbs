@@ -33,7 +33,6 @@ class JdSign
     private $limit = 50;
     private $user_cookie = [];
     private $roundId = '';
-    private $paradiseUuid = '';
     private $lotteryCode = '';
     private $day_begin = 0;
     private $jd_sign_field = 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token';
@@ -616,7 +615,7 @@ class JdSign
      */
     private function doPlantBean(array $jd_sign_info = [])
     {
-        // if (($jd_sign_info['return_data']['next_time'] ?? 0) > time()) {
+        // if ($jd_sign_info['return_data']['next_time'] > time()) {
         //     return;
         //     // throw new \Library\Exception\Exception(\PhalApi\T('未到下次收取时间'));
         // }
@@ -627,11 +626,9 @@ class JdSign
         $plant_info = $this->plantBeanInfo();
         // 现持有营养液数量
         $nutrients = ($plant_info['nutrients'] ?? 0);
-        // 种豆得豆任务
-        $awardList = $plant_info['awardList'];
-        foreach ($awardList as $award) {
+        // 1、种豆得豆任务
+        foreach ($plant_info['awardList'] as $award) {
             // limitFlag为2代表任务已完成
-            // if ($award['limitFlag'] == 2) continue;
             if (isset($award['childAwardList'])) {
                 foreach ($award['childAwardList'] as $childAward) {
                     $nutrients += $this->doPlantBeanAward($childAward);
@@ -642,15 +639,12 @@ class JdSign
             }
         }
 
-        // 可收取营养液数量大于0
+        // 2、可收取营养液数量大于0
         if ($plant_info['nutrCount'] > 0) {
-            $receiveNutrientsRes = $this->receiveNutrients();
             // 持有数量
-            $nutrients += $receiveNutrientsRes ? $receiveNutrientsRes['nutrients'] : 0;
-            // 下次收取时间
-            // $receiveNutrientsRes['next_time'] = $plant_info['nextReceiveTime'];
+            $nutrients += $this->receiveNutrients();
         }
-        // 帮好友收取、收取得到的奖励累积到本次该收取的数量
+        // 3、帮好友收取、收取得到的奖励累积到本次该收取的数量
         $nutrients += $this->receivePlantFriend();
         // 持有营养液
         if ($nutrients > 0) {
@@ -682,7 +676,9 @@ class JdSign
                 // 总共 获得营养液数量
                 'nutrients_total' => ($jd_sign_info['return_data']['nutrients_total'] + $nutrients),
                 // 下次运行时间、状态2：7点再来领取
-                'next_time' => $plant_info['timeNutrientsResState'] == 2 ? strtotime(date('Y-m-d 7:00:00') . '+ 1 day') : $plant_info['nextReceiveTime'],
+                // 'next_time' => $plant_info['timeNutrientsResState'] == 2 ? strtotime(date('Y-m-d 7:00:00') . '+ 1 day') : $plant_info['nextReceiveTime'],
+                // 下次运行时间 不做限制
+                'next_time' => 0,
             ],
         ]));
 
@@ -738,7 +734,7 @@ class JdSign
         // 可领取状态 1：可领取 2：7点再来领取（promptText）3：等待生成
         $timeNutrientsResState = $timeNutrientsRes['state'];
         // 下次可领取时间 时间戳
-        $nextReceiveTime = substr($timeNutrientsRes['nextReceiveTime'] ?? '0', 0, 10);
+        // $nextReceiveTime = substr($timeNutrientsRes['nextReceiveTime'] ?? '0', 0, 10);
         // 本次可领取数量
         $nutrCount = $timeNutrientsRes['nutrCount'] ?? 0;
         // 任务列表
@@ -750,8 +746,8 @@ class JdSign
             // 'roundId' => $this_round_id,
             'nutrients' => $this_round_nutrients,
             // 'timeNutrientsRes' => $timeNutrientsRes,
-            'timeNutrientsResState' => $timeNutrientsResState,
-            'nextReceiveTime' => $nextReceiveTime,
+            // 'timeNutrientsResState' => $timeNutrientsResState,
+            // 'nextReceiveTime' => $nextReceiveTime,
             'nutrCount' => $nutrCount,
             'awardList' => $awardList,
         ];
@@ -909,13 +905,13 @@ class JdSign
             'g_ty' => 'ls',
         ]);
         $data = DI()->curl->setCookie($this->user_cookie)->setHeader([
-            'referer' => "https://shop.m.jd.com/?shopId={$shopId}",
+            'Referer' => "https://shop.m.jd.com/?shopId={$shopId}",
         ])->json_get($url);
-        DI()->curl->unsetHeader('referer');
+        DI()->curl->unsetHeader('Referer');
 
         if ($data['iRet'] != 0) throw new Exception($data['errMsg']);
 
-        // DI()->logger->debug('关注店铺、取消关注店铺', $data);
+        DI()->logger->debug('关注店铺、取消关注店铺', $data);
 
         return true;
     }
@@ -1062,20 +1058,20 @@ class JdSign
         ]);
 
         $data = DI()->curl->setCookie($this->user_cookie)->setHeader([
-            'referer' => "https://shop.m.jd.com/?shopId={$skuId}",
+            'Referer' => "https://shop.m.jd.com/?shopId={$skuId}",
         ])->json_get($url);
-        DI()->curl->unsetHeader('referer');
+        DI()->curl->unsetHeader('Referer');
 
         if ($data['iRet'] != 0) throw new Exception($data['errMsg']);
 
-        // DI()->logger->debug('关注店铺、取消关注店铺', $data);
+        DI()->logger->debug('收藏商品、取消收藏商品', $data);
 
         return true;
     }
 
     /**
      * 收取营养液
-     * @return array|bool
+     * @return integer
      * @throws BadRequestException
      * @throws Exception
      * @throws InternalServerErrorException
@@ -1084,7 +1080,8 @@ class JdSign
      */
     private function receiveNutrients()
     {
-        if (!$this->roundId) return false;
+        if (!$this->roundId) return 0;
+
         $url = $this->buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'receiveNutrients',
             'body' => json_encode([
@@ -1103,21 +1100,19 @@ class JdSign
 
         $data = $this->jdRequest($url);
         // 本次收取数量
-        $nutrients = $data['nutrients'];
+        // $nutrients = $data['nutrients'];
         // 下次收取时间 时间戳
-        $nextReceiveTime = substr($data['nextReceiveTime'] ?? '0', 0, 10);
+        // $nextReceiveTime = substr($data['nextReceiveTime'] ?? '0', 0, 10);
 
         DI()->logger->debug('收取营养液', $data);
 
-        return [
-            'nutrients' => $nutrients,
-            'nextReceiveTime' => $nextReceiveTime,
-        ];
+        // 只返回 本次收取数量
+        return $data['nutrients'];
     }
 
     /**
      * 种豆得豆好友收集营养液
-     * @return array
+     * @return integer
      * @throws BadRequestException
      * @throws Exception
      * @throws InternalServerErrorException
@@ -1139,12 +1134,8 @@ class JdSign
                 $nutrCount = $item['nutrCount'] ?? 0;
                 // 数量少的不收取，因为数量少的肯定不会有奖励
                 if ($nutrCount >= 3) {
-                    $this->paradiseUuid = $item['paradiseUuid'];
-                    $collect_res = $this->collectUserNutr();
                     // 累积总奖励
-                    $nutrients += $collect_res['collectNutrRewards'];
-                    // 间隔 1s 防止出现 抱歉，活动太火爆了 提示
-                    // sleep(2);
+                    $nutrients += $this->collectUserNutr($item['paradiseUuid']);
                 }
             }
             // 页码+1 - 下一页
@@ -1192,19 +1183,21 @@ class JdSign
 
     /**
      * 收取用户的营养液
-     * @return array|mixed
+     * @param bool|integer $paradiseUuid
+     * @return integer
      * @throws BadRequestException
      * @throws Exception
      * @throws InternalServerErrorException
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
      */
-    private function collectUserNutr()
+    private function collectUserNutr($paradiseUuid = false)
     {
+        if (!$paradiseUuid) return 0;
         $url = $this->buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'collectUserNutr',
             'body' => json_encode([
-                'paradiseUuid' => $this->paradiseUuid,
+                'paradiseUuid' => $paradiseUuid,
                 'roundId' => $this->roundId,
                 'monitor_source' => 'plant_m_plant_index',
                 'monitor_refer' => 'collectUserNutr',
@@ -1223,14 +1216,11 @@ class JdSign
         DI()->logger->debug('收取用户的营养液', $data);
 
         // 收取结果 1 收取成功 2 没有可收取的营养液 3
-        $collectResult = $data['collectResult'];
+        // $collectResult = $data['collectResult'];
         // 帮忙收取获得的奖励 营养液 数量
-        $collectNutrRewards = $data['collectNutrRewards'] ?? 0;
+        // $collectNutrRewards = $data['collectNutrRewards'] ?? 0;
 
-        return [
-            'collectResult' => $collectResult,
-            'collectNutrRewards' => $collectNutrRewards,
-        ];
+        return $data['collectNutrRewards'] ?? 0;
     }
 
     /**
@@ -2330,8 +2320,9 @@ class JdSign
             'pt_pin' => $data['pt_pin'],
             'pt_token' => $data['pt_token'],
         ])->setHeader([
-            'referer' => 'https://home.m.jd.com/myJd/newhome.action',
+            'Referer' => 'https://home.m.jd.com/myJd/newhome.action',
         ])->json_get($url);
+        DI()->curl->unsetHeader('Referer');
         if ($result['retcode'] != 0 || empty($result['data'])) {
             DI()->logger->error('获取京东会员信息错误', $result);
             throw new Exception(T('未知错误'));

@@ -67,8 +67,8 @@ class CUrl
 
     /**
      * GET方式的请求
-     * @param string $url       请求的链接
-     * @param int    $timeoutMs 超时设置，单位：毫秒
+     * @param string $url 请求的链接
+     * @param int $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
      */
     public function get($url, $timeoutMs = 3000)
@@ -83,9 +83,9 @@ class CUrl
 
     /**
      * POST方式的请求
-     * @param string $url       请求的链接
-     * @param array  $data      POST的数据
-     * @param int    $timeoutMs 超时设置，单位：毫秒
+     * @param string $url 请求的链接
+     * @param array $data POST的数据
+     * @param int $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
      */
     public function post($url, $data, $timeoutMs = 3000)
@@ -198,11 +198,11 @@ class CUrl
 
     /**
      * 统一接口请求
-     * @param string $url       请求的链接
-     * @param array  $data      POST的数据
-     * @param int    $timeoutMs 超时设置，单位：毫秒
+     * @param string $url 请求的链接
+     * @param array $data POST的数据
+     * @param int $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
-     * @throws Exception
+     * @throws InternalServerErrorException
      */
     protected function request($url, $data, $timeoutMs = 3000)
     {
@@ -252,6 +252,9 @@ class CUrl
             unset($this->header['Cookie']);
             unset($this->option[CURLOPT_COOKIEFILE]);
         }
+        // if ($this->header) {
+        //     $this->header = [];
+        // }
         curl_close($ch);
 
         return $rs;
