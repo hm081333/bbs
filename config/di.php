@@ -81,7 +81,7 @@ $di->cookie = function () use ($di) {
 // CURL请求
 $di->curl = function () use ($di) {
     // return new \PhalApi\CUrl(5);
-    return new \Library\CUrl(5);
+    return new \Library\CUrl(5, 5000);
 };
 
 // tool工具

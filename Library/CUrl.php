@@ -40,6 +40,10 @@ class CUrl
      * @var int $retryTimes 超时重试次数；注意，此为失败重试的次数，即：总次数 = 1 + 重试次数
      */
     protected $retryTimes;
+    /**
+     * @var int $timeoutMs 超时时间，单位：毫秒
+     */
+    protected $timeoutMs;
 
     protected $header = [];
 
@@ -52,48 +56,51 @@ class CUrl
     /**
      * CUrl constructor.
      * @param int $retryTimes 超时重试次数，默认为1
+     * @param int $timeoutMs  超时时间，单位：毫秒，默认为3000
      * @throws Exception\InternalServerErrorException
      */
-    public function __construct($retryTimes = 5)
+    public function __construct($retryTimes = 1, $timeoutMs = 3000)
     {
         if (!function_exists('curl_exec')) {
             throw new \Library\Exception\InternalServerErrorException('服务器不支持cURL');
         }
-        $this->retryTimes = $retryTimes < static::MAX_RETRY_TIMES
-            ? $retryTimes : static::MAX_RETRY_TIMES;
+        $this->retryTimes = $retryTimes < static::MAX_RETRY_TIMES ? $retryTimes : static::MAX_RETRY_TIMES;
+        $this->timeoutMs = $timeoutMs;
     }
 
     /** ------------------ 核心使用方法 ------------------ **/
 
     /**
      * GET方式的请求
-     * @param string $url 请求的链接
-     * @param int $timeoutMs 超时设置，单位：毫秒
+     * @param string $url       请求的链接
+     * @param int    $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
+     * @throws InternalServerErrorException
      */
-    public function get($url, $timeoutMs = 3000)
+    public function get($url, $timeoutMs = 5000)
     {
         return $this->request($url, [], $timeoutMs);
     }
 
-    public function json_get($url, $timeoutMs = 3000)
+    public function json_get($url, $timeoutMs = 5000)
     {
         return json_decode($this->request($url, [], $timeoutMs), true);
     }
 
     /**
      * POST方式的请求
-     * @param string $url 请求的链接
-     * @param array $data POST的数据
-     * @param int $timeoutMs 超时设置，单位：毫秒
+     * @param string $url       请求的链接
+     * @param array  $data      POST的数据
+     * @param int    $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
+     * @throws InternalServerErrorException
      */
-    public function post($url, $data, $timeoutMs = 3000)
+    public function post($url, $data, $timeoutMs = 5000)
     {
         return $this->request($url, $data, $timeoutMs);
     }
 
-    public function json_post($url, $data, $timeoutMs = 3000)
+    public function json_post($url, $data, $timeoutMs = 5000)
     {
         return json_decode($this->request($url, $data, $timeoutMs), true);
     }
@@ -101,10 +108,14 @@ class CUrl
     /**
      * 获取文件
      * @param     $url
+     * @param     $path
+     * @param     $file_name
      * @param int $timeoutMs
      * @return string
+     * @throws Exception\InternalServerErrorException
+     * @throws InternalServerErrorException
      */
-    public function getFile($url, $path, $file_name, $timeoutMs = 3000)
+    public function getFile($url, $path, $file_name, $timeoutMs = 5000)
     {
         if (empty($path) || empty($file_name)) {
             throw new \Library\Exception\InternalServerErrorException('路径或文件名为空');
@@ -198,13 +209,13 @@ class CUrl
 
     /**
      * 统一接口请求
-     * @param string $url 请求的链接
-     * @param array $data POST的数据
-     * @param int $timeoutMs 超时设置，单位：毫秒
+     * @param string $url       请求的链接
+     * @param array  $data      POST的数据
+     * @param int    $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
      * @throws InternalServerErrorException
      */
-    protected function request($url, $data, $timeoutMs = 3000)
+    protected function request($url, $data, $timeoutMs = 5000)
     {
         $options = [
             CURLOPT_URL => $url,
@@ -214,6 +225,7 @@ class CUrl
             CURLOPT_HTTPHEADER => $this->getHeaders(),
 
             CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
             CURLOPT_COOKIE => $this->getCookies(),
         ];
 
@@ -236,6 +248,7 @@ class CUrl
         curl_setopt_array($ch, $options);
         $curRetryTimes = $this->retryTimes;
         do {
+            var_dump($curRetryTimes);
             $rs = curl_exec($ch);
             $curRetryTimes--;
         } while ($rs === false && $curRetryTimes >= 0);
@@ -252,9 +265,12 @@ class CUrl
             unset($this->header['Cookie']);
             unset($this->option[CURLOPT_COOKIEFILE]);
         }
-        // if ($this->header) {
-        //     $this->header = [];
-        // }
+        if ($this->header) {
+            $this->header = [];
+        }
+        if ($this->option) {
+            $this->option = [];
+        }
         curl_close($ch);
 
         return $rs;
