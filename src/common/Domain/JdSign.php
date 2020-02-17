@@ -10,6 +10,7 @@ namespace Common\Domain;
 
 use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
 use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
+use Library\DateHelper;
 use Library\Exception\BadRequestException;
 use Library\Exception\Exception;
 use Library\Exception\InternalServerErrorException;
@@ -69,7 +70,7 @@ class JdSign
 
     /**
      * 设置京东签到项目
-     * @param int   $jd_user_id
+     * @param int $jd_user_id
      * @param array $open_signs
      * @throws BadRequestException
      * @throws Exception
@@ -162,6 +163,16 @@ class JdSign
     }
 
     /**
+     * 判断时间戳是不是今天
+     * @param $timestamp
+     * @return bool
+     */
+    private function is_today($timestamp)
+    {
+        return $timestamp >= $this->day_begin;
+    }
+
+    /**
      * 执行某项签到 - 所有
      * @throws BadRequestException
      */
@@ -191,7 +202,7 @@ class JdSign
 
     /**
      * 执行某项签到
-     * @param int   $jd_sign_id
+     * @param int $jd_sign_id
      * @param array $jd_sign_info
      * @throws BadRequestException
      * @throws Exception
@@ -252,7 +263,7 @@ class JdSign
 
     /**
      * 获取京东签到项数据
-     * @param int   $jd_sign_id
+     * @param int $jd_sign_id
      * @param array $jd_sign_info
      * @return array|mixed
      * @throws BadRequestException
@@ -313,13 +324,54 @@ class JdSign
     }
 
     /**
-     * 判断时间戳是不是今天
-     * @param $timestamp
-     * @return bool
+     * 获取签到状态
+     * @param bool|array $jd_user
+     * @return array
+     * @throws BadRequestException
      */
-    private function is_today($timestamp)
+    public function getSignStatus($jd_user = false)
     {
-        return $timestamp >= $this->day_begin;
+        if (empty($jd_user)) {
+            throw new BadRequestException(T('非法参数'));
+        }
+        $sign_list = $this->Model_JdSign()->getListByWhere(['jd_user_id' => $jd_user['id'], 'status' => 1], 'return_data');
+        if (empty($sign_list)) {
+            throw new BadRequestException(T('该用户不存在开启中的签到'));
+        }
+
+        $jd_sign_count=count($sign_list);
+        $bean_award_day = 0;
+        $bean_award_total = 0;
+        $nutrients_day = 0;
+        $nutrients_total = 0;
+        foreach ($sign_list as $sign_info) {
+            $return_data = unserialize($sign_info['return_data']);
+            $bean_award_day += $return_data['bean_award_day'] ?? 0;
+            $bean_award_total += $return_data['bean_award_total'] ?? 0;
+            $nutrients_day += $return_data['nutrients_day'] ?? 0;
+            $nutrients_total += $return_data['nutrients_total'] ?? 0;
+        }
+        unset($sign_info,$sign_list);
+
+        $h = date('G', NOW_TIME);
+        if ($h < 11) {
+            $greeting = '早上好！！！';
+        } else if ($h < 13) {
+            $greeting = '中午好！！！';
+        } else if ($h < 17) {
+            $greeting = '下午好！！！';
+        } else {
+            $greeting = '晚上好！！！';
+        }
+        $result = [];
+        $result['user_name'] = $jd_user['user_name'];
+        $result['greeting'] = $greeting;
+        $result['jd_sign_count'] = $jd_sign_count;
+        $result['bean_award_day'] = $bean_award_day;
+        $result['nutrients_day'] = $nutrients_day;
+        $result['bean_award_total'] = $bean_award_total;
+        $result['nutrients_total'] = $nutrients_total;
+        return $result;
     }
 
     /**
@@ -429,7 +481,7 @@ class JdSign
 
     /**
      * 构架请求
-     * @param string       $url    请求地址
+     * @param string $url 请求地址
      * @param array|string $params 请求参数
      * @return string
      * @throws Exception
@@ -473,7 +525,7 @@ class JdSign
 
     /**
      * 请求操作
-     * @param string     $url
+     * @param string $url
      * @param bool|array $post_data
      * @return array|bool
      * @throws BadRequestException

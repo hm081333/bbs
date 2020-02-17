@@ -39,6 +39,15 @@ try {
             break;
         case 'jd':
             switch ($argv[1]) {
+                case 'send_info':
+                    $di->logger->info('推送签到详情信息');
+                    $wechat_domain = new \Common\Domain\WeChatPublicPlatform();
+                    $wechat_domain->sendJDSignDetailByCron();
+                    break;
+                case 'test':
+                    \Common\Domain\JdSign::test();
+                    die('测试');
+                    break;
                 case 'bean':// 签到领京豆
                     $di->logger->info('执行定时:签到领京豆');
                     break;
@@ -68,10 +77,6 @@ try {
                     break;
                 case 'jrSignRecords':// 每日赚京豆签到
                     $di->logger->info('执行定时:每日赚京豆签到');
-                    break;
-                case 'test':
-                    \Common\Domain\JdSign::test();
-                    die('测试');
                     break;
                 default:
                     die('非法参数');

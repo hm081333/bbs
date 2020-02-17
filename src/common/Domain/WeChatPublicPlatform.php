@@ -14,6 +14,7 @@ use EasyWeChat\Kernel\Support\Collection;
 use Exception;
 use Library\Exception\BadRequestException;
 use Library\Exception\InternalServerErrorException;
+use PhalApi\Model\NotORMModel;
 use Psr\Http\Message\ResponseInterface;
 use function Common\DI;
 use function Common\isWeChat;
@@ -33,7 +34,7 @@ class WeChatPublicPlatform
 
     public function __construct()
     {
-        $config = $this->settingDomain()::getSetting('wechat');
+        $config = $this->Domain_Setting()::getSetting('wechat');
         $this->appId = $config['app_id'] ?? '';
         $this->appSecret = $config['app_secret'] ?? '';
     }
@@ -41,9 +42,25 @@ class WeChatPublicPlatform
     /**
      * @return Setting
      */
-    private function settingDomain()
+    protected function Domain_Setting()
     {
         return self::getDomain('Setting');
+    }
+
+    /**
+     * @return \Common\Model\User|\Common\Model\Common|NotORMModel
+     */
+    protected function Model_User()
+    {
+        return self::getModel('User');
+    }
+
+    /**
+     * @return JdSign
+     */
+    protected function Domain_JdSign()
+    {
+        return self::getDomain('JdSign');
     }
 
     /**
@@ -67,11 +84,12 @@ class WeChatPublicPlatform
      * @param $code
      * @return mixed
      * @throws \Library\Exception\Exception
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function getOpenId($code)
     {
         $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid={$this->appId}&secret={$this->appSecret}&code={$code}&grant_type=authorization_code";
-        $result = self::DI()->curl->get($url);
+        $result = DI()->curl->get($url);
         $result = json_decode($result, true);
         if (!empty($result)) {
             if (isset($result['errmsg'])) {
@@ -88,18 +106,19 @@ class WeChatPublicPlatform
      * @param $code
      * @return mixed
      * @throws \Library\Exception\Exception
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function getSnsApiUserInfo($code)
     {
         $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid={$this->appId}&secret={$this->appSecret}&code={$code}&grant_type=authorization_code";
-        $result = self::DI()->curl->get($url);
+        $result = DI()->curl->get($url);
         $result = json_decode($result, true);
         if (!empty($result)) {
             if (isset($result['errmsg'])) {
                 throw new \Library\Exception\Exception(T($result['errmsg']));
             }
             $url = "https://api.weixin.qq.com/sns/userinfo?access_token={$result['access_token']}&openid={$result['open_id']}&lang=zh_CN";
-            $result = self::DI()->curl->get($url);
+            $result = DI()->curl->get($url);
             $result = json_decode($result, true);
             if (!empty($result)) {
                 if (isset($result['errmsg'])) {
@@ -118,18 +137,19 @@ class WeChatPublicPlatform
      * 通过获取的openid达到自动登陆的效果
      * @param $code
      * @throws \Library\Exception\Exception
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function openIdLogin($code)
     {
         $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid={$this->appId}&secret={$this->appSecret}&code={$code}&grant_type=authorization_code";
-        $result = self::DI()->curl->get($url);
+        $result = DI()->curl->get($url);
         $result = json_decode($result, true);
         if (!empty($result)) {
             if (isset($result['errmsg'])) {
                 throw new \Library\Exception\Exception(T($result['errmsg']));
             }
             $open_id = $result['openid'];
-            $user_model = self::getModel('User');
+            $user_model = $this->Model_User();
             $user = $user_model->getInfo(['open_id' => $open_id]);
             if ($user) {
                 //将用户名存如SESSION中
@@ -198,9 +218,25 @@ class WeChatPublicPlatform
             ],
         ]);
 
-        self::DI()->logger->debug('微信推送结果', $result);
+        DI()->logger->debug('微信推送结果', $result);
 
         return $result;
+    }
+
+    /**
+     * 公众号发送贴吧签到日志
+     */
+    public function sendTieBaSignDetailByCron()
+    {
+        $user_model = $this->Model_User();
+        $users = $user_model->getListByWhere(['open_id IS NOT ?' => null], 'open_id');
+        foreach ($users as $user) {
+            try {
+                $this->sendTiebaSignDetail($user['open_id']);
+            } catch (Exception $e) {
+                DI()->logger->error($e->getMessage());
+            }
+        }
     }
 
     /**
@@ -216,7 +252,7 @@ class WeChatPublicPlatform
     {
         if (empty($jd_user_info)) throw new BadRequestException(T('非法请求'));
         /** @var $user_model \Common\Model\User */
-        $user_model = self::getModel('User');
+        $user_model = $this->Model_User();
         $user_info = $user_model->get(intval($jd_user_info['user_id']));
         if (!$user_info) throw new InternalServerErrorException(T('获取状态失败'));
 
@@ -254,25 +290,98 @@ class WeChatPublicPlatform
             ],
         ]);
 
-        self::DI()->logger->debug('微信推送结果', $result);
+        DI()->logger->debug('微信推送结果', $result);
 
         return $result;
     }
 
     /**
-     * 公众号发送贴吧签到日志
+     * 公众号发送京东签到日志
      */
-    public function sendTieBaSignDetailByCron()
+    public function sendJDSignDetailByCron()
     {
-        $user_model = self::getModel('User');
-        $users = $user_model->getListByWhere(['open_id IS NOT ?' => null, 'sign_notice' => 1], 'open_id');
+        $users = $this->Model_User()->queryRows('SELECT
+            `jd_user`.`id`,
+            `jd_user`.`user_id`,
+            `user`.`open_id`,
+            `user`.`user_name`
+            FROM
+            `ly_jd_user` AS `jd_user`
+            LEFT JOIN `ly_user` AS `user` ON `jd_user`.`user_id` = `user`.`id` 
+        WHERE
+            `jd_user`.`status` = 1 
+            AND `user`.`open_id` IS NOT NULL;');
         foreach ($users as $user) {
             try {
-                $this->sendTiebaSignDetail($user['open_id']);
+                $this->sendJdSignDetail($user);
             } catch (Exception $e) {
-                self::DI()->logger->error($e->getMessage());
+                DI()->logger->error($e->getMessage());
             }
         }
+    }
+
+    /**
+     * 发送贴吧签到详情
+     * @param array $user
+     * @return array|Collection|object|ResponseInterface|string
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
+     */
+    private function sendJdSignDetail($user = [])
+    {
+        if (empty($user) || empty($user['open_id']) || empty($user['id'])) {
+            throw new BadRequestException(T('非法参数'));
+        }
+        $info = $this->Domain_JdSign()->getSignStatus($user);
+        if ($info == false) {
+            throw new InternalServerErrorException(T('获取推送信息失败'));
+        }
+
+        $result = DI()->wechat->template_message->send([
+            'touser' => $user['open_id'],
+            'template_id' => 'MZGfek36AHUS3WVteDPQXpFqoM2x1c9NtlHYGtWiSXc',
+            'url' => 'http://bbs2.lyihe2.tk/sign',
+            // 'miniprogram' => [
+            //     'appid' => 'xxxxxxx',
+            //     'pagepath' => 'pages/xxx',
+            // ],
+            'data' => [
+                'user_name' => [
+                    'value' => $info['user_name'],
+                    'color' => '#173177',
+                ],
+                'greeting' => [
+                    'value' => $info['greeting'],
+                    'color' => '#173177',
+                ],
+                'jd_sign_count' => [
+                    'value' => $info['jd_sign_count'],
+                    'color' => '#173177',
+                ],
+                'bean_award_day' => [
+                    'value' => $info['bean_award_day'],
+                    'color' => '#173177',
+                ],
+                'nutrients_day' => [
+                    'value' => $info['nutrients_day'],
+                    'color' => '#173177',
+                ],
+                'bean_award_total' => [
+                    'value' => $info['bean_award_total'],
+                    'color' => '#173177',
+                ],
+                'nutrients_total' => [
+                    'value' => $info['nutrients_total'],
+                    'color' => '#173177',
+                ],
+            ],
+        ]);
+
+        DI()->logger->debug('微信推送结果', $result);
+
+        return $result;
     }
 
 
