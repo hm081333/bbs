@@ -334,12 +334,12 @@ class JdSign
         if (empty($jd_user)) {
             throw new BadRequestException(T('非法参数'));
         }
-        $sign_list = $this->Model_JdSign()->getListByWhere(['jd_user_id' => $jd_user['id'], 'status' => 1], 'return_data');
+        $sign_list = $this->Model_JdSign()->getListByWhere(['jd_user_id' => $jd_user['id'], 'status' => 1], 'sign_key,return_data');
         if (empty($sign_list)) {
             throw new BadRequestException(T('该用户不存在开启中的签到'));
         }
 
-        $jd_sign_count=count($sign_list);
+        $jd_sign_count = count($sign_list);
         $bean_award_day = 0;
         $bean_award_total = 0;
         $nutrients_day = 0;
@@ -348,10 +348,12 @@ class JdSign
             $return_data = unserialize($sign_info['return_data']);
             $bean_award_day += $return_data['bean_award_day'] ?? 0;
             $bean_award_total += $return_data['bean_award_total'] ?? 0;
-            $nutrients_day += $return_data['nutrients_day'] ?? 0;
-            $nutrients_total += $return_data['nutrients_total'] ?? 0;
+            if ($sign_info['sign_key'] != 'doubleSign') {
+                $nutrients_day += $return_data['nutrients_day'] ?? 0;
+                $nutrients_total += $return_data['nutrients_total'] ?? 0;
+            }
         }
-        unset($sign_info,$sign_list);
+        unset($sign_info, $sign_list);
 
         $h = date('G', NOW_TIME);
         if ($h < 11) {
