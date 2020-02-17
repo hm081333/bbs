@@ -529,6 +529,7 @@ class JdSign
      * 请求操作
      * @param string $url
      * @param bool|array $post_data
+     * @param int $retryTimes 重新请求次数
      * @return array|bool
      * @throws BadRequestException
      * @throws Exception
@@ -536,11 +537,9 @@ class JdSign
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
      */
-    private function jdRequest($url, $post_data = false)
+    private function jdRequest($url, $post_data = false, $retryTimes = 5)
     {
-        //{"code":"0","errorCode":"PB001","errorMessage":"抱歉，活动太火爆了"}
         $res = $post_data === false ? DI()->curl->setCookie($this->user_cookie)->json_get($url) : DI()->curl->setCookie($this->user_cookie)->json_post($url, $post_data);
-        // DI()->logger->debug('', $res);
         if (isset($res['success'])) {
             // $data = [];
             if ($res['success']) {
@@ -562,10 +561,16 @@ class JdSign
                 DI()->logger->error('京东返回未知状态|jdRequest', $res);
             }
             $data = $res['data'] ?? $res;
-            // $errorCode = $res['errorCode'] ?? false;
+            $errorCode = $res['errorCode'] ?? false;
             $errorMessage = $res['errorMessage'] ?? false;
             if (!empty($errorMessage)) {
                 DI()->logger->error("请求返回错误|URL|{$url}", $res);
+                // {"code":"0","errorCode":"PB001","errorMessage":"抱歉，活动太火爆了"}
+                // 尝试重新请求
+                if (($errorCode == 'PB001') && $retryTimes > 0) {
+                    DI()->logger->debug("尝试重新请求，剩余重试次数{$retryTimes}次|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
+                    return $this->jdRequest($url, $post_data, $retryTimes - 1);
+                }
                 throw new Exception($errorMessage);
             }
         }
