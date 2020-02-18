@@ -70,7 +70,7 @@ class JdSign
 
     /**
      * 设置京东签到项目
-     * @param int $jd_user_id
+     * @param int   $jd_user_id
      * @param array $open_signs
      * @throws BadRequestException
      * @throws Exception
@@ -202,7 +202,7 @@ class JdSign
 
     /**
      * 执行某项签到
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @throws BadRequestException
      * @throws Exception
@@ -263,7 +263,7 @@ class JdSign
 
     /**
      * 获取京东签到项数据
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @return array|mixed
      * @throws BadRequestException
@@ -483,7 +483,7 @@ class JdSign
 
     /**
      * 构架请求
-     * @param string $url 请求地址
+     * @param string       $url    请求地址
      * @param array|string $params 请求参数
      * @return string
      * @throws Exception
@@ -527,9 +527,9 @@ class JdSign
 
     /**
      * 请求操作
-     * @param string $url
+     * @param string     $url
      * @param bool|array $post_data
-     * @param int $retryTimes 重新请求次数
+     * @param int        $retryTimes 重新请求次数
      * @return array|bool
      * @throws BadRequestException
      * @throws Exception
@@ -567,7 +567,7 @@ class JdSign
                 DI()->logger->error("请求返回错误|URL|{$url}", $res);
                 // {"code":"0","errorCode":"PB001","errorMessage":"抱歉，活动太火爆了"}
                 // 尝试重新请求
-                if (($errorCode == 'PB001') && $retryTimes > 0) {
+                if ($retryTimes > 0 && ($errorCode == 'PB001')) {
                     DI()->logger->debug("尝试重新请求，剩余重试次数{$retryTimes}次|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
                     return $this->jdRequest($url, $post_data, $retryTimes - 1);
                 }
@@ -1381,10 +1381,12 @@ class JdSign
             'sign_key' => $this->sign_key,
             'status' => 1,
         ], $this->initUpdateSignData([
-            // 今天 获得京豆数量
-            'bean_award_day' => !$this->is_today($jd_sign_info['return_data']['sign_time']) ? $bean_award : ($jd_sign_info['return_data']['bean_award_day'] + $bean_award),
-            // 总共 获得京豆数量
-            'bean_award_total' => ($jd_sign_info['return_data']['bean_award_total'] + $bean_award),
+            'return_data' => [
+                // 今天 获得京豆数量
+                'bean_award_day' => !$this->is_today($jd_sign_info['return_data']['sign_time']) ? $bean_award : ($jd_sign_info['return_data']['bean_award_day'] + $bean_award),
+                // 总共 获得京豆数量
+                'bean_award_total' => ($jd_sign_info['return_data']['bean_award_total'] + $bean_award),
+            ],
         ]));
 
     }
@@ -1583,9 +1585,8 @@ class JdSign
         // 获得京豆数量
         $bean_award = 0;
 
-        //{"isWinner":"0","chances":"1","prizeType":"5","prizeId":"910582","prizeName":"1个京豆","tips":"京豆1个","prizeSendNumber":"1"}
         for ($i = 0; $i < $info['lotteryCount']; $i++) {
-            $this->lotteryDraw();
+            $bean_award += $this->lotteryDraw();
         }
 
         $this->Model_JdSign()->updateByWhere([
@@ -1593,10 +1594,12 @@ class JdSign
             'sign_key' => $this->sign_key,
             'status' => 1,
         ], $this->initUpdateSignData([
-            // 今天 获得京豆数量
-            'bean_award_day' => !$this->is_today($jd_sign_info['return_data']['sign_time']) ? $bean_award : ($jd_sign_info['return_data']['bean_award_day'] + $bean_award),
-            // 总共 获得京豆数量
-            'bean_award_total' => ($jd_sign_info['return_data']['bean_award_total'] + $bean_award),
+            'return_data' => [
+                // 今天 获得京豆数量
+                'bean_award_day' => !$this->is_today($jd_sign_info['return_data']['sign_time']) ? $bean_award : ($jd_sign_info['return_data']['bean_award_day'] + $bean_award),
+                // 总共 获得京豆数量
+                'bean_award_total' => ($jd_sign_info['return_data']['bean_award_total'] + $bean_award),
+            ],
         ]));
 
     }
@@ -1657,7 +1660,13 @@ class JdSign
         try {
             $data = $this->jdRequest($url);
             DI()->logger->debug('福利转盘 抽奖', $data);
-            return $data;
+            //{"isWinner":"0","chances":"1","prizeType":"5","prizeId":"910582","prizeName":"1个京豆","tips":"京豆1个","prizeSendNumber":"1"}
+            $prizeType = $data['prizeType'] ?? false;
+            // $prizeId = $data['prizeId'] ?? false;
+            if ($prizeType == 5) {
+                return $data['prizeSendNumber'] ?? 0;
+            }
+            return 0;
         } catch (\Exception $e) {
             return 0;
         }
