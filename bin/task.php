@@ -43,6 +43,7 @@ try {
                     $di->logger->info('推送签到详情信息');
                     $wechat_domain = new \Common\Domain\WeChatPublicPlatform();
                     $wechat_domain->sendJDSignDetailByCron();
+                    die();
                     break;
                 case 'test':
                     \Common\Domain\JdSign::test();
@@ -82,8 +83,10 @@ try {
                     die('非法参数');
                     break;
             }
-            $domain_JdSign=new \Common\Domain\JdSign();
+            \Common\DI()->logger->info("开始执行京东定时签到|$argv[1]|当前时间", microtime(true));
+            $domain_JdSign = new \Common\Domain\JdSign();
             $domain_JdSign->setSignKey($argv[1])->doItemSignAll();// 执行签到项目
+            \Common\DI()->logger->info("执行京东定时签到结束|$argv[1]|当前时间", microtime(true));
             break;
         default:
             break;

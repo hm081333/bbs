@@ -37,6 +37,7 @@ class JdSign
     private $lotteryCode = '';
     private $day_begin = 0;
     private $jd_sign_field = 'ly_jd_sign.id,ly_jd_sign.return_data,jd_user.pt_key,jd_user.pt_pin,jd_user.pt_token';
+    private $canCollectUserNutr = true;
 
     public function __construct()
     {
@@ -134,12 +135,21 @@ class JdSign
     }
 
     /**
+     * 京东会员 逻辑层
+     * @return JdUser
+     */
+    protected function Domain_JdUser()
+    {
+        return self::getDomain('JdUser');
+    }
+
+    /**
      * 京东签到项 数据层
      * @return \Common\Model\JdSign|\Common\Model\Common|NotORMModel
      */
     protected function Model_JdSign()
     {
-        return $this->getModel('JdSign');
+        return self::getModel('JdSign');
     }
 
     /**
@@ -148,7 +158,7 @@ class JdSign
      */
     protected function Model_JdUser()
     {
-        return $this->getModel('JdUser');
+        return self::getModel('JdUser');
     }
 
     /**
@@ -324,6 +334,35 @@ class JdSign
     }
 
     /**
+     * 初始化签到更新数据
+     * @param array $data
+     * @return array
+     */
+    private function initUpdateSignData($data = [])
+    {
+        return \Common\multi_array_merge([
+            // 上次运行时间
+            'last_time' => time(),
+            'return_data' => [
+                // 签到状态
+                'status' => 0,
+                // 今天 获得京豆数量
+                'bean_award_day' => 0,
+                // 总共 获得京豆数量
+                'bean_award_total' => 0,
+                // 今天 获得营养液数量
+                'nutrients_day' => 0,
+                // 总共 获得营养液数量
+                'nutrients_total' => 0,
+                // 签到时间
+                'sign_time' => time(),
+                // 下次运行时间
+                'next_time' => $this->day_begin + 86400,
+            ],
+        ], $data);
+    }
+
+    /**
      * 获取签到状态
      * @param bool|array $jd_user
      * @return array
@@ -374,6 +413,50 @@ class JdSign
         $result['bean_award_total'] = $bean_award_total;
         $result['nutrients_total'] = $nutrients_total;
         return $result;
+    }
+
+    /**
+     * 构建请求链接
+     * @param string $url 请求地址
+     * @param array|string $params 请求参数
+     * @return string
+     * @throws Exception
+     */
+    private function buildURL($url, $params = [])
+    {
+        $url_info = parse_url($url);
+        if (!$url_info) throw new Exception('非法请求地址');
+        // URL携带的参数转成数组
+        parse_str($url_info['query'] ?? '', $query);
+        // 有传入请求参数
+        if (!empty($params)) {
+            if (is_string($params)) {
+                // 如果开头是 ? 把 ? 去掉
+                if (strpos($params, '?') === 0) {
+                    $params = substr($params, 1);
+                }
+                // 参数转成数组
+                parse_str($params, $params);
+            }
+        } else {
+            $params = [];
+        }
+        // 传入参数替换原有参数
+        $params = array_merge($query, $params);
+        // 参数数组构建为请求字符串
+        $params = http_build_query($params);
+
+        $scheme = isset($url_info['scheme']) ? $url_info['scheme'] . ':' : '';
+        $pass = isset($url_info['pass']) ? ':' . $url_info['pass'] : '';
+        $user = isset($url_info['user']) ? $url_info['user'] . $pass . '@' : '';
+        $host = $url_info['host'] ?? '';
+        $port = isset($url_info['port']) ? ':' . $url_info['port'] : '';
+        $path = $url_info['path'] ?? '';
+        $query = empty($params) ? '' : '?' . $params;
+        $fragment = isset($url_info['fragment']) ? '#' . $url_info['fragment'] : '';
+        // scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
+
+        return $scheme . '//' . $user . $host . $port . $path . $query . $fragment;
     }
 
     /**
@@ -429,7 +512,7 @@ class JdSign
                 throw new Exception(T('请更新登录状态cookie'));
                 break;
             default:
-                DI()->logger->info('未知的京东签到状态码', $sign_info);
+                DI()->logger->error('未知的京东签到状态码', $sign_info);
                 break;
         }
     }
@@ -482,50 +565,6 @@ class JdSign
     }
 
     /**
-     * 构架请求
-     * @param string $url 请求地址
-     * @param array|string $params 请求参数
-     * @return string
-     * @throws Exception
-     */
-    private function buildURL($url, $params = [])
-    {
-        $url_info = parse_url($url);
-        if (!$url_info) throw new Exception('非法请求地址');
-        // URL携带的参数转成数组
-        parse_str($url_info['query'] ?? '', $query);
-        // 有传入请求参数
-        if (!empty($params)) {
-            if (is_string($params)) {
-                // 如果开头是 ? 把 ? 去掉
-                if (strpos($params, '?') === 0) {
-                    $params = substr($params, 1);
-                }
-                // 参数转成数组
-                parse_str($params, $params);
-            }
-        } else {
-            $params = [];
-        }
-        // 传入参数替换原有参数
-        $params = array_merge($query, $params);
-        // 参数数组构建为请求字符串
-        $params = http_build_query($params);
-
-        $scheme = isset($url_info['scheme']) ? $url_info['scheme'] . ':' : '';
-        $pass = isset($url_info['pass']) ? ':' . $url_info['pass'] : '';
-        $user = isset($url_info['user']) ? $url_info['user'] . $pass . '@' : '';
-        $host = $url_info['host'] ?? '';
-        $port = isset($url_info['port']) ? ':' . $url_info['port'] : '';
-        $path = $url_info['path'] ?? '';
-        $query = empty($params) ? '' : '?' . $params;
-        $fragment = isset($url_info['fragment']) ? '#' . $url_info['fragment'] : '';
-        // scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
-
-        return $scheme . '//' . $user . $host . $port . $path . $query . $fragment;
-    }
-
-    /**
      * 请求操作
      * @param string $url
      * @param bool|array $post_data
@@ -567,7 +606,7 @@ class JdSign
                 DI()->logger->error("请求返回错误|URL|{$url}", $res);
                 // {"code":"0","errorCode":"PB001","errorMessage":"抱歉，活动太火爆了"}
                 // 尝试重新请求
-                if (($errorCode == 'PB001') && $retryTimes > 0) {
+                if ($retryTimes > 0 && ($errorCode == 'PB001')) {
                     DI()->logger->debug("尝试重新请求，剩余重试次数{$retryTimes}次|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
                     return $this->jdRequest($url, $post_data, $retryTimes - 1);
                 }
@@ -576,15 +615,6 @@ class JdSign
         }
         // sleep(2);
         return $data;
-    }
-
-    /**
-     * 京东会员 逻辑层
-     * @return JdUser
-     */
-    protected function Domain_JdUser()
-    {
-        return $this->getDomain('JdUser');
     }
 
     /**
@@ -620,35 +650,6 @@ class JdSign
     }
 
     /**
-     * 初始化签到更新数据
-     * @param array $data
-     * @return array
-     */
-    private function initUpdateSignData($data = [])
-    {
-        return \Common\multi_array_merge([
-            // 上次运行时间
-            'last_time' => time(),
-            'return_data' => [
-                // 签到状态
-                'status' => 0,
-                // 今天 获得京豆数量
-                'bean_award_day' => 0,
-                // 总共 获得京豆数量
-                'bean_award_total' => 0,
-                // 今天 获得营养液数量
-                'nutrients_day' => 0,
-                // 总共 获得营养液数量
-                'nutrients_total' => 0,
-                // 签到时间
-                'sign_time' => time(),
-                // 下次运行时间
-                'next_time' => $this->day_begin + 86400,
-            ],
-        ], $data);
-    }
-
-    /**
      * 执行种豆得豆
      * @param array $jd_sign_info
      * @throws BadRequestException
@@ -663,6 +664,11 @@ class JdSign
         //     return;
         //     // throw new \Library\Exception\Exception(\PhalApi\T('未到下次收取时间'));
         // }
+
+        // 如果允许扫描时间大于当前时间，重定义是否允许收取好友营养液的变量
+        if (isset($jd_sign_info['return_data']['canCollectUserNutr']) && $jd_sign_info['return_data']['canCollectUserNutr'] > time()) {
+            $this->canCollectUserNutr = false;
+        }
 
         // 种豆得豆相关信息
         $plant_info = $this->plantBeanInfo();
@@ -687,7 +693,9 @@ class JdSign
             $nutrients += $this->receiveNutrients();
         }
         // 3、帮好友收取、收取得到的奖励累积到本次该收取的数量
-        $nutrients += $this->receivePlantFriend();
+        if ($this->canCollectUserNutr) {
+            $nutrients += $this->receivePlantFriend();
+        }
         // 持有营养液
         if ($nutrients > 0) {
             // 使用营养液 培养京豆
@@ -729,6 +737,8 @@ class JdSign
                 // 'next_time' => $plant_info['timeNutrientsResState'] == 2 ? strtotime(date('Y-m-d 7:00:00') . '+ 1 day') : $plant_info['nextReceiveTime'],
                 // 下次运行时间 不做限制
                 'next_time' => 0,
+                // 如果不能收取好友的营养液，设置为第二天9点开始重新扫描收取
+                'canCollectUserNutr' => $this->canCollectUserNutr ? time() : strtotime(date('Y-m-d 9:00:00') . '+ 1 day'),
             ],
         ]));
 
@@ -1186,8 +1196,12 @@ class JdSign
                 if ($nutrCount >= 3) {
                     // 累积总奖励
                     $nutrients += $this->collectUserNutr($item['paradiseUuid']);
+                    // 不能继续收集了，退出循环
+                    if (!$this->canCollectUserNutr) break;
                 }
             }
+            // 不能继续收集了，退出循环
+            if (!$this->canCollectUserNutr) break;
             // 页码+1 - 下一页
             $pageNum += 1;
         }
@@ -1206,6 +1220,8 @@ class JdSign
      */
     private function plantFriendList($pageNum = 1)
     {
+        if (!$this->canCollectUserNutr) return [];
+
         $url = $this->buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'plantFriendList',
             'body' => json_encode([
@@ -1224,7 +1240,11 @@ class JdSign
 
         $data = $this->jdRequest($url);
 
-        if (isset($data['tips'])) return [];
+        // 有tips提示就是表示 今日收取次数已达上限
+        if (isset($data['tips'])) {
+            $this->canCollectUserNutr = false;
+            return [];
+        }
 
         // DI()->logger->debug('种豆得豆好友列表', $data);
 
@@ -1265,8 +1285,13 @@ class JdSign
 
         DI()->logger->debug('收取用户的营养液', $data);
 
-        // 收取结果 1 收取成功 2 没有可收取的营养液 3
-        // $collectResult = $data['collectResult'];
+        // 收取结果 1 收取成功 2 没有可收取的营养液 3 今日收取次数已达上限
+        $collectResult = $data['collectResult'];
+        // 标识 今日收取次数已达上限 ，不能继续收集
+        if ($collectResult == 3) {
+            $this->canCollectUserNutr = false;
+        }
+
         // 帮忙收取获得的奖励 营养液 数量
         // $collectNutrRewards = $data['collectNutrRewards'] ?? 0;
 
@@ -1381,10 +1406,12 @@ class JdSign
             'sign_key' => $this->sign_key,
             'status' => 1,
         ], $this->initUpdateSignData([
-            // 今天 获得京豆数量
-            'bean_award_day' => !$this->is_today($jd_sign_info['return_data']['sign_time']) ? $bean_award : ($jd_sign_info['return_data']['bean_award_day'] + $bean_award),
-            // 总共 获得京豆数量
-            'bean_award_total' => ($jd_sign_info['return_data']['bean_award_total'] + $bean_award),
+            'return_data' => [
+                // 今天 获得京豆数量
+                'bean_award_day' => !$this->is_today($jd_sign_info['return_data']['sign_time']) ? $bean_award : ($jd_sign_info['return_data']['bean_award_day'] + $bean_award),
+                // 总共 获得京豆数量
+                'bean_award_total' => ($jd_sign_info['return_data']['bean_award_total'] + $bean_award),
+            ],
         ]));
 
     }
@@ -1583,9 +1610,8 @@ class JdSign
         // 获得京豆数量
         $bean_award = 0;
 
-        //{"isWinner":"0","chances":"1","prizeType":"5","prizeId":"910582","prizeName":"1个京豆","tips":"京豆1个","prizeSendNumber":"1"}
         for ($i = 0; $i < $info['lotteryCount']; $i++) {
-            $this->lotteryDraw();
+            $bean_award += $this->lotteryDraw();
         }
 
         $this->Model_JdSign()->updateByWhere([
@@ -1593,10 +1619,12 @@ class JdSign
             'sign_key' => $this->sign_key,
             'status' => 1,
         ], $this->initUpdateSignData([
-            // 今天 获得京豆数量
-            'bean_award_day' => !$this->is_today($jd_sign_info['return_data']['sign_time']) ? $bean_award : ($jd_sign_info['return_data']['bean_award_day'] + $bean_award),
-            // 总共 获得京豆数量
-            'bean_award_total' => ($jd_sign_info['return_data']['bean_award_total'] + $bean_award),
+            'return_data' => [
+                // 今天 获得京豆数量
+                'bean_award_day' => !$this->is_today($jd_sign_info['return_data']['sign_time']) ? $bean_award : ($jd_sign_info['return_data']['bean_award_day'] + $bean_award),
+                // 总共 获得京豆数量
+                'bean_award_total' => ($jd_sign_info['return_data']['bean_award_total'] + $bean_award),
+            ],
         ]));
 
     }
@@ -1657,7 +1685,13 @@ class JdSign
         try {
             $data = $this->jdRequest($url);
             DI()->logger->debug('福利转盘 抽奖', $data);
-            return $data;
+            //{"isWinner":"0","chances":"1","prizeType":"5","prizeId":"910582","prizeName":"1个京豆","tips":"京豆1个","prizeSendNumber":"1"}
+            $prizeType = $data['prizeType'] ?? false;
+            // $prizeId = $data['prizeId'] ?? false;
+            if ($prizeType == 5) {
+                return $data['prizeSendNumber'] ?? 0;
+            }
+            return 0;
         } catch (\Exception $e) {
             return 0;
         }
@@ -2108,7 +2142,7 @@ class JdSign
             throw new Exception('返回数据异常');
         }
 
-        // DI()->logger->info("翻牌赢钢镚", $data);
+        // DI()->logger->debug("翻牌赢钢镚", $data);
         return $data;
     }
 
@@ -2168,7 +2202,7 @@ class JdSign
             DI()->logger->error("金币抽奖 信息|{$res['msg']}", $res);
             throw new Exception($res['msg']);
         }
-        DI()->logger->info("金币抽奖 信息", $res);
+        DI()->logger->debug("金币抽奖 信息", $res);
 
         $data = $res['data'];
         // 设定，消耗0金币为免费抽奖，返回数组错误时返回false
@@ -2197,7 +2231,7 @@ class JdSign
         DI()->curl->setHeader(['Referer' => 'https://m.jr.jd.com/member/coinlottery/index.html?channel=01-qd-190306']);
         $res = $this->jrRequest($url);
         DI()->curl->unsetHeader('Referer');
-        DI()->logger->info("金币抽奖", $res);
+        DI()->logger->debug("金币抽奖", $res);
 
         // if ($res['code'] != '1000') {
         //     DI()->logger->error("金币抽奖|{$res['msg']}", $res);
@@ -2277,7 +2311,7 @@ class JdSign
 
         $data = $res['data'];
         if (empty($data['signRecords'])) {
-            DI()->logger->info("每日赚京豆 - 连续签到信息", $data);
+            DI()->logger->debug("每日赚京豆 - 连续签到信息", $data);
             return 0;
         }
 
@@ -2327,7 +2361,7 @@ class JdSign
         }
 
         $data = $res['data'];
-        DI()->logger->info("每日赚京豆 - 签到", $data);
+        DI()->logger->debug("每日赚京豆 - 签到", $data);
 
         return $data['rewardAmount'] ?? 0;
     }
