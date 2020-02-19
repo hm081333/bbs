@@ -71,7 +71,7 @@ class JdSign
 
     /**
      * 设置京东签到项目
-     * @param int $jd_user_id
+     * @param int   $jd_user_id
      * @param array $open_signs
      * @throws BadRequestException
      * @throws Exception
@@ -212,7 +212,7 @@ class JdSign
 
     /**
      * 执行某项签到
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @throws BadRequestException
      * @throws Exception
@@ -273,7 +273,7 @@ class JdSign
 
     /**
      * 获取京东签到项数据
-     * @param int $jd_sign_id
+     * @param int   $jd_sign_id
      * @param array $jd_sign_info
      * @return array|mixed
      * @throws BadRequestException
@@ -417,7 +417,7 @@ class JdSign
 
     /**
      * 构建请求链接
-     * @param string $url 请求地址
+     * @param string       $url    请求地址
      * @param array|string $params 请求参数
      * @return string
      * @throws Exception
@@ -566,9 +566,9 @@ class JdSign
 
     /**
      * 请求操作
-     * @param string $url
+     * @param string     $url
      * @param bool|array $post_data
-     * @param int $retryTimes 重新请求次数
+     * @param int        $retryTimes 重新请求次数
      * @return array|bool
      * @throws BadRequestException
      * @throws Exception
@@ -606,9 +606,13 @@ class JdSign
                 DI()->logger->error("请求返回错误|URL|{$url}", $res);
                 // {"code":"0","errorCode":"PB001","errorMessage":"抱歉，活动太火爆了"}
                 // 尝试重新请求
-                if ($retryTimes > 0 && ($errorCode == 'PB001')) {
-                    DI()->logger->debug("尝试重新请求，剩余重试次数{$retryTimes}次|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
-                    return $this->jdRequest($url, $post_data, $retryTimes - 1);
+                if ($retryTimes > 0) {
+                    if (in_array($errorCode, ['PB001', 'T201'])) {
+                        DI()->logger->debug("尝试重新请求，剩余重试次数{$retryTimes}次|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
+                        return $this->jdRequest($url, $post_data, $retryTimes - 1);
+                    } else {
+                        DI()->logger->debug("未知错误|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
+                    }
                 }
                 throw new Exception($errorMessage);
             }
