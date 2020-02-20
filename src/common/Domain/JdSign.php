@@ -677,7 +677,8 @@ class JdSign
         // 种豆得豆相关信息
         $plant_info = $this->plantBeanInfo();
         // 现持有营养液数量
-        $nutrients = ($plant_info['nutrients'] ?? 0);
+        $nutrients = $plant_info['nutrients'] ?? 0;
+
         // 1、种豆得豆任务
         foreach ($plant_info['awardList'] as $award) {
             // limitFlag为2代表任务已完成
@@ -717,9 +718,7 @@ class JdSign
             $bean_award = $this->receivedBean($last_round_info['roundId']);
         }
 
-        if (empty($nutrients) && empty($bean_award)) {
-            return;
-        }
+        if (empty($nutrients) && empty($bean_award)) return;
 
         DI()->logger->debug("本次累计获得营养液|{$nutrients}|瓶|京豆|{$bean_award}|颗");
 
@@ -1189,25 +1188,20 @@ class JdSign
         $pageNum = 1;
         // 获取奖励的总数量
         $nutrients = 0;
-        while (true) {
-            // 可收集好友列表
-            $list = $this->plantFriendList($pageNum);
-            if (empty($list)) break;
-            foreach ($list as $item) {
-                // 可收集数量
-                $nutrCount = $item['nutrCount'] ?? 0;
-                // 数量少的不收取，因为数量少的肯定不会有奖励
-                if ($nutrCount >= 3) {
-                    // 累积总奖励
-                    $nutrients += $this->collectUserNutr($item['paradiseUuid']);
-                    // 不能继续收集了，退出循环
-                    if (!$this->canCollectUserNutr) break;
-                }
-            }
-            // 不能继续收集了，退出循环
-            if (!$this->canCollectUserNutr) break;
+        // 循环可收集好友列表
+        while (!empty($list = $this->plantFriendList($pageNum)) && $this->canCollectUserNutr) {
             // 页码+1 - 下一页
             $pageNum += 1;
+            // 取出可收集数量字段作判断
+            $nutrCountList = array_column($list, 'nutrCount');
+            if (empty($nutrCountList)) continue;
+            // 只收取可收集数量3瓶的 数量少的不收取，因为数量少的肯定不会有奖励
+            while (($key = array_search(3, $nutrCountList)) !== false && $this->canCollectUserNutr) {
+                unset($nutrCountList[$key]);
+                $item = $list[$key];
+                // 累积总奖励
+                $nutrients += $this->collectUserNutr($item['paradiseUuid']);
+            }
         }
         return $nutrients;
     }
@@ -1267,7 +1261,7 @@ class JdSign
      */
     private function collectUserNutr($paradiseUuid = false)
     {
-        if (!$paradiseUuid) return 0;
+        if (!$paradiseUuid || !$this->canCollectUserNutr) return 0;
         $url = $this->buildURL('https://api.m.jd.com/client.action', [
             'functionId' => 'collectUserNutr',
             'body' => json_encode([
@@ -1290,7 +1284,7 @@ class JdSign
         DI()->logger->debug('收取用户的营养液', $data);
 
         // 收取结果 1 收取成功 2 没有可收取的营养液 3 今日收取次数已达上限
-        $collectResult = $data['collectResult'];
+        $collectResult = $data['collectResult'] ?? 0;
         // 标识 今日收取次数已达上限 ，不能继续收集
         if ($collectResult == 3) {
             $this->canCollectUserNutr = false;
