@@ -248,7 +248,6 @@ class CUrl
         curl_setopt_array($ch, $options);
         $curRetryTimes = $this->retryTimes;
         do {
-            var_dump($curRetryTimes);
             $rs = curl_exec($ch);
             $curRetryTimes--;
         } while ($rs === false && $curRetryTimes >= 0);
