@@ -2,7 +2,12 @@
 
 namespace Common\Api;
 
+use Library\Exception\BadRequestException;
+use Library\Exception\Exception;
+use Library\Exception\InternalServerErrorException;
+use TieBa\Domain\QQLogin;
 use function Common\DI;
+use function PhalApi\T;
 
 /**
  * 贴吧 接口服务类
@@ -98,17 +103,28 @@ class TieBa extends Base
     }
 
     /**
+     * 贴吧 领域层
+     * @return \Common\Domain\TieBa
+     */
+    protected function Domain_TieBa()
+    {
+        return self::getDomain('TieBa');
+    }
+
+    /**
      * 手动添加BDUSS
      * @return mixed
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
      */
     public function add()
     {
-        return self::getDomain()::addBduss($this->bduss);
+        $this->Domain_TieBa()->addBduss($this->bduss);
     }
 
     /**
      * 更新BDUSS
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     public function doInfo()
     {
@@ -116,16 +132,17 @@ class TieBa extends Base
             'id' => $this->id,
             'bduss' => $this->bduss,
         ];
-        self::getDomain()::doUpdate($data);
+        $this->Domain_TieBa()::doUpdate($data);
     }
 
     /**
      * 单个贴吧签到
+     * @throws BadRequestException
      */
     public function doSignByTieBaId()
     {
-        DI()->response->setMsg(\PhalApi\T('签到成功'));
-        return self::getDomain()::doSignByTieBaId($this->tieba_id);
+        DI()->response->setMsg(T('签到成功'));
+        return $this->Domain_TieBa()->doSignByTieBaId($this->tieba_id);
     }
 
     /**
@@ -133,16 +150,17 @@ class TieBa extends Base
      */
     public function doSignByBaiDuId()
     {
-        DI()->response->setMsg(\PhalApi\T('签到成功'));
-        self::getDomain()::doSignByBaiDuId($this->baidu_id);
+        DI()->response->setMsg(T('签到成功'));
+        $this->Domain_TieBa()->doSignByBaiDuId($this->baidu_id);
     }
 
     /**
      * 忽略签到
+     * @throws BadRequestException
      */
     public function noSignTieBa()
     {
-        self::getDomain()::doUpdate([
+        $this->Domain_TieBa()::doUpdate([
             'id' => $this->tieba_id,
             'no' => intval($this->no),
         ]);
@@ -153,110 +171,138 @@ class TieBa extends Base
      */
     public function refreshTieBa()
     {
-        DI()->response->setMsg(\PhalApi\T('刷新成功'));
-        self::getDomain()::scanTiebaByPid($this->baidu_id);
+        DI()->response->setMsg(T('刷新成功'));
+        $this->Domain_TieBa()->scanTiebaByPid($this->baidu_id);
     }
 
     /**
      * 拉取登录验证码
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function getVCPic()
     {
         $data = get_object_vars($this);
         //直接输出图片
         // header('content-type:image/jpeg');
-        exit(self::getDomain()::getVCPic($data['vCodeStr']));
+        exit($this->Domain_TieBa()->getVCPic($data['vCodeStr']));
     }
 
     /**
      * 发送短信验证码
      * @return mixed
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function sendCode()
     {
         $data = get_object_vars($this);
-        return self::getDomain()::sendCode($data['type'], $data['lstr'], $data['ltoken']);
+        return $this->Domain_TieBa()->sendCode($data['type'], $data['lstr'], $data['ltoken']);
     }
 
     /**
      * 检测登录是否需要验证码
      * @return mixed
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function checkVC()
     {
-        return self::getDomain()::checkVC($this->user);
+        return $this->Domain_TieBa()->checkVC($this->user);
     }
 
     /**
      * 获取Token
      * @return mixed
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function time()
     {
-        return self::getDomain()::serverTime();
+        return $this->Domain_TieBa()->serverTime();
     }
 
     /**
      * 登录
      * @return mixed
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function login()
     {
-        return self::getDomain()::login($this->time, $this->user, $this->pwd, $this->p, $this->vcode, $this->vcodestr);
+        return $this->Domain_TieBa()->login($this->time, $this->user, $this->pwd, $this->p, $this->vcode, $this->vcodestr);
     }
 
     /**
      * 登录
      * @return mixed
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function login2()
     {
-        return self::getDomain()::login2($this->type, $this->lstr, $this->ltoken, $this->vcode);
+        return $this->Domain_TieBa()->login2($this->type, $this->lstr, $this->ltoken, $this->vcode);
     }
 
     /**
      * 登录二维码
      * @return mixed
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function getQRCode()
     {
-        return self::getDomain()::getQRCode();
+        return $this->Domain_TieBa()->getQRCode();
     }
 
     /**
      * 二维码登录
      * @return mixed
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function qrLogin()
     {
-        return self::getDomain()::qrLogin($this->sign);
+        return $this->Domain_TieBa()->qrLogin($this->sign);
     }
 
     /**
      * 发送手机登录短信
      * @return mixed
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function sendSMS()
     {
-        return self::getDomain()::sendSms($this->phone, $this->vcode, $this->vcodestr, $this->vcodesign);
+        return $this->Domain_TieBa()->sendSms($this->phone, $this->vcode, $this->vcodestr, $this->vcodesign);
     }
 
     /**
      * 手机号登录
      * @return mixed
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function login3()
     {
-        return self::getDomain()::login3($this->phone, $this->smsvc);
+        return $this->Domain_TieBa()->login3($this->phone, $this->smsvc);
     }
 
     /**
      * 检测手机号是否存在
      * @return mixed
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function getPhone()
     {
-        return self::getDomain()::getPhone($this->phone);
+        return $this->Domain_TieBa()->getPhone($this->phone);
     }
 
     /**
@@ -265,28 +311,28 @@ class TieBa extends Base
      */
     public function getQqQrCode()
     {
-        return \TieBa\Domain\QQLogin::getQqQrCode();
+        return QQLogin::getQqQrCode();
     }
 
     /**
      * 获取QQ二维码登录状态
-     * @throws \Library\Exception\BadRequestException
-     * @throws \Library\Exception\Exception
-     * @throws \Library\Exception\InternalServerErrorException
+     * @throws BadRequestException
+     * @throws Exception
+     * @throws InternalServerErrorException
      */
     public function qqQrLogin()
     {
-        return \TieBa\Domain\QQLogin::qrLogin($this->qrsig);
+        QQLogin::qrLogin($this->qrsig);
     }
 
     /**
      * 跳转QQ APP 登录
      * @return array
-     * @throws \Library\Exception\InternalServerErrorException
+     * @throws InternalServerErrorException
      */
     public function getQqLoginUrl()
     {
-        return \TieBa\Domain\QQLogin::getQqLoginUrl($this->image);
+        return QQLogin::getQqLoginUrl($this->image);
     }
 
     /**
@@ -295,16 +341,17 @@ class TieBa extends Base
      */
     public function getWxQrCode()
     {
-        return \TieBa\Domain\QQLogin::getWxQrCode();
+        return QQLogin::getWxQrCode();
     }
 
     /**
      * 获取微信二维码登录状态
      * @return array
+     * @throws BadRequestException
      */
     public function wxQrLogin()
     {
-        return \TieBa\Domain\QQLogin::wxLogin($this->uuid, $this->last);
+        return QQLogin::wxLogin($this->uuid, $this->last);
     }
 
 }

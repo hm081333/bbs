@@ -163,6 +163,15 @@ class WeChatPublicPlatform
     }
 
     /**
+     * 贴吧 领域层
+     * @return \Common\Domain\TieBa
+     */
+    protected function Domain_TieBa()
+    {
+        return self::getDomain('TieBa');
+    }
+
+    /**
      * 发送贴吧签到详情
      * @param bool $openid
      * @return array|Collection|object|ResponseInterface|string
@@ -173,15 +182,10 @@ class WeChatPublicPlatform
      */
     private function sendTiebaSignDetail($openid = false)
     {
-        if (empty($openid)) {
-            throw new BadRequestException(T('缺少openid'));
-        }
+        if (empty($openid)) throw new BadRequestException(T('缺少openid'));
 
-        $info = self::getDomain('TieBa')::getSignStatus($openid);
-        if ($info == false) {
-            throw new InternalServerErrorException(T('获取状态失败'));
-        }
-
+        $info = $this->Domain_TieBa()->getSignStatus($openid);
+        if ($info == false) throw new InternalServerErrorException(T('获取状态失败'));
         $result = DI()->wechat->template_message->send([
             'touser' => $openid,
             'template_id' => 'Ogvc_rROWerSHvfgo1IOJIL103bso0H3jLYEAwTuKKg',
