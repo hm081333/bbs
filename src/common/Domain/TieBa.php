@@ -29,6 +29,21 @@ class TieBa
 {
     use Common;
 
+    protected $useragent = 'Mozilla/5.0 (Linux; Android 4.4.2; H650 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36';
+    protected $header = [
+        'Accept:application/json',
+        'Accept-Encoding:gzip,deflate,sdch',
+        'Accept-Language:zh-CN,zh;q=0.8',
+        'Connection:close',
+    ];
+    protected $cookie = [];
+    protected $curlopt_header = false;
+    protected $curlopt_nobody = false;
+
+    public function __construct()
+    {
+    }
+
     /**
      * 贴吧 数据层
      * @return \Common\Model\TieBa|\Common\Model\Common|NotORMModel
@@ -58,11 +73,49 @@ class TieBa
 
     /**
      * 百度ID 领域层
-     * @return \Common\Domain\BaiDuId
+     * @return BaiDuId
      */
     protected function Domain_BaiDuId()
     {
         return self::getDomain('BaiDuId');
+    }
+
+    /**
+     * CURL整合--返回数组
+     * @param string $url
+     * @param bool|array $post
+     * @return mixed
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
+     */
+    protected function curl($url, $post = false)
+    {
+        $option = [
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_ENCODING => 'gzip',
+            CURLOPT_REFERER => 'https://wappass.baidu.com/',
+            CURLOPT_USERAGENT => $this->useragent,
+            CURLOPT_HEADER => boolval($this->curlopt_header),
+            CURLOPT_NOBODY => boolval($this->curlopt_nobody),
+        ];
+        $ret = $post ?
+            DI()->curl
+                ->setHeader($this->header)
+                ->setOption($option)
+                ->setCookie($this->cookie)
+                ->post($url, $post)
+            :
+            DI()->curl
+                ->setHeader($this->header)
+                ->setOption($option)
+                ->setCookie($this->cookie)
+                ->get($url);
+
+        $this->curlopt_header = $this->curlopt_nobody = false;
+        $this->cookie = [];
+        if (empty($ret)) throw new InternalServerErrorException(T('连接到百度服务器失败'));
+        return $ret;
     }
 
     /**
@@ -74,7 +127,7 @@ class TieBa
      */
     public function noSignTieba($tieba_id, $no)
     {
-        $result = $this->Model_TieBa()->update($tieba_id, ['no' => $no]);
+        $result = $this->Model_TieBa()->update($tieba_id, ['no' => intval($no)]);
         if ($result === false) throw new InternalServerErrorException(T('操作失败'));
         return true;
     }
@@ -107,7 +160,8 @@ class TieBa
      */
     public function getBaiduId($bduss)
     {
-        $data = $this->curl('http://wapp.baidu.com/', false, true, ['BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(NOW_TIME))]);
+        $this->cookie = ['BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(NOW_TIME))];
+        $data = $this->curl('http://wapp.baidu.com/');
         return urldecode(textMiddle($data, 'i?un=', '">'));
     }
 
@@ -127,26 +181,24 @@ class TieBa
         }
         $bx = $this->Model_BaiDuId()->getListByWhere(['user_id' => $user_id]);
         foreach ($bx as $by) {
-            $upid = $by['id'];
-            $bduss[$upid] = $by['bduss'];
-        }
-        foreach ($bduss as $pid => $ubduss) {
-            $this->scanTiebaByPid($pid);
+            // $upid = $by['id'];
+            // $bduss[$upid] = $by['bduss'];
+            $this->scanTiebaByPid($by['id']);
         }
     }
 
     /**
      * 扫描指定PID的所有贴吧
-     * @param string $pid PID
+     * @param int $pid PID
      * @throws InternalServerErrorException
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function scanTiebaByPid($pid)
     {
         set_time_limit(0); // 不超时
-        $baiduid_model = self::Model_BaiDuId();
+        $baiduid_model = $this->Model_BaiDuId();
         $cma = $baiduid_model->get($pid);
-        $tieba_model = self::Model_TieBa();
+        $tieba_model = $this->Model_TieBa();
         $user_id = $cma['user_id'];
         $bduss = $cma['bduss'];
         $bname = $cma['name'];
@@ -204,9 +256,10 @@ class TieBa
      */
     public function getTieba($userid, $bduss, $pn)
     {
-        $head = [];
-        $head[] = 'Content-Type: application/x-www-form-urlencoded';
-        $head[] = 'User-Agent: Mozilla/5.0 (SymbianOS/9.3; Series60/3.2 NokiaE72-1/021.021; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/525 (KHTML, like Gecko) Version/3.0 BrowserNG/7.1.16352';
+        $head = [
+            'Content-Type: application/x-www-form-urlencoded',
+            'User-Agent: Mozilla/5.0 (SymbianOS/9.3; Series60/3.2 NokiaE72-1/021.021; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/525 (KHTML, like Gecko) Version/3.0 BrowserNG/7.1.16352',
+        ];
         $url = 'http://c.tieba.baidu.com/c/f/forum/like';
         $data = [
             '_client_id' => 'wappc_' . NOW_TIME . '_' . '258',
@@ -227,13 +280,13 @@ class TieBa
         }
         $sign = strtoupper(md5($sign_str . 'tiebaclient!!!'));
         $data['sign'] = $sign;
-        $rt = DI()->curl
+        $res = DI()->curl
             ->setHeader($head)
             ->setCookie(['BDUSS' => $bduss])
             ->setOption([CURLOPT_SSL_VERIFYPEER => false, CURLOPT_FOLLOWLOCATION => true])
             ->post($url, $data);
-        $rt = json_decode($rt, true);
-        return $rt;
+        $res = json_decode($res, true);
+        return $res;
     }
 
     /**
@@ -261,9 +314,12 @@ class TieBa
         set_time_limit(0);
         //处理所有签到出错的贴吧
         $tieba_model = $this->Model_TieBa();
-        $where = [];
-        $where['no = ?'] = 0; // 不忽略签到
-        $where['status != ?'] = 0; // 签到状态不为0==签到出错
+        $where = [
+            // 不忽略签到
+            'no = ?' => 0,
+            // 签到状态不为0==签到出错
+            'status != ?' => 0,
+        ];
         $total_sign_tieba = $tieba_model->getCount($where); // 该条件下所有贴吧数量
         $limit = 100; // 100条100条循环拿
         $count = ceil($total_sign_tieba / $limit); // 循环100条的次数
@@ -305,8 +361,7 @@ class TieBa
     public function getSignStatus($openid = false)
     {
         if (empty($openid)) throw new BadRequestException(T('缺少openid'));
-        $user_model = $this->Model_User();
-        $user = $user_model->getInfo(['open_id=?' => $openid], 'id,user_name');
+        $user = $this->Model_User()->getInfo(['open_id=?' => $openid], 'id,user_name');
         if (!$user) throw new BadRequestException(T('没找到该用户'));
         $h = date('G', NOW_TIME);
         if ($h < 11) {
@@ -325,13 +380,14 @@ class TieBa
         $success_count = $tieba_model->getCount(['user_id=?' => $user['id'], 'no=?' => 0, 'status=?' => 0, 'latest>=?' => $day_time['begin'], 'latest<=?' => $day_time['end']]);//签到成功
         $fail_count = $tieba_model->getCount(['user_id=?' => $user['id'], 'no=?' => 0, 'status>?' => 0, 'latest>=?' => $day_time['begin'], 'latest<=?' => $day_time['end']]);//签到失败
         $no_count = $tieba_model->getCount(['user_id=?' => $user['id'], 'no>?' => 0]);//忽略签到
-        $result = [];
-        $result['user_name'] = $user['user_name'];
-        $result['greeting'] = $greeting;
-        $result['tieba_count'] = $total;
-        $result['success_count'] = $success_count;
-        $result['fail_count'] = $fail_count;
-        $result['ignore_count'] = $no_count;
+        $result = [
+            'user_name' => $user['user_name'],
+            'greeting' => $greeting,
+            'tieba_count' => $total,
+            'success_count' => $success_count,
+            'fail_count' => $fail_count,
+            'ignore_count' => $no_count,
+        ];
 
         return $result;
     }
@@ -345,9 +401,8 @@ class TieBa
         set_time_limit(0);
         $day_time = DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
         //处理所有未签到的贴吧
-        $tieba_model = $this->Model_TieBa();
         while (true) {
-            $tieba_list = $tieba_model->queryRows("
+            $tieba_list = $this->Model_TieBa()->queryRows("
             SELECT
                 `t`.`tieba`,
                 `t`.`id`,
@@ -386,9 +441,8 @@ class TieBa
         set_time_limit(0);
         $day_time = DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
         //处理所有未签到的贴吧
-        $tieba_model = $this->Model_TieBa();
         while (true) {
-            $tieba_list = $tieba_model->queryRows("
+            $tieba_list = $this->Model_TieBa()->queryRows("
             SELECT
                 `t`.`id`,
                 `t`.`tieba`,
@@ -429,9 +483,8 @@ class TieBa
         set_time_limit(0);
         $day_time = DateHelper::getDayTime(); // 今天开始的时间和结束的时间的时间戳
         //处理所有未签到的贴吧
-        $tieba_model = $this->Model_TieBa();
         while (true) {
-            $tieba_list = $tieba_model->queryRows("
+            $tieba_list = $this->Model_TieBa()->queryRows("
             SELECT
                 `t`.`id`,
                 `t`.`tieba`,
@@ -505,20 +558,22 @@ class TieBa
     public function doSign($kw, $id, $bduss, $fid)
     {
         $again_error_id = 160002; //重复签到错误代码
-        $again_error_id_2 = 1101; //特殊的重复签到错误代码！！！签到过快=已签到
-        $again_error_id_3 = 1102; //特殊的重复签到错误代码！！！签到过快=已签到
+        // $again_error_id_2 = 1101; //特殊的重复签到错误代码！！！签到过快=已签到
+        // $again_error_id_3 = 1102; //特殊的重复签到错误代码！！！签到过快=已签到
         $status_succ = false;
         $ck = $bduss;
         $kw = addslashes($kw);
-        $tieba_model = $this->Model_TieBa();
 
         $update_data = [];
 
         if (empty($fid)) {
             $fid = $this->getFid($kw);//贴吧唯一ID
-            $update_data = array_merge($update_data, ['fid' => $fid]);
+            // $update_data = array_merge($update_data, ['fid' => $fid]);
+            $update_data['fid'] = $fid;
         }
 
+        $error_code = 0;
+        $error_msg = '';
         //三种签到方式依次尝试
         $tbs = $this->getTbs($ck);
         //客户端
@@ -527,9 +582,7 @@ class TieBa
             $v = json_decode($r, true);
             if ($v != $r && $v != null) {//decode失败时会直接返回原文或NULL
                 $time = $v['time'];
-                if (empty($v['error_code']) || $v['error_code'] == $again_error_id) {
-                    $status_succ = true;
-                } else {
+                if (!empty($v['error_code']) && $v['error_code'] != $again_error_id) {
                     $error_code = $v['error_code'];
                     $error_msg = $v['error_msg'];
                 }
@@ -557,12 +610,11 @@ class TieBa
             }
         }*/
 
-        if ($status_succ === true) {
-            $update_data = array_merge($update_data, ['latest' => $time, 'status' => 0, 'last_error' => '']);
-        } else {
-            $update_data = array_merge($update_data, ['latest' => $time, 'status' => $error_code, 'last_error' => $error_msg]);
-        }
-        $tieba_model->update($id, $update_data);
+        $update_data['latest'] = $time;
+        $update_data['status'] = $error_code;
+        $update_data['last_error'] = $error_msg;
+
+        $this->Model_TieBa()->update($id, $update_data);
         // return self::getInfo($id);
         return true;
     }
@@ -591,12 +643,17 @@ class TieBa
         $url = 'http://tieba.baidu.com/dc/common/tbs';
         DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://tieba.baidu.com/', 'X-Forwarded-For: 115.28.1.' . mt_rand(1, 255)]);
         DI()->curl->setCookie(["BDUSS" => $bduss]);
-        $x = DI()->curl->json_get($url);
-        return $x['tbs'];
+        $res = DI()->curl->json_get($url);
+        return $res['tbs'];
     }
 
     /**
      * 客户端签到
+     * @param $kw
+     * @param $fid
+     * @param $ck
+     * @param $tbs
+     * @return string
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function DoSign_Client($kw, $fid, $ck, $tbs)
@@ -625,6 +682,11 @@ class TieBa
 
     /**
      * 手机网页签到
+     * @param $kw
+     * @param $fid
+     * @param $ck
+     * @param $tbs
+     * @return string
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function DoSign_Mobile($kw, $fid, $ck, $tbs)
@@ -637,83 +699,37 @@ class TieBa
 
     /**
      * 网页签到
+     * @param $kw
+     * @param $fid
+     * @param $ck
+     * @return bool
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function DoSign_Default($kw, $fid, $ck)
     {
         $url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw) . '&fid=' . $fid;
-        DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded']);
-        DI()->curl->setCookie(['BDUSS' => $ck]);
-        $s = DI()->curl->get($url);
+        $s = DI()->curl
+            ->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded'])
+            ->setCookie(['BDUSS' => $ck])
+            ->get($url);
         preg_match('/\<td style=\"text-align:right;\"\>\<a href=\"(.*)\"\>签到\<\/a\>\<\/td\>\<\/tr\>/', $s, $s);
         if (isset($s[1])) {
             $url = 'http://tieba.baidu.com' . $s[1];
-            DI()->curl->setHeader(['Accept: text/html, application/xhtml+xml, */*', 'Accept-Language: zh-Hans-CN,zh-Hans;q=0.8,en-US;q=0.5,en;q=0.3', 'User-Agent: Fucking Phone']);
-            DI()->curl->setCookie(['BDUSS' => $ck]);
-            DI()->curl->get($url);
+            DI()->curl
+                ->setHeader(['Accept: text/html, application/xhtml+xml, */*', 'Accept-Language: zh-Hans-CN,zh-Hans;q=0.8,en-US;q=0.5,en;q=0.3', 'User-Agent: Fucking Phone'])
+                ->setCookie(['BDUSS' => $ck])
+                ->get($url);
             //临时判断解决方案
             $url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw) . '&fid=' . $fid;
-            DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded']);
-            DI()->curl->setCookie(['BDUSS' => $ck]);
-            $s = DI()->curl->get($url);
+            $s = DI()->curl
+                ->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded'])
+                ->setCookie(['BDUSS' => $ck])
+                ->get($url);
             //如果找不到这段html则表示没有签到则stripos()返回false，同时is_bool()返回true，最终返回false
             return !is_bool(stripos($s, '<td style="text-align:right;"><span >已签到</span></td>'));
         } else {
             return true;
         }
-    }
-
-    /**
-     * CURL整合--返回数组
-     * @param                   $url
-     * @param bool|array $post
-     * @param bool $referer
-     * @param bool|array|string $cookie
-     * @param bool $header
-     * @param bool|string $ua
-     * @param bool $nobaody
-     * @return mixed
-     * @throws InternalServerErrorException
-     * @throws \PhalApi\Exception\InternalServerErrorException
-     */
-    private function curl($url, $post = false, $referer = true, $cookie = [], $header = false, $ua = false, $nobaody = false)
-    {
-        $httpheader = [];
-        $httpheader[] = "Accept:application/json";
-        $httpheader[] = "Accept-Encoding:gzip,deflate,sdch";
-        $httpheader[] = "Accept-Language:zh-CN,zh;q=0.8";
-        $httpheader[] = "Connection:close";
-        $option = [];
-        $option[CURLOPT_SSL_VERIFYPEER] = false;
-        $option[CURLOPT_SSL_VERIFYHOST] = false;
-        $option[CURLOPT_ENCODING] = 'gzip';
-        if ($header) $option[CURLOPT_HEADER] = true;
-        if ($referer) $option[CURLOPT_REFERER] = 'https://wappass.baidu.com/';
-        if ($ua) {
-            $option[CURLOPT_USERAGENT] = $ua;
-        } else {
-            $option[CURLOPT_USERAGENT] = 'Mozilla/5.0 (Linux; Android 4.4.2; H650 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36';
-            //$option[CURLOPT_USERAGENT] = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36';
-        }
-        if ($nobaody) $option[CURLOPT_NOBODY] = 1;
-        if ($post) {
-            if (is_array($post)) {
-                $post = http_build_query($post);
-            }
-            $ret = DI()->curl
-                ->setHeader($httpheader)
-                ->setOption($option)
-                ->setCookie($cookie)
-                ->post($url, $post);
-        } else {
-            $ret = DI()->curl
-                ->setHeader($httpheader)
-                ->setOption($option)
-                ->setCookie($cookie)
-                ->get($url);
-        }
-        if (empty($ret)) throw new InternalServerErrorException(T('连接到百度服务器失败'));
-        return $ret;
     }
 
     /**
@@ -727,11 +743,8 @@ class TieBa
         $url = 'https://wappass.baidu.com/wp/api/security/antireplaytoken?tpl=tb&v=' . NOW_TIME . '0000';
         $data = $this->curl($url);
         $arr = json_decode($data, true);
-        if ($arr['errno'] == 110000) {
-            return ['code' => 0, 'time' => $arr['time']];
-        } else {
-            return ['code' => -1, 'msg' => $arr['errmsg']];
-        }
+
+        return $arr['errno'] == 110000 ? ['code' => 0, 'time' => $arr['time']] : ['code' => -1, 'msg' => $arr['errmsg']];
     }
 
     /**
@@ -1119,7 +1132,8 @@ class TieBa
         $arr = json_decode($match[1], true);
         if (array_key_exists('errno', $arr) && $arr['errno'] == 0) {
             $arr = json_decode($arr['channel_v'], true);
-            $data = $this->curl('https://passport.baidu.com/v2/api/bdusslogin?bduss=' . $arr['v'] . '&u=https%3A%2F%2Fpassport.baidu.com%2F&qrcode=1&tpl=pp&apiver=v3&tt=' . NOW_TIME . '0000&callback=callback', false, true, false, true);
+            $this->curlopt_header = true;
+            $data = $this->curl('https://passport.baidu.com/v2/api/bdusslogin?bduss=' . $arr['v'] . '&u=https%3A%2F%2Fpassport.baidu.com%2F&qrcode=1&tpl=pp&apiver=v3&tt=' . NOW_TIME . '0000&callback=callback');
             preg_match('/callback\((.*?)\)/', $data, $match);
             $arr = json_decode($match[1], true);
             if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {

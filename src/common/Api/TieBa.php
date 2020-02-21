@@ -116,6 +116,7 @@ class TieBa extends Base
      * @return mixed
      * @throws BadRequestException
      * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function add()
     {
@@ -138,6 +139,7 @@ class TieBa extends Base
     /**
      * 单个贴吧签到
      * @throws BadRequestException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function doSignByTieBaId()
     {
@@ -147,6 +149,7 @@ class TieBa extends Base
 
     /**
      * 账号所有贴吧签到
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function doSignByBaiDuId()
     {
@@ -156,18 +159,17 @@ class TieBa extends Base
 
     /**
      * 忽略签到
-     * @throws BadRequestException
+     * @throws InternalServerErrorException
      */
     public function noSignTieBa()
     {
-        $this->Domain_TieBa()::doUpdate([
-            'id' => $this->tieba_id,
-            'no' => intval($this->no),
-        ]);
+        $this->Domain_TieBa()->noSignTieba($this->tieba_id, $this->no);
     }
 
     /**
      * 刷新贴吧列表
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function refreshTieBa()
     {
@@ -266,7 +268,7 @@ class TieBa extends Base
      */
     public function qrLogin()
     {
-        return $this->Domain_TieBa()->qrLogin($this->sign);
+        $this->Domain_TieBa()->qrLogin($this->sign);
     }
 
     /**
