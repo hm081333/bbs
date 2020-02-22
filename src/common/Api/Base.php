@@ -74,7 +74,7 @@ class Base extends Api
         return [
             'title' => 'Hello ' . $this->username,
             'version' => PHALAPI_VERSION,
-            'time' => $_SERVER['REQUEST_TIME'],
+            'time' => $_SERVER['REQUEST_TIME'] ?? time(),
         ];
     }
 
