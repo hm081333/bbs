@@ -43,7 +43,7 @@
     "autoload": {
         "files": [
             "src/common/functions.php",
-            "src/tieba/functions.php"
+            "src/sign/functions.php"
         ],
         "psr-4": {
             "Library\\": "Library",
@@ -51,7 +51,6 @@
             "Common\\": "src/common",
             "Bbs\\": "src/bbs",
             "Admin\\": "src/admin",
-            "TieBa\\": "src/tieba",
             "Sign\\": "src/sign"
         }
     }

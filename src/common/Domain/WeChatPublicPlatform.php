@@ -164,7 +164,7 @@ class WeChatPublicPlatform
 
     /**
      * 贴吧 领域层
-     * @return \Common\Domain\TieBa
+     * @return TieBa
      */
     protected function Domain_TieBa()
     {

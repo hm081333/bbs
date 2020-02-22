@@ -5,7 +5,7 @@ namespace Common\Api;
 use Library\Exception\BadRequestException;
 use Library\Exception\Exception;
 use Library\Exception\InternalServerErrorException;
-use TieBa\Domain\QQLogin;
+use Sign\Domain\QQLogin;
 use function Common\DI;
 use function PhalApi\T;
 

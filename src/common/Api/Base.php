@@ -50,7 +50,6 @@ class Base extends Api
                 case 'bbs':
                     $this->session_user = \Common\Domain\User::getCurrentUser();// 获取登录状态
                     break;
-                case 'tieba':
                 case 'sign':
                     $this->session_user = \Common\Domain\User::getCurrentUser(true);// 获取登录状态
                     break;

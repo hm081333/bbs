@@ -219,11 +219,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-.idea/bbs.iml
-.idea/codeStyles/
-.idea/misc.xml
-.idea/modules.xml
-.idea/vcs.xml
+.idea/*
 
 composer.lock
 vendor/

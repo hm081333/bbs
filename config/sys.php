@@ -100,7 +100,6 @@ return [
         'prefix' => [
             // 'app' => 'App',
             'bbs' => 'Bbs',
-            'tieba' => 'TieBa',
             'sign' => 'Sign',
             'admin' => 'Admin',
             'common' => 'Common',

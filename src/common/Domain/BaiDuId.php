@@ -19,6 +19,24 @@ class BaiDuId
     use Common;
 
     /**
+     * 贴吧 数据层
+     * @return \Common\Model\TieBa|\Common\Model\Common|\PhalApi\Model\NotORMModel
+     */
+    protected static function Model_TieBa()
+    {
+        return self::getModel('TieBa');
+    }
+
+    /**
+     * 百度ID 数据层
+     * @return \Common\Model\BaiDuId|\Common\Model\Common|\PhalApi\Model\NotORMModel
+     */
+    protected static function Model_BaiDuId()
+    {
+        return self::getModel('BaiDuId');
+    }
+
+    /**
      * 删除百度ID - 覆盖Domain的删除函数
      * @param int $id
      * @throws \Library\Exception\InternalServerErrorException
@@ -26,7 +44,7 @@ class BaiDuId
     public static function delInfo($id)
     {
         self::DI()->response->setMsg(\PhalApi\T('删除成功'));
-        $del_tieba = self::getModel('TieBa')->deleteByWhere(['baidu_id' => $id]);
+        $del_tieba = self::Model_TieBa()->deleteByWhere(['baidu_id' => $id]);
         $del_baiduid = self::getModel()->delete($id);
         if ($del_tieba === false || $del_baiduid === false) {
             throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('删除失败'));
@@ -44,7 +62,7 @@ class BaiDuId
     {
         self::DI()->response->setMsg(\PhalApi\T('添加成功'));
         $user = \Common\Domain\User::getCurrentUser(true);
-        $modelBaiDuId = self::getModel();
+        $modelBaiDuId = self::Model_BaiDuId();
         $check = $modelBaiDuId->getInfo(['name' => $name], 'id');
         if ($check) {
             throw new \Library\Exception\BadRequestException(\PhalApi\T('该账号已经绑定过了'));

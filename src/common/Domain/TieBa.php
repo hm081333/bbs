@@ -15,9 +15,9 @@ use Library\Exception\InternalServerErrorException;
 use PhalApi\Model\NotORMModel;
 use function Common\DI;
 use function PhalApi\T;
-use function TieBa\easy_match;
-use function TieBa\sqlAdds;
-use function TieBa\textMiddle;
+use function Sign\easy_match;
+use function Sign\sqlAdds;
+use function Sign\textMiddle;
 
 /**
  * 贴吧 领域层
