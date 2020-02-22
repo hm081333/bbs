@@ -6,17 +6,24 @@
  * Time: 14:33:39
  */
 
-namespace TieBa\Domain;
+namespace Sign\Domain;
+
+use Common\Domain\BaiDuId;
+use Common\Domain\Common;
+use Library\Exception\BadRequestException;
+use Library\Exception\Exception;
+use Library\Exception\InternalServerErrorException;
+use function Common\DI;
+use function PhalApi\T;
 
 /**
- *
  * Class QQLogin
  * @package Common\Domain
  * @author  LYi-Ho 2018-12-27 14:33:39
  */
 class QQLogin
 {
-    use \Common\Domain\Common;
+    use Common;
 
     public static function getWxQrCode()
     {
@@ -29,10 +36,16 @@ class QQLogin
             return ['code' => 1, 'msg' => '获取二维码失败'];
     }
 
+    /**
+     * @param string $uuid
+     * @param string $last
+     * @return array
+     * @throws BadRequestException
+     */
     public static function wxLogin(string $uuid = '', string $last = '')
     {
         if (empty($uuid)) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('uuid不能为空'));
+            throw new BadRequestException(T('uuid不能为空'));
         }
         $param = ['uuid' => $uuid];
         if (!empty($last)) {
@@ -105,14 +118,14 @@ class QQLogin
     /**
      * 二维码登录
      * @param string $qrsig
-     * @throws \Library\Exception\BadRequestException
-     * @throws \Library\Exception\Exception
-     * @throws \Library\Exception\InternalServerErrorException
+     * @throws BadRequestException
+     * @throws Exception
+     * @throws InternalServerErrorException
      */
     public static function qrLogin(string $qrsig = '')
     {
         if (empty($qrsig)) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('qrsig不能为空'));
+            throw new BadRequestException(T('qrsig不能为空'));
         }
         $url = 'https://ssl.ptlogin2.qq.com/ptqrlogin?u1=https%3A%2F%2Fgraph.qq.com%2Foauth2.0%2Flogin_jump&ptqrtoken=' . self::getqrtoken($qrsig) . '&ptredirect=0&h=1&t=1&g=1&from_ui=1&ptlang=2052&action=1-0-' . NOW_TIME . '000&js_ver=10289&js_type=1&login_sig=fCmEYUeoOds1DTeFIFt2IpGUVa471vZXwy6vQlhx2bOL1CnNRtnCe8J0kv9fTQ1Y&pt_uistyle=40&aid=716027609&daid=383&pt_3rd_aid=100312028&';
         $ret = self::get_curl($url, 0, 'https://xui.ptlogin2.qq.com/cgi-bin/xlogin', 'qrsig=' . $qrsig . '; ', 1);
@@ -146,37 +159,37 @@ class QQLogin
                             preg_match('/displayname: \'(.*?)\'/', $data, $displayname);
                         } else {
                             // exit('ptuiCB("6","","登录成功，回调百度失败！");');
-                            throw new \Library\Exception\Exception(\PhalApi\T("登录成功，回调百度失败！"), 6);
+                            throw new Exception(T("登录成功，回调百度失败！"), 6);
                         }
                     } else {
                         // exit('ptuiCB("6","","登录成功，获取mkey失败！");');
-                        throw new \Library\Exception\Exception(\PhalApi\T("登录成功，获取mkey失败！", 6));
+                        throw new Exception(T("登录成功，获取mkey失败！", 6));
                     }
                 }
                 if ($bduss[1] && $stoken[1] && $ptoken[1]) {
                     // exit('ptuiCB("0","' . self::getUserid($uname[1]) . '","' . $uname[1] . '","' . $displayname[1] . '","' . $bduss[1] . '","' . $stoken[1] . '","' . $ptoken[1] . '");');
-                    \Common\Domain\BaiDuId::add($displayname[1], $bduss[1]);
-                    self::DI()->response->setMsg(\PhalApi\T('登录成功'));
+                    BaiDuId::add($displayname[1], $bduss[1]);
+                    DI()->response->setMsg(T('登录成功'));
                 } else {
                     // exit('ptuiCB("6","","登录成功，获取相关信息失败！");');
-                    throw new \Library\Exception\Exception(\PhalApi\T("登录成功，获取相关信息失败！"), 6);
+                    throw new Exception(T("登录成功，获取相关信息失败！"), 6);
                 }
             } else if ($r[0] == 65) {
                 // exit('ptuiCB("1","","二维码已失效。");');
-                throw new \Library\Exception\Exception(\PhalApi\T("二维码已失效。"), 1);
+                throw new Exception(T("二维码已失效。"), 1);
             } else if ($r[0] == 66) {
                 // exit('ptuiCB("2","","二维码未失效。");');
-                throw new \Library\Exception\Exception(\PhalApi\T("二维码未失效。"), 2);
+                throw new Exception(T("二维码未失效。"), 2);
             } else if ($r[0] == 67) {
                 // exit('ptuiCB("3","","正在验证二维码。");');
-                throw new \Library\Exception\Exception(\PhalApi\T("正在验证二维码。"), 3);
+                throw new Exception(T("正在验证二维码。"), 3);
             } else {
                 // exit('ptuiCB("6","","' . str_replace('"', '\'', $r[4]) . '");');
-                throw new \Library\Exception\Exception(\PhalApi\T(str_replace('"', '\'', $r[4])), 6);
+                throw new Exception(T(str_replace('"', '\'', $r[4])), 6);
             }
         } else {
             // exit('ptuiCB("6","","' . $ret . '");');
-            throw new \Library\Exception\Exception(\PhalApi\T($ret), 6);
+            throw new Exception(T($ret), 6);
         }
     }
 
@@ -275,11 +288,11 @@ class QQLogin
     /**
      * @param $image
      * @return array
-     * @throws \Library\Exception\InternalServerErrorException
+     * @throws InternalServerErrorException
      */
     public static function getQqLoginUrl($image)
     {
-        $data = self::DI()->curl->post('http://api.cccyun.cc/api/qrcode_noauth.php', 'image=' . urlencode($image));
+        $data = DI()->curl->post('http://api.cccyun.cc/api/qrcode_noauth.php', ['image' => urlencode($image)]);
         $arr = json_decode($data, true);
         if ($arr['code'] == 1) {
             return [
@@ -288,9 +301,9 @@ class QQLogin
                 "url" => $arr['url'],
             ];
         } else if (array_key_exists('msg', $arr)) {
-            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T($arr['msg']));
+            throw new InternalServerErrorException(T($arr['msg']));
         } else {
-            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T($data));
+            throw new InternalServerErrorException(T($data));
         }
     }
 }

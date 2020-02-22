@@ -2,7 +2,7 @@
 
 namespace Library;
 
-use PhalApi\Exception\InternalServerErrorException;
+use Library\Exception\InternalServerErrorException;
 
 /**
  * CUrl CURL请求类
@@ -56,7 +56,7 @@ class CUrl
     /**
      * CUrl constructor.
      * @param int $retryTimes 超时重试次数，默认为1
-     * @param int $timeoutMs  超时时间，单位：毫秒，默认为3000
+     * @param int $timeoutMs 超时时间，单位：毫秒，默认为3000
      * @throws Exception\InternalServerErrorException
      */
     public function __construct($retryTimes = 1, $timeoutMs = 3000)
@@ -72,8 +72,8 @@ class CUrl
 
     /**
      * GET方式的请求
-     * @param string $url       请求的链接
-     * @param int    $timeoutMs 超时设置，单位：毫秒
+     * @param string $url 请求的链接
+     * @param int $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
      * @throws InternalServerErrorException
      */
@@ -89,9 +89,9 @@ class CUrl
 
     /**
      * POST方式的请求
-     * @param string $url       请求的链接
-     * @param array  $data      POST的数据
-     * @param int    $timeoutMs 超时设置，单位：毫秒
+     * @param string $url 请求的链接
+     * @param array $data POST的数据
+     * @param int $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
      * @throws InternalServerErrorException
      */
@@ -209,9 +209,9 @@ class CUrl
 
     /**
      * 统一接口请求
-     * @param string $url       请求的链接
-     * @param array  $data      POST的数据
-     * @param int    $timeoutMs 超时设置，单位：毫秒
+     * @param string $url 请求的链接
+     * @param array $data POST的数据
+     * @param int $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
      * @throws InternalServerErrorException
      */

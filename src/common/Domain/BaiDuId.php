@@ -8,6 +8,11 @@
 
 namespace Common\Domain;
 
+use Library\Exception\BadRequestException;
+use Library\Exception\InternalServerErrorException;
+use PhalApi\Model\NotORMModel;
+use function PhalApi\T;
+
 /**
  * 百度ID 领域层
  * BaiDuId
@@ -20,7 +25,7 @@ class BaiDuId
 
     /**
      * 贴吧 数据层
-     * @return \Common\Model\TieBa|\Common\Model\Common|\PhalApi\Model\NotORMModel
+     * @return \Common\Model\TieBa|\Common\Model\Common|NotORMModel
      */
     protected static function Model_TieBa()
     {
@@ -29,7 +34,7 @@ class BaiDuId
 
     /**
      * 百度ID 数据层
-     * @return \Common\Model\BaiDuId|\Common\Model\Common|\PhalApi\Model\NotORMModel
+     * @return \Common\Model\BaiDuId|\Common\Model\Common|NotORMModel
      */
     protected static function Model_BaiDuId()
     {
@@ -39,15 +44,15 @@ class BaiDuId
     /**
      * 删除百度ID - 覆盖Domain的删除函数
      * @param int $id
-     * @throws \Library\Exception\InternalServerErrorException
+     * @throws InternalServerErrorException
      */
     public static function delInfo($id)
     {
-        self::DI()->response->setMsg(\PhalApi\T('删除成功'));
+        self::DI()->response->setMsg(T('删除成功'));
         $del_tieba = self::Model_TieBa()->deleteByWhere(['baidu_id' => $id]);
         $del_baiduid = self::getModel()->delete($id);
         if ($del_tieba === false || $del_baiduid === false) {
-            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('删除失败'));
+            throw new InternalServerErrorException(T('删除失败'));
         }
     }
 
@@ -55,21 +60,21 @@ class BaiDuId
      * 添加百度ID
      * @param $name
      * @param $bduss
-     * @throws \Library\Exception\BadRequestException
-     * @throws \Library\Exception\InternalServerErrorException
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
      */
     public static function add($name, $bduss)
     {
-        self::DI()->response->setMsg(\PhalApi\T('添加成功'));
-        $user = \Common\Domain\User::getCurrentUser(true);
+        self::DI()->response->setMsg(T('添加成功'));
+        $user = User::getCurrentUser(true);
         $modelBaiDuId = self::Model_BaiDuId();
         $check = $modelBaiDuId->getInfo(['name' => $name], 'id');
         if ($check) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('该账号已经绑定过了'));
+            throw new BadRequestException(T('该账号已经绑定过了'));
         }
         $insert_rs = $modelBaiDuId->insert(['user_id' => $user['id'], 'bduss' => $bduss, 'name' => $name]);
         if ($insert_rs === false) {
-            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('添加失败'));
+            throw new InternalServerErrorException(T('添加失败'));
         }
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace TieBa\Api;
+namespace Sign\Api;
 
 /**
  * 百度ID 接口服务类
