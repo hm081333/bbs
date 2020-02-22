@@ -225,10 +225,11 @@ $RECYCLE.BIN/
 .idea/modules.xml
 .idea/vcs.xml
 
-vendor
-Data/*
-Runtime/cache/*
-Runtime/log/*
-Public/static/download/*
-Public/static/upload/pics/*
-Public/static/upload/wechat/*
+composer.lock
+vendor/
+[Dd]ata/*
+[Rr]untime/*
+[Pp]ublic/static/download/*
+[Pp]ublic/static/upload/pics/*
+[Pp]ublic/static/upload/wechat/*
+.env
