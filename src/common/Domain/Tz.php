@@ -17,6 +17,7 @@ namespace Common\Domain;
 class Tz
 {
     use Common;
+
     /**
      * 获取服务器实时数据
      */
@@ -49,7 +50,7 @@ class Tz
             $total['softirq'] += $item['softirq'];
         }
         $total = array_map(function ($item) use ($data) {
-            return $item / count($data);
+            return empty($data) ? 0 : $item / count($data);
         }, $total);
         /* CPU使用状况 End */
         /* 硬盘使用状况 Begin */
