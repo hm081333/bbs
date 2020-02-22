@@ -226,13 +226,11 @@ $RECYCLE.BIN/
 .idea/vcs.xml
 
 composer.lock
-vendor
-Data/*
-Runtime/cache/*
-Runtime/log/*
-runtime/*
-Public/static/download/*
-Public/static/upload/pics/*
-Public/static/upload/wechat/*
+vendor/
+[Dd]ata/*
+[Rr]untime/*
+[Pp]ublic/static/download/*
+[Pp]ublic/static/upload/pics/*
+[Pp]ublic/static/upload/wechat/*
 .env
 
