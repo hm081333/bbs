@@ -2,6 +2,11 @@
 
 namespace Common\Api;
 
+use Library\Exception\BadRequestException;
+use function Common\encrypt;
+use function Common\pwd_hash;
+use function PhalApi\T;
+
 /**
  * 用户模块接口服务
  * User
@@ -43,24 +48,35 @@ class User extends Base
         return $rules;
     }
 
+    /**
+     * 用户 逻辑层
+     * @return \Common\Domain\User
+     */
+    protected function Domain_user()
+    {
+        return self::getDomain('User');
+    }
 
     /**
      * 会员信息接口
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     public function infoData()
     {
         $user_id = $this->id;
-        $domain_user = self::getDomain();
+        $domain_user = $this->Domain_user();
         if ($user_id == 0) {
             $user_info = $domain_user::$user;
         } else {
             $user_info = $domain_user::getInfo($user_id);
         }
+        if (!$user_info) {
+            throw new BadRequestException(T('没有找到该用户'));
+        }
         $user_id = $user_info['id'];
         $user_info = $domain_user::getCurrentUserInfo($user_info);
         if (!$user_info) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('没有找到该用户'));
+            throw new BadRequestException(T('没有找到该用户'));
         }
         $user_info['topic_count'] = self::getModel('Topic')->getCount(['user_id' => $user_id]);
         $user_info['reply_count'] = self::getModel('Reply')->getCount(['user_id' => $user_id]);
@@ -71,12 +87,12 @@ class User extends Base
      * 登录接口
      * @desc 根据账号和密码进行登录操作
      * @return array
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     public function signIn()
     {
         $data = get_object_vars($this);
-        return self::getDomain()::doSignIn($data);
+        return $this->Domain_user()::doSignIn($data);
     }
 
     /**
@@ -85,7 +101,7 @@ class User extends Base
      */
     public function signOut()
     {
-        self::getDomain()::doSignOut();
+        $this->Domain_user()::doSignOut();
     }
 
     /**
@@ -95,14 +111,14 @@ class User extends Base
     public function getCurrentUser()
     {
         return [
-            'user' => self::getDomain()::getCurrentUserInfo(),
+            'user' => $this->Domain_user()::getCurrentUserInfo(),
         ];
     }
 
     /**
      * 修改会员信息
      * @desc 修改会员信息
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     public function doInfo()
     {
@@ -115,10 +131,10 @@ class User extends Base
             'sex' => $this->sex,
         ];
         if (!empty($this->password)) {
-            $update['a_pwd'] = \Common\encrypt($this->password);
-            $update['password'] = \Common\pwd_hash($this->password);
+            $update['a_pwd'] = encrypt($this->password);
+            $update['password'] = pwd_hash($this->password);
         }
-        self::getDomain()::doUpdate($update);
+        $this->Domain_user()::doUpdate($update);
     }
 
     /**
@@ -129,6 +145,6 @@ class User extends Base
     public function signUp()
     {
         $data = get_object_vars($this);
-        return self::getDomain()::doSignUp($data);
+        return $this->Domain_user()::doSignUp($data);
     }
 }

@@ -8,6 +8,8 @@
 defined('API_ROOT') || define('API_ROOT', dirname(dirname(__FILE__)));
 
 require_once API_ROOT . '/public/init.php';
+\Common\DI()->debug = false;
+\Common\DI()->pai = new \PhalApi\PhalApi();
 
 use Workerman\Worker;
 
@@ -27,7 +29,7 @@ if (!extension_loaded('posix')) {
 // 标记是全局启动
 define('GLOBAL_START', 1);
 
-require_once API_ROOT . '/vendor/autoload.php';
+// require_once API_ROOT . '/vendor/autoload.php';
 
 // 加载所有Applications/*/start.php，以便启动所有服务
 foreach (glob(API_ROOT . '/Library/WorkerMan/start*.php') as $start_file) {

@@ -15,9 +15,11 @@
 use \Workerman\Worker;
 use \GatewayWorker\Register;
 
-defined('API_ROOT') || define('API_ROOT', dirname(dirname(dirname(__FILE__))));
+if (!defined('GLOBAL_START')) {
+    defined('API_ROOT') || define('API_ROOT', dirname(dirname(dirname(__FILE__))));
 
-require_once API_ROOT . '/public/init.php';
+    require_once API_ROOT . '/public/init.php';
+}
 
 // register 服务必须是text协议
 $register = new Register('text://0.0.0.0:1236');

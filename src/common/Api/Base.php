@@ -45,23 +45,23 @@ class Base extends Api
     protected function userCheck()
     {
         parent::userCheck();
-        if (!IS_CLI) {
-            switch (MODULE) {
-                case 'bbs':
-                    $this->session_user = \Common\Domain\User::getCurrentUser();// 获取登录状态
-                    break;
-                case 'sign':
-                    $this->session_user = \Common\Domain\User::getCurrentUser(true);// 获取登录状态
-                    break;
-                case 'admin':
-                    $this->session_admin = \Common\Domain\Admin::getCurrentAdmin(true);// 获取登录状态
-                    break;
-                case 'common':
-                    $this->session_user = \Common\Domain\User::getCurrentUser();// 获取会员登录状态
-                    $this->session_admin = \Common\Domain\Admin::getCurrentAdmin();// 获取管理员登录状态
-                    break;
-            }
+        // if (!IS_CLI) {
+        switch (strtolower(\Common\DI()->request->getNamespace())) {
+            case 'bbs':
+                $this->session_user = \Common\Domain\User::getCurrentUser();// 获取登录状态
+                break;
+            case 'sign':
+                $this->session_user = \Common\Domain\User::getCurrentUser(true);// 获取登录状态
+                break;
+            case 'admin':
+                $this->session_admin = \Common\Domain\Admin::getCurrentAdmin(true);// 获取登录状态
+                break;
+            case 'common':
+                $this->session_user = \Common\Domain\User::getCurrentUser();// 获取会员登录状态
+                $this->session_admin = \Common\Domain\Admin::getCurrentAdmin();// 获取管理员登录状态
+                break;
         }
+        // }
     }
 
     /**

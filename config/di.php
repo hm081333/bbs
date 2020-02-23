@@ -67,10 +67,10 @@ $di->cache = function () use ($di) {
 };
 
 // 惰性加载Redis
-$di->redis = function () use ($di) {
+/*$di->redis = function () use ($di) {
     return new \PhalApi\Redis\Lite($di->config->get("app.redis.servers"));
     // return new \PhalApi\Cache\RedisCache($di->config->get('sys.cache.redis'));
-};
+};*/
 
 // COOKIE
 $di->cookie = function () use ($di) {
