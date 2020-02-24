@@ -8,11 +8,17 @@
 
 namespace Common\Domain;
 
+use Library\Exception\BadRequestException;
+use PhalApi\Model\NotORMModel;
+use function Common\arr_unix_formatter;
+use function Common\DI;
+use function PhalApi\T;
+
 trait Common
 {
     private static function DI()
     {
-        return \Common\DI();
+        return DI();
     }
 
     /**
@@ -31,7 +37,7 @@ trait Common
         $model = self::getModel();
         $list = $model->getList($limit, $offset, $where ?? [], $order, $field, $id, $count);
         array_walk($list['rows'], function (&$value) {
-            $value = \Common\arr_unix_formatter($value);// 格式化数组中的时间戳
+            $value = arr_unix_formatter($value);// 格式化数组中的时间戳
             return $value;
         });
         return $list;
@@ -87,7 +93,7 @@ trait Common
             $model = self::getModel();
             $info = $model->get($id, $field);
             if ($info) {
-                $info = \Common\arr_unix_formatter($info);// 格式化数组中的时间戳
+                $info = arr_unix_formatter($info);// 格式化数组中的时间戳
             }
         } else {
             $info = [];
@@ -112,7 +118,7 @@ trait Common
             $model = self::getModel();
             $info = $model->getInfo($where, $field);
             if ($info) {
-                $info = \Common\arr_unix_formatter($info);// 格式化数组中的时间戳
+                $info = arr_unix_formatter($info);// 格式化数组中的时间戳
             }
         }
         return $info;
@@ -122,12 +128,12 @@ trait Common
      * 更新或者插入数据
      * @param array $data 更新或者插入的数据
      * @return array
-     * @throws \Library\Exception\BadRequestException 错误抛出异常
+     * @throws BadRequestException 错误抛出异常
      */
     public static function doUpdate($data)
     {
         $model = self::getModel();
-        self::DI()->response->setMsg(\PhalApi\T('操作成功'));
+        self::DI()->response->setMsg(T('操作成功'));
         if (!empty($data['id'])) {//更新
             $id = $data['id'];
             unset($data['id']);
@@ -138,7 +144,7 @@ trait Common
             $result = $model->insert($data);
         }
         if (!$result) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('操作失败'));
+            throw new BadRequestException(T('操作失败'));
         }
         return ['id' => $result];
     }
@@ -146,15 +152,15 @@ trait Common
     /**
      * 根据ID删除数据
      * @param integer $id 删除信息的ID
-     * @throws \Library\Exception\BadRequestException  错误抛出异常
+     * @throws BadRequestException  错误抛出异常
      */
     public static function delInfo($id)
     {
         $model = self::getModel();
-        self::DI()->response->setMsg(\PhalApi\T('删除成功'));
+        self::DI()->response->setMsg(T('删除成功'));
         $result = $model->delete($id);
         if (!$result) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('删除失败'));
+            throw new BadRequestException(T('删除失败'));
         }
     }
 
@@ -178,7 +184,7 @@ trait Common
     /**
      * 获取当前Domain对应的Model
      * @param bool $className 指定调用的类
-     * @return \Common\Model\Common|\PhalApi\Model\NotORMModel 返回对应的 Model实例
+     * @return \Common\Model\Common|NotORMModel 返回对应的 Model实例
      */
     public static function getModel($className = false)
     {

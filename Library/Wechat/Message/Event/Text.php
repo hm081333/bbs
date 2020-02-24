@@ -2,11 +2,14 @@
 
 namespace Library\Wechat\Message\Event;
 
+use Common\Domain\TuLing;
 use Common\Model\TieBa;
 use Common\Model\User;
+use EasyWeChat\Kernel\Contracts\EventHandlerInterface;
 use EasyWeChat\Kernel\Messages\NewsItem as ReturnNewsItem;
 use EasyWeChat\Kernel\Messages\News as ReturnNews;
 use EasyWeChat\Kernel\Messages\Text as ReturnText;
+use Library\DateHelper;
 use function Common\DI;
 
 /**
@@ -15,14 +18,14 @@ use function Common\DI;
  * Date: 2017/6/23
  * Time: 下午 10:13
  */
-class Text implements \EasyWeChat\Kernel\Contracts\EventHandlerInterface
+class Text implements EventHandlerInterface
 {
     public function handle($payload = null)
     {
         if (!isset($payload['Content'])) {
             return 'Access Invalid!';
         }
-        \Common\DI()->logger->debug('\Library\Wechat\Message\Event\Text', $payload);
+        DI()->logger->debug('\Library\Wechat\Message\Event\Text', $payload);
         // return;
 
         //file_put_contents(API_ROOT . '/Config/test.php', "<?php   \nreturn " . var_export($inMessage, true) . ';');
@@ -41,7 +44,7 @@ class Text implements \EasyWeChat\Kernel\Contracts\EventHandlerInterface
                 } else {
                     $greeting = '晚上好！';
                 }
-                $day_time = \Library\DateHelper::getDayTime();
+                $day_time = DateHelper::getDayTime();
                 $tieba_model = new TieBa();
                 $total = $tieba_model->getCount([
                     'user_id=?' => $user['id'],
@@ -73,8 +76,8 @@ class Text implements \EasyWeChat\Kernel\Contracts\EventHandlerInterface
                 return new ReturnText($content);
                 break;
             default:
-                $ask = \Common\Domain\TuLing::get($payload['Content']);
-                \Common\DI()->logger->debug('图灵回复', $ask);
+                $ask = TuLing::get($payload['Content']);
+                DI()->logger->debug('图灵回复', $ask);
                 switch ($ask['code']) {
                     case '100000':
                     case '40007':

@@ -2,17 +2,20 @@
 
 namespace Library\Wechat\Message\Event;
 
+use EasyWeChat\Kernel\Contracts\EventHandlerInterface;
+use function Common\DI;
+
 /**
  * Created by PhpStorm.
  * User: LYi-Ho
  * Date: 2017/6/23
  * Time: 下午 10:13
  */
-class Image implements \EasyWeChat\Kernel\Contracts\EventHandlerInterface
+class Image implements EventHandlerInterface
 {
     public function handle($payload = null)
     {
-        \Common\DI()->logger->debug('\Library\Wechat\Message\Event\Image', $payload);
+        DI()->logger->debug('\Library\Wechat\Message\Event\Image', $payload);
         return '暂不支持上传图片';
 
         Common_Function::getImage($payload['PicUrl'], $payload['MediaId']);

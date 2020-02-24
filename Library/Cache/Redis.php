@@ -82,8 +82,9 @@ class Redis implements Cache
         return $this->redis->delete($this->formatKey($key));
     }
 
-    public function clear()
+    public function flushDB()
     {
+        return $this->redis->flushDB();
     }
 
     public function getMultiple($keys, $default = null)

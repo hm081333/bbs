@@ -36,7 +36,7 @@ namespace Library;
  * @property \PhalApi\Request                        $request         请求
  * @property \PhalApi\Response\JsonResponse          $response        结果响应
  * @property \Library\Serialize                      $serialize       序列化
- * @property \PhalApi\Cache\RedisCache               $cache           缓存
+ * @property \Library\Cache\Redis                    $cache           缓存
  * @property \Library\Crypt\RSA\Pub2PriCrypt         $crypt           加密
  * @property \PhalApi\Config                         $config          配置
  * @property \PhalApi\Logger                         $logger          日记

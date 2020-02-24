@@ -9,6 +9,8 @@
 namespace Common\Domain;
 
 
+use function Common\DI;
+
 /**
  * 百度地图开放平台 领域层
  * Class BaiDuLBS
@@ -27,7 +29,7 @@ class BaiDuLBS
     {
         $tuling_url = 'http://www.tuling123.com/openapi/api';
         $setting = Setting::getSetting('tuling');
-        $rs = \Common\DI()->curl->post($tuling_url, ['key' => $setting['api_key'], 'info' => $question]);
+        $rs = DI()->curl->post($tuling_url, ['key' => $setting['api_key'], 'info' => $question]);
         $rs = json_decode($rs, true);
         return $rs;
     }
@@ -62,10 +64,10 @@ class BaiDuLBS
         // 请求参数中有中文、特殊字符等需要进行urlencode，确保请求串与sn对应
         $request = sprintf($url, urlencode($data), $output, $ak, $sn);
         // 执行请求的url
-        $rs = \Common\DI()->curl->get($request);
+        $rs = DI()->curl->get($request);
         $rs = json_decode($rs, true);
         if ($rs['status'] !== 0) {
-            \Common\DI()->logger->error('百毒地图API报错，错误码：' . $rs['status'] . '，错误信息：' . $rs['message']);
+            DI()->logger->error('百毒地图API报错，错误码：' . $rs['status'] . '，错误信息：' . $rs['message']);
         }
         return $rs;
     }
@@ -100,10 +102,10 @@ class BaiDuLBS
         // 请求参数中有中文、特殊字符等需要进行urlencode，确保请求串与sn对应
         $request = sprintf($url, urlencode($data), $output, $ak, $sn);
         // 执行请求的url
-        $rs = \Common\DI()->curl->get($request);
+        $rs = DI()->curl->get($request);
         $rs = json_decode($rs, true);
         if ($rs['status'] !== 0) {
-            \Common\DI()->logger->error('百毒地图API报错，错误码：' . $rs['status'] . '，错误信息：' . $rs['message']);
+            DI()->logger->error('百毒地图API报错，错误码：' . $rs['status'] . '，错误信息：' . $rs['message']);
         }
         return $rs;
     }

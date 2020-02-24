@@ -3,9 +3,11 @@
 namespace Library\Wechat\Message\Event;
 
 use Common\Domain\TuLing;
+use EasyWeChat\Kernel\Contracts\EventHandlerInterface;
 use EasyWeChat\Kernel\Messages\NewsItem as ReturnNewsItem;
 use EasyWeChat\Kernel\Messages\News as ReturnNews;
 use EasyWeChat\Kernel\Messages\Text as ReturnText;
+use function Common\DI;
 
 /**
  * Created by PhpStorm.
@@ -13,11 +15,11 @@ use EasyWeChat\Kernel\Messages\Text as ReturnText;
  * Date: 2017/6/23
  * Time: 下午 10:13
  */
-class Voice implements \EasyWeChat\Kernel\Contracts\EventHandlerInterface
+class Voice implements EventHandlerInterface
 {
     public function handle($payload = null)
     {
-        \Common\DI()->logger->debug('\Library\Wechat\Message\Event\Voice', $payload);
+        DI()->logger->debug('\Library\Wechat\Message\Event\Voice', $payload);
         // return;
 
         $ask = TuLing::get($payload['recognition']);

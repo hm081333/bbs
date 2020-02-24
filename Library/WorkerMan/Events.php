@@ -22,10 +22,11 @@ class Events
      * 服务启动时
      * @param $obj
      */
-    /*public static function onWorkerStart($obj)
+    public static function onWorkerStart($obj)
     {
-        var_dump('onWorkerStart', $obj);
-    }*/
+        // var_dump('onWorkerStart', $obj);
+        self::sessionSaveHandler()->clearSessionId();
+    }
 
     /**
      * 客户端请求连接时
@@ -51,7 +52,6 @@ class Events
         var_dump($server);
         // var_dump($_COOKIE);
 
-        $session_id = '';
         if (isset($_COOKIE[SESSION_NAME])) {
             $session_id = $_COOKIE[SESSION_NAME];
         } else {
@@ -70,8 +70,10 @@ class Events
      */
     public static function sessionSaveHandler()
     {
+        $session_set_save_handler = new \Library\Session\Redis();
+        $session_set_save_handler->open('', SESSION_NAME);
         // 初始化Redis存储方式
-        return new \Library\Session\Redis();
+        return $session_set_save_handler;
     }
 
     /**
@@ -106,15 +108,13 @@ class Events
      */
     public static function onMessage($client_id, $message)
     {
-        // DI()->logger->debug('client_id', $client_id);
-        var_dump('收到消息', 'client_id', $client_id, '----------');
+        DI()->logger->debug("收到消息|client_id|{$client_id}|message|{$message}");
         // 解析接收到的消息
         $data = json_decode($message, true);
         // 请求类型 没有请求类型时返回心跳
         $dataType = $data['type'] ?? 'ping';
         // 请求参数
         $request = $data['request'] ?? [];
-        // var_dump($data);
         // 默认响应数据
         $defaultResponse = ['type' => $dataType];
         $response = [];
@@ -139,20 +139,34 @@ class Events
                     ];
                     break;
                 } else {
+                    foreach (explode('|', urldecode($data['Auth'])) as $item) {
+                        $key = substr($item, 0, strlen(USER_TOKEN));
+                        $value = substr($item, strlen(USER_TOKEN));
+                        if ($key == ADMIN_TOKEN) {
+                            \Common\Domain\Admin::$admin_token = $value;
+                        } else if ($key == USER_TOKEN) {
+                            \Common\Domain\User::$user_token = $value;
+                        }
+                    }
+
+                    // DI()->logger->debug("响应消息|client_id|{$client_id}|message|{$message}");
                     $session_id = self::sessionSaveHandler()->getSessionId($client_id);
                     $_SESSION = self::getSession($session_id);
-                    // var_dump($session_id);
-                    // var_dump($_SESSION);
+                    // var_dump("session_id|{$session_id}|session", $_SESSION);
+
+                    // 清空上次请求结果数据
+                    DI()->response->setRet(200)->setMsg('')->setData([]);
+                    // 响应操作类
+                    $pai = new PhalApi();
                     // 重新建立api请求
                     DI()->request = new Request($request);
-                    // 响应操作
-                    // $pai = new PhalApi();
                     // 获取api返回结果
-                    $apiResult = DI()->pai->response()->getResult();
-                    DI()->pai->response()->setRet(200)->setMsg('')->setData([]);
+                    // $apiResult = DI()->pai->response()->getResult();
+                    $apiResult = $pai->response()->getResult();
                     // var_dump($session_id);
                     // var_dump($_SESSION);
                     self::saveSession($session_id, $_SESSION ?? []);
+                    // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
                 }
                 $response = ['s' => $request['s'], 'response' => $apiResult];
                 DI()->logger->info('请求结果', $response);
@@ -177,7 +191,7 @@ class Events
     public static function sendToClient($client_id, $data)
     {
         $data = is_array($data) ? json_encode($data, true) : $data;
-        return Gateway::sendToClient($client_id, $data);
+        Gateway::sendToClient($client_id, $data);
     }
 
     /**
@@ -188,6 +202,7 @@ class Events
     {
         // debug
         var_dump('onClose', "client:{$_SERVER['REMOTE_ADDR']}:{$_SERVER['REMOTE_PORT']} gateway:{$_SERVER['GATEWAY_ADDR']}:{$_SERVER['GATEWAY_PORT']}  client_id:$client_id onClose:''");
+        self::sessionSaveHandler()->delSessionId($client_id);
 
         // 从房间的客户端列表中删除
         // if (isset($_SESSION['room_id'])) {

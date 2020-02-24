@@ -8,13 +8,15 @@
 defined('DB') || define('DB', $di->config->get('dbs.tables.__default__.map.0.db'));
 defined('PAGE_NUM') || define('PAGE_NUM', 10);
 defined('NOW_TIME') || define('NOW_TIME', isset($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time());
-defined('SERVER_TIME') || define('SERVER_TIME', time());
 defined('back') || define('back', false);
-defined('ISAPP') || define('ISAPP', $di->request->getHeader('isapp',false));
+defined('ISAPP') || define('ISAPP', $di->request->getHeader('isapp', false));
 defined('MySQL') || define('MySQL', PHP_OS == 'WINNT' ? "E:\\mariadb\\bin\\" : "");
 defined('PREFIX') || define('PREFIX', $di->config->get('dbs.tables')['__default__']['prefix']);
+// session的key值 md5后的字符串
 defined('SESSION_NAME') || define('SESSION_NAME', '9cf3eeaffa0c8386508f932a354adf70');
+// 用户token的key值 md5后的字符串
 defined('USER_TOKEN') || define('USER_TOKEN', '85cc39d65ded51e8ffb949503e83ed65');
+// 管理员token的key值 md5后的字符串
 defined('ADMIN_TOKEN') || define('ADMIN_TOKEN', '1858d7d84c1f48cd63eda4f989dbf9e7');
 defined('SECURITY_KEY') || define('SECURITY_KEY', '@fdskalhfj2387A!');// 加密的密钥
 // defined('SECURITY_KEY') || define('SECURITY_KEY', '0b992c709819b81f');// 加密的密钥

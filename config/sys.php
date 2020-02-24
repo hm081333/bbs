@@ -11,7 +11,7 @@ return [
     /**
      * 默认环境配置
      */
-    'debug' => true,
+    'debug' => false,
 
     /**
      * 加密

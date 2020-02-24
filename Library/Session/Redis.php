@@ -14,6 +14,7 @@ class Redis implements \SessionHandlerInterface
 {
     //session-lifetime
     private $lifeTime;
+    private $defaultLifeTime;
 
     public function open($savePath, $sessName)
     {
@@ -24,16 +25,16 @@ class Redis implements \SessionHandlerInterface
 
     public function read($sessID)
     {
-        // DI()->logger->debug("read|$sessID");
+        // DI()->logger->debug("read|{$sessID}");
         $data = DI()->cache->get('session:' . $sessID);
         return $data ? $data : '';
     }
 
     public function write($sessID, $sessData)
     {
-        // DI()->logger->debug("write|$sessID", $sessData);
+        // DI()->logger->debug("write|{$sessID}|{$this->lifeTime}", $sessData);
         // new session-expire-time
-        DI()->cache->set('session:' . $sessID, $sessData, $this->lifeTime);
+        DI()->cache->set('session:' . $sessID, $sessData, $this->lifeTime ?? $this->defaultLifeTime);
         return true;
     }
 
@@ -45,9 +46,29 @@ class Redis implements \SessionHandlerInterface
 
     public function setSessionId(string $client_id, string $session_id)
     {
+        // DI()->logger->debug("session_id|{$client_id}|{$session_id}|{$this->lifeTime}");
         // 暂定保存一小时
-        DI()->cache->set('session_id:' . $client_id, $session_id, 3600);
+        DI()->cache->set('session_id:' . $client_id, $session_id, $this->lifeTime ?? $this->defaultLifeTime);
         return true;
+    }
+
+    public function delSessionId(string $client_id)
+    {
+        DI()->cache->delete('session_id:' . $client_id);
+        return true;
+    }
+
+    public function clearSessionId()
+    {
+        // $res = DI()->cache->delete('session_id:*');
+        DI()->cache->flushDB();
+    }
+
+    public function clearSession()
+    {
+        $res = DI()->cache->delete('session:*');
+        var_dump($res);
+        die;
     }
 
     public function destroy($sessID)

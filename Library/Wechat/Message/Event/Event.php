@@ -3,7 +3,9 @@
 namespace Library\Wechat\Message\Event;
 
 use Common\Domain\BaiDuLBS;
+use EasyWeChat\Kernel\Contracts\EventHandlerInterface;
 use EasyWeChat\Kernel\Messages\Text as ReturnText;
+use function Common\DI;
 
 /**
  * Created by PhpStorm.
@@ -11,11 +13,11 @@ use EasyWeChat\Kernel\Messages\Text as ReturnText;
  * Date: 2017/6/23
  * Time: 下午 10:13
  */
-class Event implements \EasyWeChat\Kernel\Contracts\EventHandlerInterface
+class Event implements EventHandlerInterface
 {
     public function handle($payload = null)
     {
-        \Common\DI()->logger->debug('\Library\Wechat\Message\Event\Event', $payload);
+        DI()->logger->debug('\Library\Wechat\Message\Event\Event', $payload);
         // return;
 
         //file_put_contents(API_ROOT . '/Config/test.php', "<?php   \nreturn " . var_export($inMessage, true) . ';');

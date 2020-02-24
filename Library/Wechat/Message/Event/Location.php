@@ -3,6 +3,8 @@
 namespace Library\Wechat\Message\Event;
 
 use Common\Domain\BaiDuLBS;
+use EasyWeChat\Kernel\Contracts\EventHandlerInterface;
+use function Common\DI;
 
 /**
  * Created by PhpStorm.
@@ -10,11 +12,11 @@ use Common\Domain\BaiDuLBS;
  * Date: 2017/6/23
  * Time: 下午 10:13
  */
-class Location implements \EasyWeChat\Kernel\Contracts\EventHandlerInterface
+class Location implements EventHandlerInterface
 {
     public function handle($payload = null)
     {
-        \Common\DI()->logger->debug('\Library\Wechat\Message\Event\Location', $payload);
+        DI()->logger->debug('\Library\Wechat\Message\Event\Location', $payload);
 
         //file_put_contents(API_ROOT . '/Config/test.php', "<?php   \nreturn " . var_export($inMessage, true) . ';');
         $Location_X = $payload['Location_X'];

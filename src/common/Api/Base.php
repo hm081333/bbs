@@ -3,7 +3,9 @@
 
 namespace Common\Api;
 
+use Library\Exception\BadRequestException;
 use PhalApi\Api;
+use function Common\DI;
 
 /**
  * 系统基础服务类
@@ -35,18 +37,30 @@ class Base extends Api
      */
     public function __construct()
     {
+        DI()->logger->debug('调用API', DI()->request->getService());
     }
 
     /**
      * 用户身份验证
      * @desc 可由开发人员根据需要重载，此通用操作一般可以使用委托或者放置在应用接口基类
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     protected function userCheck()
     {
         parent::userCheck();
-        // if (!IS_CLI) {
-        switch (strtolower(\Common\DI()->request->getNamespace())) {
+        if (!IS_CLI) {
+            $auth = DI()->request->getHeader('Auth', '');// 获取header中携带的Token
+            foreach (explode('|', urldecode($auth)) as $item) {
+                $key = substr($item, 0, strlen(USER_TOKEN));
+                $value = substr($item, strlen(USER_TOKEN));
+                if ($key == ADMIN_TOKEN) {
+                    \Common\Domain\Admin::$admin_token = $value;
+                } else if ($key == USER_TOKEN) {
+                    \Common\Domain\User::$user_token = $value;
+                }
+            }
+        }
+        switch (strtolower(DI()->request->getNamespace())) {
             case 'bbs':
                 $this->session_user = \Common\Domain\User::getCurrentUser();// 获取登录状态
                 break;
@@ -61,7 +75,6 @@ class Base extends Api
                 $this->session_admin = \Common\Domain\Admin::getCurrentAdmin();// 获取管理员登录状态
                 break;
         }
-        // }
     }
 
     /**

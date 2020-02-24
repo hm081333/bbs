@@ -8,8 +8,8 @@
 defined('API_ROOT') || define('API_ROOT', dirname(dirname(__FILE__)));
 
 require_once API_ROOT . '/public/init.php';
-\Common\DI()->debug = false;
-\Common\DI()->pai = new \PhalApi\PhalApi();
+// \Common\DI()->debug = false;
+//\Common\DI()->pai = new \PhalApi\PhalApi();
 
 use Workerman\Worker;
 
