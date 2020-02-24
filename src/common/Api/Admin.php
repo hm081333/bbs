@@ -2,6 +2,8 @@
 
 namespace Common\Api;
 
+use Library\Exception\BadRequestException;
+
 /**
  * 管理员模块接口服务类
  * Admin
@@ -25,15 +27,24 @@ class Admin extends Base
     }
 
     /**
+     * 管理员 领域层
+     * @return \Common\Domain\Admin
+     */
+    protected function Domain_Admin()
+    {
+        return self::getDomain('Admin');
+    }
+
+    /**
      * 登录接口
      * @desc 根据账号和密码进行登录操作
      * @return array
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     public function signIn()
     {
         $data = get_object_vars($this);
-        return self::getDomain()::doSignIn($data);
+        return self::Domain_Admin()::doSignIn($data);
     }
 
     /**
@@ -43,7 +54,7 @@ class Admin extends Base
     public function getCurrentAdmin()
     {
         return [
-            'admin' => self::getDomain()::getCurrentAdminInfo(),
+            'admin' => self::Domain_Admin()::getCurrentAdminInfo(),
         ];
     }
 
@@ -53,7 +64,7 @@ class Admin extends Base
      */
     public function signOut()
     {
-        self::getDomain()::doSignOut();
+        self::Domain_Admin()::doSignOut();
     }
 
 

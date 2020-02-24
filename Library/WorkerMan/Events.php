@@ -47,9 +47,10 @@ class Events
         // var_dump('onWebSocketConnect', $client_id, $socket_nfo);
         $get = $socket_nfo['get'];
         $server = $socket_nfo['server'];
+        DI()->cache->set('ws_server:' . $client_id, $server);
         $_COOKIE = $socket_nfo['cookie'];
         // var_dump($get);
-        var_dump($server);
+        // var_dump($server);
         // var_dump($_COOKIE);
 
         if (isset($_COOKIE[SESSION_NAME])) {
@@ -152,6 +153,10 @@ class Events
                     // DI()->logger->debug("响应消息|client_id|{$client_id}|message|{$message}");
                     $session_id = self::sessionSaveHandler()->getSessionId($client_id);
                     $_SESSION = self::getSession($session_id);
+                    $server = DI()->cache->get('ws_server:' . $client_id) ?? [];
+                    $_SERVER = array_merge(($_SERVER ?? []), $server);
+                    DI()->cache->expire('ws_server:' . $client_id);
+
                     // var_dump("session_id|{$session_id}|session", $_SESSION);
 
                     // 清空上次请求结果数据

@@ -14,7 +14,7 @@ class Redis implements \SessionHandlerInterface
 {
     //session-lifetime
     private $lifeTime;
-    private $defaultLifeTime;
+    private $defaultLifeTime = 3600;
 
     public function open($savePath, $sessName)
     {

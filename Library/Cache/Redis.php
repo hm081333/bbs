@@ -3,7 +3,7 @@
 namespace Library\Cache;
 
 use PhalApi\Cache;
-use PhalApi\Exception\InternalServerErrorException;
+use \Library\Exception\InternalServerErrorException;
 
 /**
  * Redis Redis缓存
@@ -72,19 +72,32 @@ class Redis implements Cache
         return $value !== false ? $this->unformatValue($value) : null;
     }
 
-    public function set($key, $value, $ttl = null)
+    public function set($key, $value, $ttl = 3600)
     {
         $this->redis->setex($this->formatKey($key), $ttl, $this->formatValue($value));
     }
 
+    /**
+     * 检测是否存在key,若不存在则赋值value
+     */
+    public function setnx($key, $value)
+    {
+        return $this->redis->setnx($this->formatKey($key), $this->formatValue($value));
+    }
+
+    public function expire($key, $ttl = 3600)
+    {
+        $this->redis->expire($key, $ttl);
+    }
+
     public function delete($key)
     {
-        return $this->redis->delete($this->formatKey($key));
+        return $this->redis->del($this->formatKey($key));
     }
 
     public function flushDB()
     {
-        return $this->redis->flushDB();
+        // return $this->redis->flushDB();
     }
 
     public function getMultiple($keys, $default = null)
@@ -101,14 +114,6 @@ class Redis implements Cache
 
     public function has($key)
     {
-    }
-
-    /**
-     * 检测是否存在key,若不存在则赋值value
-     */
-    public function setnx($key, $value)
-    {
-        return $this->redis->setnx($this->formatKey($key), $this->formatValue($value));
     }
 
     public function lPush($key, $value)

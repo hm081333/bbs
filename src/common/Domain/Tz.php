@@ -25,6 +25,7 @@ class Tz
     {
         /* 服务器信息 Begin */
         $sysInfo = self::getSysInfo();
+        if (!$sysInfo) return [];
         /* 服务器信息 End */
         /* CPU使用状况 Begin */
         $stat1 = self::GetCoreInformation();
@@ -148,10 +149,11 @@ class Tz
             case "FreeBSD":
                 $sysInfo = self::sys_freebsd();
                 break;
-            case "WINNT":
-                $sysInfo = false;
-                break;
+            // case "WINNT":
+            //     $sysInfo = false;
+            //     break;
             default:
+                $sysInfo = false;
                 break;
         }
         return $sysInfo;
