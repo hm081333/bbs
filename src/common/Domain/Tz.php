@@ -25,7 +25,6 @@ class Tz
     {
         /* 服务器信息 Begin */
         $sysInfo = self::getSysInfo();
-        if (!$sysInfo) return [];
         /* 服务器信息 End */
         /* CPU使用状况 Begin */
         $stat1 = self::GetCoreInformation();
