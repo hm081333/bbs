@@ -60,7 +60,6 @@ class Events
             self::sendToClient($client_id, ['type' => 'init', 'cookie' => [SESSION_NAME => $session_id]]);
         }
         DI()->logger->debug('websocket session id', $session_id);
-        $_SESSION = self::getSession($session_id);
         self::sessionSaveHandler()->setSessionId($client_id, $session_id);
 
     }
