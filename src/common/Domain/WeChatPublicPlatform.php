@@ -339,10 +339,10 @@ class WeChatPublicPlatform
      * 发送贴吧签到详情
      * @param array $user
      * @return array|Collection|object|ResponseInterface|string
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
      * @throws BadRequestException
      * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
      */
     private function sendJdSignDetail($user = [])
     {
