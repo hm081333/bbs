@@ -84,7 +84,7 @@ class User
             }
             // 待更新的会员ID
             // $update['id'] = $user['id'];
-            DI()->logger->debug('user update', $update);
+            // DI()->logger->debug('user update', $update);
             self::Model_user()->update($user['id'], $update);
             // 将用户信息存入SESSION中
             self::setUserToken($user);
