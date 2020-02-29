@@ -5,9 +5,9 @@ Wants=network.target
 
 [Service]
 Type=forking
-ExecStart=/usr/bin/php /var/www/html/bbs2-api/bin/start_worker.php start -d
-ExecReload=/usr/bin/php /var/www/html/bbs2-api/bin/start_worker.php restart -d
-ExecStop=/usr/bin/php /var/www/html/bbs2-api/bin/start_worker.php stop
+ExecStart=/usr/bin/php /var/www/bbs2-api/bin/start_worker.php start -d
+ExecReload=/usr/bin/php /var/www/bbs2-api/bin/start_worker.php restart -d
+ExecStop=/usr/bin/php /var/www/bbs2-api/bin/start_worker.php stop
 PrivateTmp=true
 RemainAfterExit=yes
 
