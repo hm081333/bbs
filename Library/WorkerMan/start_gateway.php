@@ -49,11 +49,14 @@ $gateway->onConnect = function ($connection) use ($gateway) {
         // 可以在这里判断连接来源是否合法，不合法就关掉连接
         // $_SERVER['HTTP_ORIGIN']标识来自哪个站点的页面发起的websocket链接
         if (!in_array(($_SERVER['HTTP_ORIGIN'] ?? ''), [
-            'http://192.168.1.135:8080',
-            'http://10.0.0.20:8080',
             'http://localhost:8080',
+            'http://127.0.0.1:8080',
+            'http://10.0.0.20:8080',
+            'http://192.168.1.135:8080',
             'http://bbs2.lyihe2.tk',
             'https://bbs2.lyihe2.tk',
+            'http://bbs2-ws.lyihe2.tk',
+            'https://bbs2-ws.lyihe2.tk',
         ])) {
             $connection->close();
         }
