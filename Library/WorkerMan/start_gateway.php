@@ -23,7 +23,7 @@ if (!defined('GLOBAL_START')) {
 }
 
 // gateway 进程
-$gateway = new Gateway("Websocket://127.0.0.1:7272");
+$gateway = new Gateway("Websocket://0.0.0.0:7272");
 // 设置名称，方便status时查看
 $gateway->name = 'Gateway';
 // 设置进程数，gateway进程数建议与cpu核数相同
@@ -50,6 +50,7 @@ $gateway->onConnect = function ($connection) use ($gateway) {
         // $_SERVER['HTTP_ORIGIN']标识来自哪个站点的页面发起的websocket链接
         if (!in_array(($_SERVER['HTTP_ORIGIN'] ?? ''), [
             'http://192.168.1.135:8080',
+            'http://10.0.0.20:8080',
             'http://localhost:8080',
             'http://bbs2.lyihe2.tk',
             'https://bbs2.lyihe2.tk',
