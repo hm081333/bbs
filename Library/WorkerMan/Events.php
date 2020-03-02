@@ -116,7 +116,7 @@ class Events
         // 请求参数
         $request = $data['request'] ?? [];
         // 默认响应数据
-        $defaultResponse = ['type' => $dataType];
+        $defaultResponse = ['type' => $dataType, 'requestId' => md5(rawurlencode($message))];
         $response = [];
         switch ($dataType) {
             // 回应心跳
