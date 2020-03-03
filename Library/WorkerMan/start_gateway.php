@@ -23,7 +23,7 @@ if (!defined('GLOBAL_START')) {
 }
 
 // gateway 进程
-$gateway = new Gateway("Websocket://0.0.0.0:7272");
+$gateway = new Gateway("Websocket://127.0.0.1:7272");
 // 设置名称，方便status时查看
 $gateway->name = 'Gateway';
 // 设置进程数，gateway进程数建议与cpu核数相同

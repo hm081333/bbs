@@ -116,8 +116,7 @@ class Events
         // 请求参数
         $request = $data['request'] ?? [];
         // 默认响应数据
-        $defaultResponse = ['type' => $dataType, 'requestId' => md5(rawurlencode($message))];
-        $response = [];
+        $response = ['type' => $dataType, 'requestId' => md5(rawurlencode($message)), 'response' => []];
         switch ($dataType) {
             // 回应心跳
             case 'pong':
@@ -149,7 +148,6 @@ class Events
                         }
                     }
 
-                    // DI()->logger->debug("响应消息|client_id|{$client_id}|message|{$message}");
                     $session_id = self::sessionSaveHandler()->getSessionId($client_id);
                     $_SESSION = self::getSession($session_id);
                     $server = DI()->cache->get('ws_server:' . $client_id) ?? [];
@@ -167,19 +165,17 @@ class Events
                     // 获取api返回结果
                     // $apiResult = DI()->pai->response()->getResult();
                     $apiResult = $pai->response()->getResult();
-                    // var_dump($session_id);
-                    // var_dump($_SESSION);
                     self::saveSession($session_id, $_SESSION ?? []);
                     // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
                 }
-                $response = ['s' => $request['s'], 'response' => $apiResult];
-                DI()->logger->info('请求结果', $response);
+                $response['response'] = $apiResult;
                 break;
             default:
                 break;
         }
+        DI()->logger->info("响应消息|client_id|{$client_id}|response", $response);
         // 下发响应数据到客户端
-        self::sendToClient($client_id, array_merge($defaultResponse, $response));
+        self::sendToClient($client_id, $response);
     }
     // Gateway::sendToGroup($room_id, json_encode($new_message));
     // Gateway::joinGroup($client_id, $room_id);
