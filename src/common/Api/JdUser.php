@@ -24,6 +24,33 @@ class JdUser extends Base
     }
 
     /**
+     * 京东会员 领域层
+     * @return \Common\Domain\JdUser
+     */
+    protected function Domain_JdUser()
+    {
+        return self::getDomain('JdUser');
+    }
+
+    /**
+     * 京东签到 领域层
+     * @return \Common\Model\JdSign|\Common\Model\Common|\PhalApi\Model\NotORMModel
+     */
+    protected function Model_JdSign()
+    {
+        return self::getModel('JdSign');
+    }
+
+    /**
+     * 京东签到项 领域层
+     * @return \Common\Model\JdSignItem|\Common\Model\Common|\PhalApi\Model\NotORMModel
+     */
+    protected function Model_JdSignItem()
+    {
+        return self::getModel('JdSignItem');
+    }
+
+    /**
      * 列表数据
      * @desc      获取列表数据
      * @return array    数据列表
@@ -33,10 +60,10 @@ class JdUser extends Base
     {
         $data = get_object_vars($this);
         $data['where']['user_id'] = $this->session_user['id'];
-        $list = self::getDomain()::getList($data['limit'], $data['offset'], $data['where'], $data['field'], $data['order']);
+        $list = $this->Domain_JdUser()::getList($data['limit'], $data['offset'], $data['where'], $data['field'], $data['order']);
         foreach ($list['rows'] as &$row) {
-            $row['status_name'] = self::getDomain()::statusNames($row['status']);
-            $row['sign_list'] = self::getModel('JdSign')->getListByWhere([
+            $row['status_name'] = $this->Domain_JdUser()::statusNames($row['status']);
+            $row['sign_list'] = $this->Model_JdSign()->getListByWhere([
                 'user_id' => intval($data['where']['user_id']),
                 'jd_user_id' => intval($row['id']),
                 'status' => 1,
@@ -44,7 +71,7 @@ class JdUser extends Base
             $row['sign_list'] = array_column($row['sign_list'], 'sign_key');
         }
         unset($row);
-        $list['sign_list'] = self::getModel('JdSignItem')->getListByWhere([], '*', 'id asc');
+        $list['sign_list'] = $this->Model_JdSignItem()->getListByWhere([], '*', 'id asc');
         foreach ($list['sign_list'] as &$item) {
             $item['disabled'] = $item['status'] == 0;
         }
@@ -62,7 +89,7 @@ class JdUser extends Base
     {
         $data = get_object_vars($this);
         $data['where']['user_id'] = $this->session_user['id'];
-        return self::getDomain()::getListByWhere($data['where'], $data['field'], $data['order']);
+        return $this->Domain_JdUser()::getListByWhere($data['where'], $data['field'], $data['order']);
     }
 
     /**
@@ -78,7 +105,7 @@ class JdUser extends Base
             'pt_token' => $this->pt_token,
         ];
 
-        self::getDomain()::doInfo($data);
+        $this->Domain_JdUser()::doInfo($data);
     }
 
 

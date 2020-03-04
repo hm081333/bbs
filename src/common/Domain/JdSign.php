@@ -136,6 +136,18 @@ class JdSign
     }
 
     /**
+     * 更改京东签到项目状态
+     * @param $jd_sign_id
+     * @param $status
+     */
+    public function changeSignStatus($jd_sign_id, $status)
+    {
+        DI()->response->setMsg(T('操作成功'));
+        $modelJdSign = $this->Model_JdSign();
+        $modelJdSign->update($jd_sign_id, ['status' => intval($status)]);
+    }
+
+    /**
      * 京东会员 逻辑层
      * @return JdUser
      */

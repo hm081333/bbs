@@ -2,6 +2,9 @@
 
 namespace Common\Api;
 
+use Library\Exception\BadRequestException;
+use Library\Exception\Exception;
+
 /**
  * 京东签到 接口服务类
  * JdSign
@@ -18,7 +21,29 @@ class JdSign extends Base
             'jd_user_id' => ['name' => 'jd_user_id', 'type' => 'int', 'min' => 1, 'require' => true, 'desc' => '京东用户ID'],
             'open_signs' => ['name' => 'open_signs', 'type' => 'array', 'default' => [], 'desc' => '选择的签到项'],
         ];
+        $rules['changeSignStatus'] = [
+            'id' => ['name' => 'id', 'type' => 'int', 'min' => 1, 'require' => true, 'desc' => '签到ID'],
+            'status' => ['name' => 'status', 'type' => 'enum', 'range' => [0, 1], 'require' => true, 'desc' => '签到状态'],
+        ];
         return $rules;
+    }
+
+    /**
+     * 京东签到 领域层
+     * @return \Common\Domain\JdSign
+     */
+    protected function Domain_JdSign()
+    {
+        return self::getDomain('JdSign');
+    }
+
+    /**
+     * 京东签到项 领域层
+     * @return \Common\Domain\JdSignItem
+     */
+    protected function Domain_JdSignItem()
+    {
+        return self::getDomain('JdSignItem');
     }
 
     /**
@@ -31,7 +56,11 @@ class JdSign extends Base
     {
         $data = get_object_vars($this);
         $data['where']['user_id'] = $this->session_user['id'];
-        $list = self::getDomain()::getList($data['limit'], $data['offset'], $data['where'], $data['field'], $data['order']);
+        $list = $this->Domain_JdSign()::getList($data['limit'], $data['offset'], $data['where'], $data['field'], $data['order']);
+        array_walk($list['rows'], function (&$value) {
+            $value['sign_key_name'] = $this->Domain_JdSignItem()->itemKeyName($value['sign_key']);
+            return $value;
+        });
         return $list;
     }
 
@@ -45,16 +74,25 @@ class JdSign extends Base
     {
         $data = get_object_vars($this);
         $data['where']['user_id'] = $this->session_user['id'];
-        return self::getDomain()::getListByWhere($data['where'], $data['field'], $data['order']);
+        return $this->Domain_JdSign()::getListByWhere($data['where'], $data['field'], $data['order']);
     }
 
     /**
      * 更新 会员选择的 京东签到项目
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
+     * @throws Exception
      */
     public function doInfo()
     {
-        self::getDomain()->doInfo($this->jd_user_id, $this->open_signs);
+        $this->Domain_JdSign()->doInfo($this->jd_user_id, $this->open_signs);
+    }
+
+    /**
+     * 更改签到状态
+     */
+    public function changeSignStatus()
+    {
+        $this->Domain_JdSign()->changeSignStatus($this->id, $this->status);
     }
 
 

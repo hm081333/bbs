@@ -43,7 +43,6 @@ namespace Library;
  * @property \Library\Database\NotORMDatabase        $notorm          数据库
  * @property \PhalApi\Loader                         $loader          自动加载
  * @property \PhalApi\Helper\Tracer                  $tracer          全球追踪器
- * @property \PhalApi\Redis\Lite                     $redis           Redis 拓展类
  * @property \PhalApi\Cookie                         $cookie          COOKIE操作
  * @property \Library\CUrl                           $curl            CURL请求类
  * @property \PhalApi\Tool                           $tool            工具集合类
