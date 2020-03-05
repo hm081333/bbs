@@ -37,9 +37,9 @@ class Subject extends \Common\Api\Subject
             'status' => $this->status,
         ];
         if (empty($this->id)) {
-            $update['add_time'] = NOW_TIME;
+            $update['add_time'] = time();
         }
-        $update['edit_time'] = NOW_TIME;
+        $update['edit_time'] = time();
         self::getDomain()::doUpdate($update);
     }
 

@@ -34,7 +34,7 @@ class Text implements EventHandlerInterface
                 $user_model = new User();
                 $openid = $payload['FromUserName'];
                 $user = $user_model->getInfo(['open_id' => $openid], 'id,user_name');
-                $h = date('G', NOW_TIME);
+                $h = date('G', time());
                 if ($h < 11) {
                     $greeting = '早上好！';
                 } else if ($h < 13) {

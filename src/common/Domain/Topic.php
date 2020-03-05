@@ -36,7 +36,7 @@ class Topic
         $insert_data['user_id'] = $user['id'];
         $insert_data['name'] = $user['user_name'];
         $insert_data['email'] = $user['email'];
-        $insert_data['add_time'] = NOW_TIME;
+        $insert_data['add_time'] = time();
         /*if ($this->sticky == 'on') {
             $insert_data['sticky'] = 1;
         }*/

@@ -43,7 +43,7 @@ class Ip
                 throw new \Library\Exception\InternalServerErrorException(\PhalApi\T($data['data']));
             }
             $ip_info = $data['data'];
-            $ip_model->insert(['ip' => $ip, 'info' => serialize($ip_info), 'add_time' => NOW_TIME]);
+            $ip_model->insert(['ip' => $ip, 'info' => serialize($ip_info), 'add_time' => time()]);
         } else {
             $ip_info = unserialize($old_ip['info']);
         }

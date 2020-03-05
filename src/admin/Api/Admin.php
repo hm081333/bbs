@@ -41,9 +41,9 @@ class Admin extends \Common\Api\Admin
             $update['password'] = \Common\pwd_hash($this->password);
         }
         if (empty($this->id)) {
-            $update['add_time'] = NOW_TIME;
+            $update['add_time'] = time();
         }
-        $update['edit_time'] = NOW_TIME;
+        $update['edit_time'] = time();
         self::getDomain()::doUpdate($update);
     }
 

@@ -164,7 +164,7 @@ class User
             'real_name' => $data['real_name'],
             'birth_time' => substr($data['birth_time'], 0, 10),
             'sex' => $data['sex'],
-            'reg_time' => NOW_TIME,
+            'reg_time' => time(),
             'status' => 1,
         ];
         $insert_data['a_pwd'] = \Common\encrypt($insert_data['password']);

@@ -115,11 +115,11 @@ class System
         ignore_user_abort(true);
         $dbs = self::DI()->config->get('dbs.servers');
         $db = $dbs[DB];
-        $dir = API_ROOT . '/data/' . date('Ym', NOW_TIME) . '/';
+        $dir = API_ROOT . '/data/' . date('Ym', time()) . '/';
         if (!file_exists($dir)) {
             \Common\createDir($dir);
         }
-        $file_name = date('Y年m月d日-H时i分s秒', NOW_TIME) . '.sql';
+        $file_name = date('Y年m月d日-H时i分s秒', time()) . '.sql';
         $file = $dir . $file_name;
         $return_val = true;
         system(MySQL . "mysqldump -u" . $db['user'] . " -p" . $db['password'] . " -h" . $db['host'] . " " . $db['name'] . " > " . $file, $return_val);

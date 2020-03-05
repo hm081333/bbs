@@ -160,7 +160,7 @@ class TieBa
      */
     public function getBaiduId($bduss)
     {
-        $this->cookie = ['BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(NOW_TIME))];
+        $this->cookie = ['BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(time()))];
         $data = $this->curl('http://wapp.baidu.com/');
         return urldecode(textMiddle($data, 'i?un=', '">'));
     }
@@ -262,7 +262,7 @@ class TieBa
         ];
         $url = 'http://c.tieba.baidu.com/c/f/forum/like';
         $data = [
-            '_client_id' => 'wappc_' . NOW_TIME . '_' . '258',
+            '_client_id' => 'wappc_' . time() . '_' . '258',
             '_client_type' => 2,
             '_client_version' => '6.5.8',
             '_phone_imei' => '357143042411618',
@@ -271,7 +271,7 @@ class TieBa
             'model' => 'H60-L01',
             'page_no' => $pn,
             'page_size' => 200,
-            'timestamp' => NOW_TIME . '903',
+            'timestamp' => time() . '903',
             'uid' => $userid,
         ];
         $sign_str = '';
@@ -299,7 +299,7 @@ class TieBa
     {
         $url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw);
         $s = DI()->curl
-            ->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded', 'Cookie:BAIDUID=' . strtoupper(md5(NOW_TIME))])
+            ->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded', 'Cookie:BAIDUID=' . strtoupper(md5(time()))])
             ->get($url);
         $x = easy_match('<input type="hidden" name="fid" value="*"/>', $s);
         return $x[1] ?? false;
@@ -361,7 +361,7 @@ class TieBa
     public function getSignStatus($user = [])
     {
         if (empty($user)) throw new BadRequestException(T('非法参数'));
-        $h = date('G', NOW_TIME);
+        $h = date('G', time());
         if ($h < 11) {
             $greeting = '早上好！';
         } else if ($h < 13) {
@@ -739,7 +739,7 @@ class TieBa
      */
     public function serverTime()
     {
-        $url = 'https://wappass.baidu.com/wp/api/security/antireplaytoken?tpl=tb&v=' . NOW_TIME . '0000';
+        $url = 'https://wappass.baidu.com/wp/api/security/antireplaytoken?tpl=tb&v=' . time() . '0000';
         $data = $this->curl($url);
         $arr = json_decode($data, true);
 
@@ -755,7 +755,7 @@ class TieBa
      */
     public function getVCPic($vCodeStr)
     {
-        $url = 'https://wappass.baidu.com/cgi-bin/genimage?' . $vCodeStr . '&v=' . NOW_TIME . '0000';
+        $url = 'https://wappass.baidu.com/cgi-bin/genimage?' . $vCodeStr . '&v=' . time() . '0000';
         return $this->curl($url);
     }
 
@@ -774,8 +774,8 @@ class TieBa
     public function login(string $time, string $user, string $pwd, string $p, string $vcode = '', string $vcodestr = '')
     {
         DI()->response->setMsg(T('成功'));
-        $url = 'https://wappass.baidu.com/wp/api/login?v=' . NOW_TIME . '0000';
-        $post = 'username=' . $user . '&code=&password=' . $p . '&verifycode=' . $vcode . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . NOW_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&vcodestr=' . $vcodestr . '&countrycode=&servertime=' . $time . '&logLoginType=sdk_login&passAppHash=&passAppVersion=';
+        $url = 'https://wappass.baidu.com/wp/api/login?v=' . time() . '0000';
+        $post = 'username=' . $user . '&code=&password=' . $p . '&verifycode=' . $vcode . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . time() . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&vcodestr=' . $vcodestr . '&countrycode=&servertime=' . $time . '&logLoginType=sdk_login&passAppHash=&passAppVersion=';
         $data = $this->curl($url, $post);
         $arr = json_decode($data, true);
         if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
@@ -814,7 +814,7 @@ class TieBa
      */
     public function sendCode($type, $lstr, $ltoken)
     {
-        $url = 'https://wappass.baidu.com/wp/login/sec?ajax=1&v=' . NOW_TIME . '0000&vcode=&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . NOW_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&showtype=' . $type . '&lstr=' . rawurlencode($lstr) . '&ltoken=' . $ltoken;
+        $url = 'https://wappass.baidu.com/wp/login/sec?ajax=1&v=' . time() . '0000&vcode=&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . time() . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&showtype=' . $type . '&lstr=' . rawurlencode($lstr) . '&ltoken=' . $ltoken;
         $data = $this->curl($url);
         $arr = json_decode($data, true);
         if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
@@ -840,7 +840,7 @@ class TieBa
     public function login2(string $type, string $lstr, string $ltoken, string $vcode)
     {
         DI()->response->setMsg(T('成功'));
-        $url = 'https://wappass.baidu.com/wp/login/sec?type=2&v=' . NOW_TIME . '0000';
+        $url = 'https://wappass.baidu.com/wp/login/sec?type=2&v=' . time() . '0000';
         $post = [
             'vcode' => $vcode,
             'clientfrom' => 'native',
@@ -848,7 +848,7 @@ class TieBa
             'login_share_strategy' => 'choice',
             'client' => 'android',
             'adapter' => '3',
-            't' => NOW_TIME . '0000',
+            't' => time() . '0000',
             'act' => 'bind_mobile',
             'loginLink' => '0',
             'smsLoginLink' => '1',
@@ -869,7 +869,7 @@ class TieBa
             'lstr' => rawurlencode($lstr),
             'ltoken' => $ltoken,
         ];
-        // $post = 'vcode=' . $vcode . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . NOW_TIME . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&showtype=' . $type . '&lstr=' . rawurlencode($lstr) . '&ltoken=' . $ltoken;
+        // $post = 'vcode=' . $vcode . '&clientfrom=native&tpl=tb&login_share_strategy=choice&client=android&adapter=3&t=' . time() . '0000&act=bind_mobile&loginLink=0&smsLoginLink=1&lPFastRegLink=0&fastRegLink=1&lPlayout=0&loginInitType=0&lang=zh-cn&regLink=1&action=login&loginmerge=1&isphone=0&dialogVerifyCode=&dialogVcodestr=&dialogVcodesign=&gid=660BDF6-30E5-4A83-8EAC-F0B4752E1C4B&showtype=' . $type . '&lstr=' . rawurlencode($lstr) . '&ltoken=' . $ltoken;
         $data = $this->curl($url, $post);
         $arr = json_decode($data, true);
         if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {
@@ -907,7 +907,7 @@ class TieBa
         if (empty($user)) {
             throw new BadRequestException(T('请先输入用户名'));
         }
-        $url = 'https://wappass.baidu.com/wp/api/login/check?tt=' . NOW_TIME . '9117&username=' . $user . '&countrycode=&clientfrom=wap&sub_source=leadsetpwd&tpl=tb';
+        $url = 'https://wappass.baidu.com/wp/api/login/check?tt=' . time() . '9117&username=' . $user . '&countrycode=&clientfrom=wap&sub_source=leadsetpwd&tpl=tb';
         $data = $this->curl($url);
         $arr = json_decode($data, true);
         if ($arr['errInfo'] && $arr['errInfo']['no'] == '0' && empty($arr['data']['codeString'])) {
@@ -940,7 +940,7 @@ class TieBa
             $phone2 .= $phone[$i];
             if ($i == 2 || $i == 6) $phone2 .= '+';
         }
-        $url = 'https://wappass.baidu.com/wp/api/security/getphonestatus?v=' . NOW_TIME . '0000';
+        $url = 'https://wappass.baidu.com/wp/api/security/getphonestatus?v=' . time() . '0000';
         $post = [
             'mobilenum' => $phone2,
             'clientfrom' => 'native',
@@ -948,7 +948,7 @@ class TieBa
             'login_share_strategy' => 'choice',
             'client' => 'android',
             'adapter' => 3,
-            't' => NOW_TIME . '0000',
+            't' => time() . '0000',
             'act' => 'bind_mobile',
             'loginLink' => 0,
             'smsLoginLink' => 1,
@@ -996,7 +996,7 @@ class TieBa
     {
         if (empty($phone)) throw new BadRequestException(T('请先输入手机号'));
         if (strlen($phone) != 11) throw new BadRequestException(T('请输入正确的手机号'));
-        $url = 'https://wappass.baidu.com/wp/api/login/sms?v=' . NOW_TIME . '0000';
+        $url = 'https://wappass.baidu.com/wp/api/login/sms?v=' . time() . '0000';
         $post = [
             'username' => $phone,
             'tpl' => 'tb',
@@ -1034,7 +1034,7 @@ class TieBa
         if (strlen($phone) != 11) throw new BadRequestException(T('请输入正确的手机号'));
         if (empty($smsvc)) throw new BadRequestException(T('验证码不能为空'));
 
-        $url = 'https://wappass.baidu.com/wp/api/login?v=' . NOW_TIME . '0000';
+        $url = 'https://wappass.baidu.com/wp/api/login?v=' . time() . '0000';
         $post = [
             'smsvc' => $smsvc,
             'clientfrom' => 'native',
@@ -1042,7 +1042,7 @@ class TieBa
             'login_share_strategy' => 'choice',
             'client' => 'android',
             'adapter' => '3',
-            't' => NOW_TIME . '0000',
+            't' => time() . '0000',
             'act' => 'bind_mobile',
             'loginLink' => '0',
             'smsLoginLink' => '1',
@@ -1104,13 +1104,13 @@ class TieBa
      */
     public function getQRCode()
     {
-        $url = 'https://passport.baidu.com/v2/api/getqrcode?lp=pc&gid=07D9D20-91EB-43D8-8553-16A98A0B24AA&apiver=v3&tt=' . NOW_TIME . '0000&callback=callback';
+        $url = 'https://passport.baidu.com/v2/api/getqrcode?lp=pc&gid=07D9D20-91EB-43D8-8553-16A98A0B24AA&apiver=v3&tt=' . time() . '0000&callback=callback';
         // $data = $this->curl($url, FALSE, 'https://passport.baidu.com/v2/?login');
         $data = $this->curl($url);
         preg_match('/callback\((.*?)\)/', $data, $match);
         $arr = json_decode($match[1], true);
         if (array_key_exists('errno', $arr) && $arr['errno'] == 0) {
-            return ['code' => 0, 'imgurl' => $arr['imgurl'], 'sign' => $arr['sign'], 'link' => 'https://wappass.baidu.com/wp/?qrlogin&t=' . NOW_TIME . '&error=0&sign=' . $arr['sign'] . '&cmd=login&lp=pc&tpl=&uaonly='];
+            return ['code' => 0, 'imgurl' => $arr['imgurl'], 'sign' => $arr['sign'], 'link' => 'https://wappass.baidu.com/wp/?qrlogin&t=' . time() . '&error=0&sign=' . $arr['sign'] . '&cmd=login&lp=pc&tpl=&uaonly='];
         } else {
             return ['code' => $arr['errno'], 'msg' => '获取二维码失败'];
         }
@@ -1125,14 +1125,14 @@ class TieBa
      */
     public function qrLogin($sign)
     {
-        $url = 'https://passport.baidu.com/channel/unicast?channel_id=' . $sign . '&tpl=pp&gid=07D9D20-91EB-43D8-8553-16A98A0B24AA&apiver=v3&tt=' . NOW_TIME . '0000&callback=callback';
+        $url = 'https://passport.baidu.com/channel/unicast?channel_id=' . $sign . '&tpl=pp&gid=07D9D20-91EB-43D8-8553-16A98A0B24AA&apiver=v3&tt=' . time() . '0000&callback=callback';
         $data = $this->curl($url);
         preg_match('/callback\((.*?)\)/', $data, $match);
         $arr = json_decode($match[1], true);
         if (array_key_exists('errno', $arr) && $arr['errno'] == 0) {
             $arr = json_decode($arr['channel_v'], true);
             $this->curlopt_header = true;
-            $data = $this->curl('https://passport.baidu.com/v2/api/bdusslogin?bduss=' . $arr['v'] . '&u=https%3A%2F%2Fpassport.baidu.com%2F&qrcode=1&tpl=pp&apiver=v3&tt=' . NOW_TIME . '0000&callback=callback');
+            $data = $this->curl('https://passport.baidu.com/v2/api/bdusslogin?bduss=' . $arr['v'] . '&u=https%3A%2F%2Fpassport.baidu.com%2F&qrcode=1&tpl=pp&apiver=v3&tt=' . time() . '0000&callback=callback');
             preg_match('/callback\((.*?)\)/', $data, $match);
             $arr = json_decode($match[1], true);
             if (array_key_exists('errInfo', $arr) && $arr['errInfo']['no'] == '0') {

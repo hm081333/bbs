@@ -273,7 +273,7 @@ class WeChatPublicPlatform
         $openid = $user_info['open_id'];
         if (empty($openid)) return false;
 
-        $h = date('G', NOW_TIME);
+        $h = date('G', time());
         if ($h < 11) {
             $greeting = '早上好！';
         } else if ($h < 13) {

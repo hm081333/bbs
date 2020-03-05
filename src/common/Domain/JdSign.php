@@ -102,7 +102,7 @@ class JdSign
         ];
         $update_all_data = [
             'status' => 0,
-            'edit_time' => NOW_TIME,
+            'edit_time' => time(),
         ];
         if (!empty($open_signs)) {
             foreach ($open_signs as $sign_key) {
@@ -118,13 +118,13 @@ class JdSign
                         'jd_user_id' => $jd_user_info['id'],
                         'sign_key' => $sign_key,
                         'status' => 1,
-                        'add_time' => NOW_TIME,
-                        'edit_time' => NOW_TIME,
+                        'add_time' => time(),
+                        'edit_time' => time(),
                     ]);
                     if ($insert_res === false) throw new Exception(T('系统异常'));
                 } else {
                     if ($sign_info['status'] != 1) {
-                        $update_res = $modelJdSign->update($sign_info['id'], ['status' => 1, 'edit_time' => NOW_TIME]);
+                        $update_res = $modelJdSign->update($sign_info['id'], ['status' => 1, 'edit_time' => time()]);
                         if ($update_res === false) throw new Exception(T('系统异常'));
                     }
                 }
@@ -405,7 +405,7 @@ class JdSign
         }
         unset($sign_info, $sign_list);
 
-        $h = date('G', NOW_TIME);
+        $h = date('G', time());
         if ($h < 11) {
             $greeting = '早上好！！！';
         } else if ($h < 13) {

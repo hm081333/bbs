@@ -33,11 +33,11 @@ class Reply
         if (!$data['id']) {
             $reply_sort = self::getMax(['sort' => $topicId], 'sort') + 1;
             $reply_data['sort'] = $reply_sort;
-            $reply_data['add_time'] = NOW_TIME;
-            $reply_data['edit_time'] = NOW_TIME;
+            $reply_data['add_time'] = time();
+            $reply_data['edit_time'] = time();
             self::getModel('Topic')->updateReplyCount($topicId);// 更新回复数量
         } else {
-            $reply_data['edit_time'] = NOW_TIME;
+            $reply_data['edit_time'] = time();
         }
         self::doUpdate($reply_data);
     }

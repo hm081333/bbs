@@ -97,11 +97,11 @@ class Delivery
             $logistics['log_name'] = $delivery['log_name'];// 物流公司名称
             $logistics['state_name'] = self::getStateName($logistics['state']);// 状态名称
             $update['last_message'] = serialize($logistics);// 本次查询信息 保存到数据库
-            $update['last_time'] = NOW_TIME;// 更新最后查询时间
+            $update['last_time'] = time();// 更新最后查询时间
             if ($delivery['state'] != $logistics['state'] && empty($delivery['end_time'])) {// 物流状态 与 数据库保存的状态 不一致 且 物流未结束
                 $update['state'] = $logistics['state'];// 更新最新物流状态
                 if ($logistics['state'] == 3) {
-                    //$update['end_time'] = NOW_TIME;
+                    //$update['end_time'] = time();
                     $update['end_time'] = strtotime($logistics['data'][0]['time']);// 更新物流结束时间
                 }
             }
@@ -139,14 +139,14 @@ class Delivery
         $insert_update['state'] = 0;// 物流状态
         $insert_update['end_time'] = 0;// 物流结束时间
         if (!$data['id']) {
-            $insert_update['add_time'] = NOW_TIME;// 添加时间
-            $insert_update['edit_time'] = NOW_TIME;// 编辑时间
+            $insert_update['add_time'] = time();// 添加时间
+            $insert_update['edit_time'] = time();// 编辑时间
             $update_log_used = $logistics_model->update($log['id'], ['used' => new \NotORM_Literal('used + 1')]);
             if ($update_log_used === false) {
                 throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('添加失败'));
             }
         } else {
-            $insert_update['edit_time'] = NOW_TIME;// 编辑时间
+            $insert_update['edit_time'] = time();// 编辑时间
         }
         self::doUpdate($insert_update);
         return true;

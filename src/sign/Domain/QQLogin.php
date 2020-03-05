@@ -27,7 +27,7 @@ class QQLogin
 
     public static function getWxQrCode()
     {
-        $url = 'https://open.weixin.qq.com/connect/qrconnect?appid=wx85f17c29f3e648bf&response_type=code&scope=snsapi_login&redirect_uri=https%3A%2F%2Fpassport.baidu.com%2Fphoenix%2Faccount%2Fafterauth&state=' . NOW_TIME . '&display=page&traceid=';
+        $url = 'https://open.weixin.qq.com/connect/qrconnect?appid=wx85f17c29f3e648bf&response_type=code&scope=snsapi_login&redirect_uri=https%3A%2F%2Fpassport.baidu.com%2Fphoenix%2Faccount%2Fafterauth&state=' . time() . '&display=page&traceid=';
         $ret = self::get_curl($url);
         preg_match('!connect/qrcode/(.*?)\"!', $ret, $match);
         if ($uuid = $match[1])
@@ -51,7 +51,7 @@ class QQLogin
         if (!empty($last)) {
             $param['last'] = $last;
         }
-        $url = 'https://long.open.weixin.qq.com/connect/l/qrconnect?' . http_build_query($param) . '&_=' . NOW_TIME . '000';
+        $url = 'https://long.open.weixin.qq.com/connect/l/qrconnect?' . http_build_query($param) . '&_=' . time() . '000';
         $ret = self::get_curl($url, 0, 'https://open.weixin.qq.com/connect/qrconnect');
         if (preg_match("/wx_errcode=(\d+);window.wx_code=\'(.*?)\'/", $ret, $match)) {
             $errcode = $match[1];
@@ -97,7 +97,7 @@ class QQLogin
      */
     public static function getQqQrCode()
     {
-        $url = 'https://ssl.ptlogin2.qq.com/ptqrshow?appid=716027609&e=2&l=M&s=4&d=72&v=4&t=0.2616844' . NOW_TIME . '&daid=383&pt_3rd_aid=100312028';
+        $url = 'https://ssl.ptlogin2.qq.com/ptqrshow?appid=716027609&e=2&l=M&s=4&d=72&v=4&t=0.2616844' . time() . '&daid=383&pt_3rd_aid=100312028';
         // $arr = self::get_curl($url, 0, 0, $cookie, 1, 0, 0, 1);
         $arr = self::get_curl($url, false, false, false, true, false, false, true);
         preg_match('/qrsig=(.*?);/', $arr['header'], $match);
@@ -127,7 +127,7 @@ class QQLogin
         if (empty($qrsig)) {
             throw new BadRequestException(T('qrsig不能为空'));
         }
-        $url = 'https://ssl.ptlogin2.qq.com/ptqrlogin?u1=https%3A%2F%2Fgraph.qq.com%2Foauth2.0%2Flogin_jump&ptqrtoken=' . self::getqrtoken($qrsig) . '&ptredirect=0&h=1&t=1&g=1&from_ui=1&ptlang=2052&action=1-0-' . NOW_TIME . '000&js_ver=10289&js_type=1&login_sig=fCmEYUeoOds1DTeFIFt2IpGUVa471vZXwy6vQlhx2bOL1CnNRtnCe8J0kv9fTQ1Y&pt_uistyle=40&aid=716027609&daid=383&pt_3rd_aid=100312028&';
+        $url = 'https://ssl.ptlogin2.qq.com/ptqrlogin?u1=https%3A%2F%2Fgraph.qq.com%2Foauth2.0%2Flogin_jump&ptqrtoken=' . self::getqrtoken($qrsig) . '&ptredirect=0&h=1&t=1&g=1&from_ui=1&ptlang=2052&action=1-0-' . time() . '000&js_ver=10289&js_type=1&login_sig=fCmEYUeoOds1DTeFIFt2IpGUVa471vZXwy6vQlhx2bOL1CnNRtnCe8J0kv9fTQ1Y&pt_uistyle=40&aid=716027609&daid=383&pt_3rd_aid=100312028&';
         $ret = self::get_curl($url, 0, 'https://xui.ptlogin2.qq.com/cgi-bin/xlogin', 'qrsig=' . $qrsig . '; ', 1);
         if (preg_match("/ptuiCB\('(.*?)'\)/", $ret, $arr)) {
             $r = explode("','", str_replace("', '", "','", $arr[1]));

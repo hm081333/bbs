@@ -35,7 +35,7 @@ class Site extends Api
         return [
             'title' => 'Hello ' . $this->username,
             'version' => PHALAPI_VERSION,
-            'time' => NOW_TIME,
+            'time' => time(),
         ];
     }
 }

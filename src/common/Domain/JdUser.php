@@ -71,7 +71,7 @@ class JdUser
             'pt_pin' => $data['pt_pin'],
             'pt_token' => $data['pt_token'],
             'status' => 1,
-            'refresh_time' => NOW_TIME,
+            'refresh_time' => time(),
         ];
         if ($jd_user_id) {
             // 修改
@@ -97,7 +97,7 @@ class JdUser
 
             $insert_data = array_merge($data, [
                 'user_id' => $user['id'],
-                'add_time' => NOW_TIME,
+                'add_time' => time(),
             ]);
             $insert_rs = $modelJdUser->insert($insert_data);
             if ($insert_rs === false) {
