@@ -8,6 +8,11 @@
 
 namespace Common\Domain;
 
+use Library\Exception\BadRequestException;
+use Library\Exception\InternalServerErrorException;
+use function Common\DI;
+use function PhalApi\T;
+
 /**
  * IP地址 领域层
  * Class Ip
@@ -22,25 +27,25 @@ class Ip
      * 获取ip地址的详细信息
      * @param array $data
      * @return mixed
-     * @throws \Library\Exception\BadRequestException
-     * @throws \Library\Exception\InternalServerErrorException
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
      */
     public static function getIPInfo(array $data = [])
     {
         $ip = $data['ip'] ?? '';
         if (empty($ip)) {
-            $ip = self::DI()->tool->getClientIp();// 获得请求IP
+            $ip = DI()->tool->getClientIp();// 获得请求IP
         }
         $ip_model = self::getModel();
         $old_ip = $ip_model->getInfo(['ip' => $ip]);
         if (!$old_ip) {
-            $data = self::DI()->curl->get("http://ip.taobao.com/service/getIpInfo.php?ip={$ip}");
+            $data = DI()->curl->get("http://ip.taobao.com/service/getIpInfo.php?ip={$ip}");
             $data = json_decode($data, true);
             if (!$data) {
-                throw new \Library\Exception\BadRequestException(\PhalApi\T('获取IP信息失败'));
+                throw new BadRequestException(T('获取IP信息失败'));
             }
             if ($data['code'] !== 0) {
-                throw new \Library\Exception\InternalServerErrorException(\PhalApi\T($data['data']));
+                throw new InternalServerErrorException(T($data['data']));
             }
             $ip_info = $data['data'];
             $ip_model->insert(['ip' => $ip, 'info' => serialize($ip_info), 'add_time' => time()]);
@@ -49,7 +54,7 @@ class Ip
         }
         array_walk($ip_info, function (&$value, $key) {
             if ((strpos('country,area,region,city,isp', $key)) !== false) {
-                $value = \PhalApi\T($value);
+                $value = T($value);
             }
         });
         return $ip_info;

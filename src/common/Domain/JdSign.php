@@ -175,12 +175,23 @@ class JdSign
     }
 
     /**
+     * 京东签到记录 领域层
+     * @return JdSignLog
+     */
+    protected function Domain_JdSignLog()
+    {
+        return self::getDomain('JdSignLog');
+    }
+
+    /**
      * 设置签到项key值
      * @param string $sign_key
      * @return $this
      */
     public function setSignKey(string $sign_key)
     {
+        // 同步设置记录类的签到项
+        $this->Domain_JdSignLog()->setSignKey($sign_key);
         $this->sign_key = $sign_key;
         return $this;
     }
@@ -237,6 +248,8 @@ class JdSign
     {
         if (empty($this->sign_key)) throw new BadRequestException(T('请先设置签到项'));
         $jd_sign_info = $this->getJDSignInfo($jd_sign_id, $jd_sign_info);
+        // 设置日志记录的签到ID
+        $this->Domain_JdSignLog()->setJdSignId($jd_sign_info['id']);
         switch ($this->sign_key) {
             case 'bean':
                 // 签到领京豆
@@ -557,6 +570,7 @@ class JdSign
         ]);
 
         $data = $this->jdRequest($url);
+        DI()->logger->debug('京东APP签到 信息', $data);
         // 签到状态 根据测试, 1 表示已签到, 2 表示未签到, 3 表示未登录
         $sign_status = $data['status'] ?? 0;
         // if ($sign_status == 1) {
@@ -1609,7 +1623,7 @@ class JdSign
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
 
-        // 京享值领京豆相关信息
+        // 福利转盘相关信息
         $info = $this->wheelSurfIndex();
 
         if ($info['lotteryCount'] <= 0) {
@@ -1664,8 +1678,8 @@ class JdSign
         ]);
 
         $data = $this->jdRequest($url);
+        DI()->logger->debug('福利转盘 信息', $data);
         $this->lotteryCode = $data['lotteryCode'] ?? '';
-        // DI()->logger->debug('福利转盘 详情', $data);
         return $data;
     }
 
@@ -1760,7 +1774,7 @@ class JdSign
             ]),
         ];
         $res = $this->jrRequest($url, $form_data);
-        // DI()->logger->debug('京东金融APP签到 信息', $res);
+        DI()->logger->debug('京东金融APP签到 信息', $res);
         if ($res['resBusiCode'] != 0) {
             throw new Exception($res['resBusiMsg']);
         }
@@ -1983,7 +1997,7 @@ class JdSign
     }
 
     /**
-     * 京东金融APP 提升白条额度信息
+     * 京东金融APP 提升白条额度 信息
      * @return array|mixed
      * @throws BadRequestException
      * @throws Exception
@@ -2004,6 +2018,7 @@ class JdSign
         ];
 
         $res = $this->jrRequest($url, $form_data);
+        DI()->logger->error('提升白条额度 信息', $res);
         if ($res['code'] != '0000') {
             DI()->logger->error("提升白条额度信息|{$res['error_msg']}", $res);
             throw new Exception($res['error_msg']);
@@ -2046,7 +2061,7 @@ class JdSign
 
         $res = $this->jrRequest($url, $form_data);
 
-        // DI()->logger->debug('提升白条额度', $res);
+        DI()->logger->debug('提升白条额度', $res);
 
         if (empty($res['result'])) {
             DI()->logger->error("提升白条额度", $res);
@@ -2102,6 +2117,7 @@ class JdSign
         ]);
 
         $res = DI()->curl->setCookie($this->user_cookie)->json_get($url);
+        DI()->logger->debug('翻牌赢钢镚 信息', $res);
 
         if ($res['code'] != 1) {
             DI()->logger->error("翻牌赢钢镚 信息|{$res['msg']}", $res);
@@ -2139,6 +2155,7 @@ class JdSign
         ]);
 
         $res = DI()->curl->setCookie($this->user_cookie)->json_get($url);
+        DI()->logger->debug('翻牌赢钢镚', $res);
 
         if ($res['code'] != 1) {
             DI()->logger->error("翻牌赢钢镚|{$res['msg']}", $res);
@@ -2151,7 +2168,6 @@ class JdSign
             throw new Exception('返回数据异常');
         }
 
-        // DI()->logger->debug("翻牌赢钢镚", $data);
         return $data;
     }
 
@@ -2206,6 +2222,7 @@ class JdSign
         ]);
 
         $res = $this->jrRequest($url);
+        DI()->logger->error('金币抽奖 信息', $res);
 
         if ($res['code'] != '0000') {
             DI()->logger->error("金币抽奖 信息|{$res['msg']}", $res);
@@ -2240,7 +2257,7 @@ class JdSign
         DI()->curl->setHeader(['Referer' => 'https://m.jr.jd.com/member/coinlottery/index.html?channel=01-qd-190306']);
         $res = $this->jrRequest($url);
         // DI()->curl->unsetHeader('Referer');
-        DI()->logger->debug("金币抽奖", $res);
+        DI()->logger->debug('金币抽奖', $res);
 
         // if ($res['code'] != '1000') {
         //     DI()->logger->error("金币抽奖|{$res['msg']}", $res);
@@ -2312,6 +2329,7 @@ class JdSign
             ]),
         ]);
         // DI()->curl->unsetHeader('Referer');
+        DI()->logger->debug('每日赚京豆 信息', $res);
 
         if ($res['resultCode'] != '00000') {
             DI()->logger->error("每日赚京豆 - 连续签到信息|{$res['resultMsg']}", $res);
@@ -2363,6 +2381,7 @@ class JdSign
             ]),
         ]);
         // DI()->curl->unsetHeader('Referer');
+        DI()->logger->debug('每日赚京豆 - 签到', $res);
 
         if ($res['resultCode'] != '00000') {
             DI()->logger->error("每日赚京豆 - 签到|{$res['resultMsg']}", $res);

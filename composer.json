@@ -30,6 +30,7 @@
         "ext-session": "*",
         "ext-bcmath": "*",
         "ext-igbinary": "*",
+        "ext-xml": "*",
         "phalapi/kernal": "2.*.*",
         "phalapi/qrcode": "dev-master",
         "phalapi/cli": "dev-master",
