@@ -65,44 +65,57 @@ class JdSignLog
 
     /**
      * 获得京豆记录
-     * @param        $jd_sign_id
-     * @param        $sign_key
      * @param        $num
      * @param string $memo
      * @throws InternalServerErrorException
      */
-    public function bean($num, $memo = '')
+    public function bean($num, $memo = [])
     {
-        $this->setRewardType('bean')->log($this->jd_sign_id, $num, $memo);
+        $this->setRewardType('bean')->log($num, $memo);
     }
 
     /**
      * 获得营养液记录
-     * @param        $jd_sign_id
-     * @param        $sign_key
      * @param        $num
      * @param string $memo
      * @throws InternalServerErrorException
      */
-    public function nutrients($num, $memo = '')
+    public function nutrients($num, $memo = [])
     {
-        $this->setRewardType('nutrients')->log($this->jd_sign_id, $num, $memo);
+        $this->setRewardType('nutrients')->log($num, $memo);
+    }
+
+    /**
+     * 获得钢镚记录
+     * @param        $num
+     * @param string $memo
+     * @throws InternalServerErrorException
+     */
+    public function coin($num, $memo = [])
+    {
+        $this->setRewardType('coin')->log($num, $memo);
     }
 
     /**
      * 写入签到记录
-     * @param $jd_sign_id
      * @param $num
      * @param $memo
      * @throws InternalServerErrorException
      */
-    public function log($jd_sign_id, $num, $memo)
+    public function log($num, $memo = [])
     {
-        if (empty($this->sign_key) || empty($this->reward_type)) {
+        if (empty($num)) {
+            return false;
+        }
+        return;
+        if (empty($this->sign_key) || empty($this->reward_type) || empty($this->jd_sign_id)) {
             throw new InternalServerErrorException(T('系统异常'));
         }
+        if (is_array($memo)) {
+            $memo = serialize($memo);
+        }
         $insert_res = $this->Model_JdSignLog()->insert([
-            'jd_sign_id' => $jd_sign_id,
+            'jd_sign_id' => $this->jd_sign_id,
             'sign_key' => $this->sign_key,
             'add_time' => time(),
             'reward_type' => $this->reward_type,

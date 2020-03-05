@@ -252,43 +252,43 @@ class JdSign
         $this->Domain_JdSignLog()->setJdSignId($jd_sign_info['id']);
         switch ($this->sign_key) {
             case 'bean':
-                // 签到领京豆
+                // 签到领京豆 - 京豆
                 $this->doBeanSign($jd_sign_info);
                 break;
             case 'plant':
-                // 种豆得豆
+                // 种豆得豆 - 营养液、京豆
                 $this->doPlantBean($jd_sign_info);
                 break;
             case 'vvipclub':
-                // 京享值领京豆
+                // 京享值领京豆 - 京豆
                 $this->doVVipClub($jd_sign_info);
                 break;
             case 'wheelSurf':
-                // 福利转盘
+                // 福利转盘 - 京豆
                 $this->doWheelSurf($jd_sign_info);
                 break;
             case 'jrSign':
-                // 京东金融APP签到
+                // 京东金融APP签到 - 钢镚
                 $this->doJRSign($jd_sign_info);
                 break;
             case 'doubleSign':
-                // 领取双签礼包
+                // 领取双签礼包 - 京豆、营养液
                 $this->doDoubleSign($jd_sign_info);
                 break;
             case 'jrRiseLimit':
-                // 提升白条额度
+                // 提升白条额度 - 未记录
                 $this->doJRRiseLimit($jd_sign_info);
                 break;
             case 'jrFlopReward':
-                // 翻牌赢钢镚
+                // 翻牌赢钢镚 - 未记录
                 $this->doJRFlopReward($jd_sign_info);
                 break;
             case 'jrLottery':
-                // 金币抽奖
+                // 金币抽奖 - 未记录
                 $this->doJRLottery($jd_sign_info);
                 break;
             case 'jrSignRecords':
-                // 每日赚京豆签到
+                // 每日赚京豆签到 - 京豆
                 $this->doJRSignRecords($jd_sign_info);
                 break;
             default:
@@ -508,6 +508,7 @@ class JdSign
             case 2:
                 // 进行签到
                 $sign_res = $this->beanSign();
+                unset($sign_res['conductionBtn'], $sign_res['signRemind'], $sign_res['recommend']);
                 $award = [];
                 if ($sign_res['awardType'] == 1) {
                     // 普通签到奖励
@@ -518,6 +519,9 @@ class JdSign
                 } else {
                     DI()->logger->error('京东APP签到|未知签到奖励类型', $sign_res);
                 }
+
+                // 记录本次签到收益
+                $this->Domain_JdSignLog()->bean($award['beanAward']['beanCount'], $sign_res);
 
                 $this->Model_JdSign()->updateByWhere([
                     'id' => intval($jd_sign_info['id']),
@@ -741,11 +745,16 @@ class JdSign
         if (isset($last_round_info['roundId']) && $last_round_info['awardState'] == 5) {
             // 收取京豆
             $bean_award = $this->receivedBean($last_round_info['roundId']);
+            // 记录本次签到收益
+            $this->Domain_JdSignLog()->bean($bean_award);
         }
 
         if (empty($nutrients) && empty($bean_award)) return;
 
         DI()->logger->debug("本次累计获得营养液|{$nutrients}|瓶|京豆|{$bean_award}|颗");
+
+        // 记录本次签到收益
+        $this->Domain_JdSignLog()->nutrients($nutrients);
 
         $this->Model_JdSign()->updateByWhere([
             'id' => intval($jd_sign_info['id']),
@@ -1424,6 +1433,9 @@ class JdSign
             $bean_award += $this->vvipclub_shaking();
         }
 
+        // 记录本次签到收益
+        $this->Domain_JdSignLog()->bean($bean_award);
+
         $this->Model_JdSign()->updateByWhere([
             'id' => intval($jd_sign_info['id']),
             'sign_key' => $this->sign_key,
@@ -1604,7 +1616,12 @@ class JdSign
 
         DI()->logger->debug('京享值领京豆 摇一摇', $data);
 
-        return $data['prizeBean']['count'] ?? 0;
+        $bean_award = $data['prizeBean']['count'] ?? 0;
+
+        // 记录本次签到收益
+        $this->Domain_JdSignLog()->bean($bean_award);
+
+        return $bean_award;
     }
 
     /**
@@ -1636,6 +1653,9 @@ class JdSign
         for ($i = 0; $i < $info['lotteryCount']; $i++) {
             $bean_award += $this->lotteryDraw();
         }
+
+        // 记录本次签到收益
+        $this->Domain_JdSignLog()->bean($bean_award);
 
         $this->Model_JdSign()->updateByWhere([
             'id' => intval($jd_sign_info['id']),
@@ -1743,7 +1763,10 @@ class JdSign
             return;
         }
 
-        $this->JRSign();
+        $data = $this->JRSign();
+
+        // 记录本次签到收益
+        $this->Domain_JdSignLog()->coin($data['actualTotalRewardsValue'] ?? 0);
 
         $this->Model_JdSign()->updateByWhere([
             'id' => intval($jd_sign_info['id']),
@@ -1866,6 +1889,12 @@ class JdSign
         $bean_award = $this->doubleSign();
         // 领取双签送的营养液
         $nutrients = $this->receiveNutrientsTask('7');
+
+        // 记录本次签到收益
+        $this->Domain_JdSignLog()->bean($bean_award);
+
+        // 记录本次签到收益
+        $this->Domain_JdSignLog()->nutrients($nutrients);
 
         $this->Model_JdSign()->updateByWhere([
             'id' => intval($jd_sign_info['id']),
@@ -2265,6 +2294,8 @@ class JdSign
         // }
         //
         // $data = $res['data'];
+        // 中奖类型：0：未中奖、4350：金币
+        // $awardId = $data['awardId'] ?? 0;
 
         return true;
     }
@@ -2287,6 +2318,9 @@ class JdSign
 
         // 获得京豆数量
         $bean_award = $this->JRSignRecords();
+
+        // 记录本次签到收益
+        $this->Domain_JdSignLog()->bean($bean_award);
 
         $this->Model_JdSign()->updateByWhere([
             'id' => $jd_sign_info['id'],
