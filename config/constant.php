@@ -7,7 +7,7 @@
  */
 defined('DB') || define('DB', $di->config->get('dbs.tables.__default__.map.0.db'));
 defined('PAGE_NUM') || define('PAGE_NUM', 10);
-defined('time()') || define('time()', isset($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time());
+defined('NOW_TIME') || define('NOW_TIME', isset($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time());
 defined('back') || define('back', false);
 defined('ISAPP') || define('ISAPP', $di->request->getHeader('isapp', false));
 defined('MySQL') || define('MySQL', PHP_OS == 'WINNT' ? "E:\\mariadb\\bin\\" : "");
