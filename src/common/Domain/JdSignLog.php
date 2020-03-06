@@ -4,6 +4,7 @@
 namespace Common\Domain;
 
 
+use Library\Exception\BadRequestException;
 use Library\Exception\InternalServerErrorException;
 use Library\Traits\Domain;
 use Library\Traits\Model;
@@ -48,7 +49,8 @@ class JdSignLog
     /**
      * 获得京豆记录
      * @param        $num
-     * @param string $memo
+     * @param array  $memo
+     * @throws BadRequestException
      * @throws InternalServerErrorException
      */
     public function bean($num, $memo = [])
@@ -58,12 +60,17 @@ class JdSignLog
 
     /**
      * 写入签到记录
-     * @param $num
-     * @param $memo
+     * @param float $num
+     * @param array $memo
+     * @return bool
+     * @throws BadRequestException
      * @throws InternalServerErrorException
      */
     public function log($num, $memo = [])
     {
+        if (time() <= 1583510400) {
+            return false;
+        }
         if (empty($num)) {
             return false;
         }
@@ -84,11 +91,13 @@ class JdSignLog
         if (!$insert_res) {
             throw new InternalServerErrorException(T('写入签到记录失败'));
         }
+        return true;
     }
 
     /**
      * 京东签到记录 数据层
      * @return \Common\Model\JdSignLog|Model|NotORMModel
+     * @throws BadRequestException
      */
     protected function Model_JdSignLog()
     {
@@ -109,7 +118,8 @@ class JdSignLog
     /**
      * 获得营养液记录
      * @param        $num
-     * @param string $memo
+     * @param array  $memo
+     * @throws BadRequestException
      * @throws InternalServerErrorException
      */
     public function nutrients($num, $memo = [])
@@ -120,7 +130,8 @@ class JdSignLog
     /**
      * 获得白条提额记录
      * @param        $num
-     * @param string $memo
+     * @param array  $memo
+     * @throws BadRequestException
      * @throws InternalServerErrorException
      */
     public function baitiao($num, $memo = [])
@@ -131,13 +142,12 @@ class JdSignLog
     /**
      * 获得钢镚记录
      * @param        $num
-     * @param string $memo
+     * @param array  $memo
+     * @throws BadRequestException
      * @throws InternalServerErrorException
      */
     public function coin($num, $memo = [])
     {
-        var_dump($this);
-        die;
         $this->setRewardType('coin')->log($num, $memo);
     }
 }

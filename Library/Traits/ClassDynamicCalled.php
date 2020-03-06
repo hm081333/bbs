@@ -51,10 +51,9 @@ trait ClassDynamicCalled
         // 当前使用的类名
         $className = empty($className) ? end($classInfo) : $className;
         // 获取类实例
-        $classInstance = $classInstanceTool->$className;
-        if (isset($classInstance)) {
+        if (isset($classInstanceTool->$className)) {
             // 已创建实例，不再重新创建
-            return $classInstance;
+            return $classInstanceTool->$className;
         }
         // 使用当前调用的模块命名空间  或  使用的类的命名空间
         $nameSpace = defined('NAME_SPACE') ? NAME_SPACE : reset($classInfo);
