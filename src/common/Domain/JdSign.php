@@ -276,7 +276,7 @@ class JdSign
                 $this->doDoubleSign($jd_sign_info);
                 break;
             case 'jrRiseLimit':
-                // 提升白条额度 - 未记录
+                // 提升白条额度 - 白条额度
                 $this->doJRRiseLimit($jd_sign_info);
                 break;
             case 'jrFlopReward':
@@ -2013,8 +2013,14 @@ class JdSign
             // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
         }
 
+        // 查询白条提额相关信息
         $info = $this->JRRiseLimitInfo();
-        $this->JRRiseLimit($info);
+        if (!empty($info)) {
+            // 领取白条提额
+            $data = $this->JRRiseLimit($info);
+            // 记录白条提额
+            $this->Domain_JdSignLog()->baitiao($data['changeBalanceAmount'] ?? 0);
+        }
 
         $this->Model_JdSign()->updateByWhere([
             'id' => intval($jd_sign_info['id']),
@@ -2047,9 +2053,9 @@ class JdSign
         ];
 
         $res = $this->jrRequest($url, $form_data);
-        DI()->logger->error('提升白条额度 信息', $res);
+        // DI()->logger->error('提升白条额度 信息', $res);
         if ($res['code'] != '0000') {
-            DI()->logger->error("提升白条额度信息|{$res['error_msg']}", $res);
+            DI()->logger->error("提升白条额度 信息|{$res['error_msg']}", $res);
             throw new Exception($res['error_msg']);
         }
         $raiseItemList = $res['raiseItemList'] ?? [];
@@ -2059,6 +2065,7 @@ class JdSign
         // 额度提升数量 $raiseItem['changeLimit']
 
         if (empty($raiseItem) || $raiseItem['itemStatus'] != 0) {
+            DI()->logger->error('提升白条额度 信息|没有待领取的额度', $res);
             return [];
         }
 
@@ -2251,13 +2258,12 @@ class JdSign
         ]);
 
         $res = $this->jrRequest($url);
-        DI()->logger->error('金币抽奖 信息', $res);
+        DI()->logger->debug('金币抽奖 信息', $res);
 
         if ($res['code'] != '0000') {
             DI()->logger->error("金币抽奖 信息|{$res['msg']}", $res);
             throw new Exception($res['msg']);
         }
-        DI()->logger->debug("金币抽奖 信息", $res);
 
         $data = $res['data'];
         // 设定，消耗0金币为免费抽奖，返回数组错误时返回false
@@ -2415,7 +2421,7 @@ class JdSign
             ]),
         ]);
         // DI()->curl->unsetHeader('Referer');
-        DI()->logger->debug('每日赚京豆 - 签到', $res);
+        // DI()->logger->debug('每日赚京豆 - 签到', $res);
 
         if ($res['resultCode'] != '00000') {
             DI()->logger->error("每日赚京豆 - 签到|{$res['resultMsg']}", $res);
@@ -2423,7 +2429,7 @@ class JdSign
         }
 
         $data = $res['data'];
-        DI()->logger->debug("每日赚京豆 - 签到", $data);
+        DI()->logger->debug('每日赚京豆 - 签到', $data);
 
         return $data['rewardAmount'] ?? 0;
     }

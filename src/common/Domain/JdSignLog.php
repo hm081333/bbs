@@ -86,6 +86,17 @@ class JdSignLog
     }
 
     /**
+     * 获得白条提额记录
+     * @param        $num
+     * @param string $memo
+     * @throws InternalServerErrorException
+     */
+    public function baitiao($num, $memo = [])
+    {
+        $this->setRewardType('baitiao')->log($num, $memo);
+    }
+
+    /**
      * 获得钢镚记录
      * @param        $num
      * @param string $memo
