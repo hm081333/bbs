@@ -8,7 +8,7 @@
 
 namespace Common\Cache;
 
-use function Common\DI;
+use Library\Abstracts\Cache;
 
 /**
  * 京东签到项 缓存层
@@ -16,7 +16,7 @@ use function Common\DI;
  * @package Common\Cache
  * @author  LYi-Ho 2018-11-26 09:22:44
  */
-class JdSignItem extends Common
+class JdSignItem extends Cache
 {
     protected function getTableName()
     {

@@ -3,25 +3,14 @@
 namespace Library\Task\Progress\Trigger;
 
 use Library\Exception\InternalServerErrorException;
-use function PhalApi\T;
 use PhalApi\Task\Progress\Trigger;
+use function PhalApi\T;
 
 /**
  * 队列 触发器接口
  */
 class QueueTrigger implements Trigger
 {
-    /**
-     * @param $runnerClass
-     * @param $mq
-     * @return \PhalApi\Task\Runner
-     * @return mixed
-     */
-    private function getRunner($runnerClass, $mq)
-    {
-        return new $runnerClass($mq);
-    }
-
     /**
      * 进程的具体操作
      * @param string $params 对应数据库表task_progress.fire_params字段
@@ -48,5 +37,16 @@ class QueueTrigger implements Trigger
         $runner = $this->getRunner($runnerClass, $mq);
 
         return $runner->go($service);
+    }
+
+    /**
+     * @param $runnerClass
+     * @param $mq
+     * @return \PhalApi\Task\Runner
+     * @return mixed
+     */
+    private function getRunner($runnerClass, $mq)
+    {
+        return new $runnerClass($mq);
     }
 }

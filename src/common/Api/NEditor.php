@@ -3,6 +3,8 @@
 
 namespace Common\Api;
 
+use Library\Traits\Api;
+
 /**
  * 上传接口服务类
  * @ignore
@@ -10,7 +12,7 @@ namespace Common\Api;
  */
 class NEditor extends Base
 {
-    use Common;
+    use Api;
 
     /**
      * 接口参数规则

@@ -2,6 +2,8 @@
 
 namespace Common\Api;
 
+use Library\Traits\Api;
+
 /**
  * 科目接口服务类
  * Subject
@@ -9,7 +11,7 @@ namespace Common\Api;
  */
 class Subject extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {

@@ -8,6 +8,7 @@
 
 namespace Common\Model;
 
+use Library\Traits\Model;
 use PhalApi\Model\NotORMModel as NotORM;
 
 
@@ -19,7 +20,7 @@ use PhalApi\Model\NotORMModel as NotORM;
  */
 class Subject extends NotORM
 {
-    use Common;
+    use Model;
 
     protected function getTableName($id)
     {

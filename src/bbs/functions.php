@@ -1,6 +1,8 @@
 <?php
+
 namespace Bbs;
 
-function hello() {
+function hello()
+{
     return 'Hey, man~';
 }

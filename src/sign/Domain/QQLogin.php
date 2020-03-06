@@ -9,10 +9,10 @@
 namespace Sign\Domain;
 
 use Common\Domain\BaiDuId;
-use Common\Domain\Common;
 use Library\Exception\BadRequestException;
 use Library\Exception\Exception;
 use Library\Exception\InternalServerErrorException;
+use Library\Traits\Domain;
 use function Common\DI;
 use function PhalApi\T;
 
@@ -23,7 +23,7 @@ use function PhalApi\T;
  */
 class QQLogin
 {
-    use Common;
+    use Domain;
 
     public static function getWxQrCode()
     {
@@ -34,6 +34,55 @@ class QQLogin
             return ['code' => 0, 'uuid' => $uuid, 'imgurl' => 'https://open.weixin.qq.com/connect/qrcode/' . $uuid];
         else
             return ['code' => 1, 'msg' => '获取二维码失败'];
+    }
+
+    private static function get_curl($url, $post = false, $referer = false, $cookie = false, $header = false, $ua = false, $nobaody = false, $split = false)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        $httpheader[] = "Accept: application/json";
+        $httpheader[] = "Accept-Encoding: gzip,deflate,sdch";
+        $httpheader[] = "Accept-Language: zh-CN,zh;q=0.8";
+        $httpheader[] = "Connection: close";
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $httpheader);
+        if ($post) {
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+        }
+        if ($header) {
+            curl_setopt($ch, CURLOPT_HEADER, true);
+        }
+        if ($cookie) {
+            curl_setopt($ch, CURLOPT_COOKIE, $cookie);
+        }
+        if ($referer) {
+            curl_setopt($ch, CURLOPT_REFERER, $referer);
+        }
+        if ($ua) {
+            curl_setopt($ch, CURLOPT_USERAGENT, $ua);
+        } else {
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36');
+        }
+        if ($nobaody) {
+            curl_setopt($ch, CURLOPT_NOBODY, 1);
+
+        }
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_ENCODING, "gzip");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $ret = curl_exec($ch);
+        if ($split) {
+            $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+            $header = substr($ret, 0, $headerSize);
+            $body = substr($ret, $headerSize);
+            $ret = [];
+            $ret['header'] = $header;
+            $ret['body'] = $body;
+        }
+        curl_close($ch);
+        return $ret;
     }
 
     /**
@@ -89,6 +138,15 @@ class QQLogin
         } else {
             return ['code' => 1];
         }
+    }
+
+    private static function getUserid($uname)
+    {
+        $ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36';
+        $data = self::get_curl('http://tieba.baidu.com/home/get/panel?ie=utf-8&un=' . urlencode($uname), 0, 0, 0, 0, $ua);
+        $arr = json_decode($data, true);
+        $userid = $arr['data']['id'];
+        return $userid;
     }
 
     /**
@@ -193,18 +251,6 @@ class QQLogin
         }
     }
 
-    private static function getuin($uin)
-    {
-        for ($i = 0; $i < strlen($uin); $i++) {
-            if ($uin[$i] == 'o' || $uin[$i] == '0') {
-                continue;
-            } else {
-                break;
-            }
-        }
-        return substr($uin, $i);
-    }
-
     private static function getqrtoken($qrsig)
     {
         $len = strlen($qrsig);
@@ -216,15 +262,6 @@ class QQLogin
         return $hash & 2147483647;
     }
 
-    private static function getUserid($uname)
-    {
-        $ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36';
-        $data = self::get_curl('http://tieba.baidu.com/home/get/panel?ie=utf-8&un=' . urlencode($uname), 0, 0, 0, 0, $ua);
-        $arr = json_decode($data, true);
-        $userid = $arr['data']['id'];
-        return $userid;
-    }
-
     private static function getGTK($skey)
     {
         $len = strlen($skey);
@@ -234,55 +271,6 @@ class QQLogin
             $hash &= 2147483647;
         }
         return $hash & 2147483647;
-    }
-
-    private static function get_curl($url, $post = false, $referer = false, $cookie = false, $header = false, $ua = false, $nobaody = false, $split = false)
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        $httpheader[] = "Accept: application/json";
-        $httpheader[] = "Accept-Encoding: gzip,deflate,sdch";
-        $httpheader[] = "Accept-Language: zh-CN,zh;q=0.8";
-        $httpheader[] = "Connection: close";
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $httpheader);
-        if ($post) {
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-        }
-        if ($header) {
-            curl_setopt($ch, CURLOPT_HEADER, true);
-        }
-        if ($cookie) {
-            curl_setopt($ch, CURLOPT_COOKIE, $cookie);
-        }
-        if ($referer) {
-            curl_setopt($ch, CURLOPT_REFERER, $referer);
-        }
-        if ($ua) {
-            curl_setopt($ch, CURLOPT_USERAGENT, $ua);
-        } else {
-            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36');
-        }
-        if ($nobaody) {
-            curl_setopt($ch, CURLOPT_NOBODY, 1);
-
-        }
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_ENCODING, "gzip");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $ret = curl_exec($ch);
-        if ($split) {
-            $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-            $header = substr($ret, 0, $headerSize);
-            $body = substr($ret, $headerSize);
-            $ret = [];
-            $ret['header'] = $header;
-            $ret['body'] = $body;
-        }
-        curl_close($ch);
-        return $ret;
     }
 
     /**
@@ -305,5 +293,17 @@ class QQLogin
         } else {
             throw new InternalServerErrorException(T($data));
         }
+    }
+
+    private static function getuin($uin)
+    {
+        for ($i = 0; $i < strlen($uin); $i++) {
+            if ($uin[$i] == 'o' || $uin[$i] == '0') {
+                continue;
+            } else {
+                break;
+            }
+        }
+        return substr($uin, $i);
     }
 }

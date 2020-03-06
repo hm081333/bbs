@@ -10,6 +10,8 @@ namespace Common\Domain;
 
 use Library\Exception\BadRequestException;
 use Library\Exception\InternalServerErrorException;
+use Library\Traits\Domain;
+use Library\Traits\Model;
 use PhalApi\Model\NotORMModel;
 use function Common\decrypt;
 use function Common\DI;
@@ -26,31 +28,10 @@ use function PhalApi\T;
  */
 class User
 {
-    use Common;
+    use Domain;
 
     public static $user;
     public static $user_token;
-
-    public static function getSexName($type = false)
-    {
-        $sex = [
-            '1' => '男',
-            '2' => '女',
-        ];
-        if ($type !== false) {
-            return $sex[$type];
-        }
-        return $sex;
-    }
-
-    /**
-     * 用户 数据层
-     * @return \Common\Model\User|\Common\Model\Common|NotORMModel
-     */
-    public static function Model_user()
-    {
-        return self::getModel('User');
-    }
 
     /**
      * 用户登录
@@ -96,30 +77,46 @@ class User
     }
 
     /**
-     * 设置会员登录状态
-     * @param array $user
+     * 用户 数据层
+     * @return \Common\Model\User|Model|NotORMModel
      */
-    public static function setUserToken(array $user)
+    public static function Model_user()
     {
-        //将用户信息存入SESSION中
-        $_SESSION[USER_TOKEN] = encrypt(DI()->serialize->encrypt($user));// 保存在session
+        return self::getModel('User');
     }
 
     /**
-     * 获取会员登录状态
-     * @return mixed
+     * 获取当前会员信息
+     * @param bool $user
+     * @return array
      */
-    public static function getUserToken()
+    public static function getCurrentUserInfo($user = false)
     {
-        return DI()->serialize->decrypt(decrypt($_SESSION[USER_TOKEN] ?? ''));// Session中的会员信息
+        $user = !$user ? self::$user : $user;// 传入user或当前登录user
+        if (!$user) {
+            return [];
+        }
+        return [
+            'user_name' => $user['user_name'],
+            'email' => $user['email'],
+            'real_name' => $user['real_name'],
+            'birth_time' => $user['birth_time_date'],
+            'birth_time_unix' => $user['birth_time_unix'],
+            'sex' => $user['sex'],
+            'sex_name' => self::getSexName($user['sex']),
+        ];
     }
 
-    /**
-     * 注销会员登录状态
-     */
-    public static function unsetUserToken()
+    public static function getSexName($type = false)
     {
-        unset($_SESSION[USER_TOKEN]);
+        $sex = [
+            '1' => '男',
+            '2' => '女',
+        ];
+        if ($type !== false) {
+            return $sex[$type];
+        }
+        return $sex;
     }
 
     /**
@@ -129,6 +126,14 @@ class User
     {
         DI()->response->setMsg(T('退出成功'));
         self::unsetUserToken();
+    }
+
+    /**
+     * 注销会员登录状态
+     */
+    public static function unsetUserToken()
+    {
+        unset($_SESSION[USER_TOKEN]);
     }
 
     /**
@@ -167,8 +172,8 @@ class User
             'reg_time' => time(),
             'status' => 1,
         ];
-        $insert_data['a_pwd'] = \Common\encrypt($insert_data['password']);
-        $insert_data['password'] = \Common\pwd_hash($insert_data['password']);
+        $insert_data['a_pwd'] = encrypt($insert_data['password']);
+        $insert_data['password'] = pwd_hash($insert_data['password']);
         $insert_id = $user_model->insert($insert_data);
 
         if (!$insert_id) {
@@ -215,24 +220,21 @@ class User
     }
 
     /**
-     * 获取当前会员信息
-     * @param bool $user
-     * @return array
+     * 获取会员登录状态
+     * @return mixed
      */
-    public static function getCurrentUserInfo($user = false)
+    public static function getUserToken()
     {
-        $user = !$user ? self::$user : $user;// 传入user或当前登录user
-        if (!$user) {
-            return [];
-        }
-        return [
-            'user_name' => $user['user_name'],
-            'email' => $user['email'],
-            'real_name' => $user['real_name'],
-            'birth_time' => $user['birth_time_date'],
-            'birth_time_unix' => $user['birth_time_unix'],
-            'sex' => $user['sex'],
-            'sex_name' => self::getSexName($user['sex']),
-        ];
+        return DI()->serialize->decrypt(decrypt($_SESSION[USER_TOKEN] ?? ''));// Session中的会员信息
+    }
+
+    /**
+     * 设置会员登录状态
+     * @param array $user
+     */
+    public static function setUserToken(array $user)
+    {
+        //将用户信息存入SESSION中
+        $_SESSION[USER_TOKEN] = encrypt(DI()->serialize->encrypt($user));// 保存在session
     }
 }

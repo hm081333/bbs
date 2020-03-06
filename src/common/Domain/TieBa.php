@@ -12,6 +12,8 @@ namespace Common\Domain;
 use Library\DateHelper;
 use Library\Exception\BadRequestException;
 use Library\Exception\InternalServerErrorException;
+use Library\Traits\Domain;
+use Library\Traits\Model;
 use PhalApi\Model\NotORMModel;
 use function Common\DI;
 use function PhalApi\T;
@@ -27,7 +29,7 @@ use function Sign\textMiddle;
  */
 class TieBa
 {
-    use Common;
+    use Domain;
 
     protected $useragent = 'Mozilla/5.0 (Linux; Android 4.4.2; H650 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36';
     protected $header = [
@@ -45,8 +47,22 @@ class TieBa
     }
 
     /**
+     * 忽略签到
+     * @param $tieba_id
+     * @param $no
+     * @return bool
+     * @throws InternalServerErrorException
+     */
+    public function noSignTieba($tieba_id, $no)
+    {
+        $result = $this->Model_TieBa()->update($tieba_id, ['no' => intval($no)]);
+        if ($result === false) throw new InternalServerErrorException(T('操作失败'));
+        return true;
+    }
+
+    /**
      * 贴吧 数据层
-     * @return \Common\Model\TieBa|\Common\Model\Common|NotORMModel
+     * @return \Common\Model\TieBa|Model|NotORMModel
      */
     protected function Model_TieBa()
     {
@@ -54,30 +70,36 @@ class TieBa
     }
 
     /**
-     * 百度ID 数据层
-     * @return \Common\Model\BaiDuId|\Common\Model\Common|NotORMModel
+     * 添加BDUSS
+     * @param $bduss
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
      */
-    protected function Model_BaiDuId()
+    public function addBduss($bduss)
     {
-        return self::getModel('BaiDuId');
+        // 去除双引号和bduss=
+        $bduss = str_replace('"', '', $bduss);
+        $bduss = str_ireplace('BDUSS=', '', $bduss);
+        $bduss = str_replace(' ', '', $bduss);
+        $bduss = sqlAdds($bduss);
+        $baidu_name = sqlAdds($this->getBaiduId($bduss));
+        if (empty($baidu_name)) throw new BadRequestException(T('您的 BDUSS Cookie 信息有误，请核验后重新绑定'));
+        $this->Domain_BaiDuId()::add($baidu_name, $bduss);
     }
 
     /**
-     * 用户 数据层
-     * @return \Common\Model\User|\Common\Model\Common|NotORMModel
+     * 获取一个bduss对应的百度用户名
+     * @param string $bduss BDUSS
+     * @return string|bool 百度用户名，失败返回FALSE
+     * @throws \PhalApi\Exception\InternalServerErrorException
+     * @throws InternalServerErrorException
      */
-    protected function Model_User()
+    public function getBaiduId($bduss)
     {
-        return self::getModel('User');
-    }
-
-    /**
-     * 百度ID 领域层
-     * @return BaiDuId
-     */
-    protected function Domain_BaiDuId()
-    {
-        return self::getDomain('BaiDuId');
+        $this->cookie = ['BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(time()))];
+        $data = $this->curl('http://wapp.baidu.com/');
+        return urldecode(textMiddle($data, 'i?un=', '">'));
     }
 
     /**
@@ -119,50 +141,12 @@ class TieBa
     }
 
     /**
-     * 忽略签到
-     * @param $tieba_id
-     * @param $no
-     * @return bool
-     * @throws InternalServerErrorException
+     * 百度ID 领域层
+     * @return BaiDuId
      */
-    public function noSignTieba($tieba_id, $no)
+    protected function Domain_BaiDuId()
     {
-        $result = $this->Model_TieBa()->update($tieba_id, ['no' => intval($no)]);
-        if ($result === false) throw new InternalServerErrorException(T('操作失败'));
-        return true;
-    }
-
-    /**
-     * 添加BDUSS
-     * @param $bduss
-     * @throws BadRequestException
-     * @throws InternalServerErrorException
-     * @throws \PhalApi\Exception\InternalServerErrorException
-     */
-    public function addBduss($bduss)
-    {
-        // 去除双引号和bduss=
-        $bduss = str_replace('"', '', $bduss);
-        $bduss = str_ireplace('BDUSS=', '', $bduss);
-        $bduss = str_replace(' ', '', $bduss);
-        $bduss = sqlAdds($bduss);
-        $baidu_name = sqlAdds($this->getBaiduId($bduss));
-        if (empty($baidu_name)) throw new BadRequestException(T('您的 BDUSS Cookie 信息有误，请核验后重新绑定'));
-        $this->Domain_BaiDuId()::add($baidu_name, $bduss);
-    }
-
-    /**
-     * 获取一个bduss对应的百度用户名
-     * @param string $bduss BDUSS
-     * @return string|bool 百度用户名，失败返回FALSE
-     * @throws \PhalApi\Exception\InternalServerErrorException
-     * @throws InternalServerErrorException
-     */
-    public function getBaiduId($bduss)
-    {
-        $this->cookie = ['BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(time()))];
-        $data = $this->curl('http://wapp.baidu.com/');
-        return urldecode(textMiddle($data, 'i?un=', '">'));
+        return self::getDomain('BaiDuId');
     }
 
     /**
@@ -185,6 +169,15 @@ class TieBa
             // $bduss[$upid] = $by['bduss'];
             $this->scanTiebaByPid($by['id']);
         }
+    }
+
+    /**
+     * 百度ID 数据层
+     * @return \Common\Model\BaiDuId|Model|NotORMModel
+     */
+    protected function Model_BaiDuId()
+    {
+        return self::getModel('BaiDuId');
     }
 
     /**
@@ -290,22 +283,6 @@ class TieBa
     }
 
     /**
-     * 得到贴吧 FID
-     * @param string $kw 贴吧名
-     * @return string FID
-     * @throws \PhalApi\Exception\InternalServerErrorException
-     */
-    public function getFid($kw)
-    {
-        $url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw);
-        $s = DI()->curl
-            ->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded', 'Cookie:BAIDUID=' . strtoupper(md5(time()))])
-            ->get($url);
-        $x = easy_match('<input type="hidden" name="fid" value="*"/>', $s);
-        return $x[1] ?? false;
-    }
-
-    /**
      * 执行全部贴吧用户的签到任务
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
@@ -350,6 +327,143 @@ class TieBa
                 $this->doSign($item['tieba'], $item['id'], $item['bduss'], $item['fid']);
             }
         }
+    }
+
+    /**
+     * 对一个贴吧执行完整的签到任务
+     * @param $kw
+     * @param $id
+     * @param $bduss
+     * @param $fid
+     * @return array|mixed
+     * @throws \PhalApi\Exception\InternalServerErrorException
+     */
+    public function doSign($kw, $id, $bduss, $fid)
+    {
+        $again_error_id = 160002; //重复签到错误代码
+        // $again_error_id_2 = 1101; //特殊的重复签到错误代码！！！签到过快=已签到
+        // $again_error_id_3 = 1102; //特殊的重复签到错误代码！！！签到过快=已签到
+        $status_succ = false;
+        $ck = $bduss;
+        $kw = addslashes($kw);
+
+        $update_data = [];
+
+        if (empty($fid)) {
+            $fid = $this->getFid($kw);//贴吧唯一ID
+            // $update_data = array_merge($update_data, ['fid' => $fid]);
+            $update_data['fid'] = $fid;
+        }
+
+        $time = time();
+        $error_code = 0;
+        $error_msg = '';
+        //三种签到方式依次尝试
+        $tbs = $this->getTbs($ck);
+        //客户端
+        if ($status_succ === false) {
+            $r = $this->DoSign_Client($kw, $fid, $ck, $tbs);
+            $v = json_decode($r, true);
+            if ($v != $r && $v != null) {//decode失败时会直接返回原文或NULL
+                $time = $v['time'];
+                if (!empty($v['error_code']) && $v['error_code'] != $again_error_id) {
+                    $error_code = $v['error_code'];
+                    $error_msg = $v['error_msg'];
+                }
+            }
+        }
+
+        /*//手机网页
+        if ($status_succ === false) {
+            $r = self::DoSign_Mobile($kw, $fid, $ck, $tbs);
+            $v = json_decode($r, true);
+            if ($v != $r && $v != NULL) {//decode失败时会直接返回原文或NULL
+                if (empty($v['no']) || $v['no'] == $again_error_id_2 || $v['no'] == $again_error_id_3) {
+                    $status_succ = true;
+                } else {
+                    $error_code = $v['no'];
+                    $error_msg = $v['error'];
+                }
+            }
+        }
+
+        //网页---尽量不用
+        if ($status_succ === false) {
+            if (self::DoSign_Default($kw, $fid, $ck) === true) {
+                $status_succ = true;
+            }
+        }*/
+
+        $update_data['latest'] = $time;
+        $update_data['status'] = $error_code;
+        $update_data['last_error'] = $error_msg;
+
+        $this->Model_TieBa()->update($id, $update_data);
+        // return self::getInfo($id);
+        return true;
+    }
+
+    /**
+     * 得到贴吧 FID
+     * @param string $kw 贴吧名
+     * @return string FID
+     * @throws \PhalApi\Exception\InternalServerErrorException
+     */
+    public function getFid($kw)
+    {
+        $url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw);
+        $s = DI()->curl
+            ->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded', 'Cookie:BAIDUID=' . strtoupper(md5(time()))])
+            ->get($url);
+        $x = easy_match('<input type="hidden" name="fid" value="*"/>', $s);
+        return $x[1] ?? false;
+    }
+
+    /**
+     * 得到TBS
+     * @param $bduss
+     * @return
+     */
+    public function getTbs($bduss)
+    {
+        $url = 'http://tieba.baidu.com/dc/common/tbs';
+        DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://tieba.baidu.com/', 'X-Forwarded-For: 115.28.1.' . mt_rand(1, 255)]);
+        DI()->curl->setCookie(["BDUSS" => $bduss]);
+        $res = DI()->curl->json_get($url);
+        return $res['tbs'];
+    }
+
+    /**
+     * 客户端签到
+     * @param $kw
+     * @param $fid
+     * @param $ck
+     * @param $tbs
+     * @return string
+     * @throws \PhalApi\Exception\InternalServerErrorException
+     */
+    public function DoSign_Client($kw, $fid, $ck, $tbs)
+    {
+        $temp = [
+            'BDUSS' => $ck,
+            '_client_id' => '03-00-DA-59-05-00-72-96-06-00-01-00-04-00-4C-43-01-00-34-F4-02-00-BC-25-09-00-4E-36',
+            '_client_type' => '4',
+            '_client_version' => '1.2.1.17',
+            '_phone_imei' => '540b43b59d21b7a4824e1fd31b08e9a6',
+            'fid' => $fid,
+            'kw' => $kw,
+            'net_type' => '3',
+            'tbs' => $tbs,
+        ];
+        $x = '';
+        foreach ($temp as $k => $v) {
+            $x .= $k . '=' . $v;
+        }
+        $temp['sign'] = strtoupper(md5($x . 'tiebaclient!!!'));
+        $url = 'http://c.tieba.baidu.com/c/c/forum/sign';
+        DI()->curl->setHeader(['Content-Type: application/x-www-form-urlencoded', 'User-Agent: Fucking iPhone/1.0 BadApple/99.1']);
+        DI()->curl->setCookie(["BDUSS" => $ck]);
+        return DI()->curl->post($url, $temp);
     }
 
     /**
@@ -514,6 +628,20 @@ class TieBa
     }
 
     /**
+     * 得到BDUSS
+     * @param int|string $baidu_id 贴吧用户PID
+     */
+    /*public static function getCookie($baidu_id)
+    {
+        if (empty($baidu_id)) {
+            return false;
+        }
+        $baiduid_model = new Model_BaiduId();
+        $temp = $baiduid_model->get($baidu_id);
+        return $temp['bduss'];
+    }*/
+
+    /**
      * 执行一个贴吧的签到
      * @param $tieba_id
      * @return array|mixed
@@ -542,141 +670,6 @@ class TieBa
         if (empty($tieba_info)) throw new BadRequestException(T('您没有该贴吧'));
         $this->doSign($tieba_info['tieba'], $tieba_id, $tieba_info['bduss'], $tieba_info['fid']);
         return self::getInfo($tieba_id);
-    }
-
-    /**
-     * 对一个贴吧执行完整的签到任务
-     * @param $kw
-     * @param $id
-     * @param $bduss
-     * @param $fid
-     * @return array|mixed
-     * @throws \PhalApi\Exception\InternalServerErrorException
-     */
-    public function doSign($kw, $id, $bduss, $fid)
-    {
-        $again_error_id = 160002; //重复签到错误代码
-        // $again_error_id_2 = 1101; //特殊的重复签到错误代码！！！签到过快=已签到
-        // $again_error_id_3 = 1102; //特殊的重复签到错误代码！！！签到过快=已签到
-        $status_succ = false;
-        $ck = $bduss;
-        $kw = addslashes($kw);
-
-        $update_data = [];
-
-        if (empty($fid)) {
-            $fid = $this->getFid($kw);//贴吧唯一ID
-            // $update_data = array_merge($update_data, ['fid' => $fid]);
-            $update_data['fid'] = $fid;
-        }
-
-        $time = time();
-        $error_code = 0;
-        $error_msg = '';
-        //三种签到方式依次尝试
-        $tbs = $this->getTbs($ck);
-        //客户端
-        if ($status_succ === false) {
-            $r = $this->DoSign_Client($kw, $fid, $ck, $tbs);
-            $v = json_decode($r, true);
-            if ($v != $r && $v != null) {//decode失败时会直接返回原文或NULL
-                $time = $v['time'];
-                if (!empty($v['error_code']) && $v['error_code'] != $again_error_id) {
-                    $error_code = $v['error_code'];
-                    $error_msg = $v['error_msg'];
-                }
-            }
-        }
-
-        /*//手机网页
-        if ($status_succ === false) {
-            $r = self::DoSign_Mobile($kw, $fid, $ck, $tbs);
-            $v = json_decode($r, true);
-            if ($v != $r && $v != NULL) {//decode失败时会直接返回原文或NULL
-                if (empty($v['no']) || $v['no'] == $again_error_id_2 || $v['no'] == $again_error_id_3) {
-                    $status_succ = true;
-                } else {
-                    $error_code = $v['no'];
-                    $error_msg = $v['error'];
-                }
-            }
-        }
-
-        //网页---尽量不用
-        if ($status_succ === false) {
-            if (self::DoSign_Default($kw, $fid, $ck) === true) {
-                $status_succ = true;
-            }
-        }*/
-
-        $update_data['latest'] = $time;
-        $update_data['status'] = $error_code;
-        $update_data['last_error'] = $error_msg;
-
-        $this->Model_TieBa()->update($id, $update_data);
-        // return self::getInfo($id);
-        return true;
-    }
-
-    /**
-     * 得到BDUSS
-     * @param int|string $baidu_id 贴吧用户PID
-     */
-    /*public static function getCookie($baidu_id)
-    {
-        if (empty($baidu_id)) {
-            return false;
-        }
-        $baiduid_model = new Model_BaiduId();
-        $temp = $baiduid_model->get($baidu_id);
-        return $temp['bduss'];
-    }*/
-
-    /**
-     * 得到TBS
-     * @param $bduss
-     * @return
-     */
-    public function getTbs($bduss)
-    {
-        $url = 'http://tieba.baidu.com/dc/common/tbs';
-        DI()->curl->setHeader(['User-Agent: fuck phone', 'Referer: http://tieba.baidu.com/', 'X-Forwarded-For: 115.28.1.' . mt_rand(1, 255)]);
-        DI()->curl->setCookie(["BDUSS" => $bduss]);
-        $res = DI()->curl->json_get($url);
-        return $res['tbs'];
-    }
-
-    /**
-     * 客户端签到
-     * @param $kw
-     * @param $fid
-     * @param $ck
-     * @param $tbs
-     * @return string
-     * @throws \PhalApi\Exception\InternalServerErrorException
-     */
-    public function DoSign_Client($kw, $fid, $ck, $tbs)
-    {
-        $temp = [
-            'BDUSS' => $ck,
-            '_client_id' => '03-00-DA-59-05-00-72-96-06-00-01-00-04-00-4C-43-01-00-34-F4-02-00-BC-25-09-00-4E-36',
-            '_client_type' => '4',
-            '_client_version' => '1.2.1.17',
-            '_phone_imei' => '540b43b59d21b7a4824e1fd31b08e9a6',
-            'fid' => $fid,
-            'kw' => $kw,
-            'net_type' => '3',
-            'tbs' => $tbs,
-        ];
-        $x = '';
-        foreach ($temp as $k => $v) {
-            $x .= $k . '=' . $v;
-        }
-        $temp['sign'] = strtoupper(md5($x . 'tiebaclient!!!'));
-        $url = 'http://c.tieba.baidu.com/c/c/forum/sign';
-        DI()->curl->setHeader(['Content-Type: application/x-www-form-urlencoded', 'User-Agent: Fucking iPhone/1.0 BadApple/99.1']);
-        DI()->curl->setCookie(["BDUSS" => $ck]);
-        return DI()->curl->post($url, $temp);
     }
 
     /**
@@ -1159,6 +1152,15 @@ class TieBa
             throw new InternalServerErrorException(T('登录失败，原因未知'));
             // return ['code' => '-1', 'msg' => '登录失败，原因未知'];
         }
+    }
+
+    /**
+     * 用户 数据层
+     * @return \Common\Model\User|Model|NotORMModel
+     */
+    protected function Model_User()
+    {
+        return self::getModel('User');
     }
 
 }

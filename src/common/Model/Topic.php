@@ -8,6 +8,8 @@
 
 namespace Common\Model;
 
+use Library\Traits\Model;
+use NotORM_Literal;
 use PhalApi\Model\NotORMModel as NotORM;
 
 
@@ -19,12 +21,7 @@ use PhalApi\Model\NotORMModel as NotORM;
  */
 class Topic extends NotORM
 {
-    use Common;
-
-    protected function getTableName($id)
-    {
-        return 'topic';
-    }
+    use Model;
 
     /**
      * 更新文章查看数量
@@ -34,7 +31,7 @@ class Topic extends NotORM
      */
     public function updateViewCount($id, $type = '+')
     {
-        return $this->getORM()->where($id)->update(['view' => new \NotORM_Literal("view {$type} 1")]);// 浏览数+1
+        return $this->getORM()->where($id)->update(['view' => new NotORM_Literal("view {$type} 1")]);// 浏览数+1
     }
 
     /**
@@ -45,7 +42,12 @@ class Topic extends NotORM
      */
     public function updateReplyCount($id, $type = '+')
     {
-        return $this->getORM()->where($id)->update(['reply' => new \NotORM_Literal("reply {$type} 1")]);// 浏览数+1
+        return $this->getORM()->where($id)->update(['reply' => new NotORM_Literal("reply {$type} 1")]);// 浏览数+1
+    }
+
+    protected function getTableName($id)
+    {
+        return 'topic';
     }
 
 }

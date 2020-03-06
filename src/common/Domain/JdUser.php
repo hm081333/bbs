@@ -13,6 +13,7 @@ use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
 use Library\Exception\BadRequestException;
 use Library\Exception\Exception;
 use Library\Exception\InternalServerErrorException;
+use Library\Traits\Domain;
 use function PhalApi\T;
 
 /**
@@ -23,15 +24,7 @@ use function PhalApi\T;
  */
 class JdUser
 {
-    use Common;
-
-    /**
-     * @return JdSign
-     */
-    public static function Domain_JdSign()
-    {
-        return self::getDomain('JdSign');
-    }
+    use Domain;
 
     public static function statusNames($status = false)
     {
@@ -108,15 +101,11 @@ class JdUser
     }
 
     /**
-     * 修改账号状态
-     * @param     $id
-     * @param int $status
-     * @return int|TRUE
+     * @return JdSign
      */
-    public static function changeStatus($id, $status = 2)
+    public static function Domain_JdSign()
     {
-        $modelJdUser = self::getModel();
-        return $modelJdUser->update($id, ['status' => $status]);
+        return self::getDomain('JdSign');
     }
 
     /**
@@ -144,6 +133,18 @@ class JdUser
         $wechat = self::getDomain('WeChatPublicPlatform');
         $wechat->sendJDLoginStatusExpiredWarn($info);
         return true;
+    }
+
+    /**
+     * 修改账号状态
+     * @param     $id
+     * @param int $status
+     * @return int|TRUE
+     */
+    public static function changeStatus($id, $status = 2)
+    {
+        $modelJdUser = self::getModel();
+        return $modelJdUser->update($id, ['status' => $status]);
     }
 
 }

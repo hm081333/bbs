@@ -2,6 +2,9 @@
 
 namespace Common\Api;
 
+use Library\Exception\BadRequestException;
+use Library\Traits\Api;
+
 /**
  * 百度ID 接口服务类
  * BaiDuId
@@ -9,7 +12,7 @@ namespace Common\Api;
  */
 class BaiDuId extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {
@@ -23,7 +26,7 @@ class BaiDuId extends Base
 
     /**
      * 更新BDUSS
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     public function doInfo()
     {

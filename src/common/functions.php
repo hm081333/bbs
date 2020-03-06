@@ -2,14 +2,18 @@
 
 namespace Common;
 
+use Library\Crypt\RSA\KeyGenerator;
+use Library\DependenceInjection;
+use Library\Tool\HtmlCompress;
+
 /**
  * 获取DI
  * 相当于DependenceInjection::one()
- * @return \Library\DependenceInjection
+ * @return DependenceInjection
  */
 function DI()
 {
-    return \Library\DependenceInjection::one();
+    return DependenceInjection::one();
 }
 
 /**
@@ -119,7 +123,7 @@ function create_openssl_pkey()
 {
     $config = DI()->config->get('sys.openssl');// 配置信息
     $config_args = $config['config'];// 用来调整导出流程，通过指定或者覆盖openssl配置文件选项
-    $pkey = new \Library\Crypt\RSA\KeyGenerator($config_args);
+    $pkey = new KeyGenerator($config_args);
     file_put_contents($config['privateKey'], $pkey->getPriKey());// 把私钥写入指定路径文件
     file_put_contents($config['publicKey'], $pkey->getPubKey());// 把公钥写入指定路径文件
 }
@@ -153,9 +157,9 @@ function decrypt(string $data, string $method = 'AES-256-CFB')
 
 /**
  * 密码加密方法
- * @param string $password 需要加密的密码
- * @param string|int $algo 加密模式
- * @param array|NULL $options 加密选项
+ * @param string     $password 需要加密的密码
+ * @param string|int $algo     加密模式
+ * @param array|NULL $options  加密选项
  * @return bool|string
  */
 function pwd_hash(string $password, $algo = PASSWORD_DEFAULT, array $options = null)
@@ -170,7 +174,7 @@ function pwd_hash(string $password, $algo = PASSWORD_DEFAULT, array $options = n
 /**
  * 密码验证方法
  * @param string $password 需要对比的密码
- * @param string $hash 加密后的密码
+ * @param string $hash     加密后的密码
  * @return bool
  */
 function pwd_verify(string $password, string $hash)
@@ -204,8 +208,8 @@ function showFourZeroFourPage()
     //获取当前缓冲区内容
     //$content = ob_get_contents(); // 仅输出
     $content = ob_get_clean(); // 输出并清空关闭
-    $content = \Library\Tool\HtmlCompress::higrid_compress_html($content); // 正则删除无关代码
-    $content = \Library\Tool\HtmlCompress::compress_html($content); // 正则删除无关代码
+    $content = HtmlCompress::higrid_compress_html($content); // 正则删除无关代码
+    $content = HtmlCompress::compress_html($content); // 正则删除无关代码
     exit($content);
 }
 
@@ -338,7 +342,7 @@ function emptyDir($path)
         if (($file != '.') && ($file != '..')) {
             $full = $path . '/' . $file;
             if (is_dir($full)) {
-                \Common\deleteDir($full);
+                deleteDir($full);
             } else {
                 unlink($full);
             }

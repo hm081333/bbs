@@ -1,6 +1,8 @@
 <?php
+
 namespace App;
 
-function hello() {
+function hello()
+{
     return 'Hey, man~';
 }

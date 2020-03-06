@@ -2,6 +2,8 @@
 
 namespace Sign\Api;
 
+use Library\Traits\Api;
+
 /**
  * 百度ID 接口服务类
  * BaiDuId
@@ -9,7 +11,7 @@ namespace Sign\Api;
  */
 class BaiDuId extends \Common\Api\BaiDuId
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {

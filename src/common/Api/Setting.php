@@ -2,6 +2,8 @@
 
 namespace Common\Api;
 
+use Library\Traits\Api;
+
 /**
  * 管理员模块接口服务类
  * Setting
@@ -9,7 +11,7 @@ namespace Common\Api;
  */
 class Setting extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {

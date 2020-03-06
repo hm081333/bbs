@@ -5,7 +5,7 @@ namespace Common\Api;
 use Library\Exception\BadRequestException;
 use Library\Exception\Exception;
 use Library\Exception\InternalServerErrorException;
-use PhalApi\Tool;
+use Library\Traits\Api;
 use Sign\Domain\QQLogin;
 use function Common\DI;
 use function PhalApi\T;
@@ -17,7 +17,7 @@ use function PhalApi\T;
  */
 class TieBa extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {
@@ -104,15 +104,6 @@ class TieBa extends Base
     }
 
     /**
-     * 贴吧 领域层
-     * @return \Common\Domain\TieBa
-     */
-    protected function Domain_TieBa()
-    {
-        return self::getDomain('TieBa');
-    }
-
-    /**
      * 手动添加BDUSS
      * @return mixed
      * @throws BadRequestException
@@ -122,6 +113,15 @@ class TieBa extends Base
     public function add()
     {
         $this->Domain_TieBa()->addBduss($this->bduss);
+    }
+
+    /**
+     * 贴吧 领域层
+     * @return \Common\Domain\TieBa
+     */
+    protected function Domain_TieBa()
+    {
+        return self::getDomain('TieBa');
     }
 
     /**

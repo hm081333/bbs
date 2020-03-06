@@ -4,9 +4,8 @@ namespace Library\Wechat\Message\Event;
 
 use Common\Domain\TuLing;
 use EasyWeChat\Kernel\Contracts\EventHandlerInterface;
-use EasyWeChat\Kernel\Messages\NewsItem as ReturnNewsItem;
 use EasyWeChat\Kernel\Messages\News as ReturnNews;
-use EasyWeChat\Kernel\Messages\Text as ReturnText;
+use EasyWeChat\Kernel\Messages\NewsItem as ReturnNewsItem;
 use function Common\DI;
 
 /**

@@ -8,6 +8,8 @@
 
 namespace Common\Domain;
 
+use Library\Traits\Domain;
+
 /**
  * 文章回复 领域层
  * Class Reply
@@ -16,11 +18,11 @@ namespace Common\Domain;
  */
 class Reply
 {
-    use Common;
+    use Domain;
 
     public static function doInfo($data)
     {
-        $user = $user = self::getDomain('User')::getCurrentUser(TRUE);// 当前登录的会员
+        $user = $user = self::getDomain('User')::getCurrentUser(true);// 当前登录的会员
 
         $topicId = $data['topicId'];
 

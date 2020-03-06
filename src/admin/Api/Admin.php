@@ -2,6 +2,11 @@
 
 namespace Admin\Api;
 
+use Library\Exception\BadRequestException;
+use Library\Traits\Api;
+use function Common\encrypt;
+use function Common\pwd_hash;
+
 /**
  * 管理员模块接口服务类
  * Admin
@@ -9,7 +14,7 @@ namespace Admin\Api;
  */
 class Admin extends \Common\Api\Admin
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {
@@ -27,7 +32,7 @@ class Admin extends \Common\Api\Admin
     /**
      * 修改管理员信息
      * @desc 修改管理员信息
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     public function doInfo()
     {
@@ -37,8 +42,8 @@ class Admin extends \Common\Api\Admin
             'status' => $this->status,
         ];
         if (!empty($this->password)) {
-            $update['a_pwd'] = \Common\encrypt($this->password);
-            $update['password'] = \Common\pwd_hash($this->password);
+            $update['a_pwd'] = encrypt($this->password);
+            $update['password'] = pwd_hash($this->password);
         }
         if (empty($this->id)) {
             $update['add_time'] = time();

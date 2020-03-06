@@ -4,6 +4,7 @@ namespace Common\Api;
 
 use Library\Exception\BadRequestException;
 use Library\Exception\Exception;
+use Library\Traits\Api;
 
 /**
  * 京东签到 接口服务类
@@ -12,7 +13,7 @@ use Library\Exception\Exception;
  */
 class JdSign extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {
@@ -26,24 +27,6 @@ class JdSign extends Base
             'status' => ['name' => 'status', 'type' => 'enum', 'range' => [0, 1], 'require' => true, 'desc' => '签到状态'],
         ];
         return $rules;
-    }
-
-    /**
-     * 京东签到 领域层
-     * @return \Common\Domain\JdSign
-     */
-    protected function Domain_JdSign()
-    {
-        return self::getDomain('JdSign');
-    }
-
-    /**
-     * 京东签到项 领域层
-     * @return \Common\Domain\JdSignItem
-     */
-    protected function Domain_JdSignItem()
-    {
-        return self::getDomain('JdSignItem');
     }
 
     /**
@@ -62,6 +45,24 @@ class JdSign extends Base
             return $value;
         });
         return $list;
+    }
+
+    /**
+     * 京东签到 领域层
+     * @return \Common\Domain\JdSign
+     */
+    protected function Domain_JdSign()
+    {
+        return self::getDomain('JdSign');
+    }
+
+    /**
+     * 京东签到项 领域层
+     * @return \Common\Domain\JdSignItem
+     */
+    protected function Domain_JdSignItem()
+    {
+        return self::getDomain('JdSignItem');
     }
 
     /**

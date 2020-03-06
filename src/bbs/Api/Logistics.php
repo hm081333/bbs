@@ -2,6 +2,8 @@
 
 namespace Bbs\Api;
 
+use Library\Traits\Api;
+
 /**
  * 物流公司 接口服务类
  * Logistics
@@ -9,7 +11,7 @@ namespace Bbs\Api;
  */
 class Logistics extends \Common\Api\Logistics
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {

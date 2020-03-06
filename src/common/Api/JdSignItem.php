@@ -2,6 +2,8 @@
 
 namespace Common\Api;
 
+use Library\Traits\Api;
+
 /**
  * 京东签到项 接口服务类
  * JdSignItem
@@ -9,7 +11,7 @@ namespace Common\Api;
  */
 class JdSignItem extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {

@@ -8,8 +8,9 @@
 
 namespace Bbs\Domain;
 
+use Library\Traits\Domain;
+
 class Subject extends \Common\Domain\Subject
 {
-    use \Common\Domain\Common;
-
+    use Domain;
 }

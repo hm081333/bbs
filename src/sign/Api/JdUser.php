@@ -2,6 +2,8 @@
 
 namespace Sign\Api;
 
+use Library\Traits\Api;
+
 /**
  * 京东账号 接口服务类
  * JdUser
@@ -9,7 +11,7 @@ namespace Sign\Api;
  */
 class JdUser extends \Common\Api\JdUser
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {

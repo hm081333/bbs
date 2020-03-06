@@ -8,6 +8,10 @@
 
 namespace Common\Domain;
 
+use Library\Exception\InternalServerErrorException;
+use Library\Traits\Domain;
+use function PhalApi\T;
+
 /**
  * 文章 领域层
  * Class Subject
@@ -16,7 +20,7 @@ namespace Common\Domain;
  */
 class Topic
 {
-    use Common;
+    use Domain;
 
     public static function create($data)
     {
@@ -27,7 +31,7 @@ class Topic
         // } else if (empty($data['subject_id'])) {
         //     throw new PhalApi_Exception_Error(T('请选择课程'), 1);// 抛出普通错误 T标签翻译
         // }
-        $user = self::getDomain('User')::getCurrentUser(TRUE);// 当前登录的会员
+        $user = self::getDomain('User')::getCurrentUser(true);// 当前登录的会员
         $topic_model = self::getModel();
         $insert_data = [];
         $insert_data['class_id'] = $data['subject_id'];
@@ -42,10 +46,10 @@ class Topic
         }*/
         $topic_id = $topic_model->insert($insert_data);
         if ($topic_id) {
-            self::DI()->response->setMsg(\PhalApi\T('发布成功'));
+            self::DI()->response->setMsg(T('发布成功'));
             return ['topic_id' => $topic_id];
         } else {
-            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('发布失败'), 2);// 抛出服务端错误
+            throw new InternalServerErrorException(T('发布失败'), 2);// 抛出服务端错误
         }
     }
 }

@@ -8,13 +8,15 @@
 
 namespace Bbs\Model;
 
+use Library\Traits\Model;
+
 class Subject extends \Common\Model\Subject
 {
-    use \Common\Model\Common;
-    
+    use Model;
+
     protected function getTableName($id)
     {
         return 'class';
     }
-    
+
 }

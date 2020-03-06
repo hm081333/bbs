@@ -5,6 +5,8 @@ namespace Common\Domain;
 
 
 use Library\Exception\InternalServerErrorException;
+use Library\Traits\Domain;
+use Library\Traits\Model;
 use PhalApi\Model\NotORMModel;
 use function PhalApi\T;
 
@@ -15,20 +17,11 @@ use function PhalApi\T;
  */
 class JdSignLog
 {
-    use Common;
+    use Domain;
 
     protected $sign_key;
     protected $reward_type;
     protected $jd_sign_id;
-
-    /**
-     * 京东签到记录 数据层
-     * @return \Common\Model\JdSignLog|\Common\Model\Common|NotORMModel
-     */
-    protected function Model_JdSignLog()
-    {
-        return self::getModel('JdSignLog');
-    }
 
     /**
      * 设置签到项的key
@@ -38,17 +31,6 @@ class JdSignLog
     public function setSignKey($sign_key)
     {
         $this->sign_key = $sign_key;
-        return $this;
-    }
-
-    /**
-     * 设置收益类型
-     * @param $reward_type
-     * @return $this
-     */
-    public function setRewardType($reward_type)
-    {
-        $this->reward_type = $reward_type;
         return $this;
     }
 
@@ -72,6 +54,56 @@ class JdSignLog
     public function bean($num, $memo = [])
     {
         $this->setRewardType('bean')->log($num, $memo);
+    }
+
+    /**
+     * 写入签到记录
+     * @param $num
+     * @param $memo
+     * @throws InternalServerErrorException
+     */
+    public function log($num, $memo = [])
+    {
+        if (empty($num)) {
+            return false;
+        }
+        if (empty($this->sign_key) || empty($this->reward_type) || empty($this->jd_sign_id)) {
+            throw new InternalServerErrorException(T('系统异常'));
+        }
+        if (is_array($memo)) {
+            $memo = serialize($memo);
+        }
+        $insert_res = $this->Model_JdSignLog()->insert([
+            'jd_sign_id' => $this->jd_sign_id,
+            'sign_key' => $this->sign_key,
+            'add_time' => time(),
+            'reward_type' => $this->reward_type,
+            'num' => $num,
+            'memo' => $memo,
+        ]);
+        if (!$insert_res) {
+            throw new InternalServerErrorException(T('写入签到记录失败'));
+        }
+    }
+
+    /**
+     * 京东签到记录 数据层
+     * @return \Common\Model\JdSignLog|Model|NotORMModel
+     */
+    protected function Model_JdSignLog()
+    {
+        return self::getModel('JdSignLog');
+    }
+
+    /**
+     * 设置收益类型
+     * @param $reward_type
+     * @return $this
+     */
+    public function setRewardType($reward_type)
+    {
+        $this->reward_type = $reward_type;
+        return $this;
     }
 
     /**
@@ -104,36 +136,8 @@ class JdSignLog
      */
     public function coin($num, $memo = [])
     {
+        var_dump($this);
+        die;
         $this->setRewardType('coin')->log($num, $memo);
-    }
-
-    /**
-     * 写入签到记录
-     * @param $num
-     * @param $memo
-     * @throws InternalServerErrorException
-     */
-    public function log($num, $memo = [])
-    {
-        if (empty($num)) {
-            return false;
-        }
-        if (empty($this->sign_key) || empty($this->reward_type) || empty($this->jd_sign_id)) {
-            throw new InternalServerErrorException(T('系统异常'));
-        }
-        if (is_array($memo)) {
-            $memo = serialize($memo);
-        }
-        $insert_res = $this->Model_JdSignLog()->insert([
-            'jd_sign_id' => $this->jd_sign_id,
-            'sign_key' => $this->sign_key,
-            'add_time' => time(),
-            'reward_type' => $this->reward_type,
-            'num' => $num,
-            'memo' => $memo,
-        ]);
-        if (!$insert_res) {
-            throw new InternalServerErrorException(T('写入签到记录失败'));
-        }
     }
 }

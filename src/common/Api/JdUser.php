@@ -2,6 +2,11 @@
 
 namespace Common\Api;
 
+use Library\Exception\BadRequestException;
+use Library\Traits\Api;
+use Library\Traits\Model;
+use PhalApi\Model\NotORMModel;
+
 /**
  * 京东账号 接口服务类
  * JdUser
@@ -9,7 +14,7 @@ namespace Common\Api;
  */
 class JdUser extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {
@@ -21,33 +26,6 @@ class JdUser extends Base
             'pt_token' => ['name' => 'pt_token', 'type' => 'string', 'require' => true, 'desc' => "pt_token"],
         ];
         return $rules;
-    }
-
-    /**
-     * 京东会员 领域层
-     * @return \Common\Domain\JdUser
-     */
-    protected function Domain_JdUser()
-    {
-        return self::getDomain('JdUser');
-    }
-
-    /**
-     * 京东签到 领域层
-     * @return \Common\Model\JdSign|\Common\Model\Common|\PhalApi\Model\NotORMModel
-     */
-    protected function Model_JdSign()
-    {
-        return self::getModel('JdSign');
-    }
-
-    /**
-     * 京东签到项 领域层
-     * @return \Common\Model\JdSignItem|\Common\Model\Common|\PhalApi\Model\NotORMModel
-     */
-    protected function Model_JdSignItem()
-    {
-        return self::getModel('JdSignItem');
     }
 
     /**
@@ -80,6 +58,33 @@ class JdUser extends Base
     }
 
     /**
+     * 京东会员 领域层
+     * @return \Common\Domain\JdUser
+     */
+    protected function Domain_JdUser()
+    {
+        return self::getDomain('JdUser');
+    }
+
+    /**
+     * 京东签到 领域层
+     * @return \Common\Model\JdSign|Model|NotORMModel
+     */
+    protected function Model_JdSign()
+    {
+        return self::getModel('JdSign');
+    }
+
+    /**
+     * 京东签到项 领域层
+     * @return \Common\Model\JdSignItem|Model|NotORMModel
+     */
+    protected function Model_JdSignItem()
+    {
+        return self::getModel('JdSignItem');
+    }
+
+    /**
      * 列表数据 不分页
      * @desc      获取列表数据 不分页
      * @return array    数据列表
@@ -94,7 +99,7 @@ class JdUser extends Base
 
     /**
      * 更新京东账号
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     public function doInfo()
     {

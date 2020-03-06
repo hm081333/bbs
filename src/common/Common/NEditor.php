@@ -8,18 +8,13 @@
 
 namespace Common\Common;
 
+use Library\Exception\BadRequestException;
+use Library\Uploader;
 use function Common\DI;
+use function PhalApi\T;
 
 class NEditor
 {
-
-    /**
-     * @return mixed
-     */
-    public static function getConfig()
-    {
-        return DI()->config->get('neditor');
-    }
 
     /**
      * 上传操作
@@ -69,7 +64,7 @@ class NEditor
                 break;
         }
         /* 生成上传实例对象并完成上传 */
-        $up = new \Library\Uploader($fieldName, $config, $base64);
+        $up = new Uploader($fieldName, $config, $base64);
         /**
          * 得到上传文件所对应的各个参数,数组结构
          * array(
@@ -84,11 +79,19 @@ class NEditor
         $result = $up->getFileInfo();
         // DI()->logger->debug(json_encode($up->getFileInfo()));
         if (strtolower($result['state']) != 'success') {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T($result['state']));
+            throw new BadRequestException(T($result['state']));
         }
         /* 返回数据 */
         return $up->getFileInfo();
 
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getConfig()
+    {
+        return DI()->config->get('neditor');
     }
 
     public static function list($action)
@@ -200,7 +203,7 @@ class NEditor
             $source = $_GET[$fieldName];
         }
         foreach ($source as $imgUrl) {
-            $item = new \Library\Uploader($imgUrl, $config, "remote");
+            $item = new Uploader($imgUrl, $config, "remote");
             $info = $item->getFileInfo();
             array_push($list, [
                 "state" => $info["state"],

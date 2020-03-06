@@ -53,6 +53,11 @@ $di->notorm = new \Library\Database\NotORMDatabase($di->config->get('dbs'), $di-
 
 /** ---------------- 定制注册 可选服务组件 ---------------- **/
 
+// 类实例暂存
+$di->class = function () use ($di) {
+    return new \Library\Tool\ClassInstance();
+};
+
 // 签名验证服务
 // $di->filter = new \PhalApi\Filter\SimpleMD5Filter();
 

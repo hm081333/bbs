@@ -10,10 +10,11 @@ namespace Common\Domain;
 
 use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
 use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
-use Library\DateHelper;
 use Library\Exception\BadRequestException;
 use Library\Exception\Exception;
 use Library\Exception\InternalServerErrorException;
+use Library\Traits\Domain;
+use Library\Traits\Model;
 use PhalApi\Model\NotORMModel;
 use function Common\DI;
 use function Common\multi_array_merge;
@@ -27,7 +28,7 @@ use function PhalApi\T;
  */
 class JdSign
 {
-    use Common;
+    use Domain;
 
     private $sign_key;
     private $offset = 0;
@@ -136,6 +137,24 @@ class JdSign
     }
 
     /**
+     * 京东签到项 数据层
+     * @return \Common\Model\JdSign|Model|NotORMModel
+     */
+    protected function Model_JdSign()
+    {
+        return self::getModel('JdSign');
+    }
+
+    /**
+     * 京东会员 数据层
+     * @return \Common\Model\JdUser|Model|NotORMModel
+     */
+    protected function Model_JdUser()
+    {
+        return self::getModel('JdUser');
+    }
+
+    /**
      * 更改京东签到项目状态
      * @param $jd_sign_id
      * @param $status
@@ -145,42 +164,6 @@ class JdSign
         DI()->response->setMsg(T('操作成功'));
         $modelJdSign = $this->Model_JdSign();
         $modelJdSign->update($jd_sign_id, ['status' => intval($status)]);
-    }
-
-    /**
-     * 京东会员 逻辑层
-     * @return JdUser
-     */
-    protected function Domain_JdUser()
-    {
-        return self::getDomain('JdUser');
-    }
-
-    /**
-     * 京东签到项 数据层
-     * @return \Common\Model\JdSign|\Common\Model\Common|NotORMModel
-     */
-    protected function Model_JdSign()
-    {
-        return self::getModel('JdSign');
-    }
-
-    /**
-     * 京东会员 数据层
-     * @return \Common\Model\JdUser|\Common\Model\Common|NotORMModel
-     */
-    protected function Model_JdUser()
-    {
-        return self::getModel('JdUser');
-    }
-
-    /**
-     * 京东签到记录 领域层
-     * @return JdSignLog
-     */
-    protected function Domain_JdSignLog()
-    {
-        return self::getDomain('JdSignLog');
     }
 
     /**
@@ -197,13 +180,12 @@ class JdSign
     }
 
     /**
-     * 判断时间戳是不是今天
-     * @param $timestamp
-     * @return bool
+     * 京东签到记录 领域层
+     * @return JdSignLog
      */
-    private function is_today($timestamp)
+    protected function Domain_JdSignLog()
     {
-        return $timestamp >= $this->day_begin;
+        return self::getDomain('JdSignLog');
     }
 
     /**
@@ -250,6 +232,8 @@ class JdSign
         $jd_sign_info = $this->getJDSignInfo($jd_sign_id, $jd_sign_info);
         // 设置日志记录的签到ID
         $this->Domain_JdSignLog()->setJdSignId($jd_sign_info['id']);
+        var_dump($this->Domain_JdSignLog()->coin(1));
+        die;
         switch ($this->sign_key) {
             case 'bean':
                 // 签到领京豆 - 京豆
@@ -360,130 +344,6 @@ class JdSign
     }
 
     /**
-     * 初始化签到更新数据
-     * @param array $data
-     * @return array
-     */
-    private function initUpdateSignData($data = [])
-    {
-        return \Common\multi_array_merge([
-            // 上次运行时间
-            'last_time' => time(),
-            'return_data' => [
-                // 签到状态
-                'status' => 0,
-                // 今天 获得京豆数量
-                'bean_award_day' => 0,
-                // 总共 获得京豆数量
-                'bean_award_total' => 0,
-                // 今天 获得营养液数量
-                'nutrients_day' => 0,
-                // 总共 获得营养液数量
-                'nutrients_total' => 0,
-                // 签到时间
-                'sign_time' => time(),
-                // 下次运行时间
-                'next_time' => $this->day_begin + 86400,
-            ],
-        ], $data);
-    }
-
-    /**
-     * 获取签到状态
-     * @param bool|array $jd_user
-     * @return array
-     * @throws BadRequestException
-     */
-    public function getSignStatus($jd_user = false)
-    {
-        if (empty($jd_user)) throw new BadRequestException(T('非法参数'));
-        $sign_list = $this->Model_JdSign()->getListByWhere(['jd_user_id' => $jd_user['id'], 'status' => 1], 'sign_key,return_data');
-        if (empty($sign_list)) {
-            throw new BadRequestException(T('该用户不存在开启中的签到'));
-        }
-
-        $jd_sign_count = count($sign_list);
-        $bean_award_day = 0;
-        $bean_award_total = 0;
-        $nutrients_day = 0;
-        $nutrients_total = 0;
-        foreach ($sign_list as $sign_info) {
-            $return_data = unserialize($sign_info['return_data']);
-            $bean_award_day += $return_data['bean_award_day'] ?? 0;
-            $bean_award_total += $return_data['bean_award_total'] ?? 0;
-            if ($sign_info['sign_key'] != 'doubleSign') {
-                $nutrients_day += $return_data['nutrients_day'] ?? 0;
-                $nutrients_total += $return_data['nutrients_total'] ?? 0;
-            }
-        }
-        unset($sign_info, $sign_list);
-
-        $h = date('G', time());
-        if ($h < 11) {
-            $greeting = '早上好！！！';
-        } else if ($h < 13) {
-            $greeting = '中午好！！！';
-        } else if ($h < 17) {
-            $greeting = '下午好！！！';
-        } else {
-            $greeting = '晚上好！！！';
-        }
-        $result = [];
-        $result['user_name'] = $jd_user['user_name'];
-        $result['greeting'] = $greeting;
-        $result['jd_sign_count'] = $jd_sign_count;
-        $result['bean_award_day'] = $bean_award_day;
-        $result['nutrients_day'] = $nutrients_day;
-        $result['bean_award_total'] = $bean_award_total;
-        $result['nutrients_total'] = $nutrients_total;
-        return $result;
-    }
-
-    /**
-     * 构建请求链接
-     * @param string       $url    请求地址
-     * @param array|string $params 请求参数
-     * @return string
-     * @throws Exception
-     */
-    private function buildURL($url, $params = [])
-    {
-        $url_info = parse_url($url);
-        if (!$url_info) throw new Exception('非法请求地址');
-        // URL携带的参数转成数组
-        parse_str($url_info['query'] ?? '', $query);
-        // 有传入请求参数
-        if (!empty($params)) {
-            if (is_string($params)) {
-                // 如果开头是 ? 把 ? 去掉
-                if (strpos($params, '?') === 0) {
-                    $params = substr($params, 1);
-                }
-                // 参数转成数组
-                parse_str($params, $params);
-            }
-        } else {
-            $params = [];
-        }
-        // 传入参数替换原有参数
-        $params = array_merge($query, $params);
-        // 参数数组构建为请求字符串
-        $params = http_build_query($params);
-
-        $scheme = isset($url_info['scheme']) ? $url_info['scheme'] . ':' : '';
-        $pass = isset($url_info['pass']) ? ':' . $url_info['pass'] : '';
-        $user = isset($url_info['user']) ? $url_info['user'] . $pass . '@' : '';
-        $host = $url_info['host'] ?? '';
-        $port = isset($url_info['port']) ? ':' . $url_info['port'] : '';
-        $path = $url_info['path'] ?? '';
-        $query = empty($params) ? '' : '?' . $params;
-        $fragment = isset($url_info['fragment']) ? '#' . $url_info['fragment'] : '';
-        // scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
-
-        return $scheme . '//' . $user . $host . $port . $path . $query . $fragment;
-    }
-
-    /**
      * 执行签到领京豆
      * @param array $jd_sign_info
      * @throws BadRequestException
@@ -546,6 +406,16 @@ class JdSign
     }
 
     /**
+     * 判断时间戳是不是今天
+     * @param $timestamp
+     * @return bool
+     */
+    private function is_today($timestamp)
+    {
+        return $timestamp >= $this->day_begin;
+    }
+
+    /**
      * 京东APP 京豆 签到信息
      * @return array
      * @throws BadRequestException
@@ -591,6 +461,50 @@ class JdSign
             'days' => $sign_days,
             'count' => $beans_count,
         ];
+    }
+
+    /**
+     * 构建请求链接
+     * @param string       $url    请求地址
+     * @param array|string $params 请求参数
+     * @return string
+     * @throws Exception
+     */
+    private function buildURL($url, $params = [])
+    {
+        $url_info = parse_url($url);
+        if (!$url_info) throw new Exception('非法请求地址');
+        // URL携带的参数转成数组
+        parse_str($url_info['query'] ?? '', $query);
+        // 有传入请求参数
+        if (!empty($params)) {
+            if (is_string($params)) {
+                // 如果开头是 ? 把 ? 去掉
+                if (strpos($params, '?') === 0) {
+                    $params = substr($params, 1);
+                }
+                // 参数转成数组
+                parse_str($params, $params);
+            }
+        } else {
+            $params = [];
+        }
+        // 传入参数替换原有参数
+        $params = array_merge($query, $params);
+        // 参数数组构建为请求字符串
+        $params = http_build_query($params);
+
+        $scheme = isset($url_info['scheme']) ? $url_info['scheme'] . ':' : '';
+        $pass = isset($url_info['pass']) ? ':' . $url_info['pass'] : '';
+        $user = isset($url_info['user']) ? $url_info['user'] . $pass . '@' : '';
+        $host = $url_info['host'] ?? '';
+        $port = isset($url_info['port']) ? ':' . $url_info['port'] : '';
+        $path = $url_info['path'] ?? '';
+        $query = empty($params) ? '' : '?' . $params;
+        $fragment = isset($url_info['fragment']) ? '#' . $url_info['fragment'] : '';
+        // scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
+
+        return $scheme . '//' . $user . $host . $port . $path . $query . $fragment;
     }
 
     /**
@@ -651,6 +565,15 @@ class JdSign
     }
 
     /**
+     * 京东会员 逻辑层
+     * @return JdUser
+     */
+    protected function Domain_JdUser()
+    {
+        return self::getDomain('JdUser');
+    }
+
+    /**
      * 京东APP 京豆 签到
      * @return array|bool
      * @throws BadRequestException
@@ -680,6 +603,35 @@ class JdSign
         $data = $this->jdRequest($url);
         DI()->logger->debug('京东APP签到', $data);
         return $data;
+    }
+
+    /**
+     * 初始化签到更新数据
+     * @param array $data
+     * @return array
+     */
+    private function initUpdateSignData($data = [])
+    {
+        return multi_array_merge([
+            // 上次运行时间
+            'last_time' => time(),
+            'return_data' => [
+                // 签到状态
+                'status' => 0,
+                // 今天 获得京豆数量
+                'bean_award_day' => 0,
+                // 总共 获得京豆数量
+                'bean_award_total' => 0,
+                // 今天 获得营养液数量
+                'nutrients_day' => 0,
+                // 总共 获得营养液数量
+                'nutrients_total' => 0,
+                // 签到时间
+                'sign_time' => time(),
+                // 下次运行时间
+                'next_time' => $this->day_begin + 86400,
+            ],
+        ], $data);
     }
 
     /**
@@ -2435,32 +2387,54 @@ class JdSign
     }
 
     /**
-     * 京东金融APP签到 今天签到结果
-     * @return array|mixed
+     * 获取签到状态
+     * @param bool|array $jd_user
+     * @return array
      * @throws BadRequestException
-     * @throws Exception
-     * @throws InternalServerErrorException
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
      */
-    private function JRTodaySignResult()
+    public function getSignStatus($jd_user = false)
     {
-        $url = $this->buildURL('https://ms.jr.jd.com/gw/generic/gry/h5/m/queryTodaySignResult');
-        $form_data = [
-            'reqData' => json_encode([
-                'channelSource' => 'JRAPP',
-                'riskDeviceParam' => json_encode([
-                ]),
-            ]),
-        ];
-
-        $res = $this->jrRequest($url, $form_data);
-        // DI()->logger->debug('京东金融APP签到', $res);
-        if ($res['resBusiCode'] != 0) {
-            throw new Exception($res['resBusiMsg']);
+        if (empty($jd_user)) throw new BadRequestException(T('非法参数'));
+        $sign_list = $this->Model_JdSign()->getListByWhere(['jd_user_id' => $jd_user['id'], 'status' => 1], 'sign_key,return_data');
+        if (empty($sign_list)) {
+            throw new BadRequestException(T('该用户不存在开启中的签到'));
         }
-        $data = $res['resBusiData'] ?? [];
-        return $data;
+
+        $jd_sign_count = count($sign_list);
+        $bean_award_day = 0;
+        $bean_award_total = 0;
+        $nutrients_day = 0;
+        $nutrients_total = 0;
+        foreach ($sign_list as $sign_info) {
+            $return_data = unserialize($sign_info['return_data']);
+            $bean_award_day += $return_data['bean_award_day'] ?? 0;
+            $bean_award_total += $return_data['bean_award_total'] ?? 0;
+            if ($sign_info['sign_key'] != 'doubleSign') {
+                $nutrients_day += $return_data['nutrients_day'] ?? 0;
+                $nutrients_total += $return_data['nutrients_total'] ?? 0;
+            }
+        }
+        unset($sign_info, $sign_list);
+
+        $h = date('G', time());
+        if ($h < 11) {
+            $greeting = '早上好！！！';
+        } else if ($h < 13) {
+            $greeting = '中午好！！！';
+        } else if ($h < 17) {
+            $greeting = '下午好！！！';
+        } else {
+            $greeting = '晚上好！！！';
+        }
+        $result = [];
+        $result['user_name'] = $jd_user['user_name'];
+        $result['greeting'] = $greeting;
+        $result['jd_sign_count'] = $jd_sign_count;
+        $result['bean_award_day'] = $bean_award_day;
+        $result['nutrients_day'] = $nutrients_day;
+        $result['bean_award_total'] = $bean_award_total;
+        $result['nutrients_total'] = $nutrients_total;
+        return $result;
     }
 
     /**
@@ -2503,6 +2477,35 @@ class JdSign
             'level_name' => $level_name,
         ];
 
+    }
+
+    /**
+     * 京东金融APP签到 今天签到结果
+     * @return array|mixed
+     * @throws BadRequestException
+     * @throws Exception
+     * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     */
+    private function JRTodaySignResult()
+    {
+        $url = $this->buildURL('https://ms.jr.jd.com/gw/generic/gry/h5/m/queryTodaySignResult');
+        $form_data = [
+            'reqData' => json_encode([
+                'channelSource' => 'JRAPP',
+                'riskDeviceParam' => json_encode([
+                ]),
+            ]),
+        ];
+
+        $res = $this->jrRequest($url, $form_data);
+        // DI()->logger->debug('京东金融APP签到', $res);
+        if ($res['resBusiCode'] != 0) {
+            throw new Exception($res['resBusiMsg']);
+        }
+        $data = $res['resBusiData'] ?? [];
+        return $data;
     }
 
 }

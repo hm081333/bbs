@@ -3,6 +3,12 @@
 
 namespace Common\Api;
 
+use Library\Exception\BadRequestException;
+use Library\Traits\Api;
+use Library\Uploader;
+use function Common\DI;
+use function PhalApi\T;
+
 /**
  * 上传接口服务类
  * @ignore
@@ -10,7 +16,7 @@ namespace Common\Api;
  */
 class Upload extends Base
 {
-    use Common;
+    use Api;
 
     /**
      * 接口参数规则
@@ -24,13 +30,13 @@ class Upload extends Base
 
     /**
      * CKFinder控件上传图片
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     public function CKFinder()
     {
-        $config = \Common\DI()->config->get('neditor');
+        $config = DI()->config->get('neditor');
         /* 生成上传实例对象并完成上传 */
-        $up = new \Library\Uploader('upload', [
+        $up = new Uploader('upload', [
             "pathFormat" => $config['imagePathFormat'],
             "maxSize" => $config['imageMaxSize'],
             "allowFiles" => $config['imageAllowFiles'],
@@ -49,7 +55,7 @@ class Upload extends Base
         $result = $up->getFileInfo();
         // DI()->logger->debug(json_encode($up->getFileInfo()));
         if (strtolower($result['state']) != 'success') {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T($result['state']));
+            throw new BadRequestException(T($result['state']));
         }
         /* 返回数据 */
         $res = $up->getFileInfo();
@@ -57,7 +63,7 @@ class Upload extends Base
         $return = [
             'fileName' => $res['title'] ?? '',
             'uploaded' => $res['state'] == 'SUCCESS' ? 1 : 0,
-            'url' => '/api/' . $res['url']
+            'url' => '/api/' . $res['url'],
         ];
         exit(json_encode($return));
     }

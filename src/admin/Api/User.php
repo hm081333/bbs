@@ -2,6 +2,8 @@
 
 namespace Admin\Api;
 
+use Library\Traits\Api;
+
 /**
  * 用户模块接口服务
  * User
@@ -9,7 +11,7 @@ namespace Admin\Api;
  */
 class User extends \Common\Api\User
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {

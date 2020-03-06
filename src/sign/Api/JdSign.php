@@ -2,6 +2,8 @@
 
 namespace Sign\Api;
 
+use Library\Traits\Api;
+
 /**
  * 京东签到 接口服务类
  * JdSign
@@ -9,7 +11,7 @@ namespace Sign\Api;
  */
 class JdSign extends \Common\Api\JdSign
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {

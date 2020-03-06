@@ -6,14 +6,12 @@
  * Time: 17:23
  */
 
-namespace Common\Cache;
+namespace Library\Abstracts;
 
 use function Common\DI;
 
-abstract class Common
+abstract class Cache
 {
-    abstract protected function getTableName();
-
     /**
      * 获取缓存
      * @param bool|string $key
@@ -27,6 +25,8 @@ abstract class Common
         }
         return DI()->cache->get($name);
     }
+
+    abstract protected function getTableName();
 
     /**
      * 设置缓存

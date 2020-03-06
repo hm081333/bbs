@@ -3,6 +3,8 @@
 namespace Admin\Api;
 
 
+use Library\Traits\Api;
+
 /**
  * 文章接口服务类
  * Topic
@@ -10,7 +12,7 @@ namespace Admin\Api;
  */
 class Topic extends \Common\Api\Topic
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {

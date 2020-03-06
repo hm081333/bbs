@@ -4,7 +4,7 @@ namespace Common\Api;
 
 use Library\Exception\BadRequestException;
 use Library\Exception\InternalServerErrorException;
-use function Common\DI;
+use Library\Traits\Api;
 use function Common\encrypt;
 use function Common\pwd_hash;
 use function PhalApi\T;
@@ -16,7 +16,7 @@ use function PhalApi\T;
  */
 class User extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {
@@ -51,15 +51,6 @@ class User extends Base
     }
 
     /**
-     * 用户 逻辑层
-     * @return \Common\Domain\User
-     */
-    protected function Domain_user()
-    {
-        return self::getDomain('User');
-    }
-
-    /**
      * 会员信息接口
      * @throws BadRequestException
      */
@@ -83,6 +74,15 @@ class User extends Base
         $user_info['topic_count'] = self::getModel('Topic')->getCount(['user_id' => $user_id]);
         $user_info['reply_count'] = self::getModel('Reply')->getCount(['user_id' => $user_id]);
         return $user_info;
+    }
+
+    /**
+     * 用户 逻辑层
+     * @return \Common\Domain\User
+     */
+    protected function Domain_user()
+    {
+        return self::getDomain('User');
     }
 
     /**

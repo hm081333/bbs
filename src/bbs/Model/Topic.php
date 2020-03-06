@@ -8,9 +8,11 @@
 
 namespace Bbs\Model;
 
+use Library\Traits\Model;
+
 class Topic extends \Common\Model\Topic
 {
-    use \Common\Model\Common;
+    use Model;
 
     protected function getTableName($id)
     {

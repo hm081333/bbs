@@ -17,14 +17,13 @@ abstract class MultiBase implements \PhalApi\Crypt
 {
 
     /**
-     * @var int 用户最大分割长度
-     */
-    protected $maxSplitLen;
-
-    /**
      * @var int 允许最大分割的长度
      */
     const ALLOW_MAX_SPLIT_LEN = 117;
+    /**
+     * @var int 用户最大分割长度
+     */
+    protected $maxSplitLen;
 
     /**
      * @param int $maxSplitLen 最大分割的彻底，应介于(0, MultiBase::ALLOW_MAX_SPLIT_LEN]
@@ -56,6 +55,14 @@ abstract class MultiBase implements \PhalApi\Crypt
         }
 
         return base64_encode(json_encode($encryptPieCollector));
+    }
+
+    /**
+     * 取用户设置的取大分割长度
+     */
+    protected function getMaxSplitLen()
+    {
+        return $this->maxSplitLen;
     }
 
     /**
@@ -107,12 +114,4 @@ abstract class MultiBase implements \PhalApi\Crypt
      * @param string $key        公钥/私钥
      */
     abstract protected function doDecrypt($encryptPie, $key = null);
-
-    /**
-     * 取用户设置的取大分割长度
-     */
-    protected function getMaxSplitLen()
-    {
-        return $this->maxSplitLen;
-    }
 }

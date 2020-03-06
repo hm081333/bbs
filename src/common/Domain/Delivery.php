@@ -8,6 +8,15 @@
 
 namespace Common\Domain;
 
+use ErrorException;
+use Library\Exception\BadRequestException;
+use Library\Exception\InternalServerErrorException;
+use Library\Traits\Domain;
+use NotORM_Literal;
+use PhalApi_Exception_BadRequest;
+use function Common\arr_unix_formatter;
+use function PhalApi\T;
+
 /**
  * 物流信息 领域层
  * Class Delivery
@@ -16,7 +25,30 @@ namespace Common\Domain;
  */
 class Delivery
 {
-    use Common;
+    use Domain;
+
+    /**
+     * 查询数据
+     * @param int    $limit  每次查询条数
+     * @param int    $offset 开始位置
+     * @param array  $where  查询条件
+     * @param string $field  字段
+     * @param string $order  排序
+     * @return array a 返回结果集
+     * @return int a.total 总条数
+     * @return array a.rows 当前查询结果集
+     */
+    public static function getList($limit, $offset, $where = [], $field = '*', $order = 'id desc', $count = '*', $id = null)
+    {
+        $model = self::getModel();
+        $list = $model->getList($limit, $offset, $where, $order, $field, $id, $count);
+        array_walk($list['rows'], function (&$value) {
+            $value = arr_unix_formatter($value);// 格式化数组中的时间戳
+            $value['state_name'] = self::getStateName($value['state']);// 物流状态
+            return $value;
+        });
+        return $list;
+    }
 
     /**
      * 获取物流状态码对应的物流状态信息
@@ -45,41 +77,18 @@ class Delivery
     }
 
     /**
-     * 查询数据
-     * @param int    $limit  每次查询条数
-     * @param int    $offset 开始位置
-     * @param array  $where  查询条件
-     * @param string $field  字段
-     * @param string $order  排序
-     * @return array a 返回结果集
-     * @return int a.total 总条数
-     * @return array a.rows 当前查询结果集
-     */
-    public static function getList($limit, $offset, $where = [], $field = '*', $order = 'id desc', $count = '*', $id = null)
-    {
-        $model = self::getModel();
-        $list = $model->getList($limit, $offset, $where, $order, $field, $id, $count);
-        array_walk($list['rows'], function (&$value) {
-            $value = \Common\arr_unix_formatter($value);// 格式化数组中的时间戳
-            $value['state_name'] = self::getStateName($value['state']);// 物流状态
-            return $value;
-        });
-        return $list;
-    }
-
-    /**
      * 获取物流信息
      * @param $id
      * @return string|array
-     * @throws \ErrorException
-     * @throws \Library\Exception\BadRequestException
-     * @throws \PhalApi_Exception_BadRequest
+     * @throws ErrorException
+     * @throws BadRequestException
+     * @throws PhalApi_Exception_BadRequest
      */
     public static function getDeliveryInfo($id)
     {
         $delivery = self::getInfo($id);// 获取物流信息
         if (empty($delivery)) {
-            throw new \PhalApi_Exception_BadRequest(\PhalApi\T('找不到该物流信息'));
+            throw new PhalApi_Exception_BadRequest(T('找不到该物流信息'));
         }
         $delivery['last_message'] = unserialize($delivery['last_message']);// 历史查询信息
         if (!empty($delivery['end_time']) && !empty($delivery['last_message'])) {// 该物流已经结束 且 有历史信息
@@ -89,7 +98,7 @@ class Delivery
             $update = [];
             if ($logistics['status'] != 200) {// 返回物流错误
                 if (empty($delivery['last_message'])) {// 没有历史查询信息
-                    throw new \ErrorException(\PhalApi\T($logistics['message']));// 抛出错误信息
+                    throw new ErrorException(T($logistics['message']));// 抛出错误信息
                 } else {
                     return $delivery['last_message'];// 返回历史物流信息
                 }
@@ -108,7 +117,7 @@ class Delivery
             $update['id'] = $delivery['id'];
             self::doUpdate($update);
         }
-        self::DI()->response->setMsg(\PhalApi\T('获取成功'));
+        self::DI()->response->setMsg(T('获取成功'));
         return $logistics;// 返回物流信息
     }
 
@@ -116,8 +125,8 @@ class Delivery
      * 添加、编辑物流信息
      * @param $data
      * @return bool
-     * @throws \Library\Exception\BadRequestException
-     * @throws \Library\Exception\InternalServerErrorException
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
      */
     public static function doInfo($data)
     {
@@ -125,7 +134,7 @@ class Delivery
         $logistics_model = self::getModel('Logistics');
         $log = $logistics_model->getInfo(['code' => $data['code']], 'code,name');
         if (!$log) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('不存在该快递公司代码，请联系管理员'));
+            throw new BadRequestException(T('不存在该快递公司代码，请联系管理员'));
         }
         $insert_update = [];
         $insert_update['id'] = $data['id'];// 物流ID
@@ -141,9 +150,9 @@ class Delivery
         if (!$data['id']) {
             $insert_update['add_time'] = time();// 添加时间
             $insert_update['edit_time'] = time();// 编辑时间
-            $update_log_used = $logistics_model->update($log['id'], ['used' => new \NotORM_Literal('used + 1')]);
+            $update_log_used = $logistics_model->update($log['id'], ['used' => new NotORM_Literal('used + 1')]);
             if ($update_log_used === false) {
-                throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('添加失败'));
+                throw new InternalServerErrorException(T('添加失败'));
             }
         } else {
             $insert_update['edit_time'] = time();// 编辑时间

@@ -2,6 +2,8 @@
 
 namespace Admin\Api;
 
+use Library\Traits\Api;
+
 /**
  * 探针模块接口服务
  * Tz
@@ -9,7 +11,7 @@ namespace Admin\Api;
  */
 class Tz extends \Common\Api\Tz
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {

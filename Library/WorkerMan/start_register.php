@@ -12,8 +12,8 @@
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
-use \Workerman\Worker;
-use \GatewayWorker\Register;
+use GatewayWorker\Register;
+use Workerman\Worker;
 
 if (!defined('GLOBAL_START')) {
     defined('API_ROOT') || define('API_ROOT', dirname(dirname(dirname(__FILE__))));

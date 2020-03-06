@@ -9,6 +9,8 @@
 namespace Common\Domain;
 
 
+use Library\Traits\Domain;
+
 /**
  * 科目 领域层
  * Class Subject
@@ -17,5 +19,5 @@ namespace Common\Domain;
  */
 class Subject
 {
-    use Common;
+    use Domain;
 }

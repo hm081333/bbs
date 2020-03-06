@@ -8,6 +8,9 @@
 
 namespace Common\Domain;
 
+use Library\Traits\Domain;
+use function Common\server_path;
+
 /**
  * 探针 领域层
  * Class Tz
@@ -16,7 +19,7 @@ namespace Common\Domain;
  */
 class Tz
 {
-    use Common;
+    use Domain;
 
     /**
      * 获取服务器实时数据
@@ -105,34 +108,6 @@ class Tz
             'loadAvg' => $sysInfo['loadAvg'],// 系统负载
         ];
         return $return;
-    }
-
-    /**
-     * 获取网络使用状况
-     */
-    public static function getNetworkUsage()
-    {
-        $usage = [];
-        $net_info_file = "/proc/net/dev";
-        if (!file_exists($net_info_file)) {
-            return $usage;
-        }
-        //网卡流量
-        $strs = @file($net_info_file);
-        for ($i = 2; $i < count($strs); $i++) {
-            preg_match_all("/([^\s]+):[\s]{0,}(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/", $strs[$i], $info);
-            $usage[$info[1][0]] = [
-                'input' => self::formatsize($info[2][0]),
-                'inputSpeed' => $info[2][0],
-                'out' => self::formatsize($info[10][0]),
-                'outSpeed' => $info[10][0],
-            ];
-            // $usage['NetInput'][$i] = self::formatsize($info[2][0]);
-            // $usage['NetInputSpeed'][$i] = $info[2][0];
-            // $usage['NetOut'][$i] = self::formatsize($info[10][0]);
-            // $usage['NetOutSpeed'][$i] = $info[10][0];
-        }
-        return $usage;
     }
 
     /**
@@ -318,20 +293,6 @@ class Tz
     }
 
     /**
-     * 确定执行文件位置 FreeBSD
-     * @param $commandName
-     * @return bool|string
-     */
-    public static function find_command($commandName)
-    {
-        $path = ['/bin', '/sbin', '/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/local/sbin'];
-        foreach ($path as $p) {
-            if (@is_executable("$p/$commandName")) return "$p/$commandName";
-        }
-        return false;
-    }
-
-    /**
      * 执行系统命令 FreeBSD
      * @param $commandName
      * @param $args
@@ -348,6 +309,128 @@ class Tz
             return trim($buffer);
         }
         return false;
+    }
+
+    /**
+     * 确定执行文件位置 FreeBSD
+     * @param $commandName
+     * @return bool|string
+     */
+    public static function find_command($commandName)
+    {
+        $path = ['/bin', '/sbin', '/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/local/sbin'];
+        foreach ($path as $p) {
+            if (@is_executable("$p/$commandName")) return "$p/$commandName";
+        }
+        return false;
+    }
+
+    /**
+     * CPU核心详情
+     * @return array
+     */
+    public static function GetCoreInformation()
+    {
+        $stat_file = '/proc/stat';
+        $cores = [];
+        if (file_exists($stat_file)) {
+            $data = file($stat_file);
+        } else {
+            return $cores;
+        }
+        foreach ($data as $line) {
+            if (preg_match('/^cpu[0-9]/', $line)) {
+                $info = explode(' ', $line);
+                $cores[] = ['user' => $info[1], 'nice' => $info[2], 'sys' => $info[3], 'idle' => $info[4], 'iowait' => $info[5], 'irq' => $info[6], 'softirq' => $info[7]];
+            }
+        }
+        return $cores;
+    }
+
+    /**
+     * CPU使用率详情
+     * @param $stat1
+     * @param $stat2
+     * @return array|bool
+     */
+    public static function GetCpuPercentages($stat1, $stat2)
+    {
+        if (count($stat1) !== count($stat2)) {
+            return false;
+        }
+        $cpus = [];
+        for ($i = 0, $l = count($stat1); $i < $l; $i++) {
+            $dif = [];
+            $dif['user'] = $stat2[$i]['user'] - $stat1[$i]['user'];
+            $dif['nice'] = $stat2[$i]['nice'] - $stat1[$i]['nice'];
+            $dif['sys'] = $stat2[$i]['sys'] - $stat1[$i]['sys'];
+            $dif['idle'] = $stat2[$i]['idle'] - $stat1[$i]['idle'];
+            $dif['iowait'] = $stat2[$i]['iowait'] - $stat1[$i]['iowait'];
+            $dif['irq'] = $stat2[$i]['irq'] - $stat1[$i]['irq'];
+            $dif['softirq'] = $stat2[$i]['softirq'] - $stat1[$i]['softirq'];
+            $total = array_sum($dif);
+            $cpu = [];
+            foreach ($dif as $x => $y) {
+                $cpu[$x] = round($y / $total * 100, 2);
+            }
+            $cpus['cpu' . $i] = $cpu;
+        }
+        return $cpus;
+    }
+
+    /**
+     * 获取网络使用状况
+     */
+    public static function getNetworkUsage()
+    {
+        $usage = [];
+        $net_info_file = "/proc/net/dev";
+        if (!file_exists($net_info_file)) {
+            return $usage;
+        }
+        //网卡流量
+        $strs = @file($net_info_file);
+        for ($i = 2; $i < count($strs); $i++) {
+            preg_match_all("/([^\s]+):[\s]{0,}(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/", $strs[$i], $info);
+            $usage[$info[1][0]] = [
+                'input' => self::formatsize($info[2][0]),
+                'inputSpeed' => $info[2][0],
+                'out' => self::formatsize($info[10][0]),
+                'outSpeed' => $info[10][0],
+            ];
+            // $usage['NetInput'][$i] = self::formatsize($info[2][0]);
+            // $usage['NetInputSpeed'][$i] = $info[2][0];
+            // $usage['NetOut'][$i] = self::formatsize($info[10][0]);
+            // $usage['NetOutSpeed'][$i] = $info[10][0];
+        }
+        return $usage;
+    }
+
+    /**
+     * 单位转换
+     * @param $size
+     * @return string
+     */
+    public static function formatsize($size)
+    {
+        $danwei = [' B ', ' K ', ' M ', ' G ', ' T '];
+        $allsize = [];
+        $fsize = '';
+        $i = 0;
+        for ($i = 0; $i < 5; $i++) {
+            if (floor($size / pow(1024, $i)) == 0) {
+                break;
+            }
+        }
+        for ($l = $i - 1; $l >= 0; $l--) {
+            $allsize1[$l] = floor($size / pow(1024, $l));
+            $allsize[$l] = $allsize1[$l] - ($allsize1[$l + 1] ?? 0) * 1024;
+        }
+        $len = count($allsize);
+        for ($j = $len - 1; $j >= 0; $j--) {
+            $fsize = $fsize . $allsize[$j] . $danwei[$j];
+        }
+        return $fsize;
     }
 
     /**
@@ -405,59 +488,6 @@ class Tz
     }
 
     /**
-     * CPU核心详情
-     * @return array
-     */
-    public static function GetCoreInformation()
-    {
-        $stat_file = '/proc/stat';
-        $cores = [];
-        if (file_exists($stat_file)) {
-            $data = file($stat_file);
-        } else {
-            return $cores;
-        }
-        foreach ($data as $line) {
-            if (preg_match('/^cpu[0-9]/', $line)) {
-                $info = explode(' ', $line);
-                $cores[] = ['user' => $info[1], 'nice' => $info[2], 'sys' => $info[3], 'idle' => $info[4], 'iowait' => $info[5], 'irq' => $info[6], 'softirq' => $info[7]];
-            }
-        }
-        return $cores;
-    }
-
-    /**
-     * CPU使用率详情
-     * @param $stat1
-     * @param $stat2
-     * @return array|bool
-     */
-    public static function GetCpuPercentages($stat1, $stat2)
-    {
-        if (count($stat1) !== count($stat2)) {
-            return false;
-        }
-        $cpus = [];
-        for ($i = 0, $l = count($stat1); $i < $l; $i++) {
-            $dif = [];
-            $dif['user'] = $stat2[$i]['user'] - $stat1[$i]['user'];
-            $dif['nice'] = $stat2[$i]['nice'] - $stat1[$i]['nice'];
-            $dif['sys'] = $stat2[$i]['sys'] - $stat1[$i]['sys'];
-            $dif['idle'] = $stat2[$i]['idle'] - $stat1[$i]['idle'];
-            $dif['iowait'] = $stat2[$i]['iowait'] - $stat1[$i]['iowait'];
-            $dif['irq'] = $stat2[$i]['irq'] - $stat1[$i]['irq'];
-            $dif['softirq'] = $stat2[$i]['softirq'] - $stat1[$i]['softirq'];
-            $total = array_sum($dif);
-            $cpu = [];
-            foreach ($dif as $x => $y) {
-                $cpu[$x] = round($y / $total * 100, 2);
-            }
-            $cpus['cpu' . $i] = $cpu;
-        }
-        return $cpus;
-    }
-
-    /**
      * CPU使用率详情
      * @param $stat1
      * @param $stat2
@@ -484,33 +514,6 @@ class Tz
             $cpus['cpu' . $i] = $cpu;
         }
         return $cpus;
-    }
-
-    /**
-     * 单位转换
-     * @param $size
-     * @return string
-     */
-    public static function formatsize($size)
-    {
-        $danwei = [' B ', ' K ', ' M ', ' G ', ' T '];
-        $allsize = [];
-        $fsize = '';
-        $i = 0;
-        for ($i = 0; $i < 5; $i++) {
-            if (floor($size / pow(1024, $i)) == 0) {
-                break;
-            }
-        }
-        for ($l = $i - 1; $l >= 0; $l--) {
-            $allsize1[$l] = floor($size / pow(1024, $l));
-            $allsize[$l] = $allsize1[$l] - ($allsize1[$l + 1] ?? 0) * 1024;
-        }
-        $len = count($allsize);
-        for ($j = $len - 1; $j >= 0; $j--) {
-            $fsize = $fsize . $allsize[$j] . $danwei[$j];
-        }
-        return $fsize;
     }
 
     /**
@@ -554,7 +557,7 @@ class Tz
      */
     public static function testIo()
     {
-        $test_file = \Common\server_path('static/test');
+        $test_file = server_path('static/test');
         if (!file_exists($test_file)) {
             $w_file = fopen($test_file, "w") or die("Unable to open file!");
             for ($i = 0; $i <= 102400; $i++) {

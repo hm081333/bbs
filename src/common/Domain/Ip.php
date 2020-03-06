@@ -10,6 +10,7 @@ namespace Common\Domain;
 
 use Library\Exception\BadRequestException;
 use Library\Exception\InternalServerErrorException;
+use Library\Traits\Domain;
 use function Common\DI;
 use function PhalApi\T;
 
@@ -21,7 +22,7 @@ use function PhalApi\T;
  */
 class Ip
 {
-    use Common;
+    use Domain;
 
     /**
      * 获取ip地址的详细信息

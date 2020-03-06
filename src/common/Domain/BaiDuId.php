@@ -10,6 +10,8 @@ namespace Common\Domain;
 
 use Library\Exception\BadRequestException;
 use Library\Exception\InternalServerErrorException;
+use Library\Traits\Domain;
+use Library\Traits\Model;
 use PhalApi\Model\NotORMModel;
 use function PhalApi\T;
 
@@ -21,25 +23,7 @@ use function PhalApi\T;
  */
 class BaiDuId
 {
-    use Common;
-
-    /**
-     * 贴吧 数据层
-     * @return \Common\Model\TieBa|\Common\Model\Common|NotORMModel
-     */
-    protected static function Model_TieBa()
-    {
-        return self::getModel('TieBa');
-    }
-
-    /**
-     * 百度ID 数据层
-     * @return \Common\Model\BaiDuId|\Common\Model\Common|NotORMModel
-     */
-    protected static function Model_BaiDuId()
-    {
-        return self::getModel('BaiDuId');
-    }
+    use Domain;
 
     /**
      * 删除百度ID - 覆盖Domain的删除函数
@@ -54,6 +38,15 @@ class BaiDuId
         if ($del_tieba === false || $del_baiduid === false) {
             throw new InternalServerErrorException(T('删除失败'));
         }
+    }
+
+    /**
+     * 贴吧 数据层
+     * @return \Common\Model\TieBa|Model|NotORMModel
+     */
+    protected static function Model_TieBa()
+    {
+        return self::getModel('TieBa');
     }
 
     /**
@@ -76,6 +69,15 @@ class BaiDuId
         if ($insert_rs === false) {
             throw new InternalServerErrorException(T('添加失败'));
         }
+    }
+
+    /**
+     * 百度ID 数据层
+     * @return \Common\Model\BaiDuId|Model|NotORMModel
+     */
+    protected static function Model_BaiDuId()
+    {
+        return self::getModel('BaiDuId');
     }
 
 

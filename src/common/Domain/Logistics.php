@@ -9,6 +9,8 @@
 namespace Common\Domain;
 
 
+use Library\Traits\Domain;
+
 /**
  * 物流公司 领域层
  * Class Logistics
@@ -17,7 +19,7 @@ namespace Common\Domain;
  */
 class Logistics
 {
-    use Common;
+    use Domain;
 
     /**
      * 请求快递100 获取物流信息

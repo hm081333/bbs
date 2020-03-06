@@ -3,6 +3,8 @@
 
 namespace Common\Api;
 
+use Library\Traits\Api;
+
 /**
  * 网络速度测试 接口服务类
  * @ignore
@@ -10,7 +12,7 @@ namespace Common\Api;
  */
 class SpeedTest extends Base
 {
-    use Common;
+    use Api;
 
     /**
      * 接口参数规则

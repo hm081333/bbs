@@ -1,41 +1,43 @@
 <?php
+
 namespace App\Api\Examples;
 
-use PhalApi\Api;
 use App\Domain\Examples\CURD as DomainCURD;
+use PhalApi\Api;
 
 /**
  * 数据库CURD基本操作示例
  * @author dogstar 20170612
  */
+class CURD extends Api
+{
 
-class CURD extends Api {
-
-    public function getRules() {
-        return array(
-            'insert' => array(
-                'title' => array('name' => 'title', 'require' => true, 'min' => 1, 'max' => '20', 'desc' => '标题'),
-                'content' => array('name' => 'content', 'require' => true, 'min' => 1, 'desc' => '内容'),
-                'state' => array('name' => 'state', 'type' => 'int', 'default' => 0, 'desc' => '状态'),
-            ),
-            'update' => array(
-                'id' => array('name' => 'id', 'require' => true, 'min' => 1, 'desc' => 'ID'),
-                'title' => array('name' => 'title', 'require' => true, 'min' => 1, 'max' => '20', 'desc' => '标题'),
-                'content' => array('name' => 'content', 'require' => true, 'min' => 1, 'desc' => '内容'),
-                'state' => array('name' => 'state', 'type' => 'int', 'default' => 0, 'desc' => '状态'),
-            ),
-            'get' => array(
-                'id' => array('name' => 'id', 'require' => true, 'min' => 1, 'desc' => 'ID'),
-            ),
-            'delete' => array(
-                'id' => array('name' => 'id', 'require' => true, 'min' => 1, 'desc' => 'ID'),
-            ),
-            'getList' => array(
-                'page' => array('name' => 'page', 'type' => 'int', 'min' => 1, 'default' => 1, 'desc' => '第几页'),
-                'perpage' => array('name' => 'perpage', 'type' => 'int', 'min' => 1, 'max' => 20, 'default' => 10, 'desc' => '分页数量'),
-                'state' => array('name' => 'state', 'type' => 'int', 'default' => 0, 'desc' => '状态'),
-            ),
-        );
+    public function getRules()
+    {
+        return [
+            'insert' => [
+                'title' => ['name' => 'title', 'require' => true, 'min' => 1, 'max' => '20', 'desc' => '标题'],
+                'content' => ['name' => 'content', 'require' => true, 'min' => 1, 'desc' => '内容'],
+                'state' => ['name' => 'state', 'type' => 'int', 'default' => 0, 'desc' => '状态'],
+            ],
+            'update' => [
+                'id' => ['name' => 'id', 'require' => true, 'min' => 1, 'desc' => 'ID'],
+                'title' => ['name' => 'title', 'require' => true, 'min' => 1, 'max' => '20', 'desc' => '标题'],
+                'content' => ['name' => 'content', 'require' => true, 'min' => 1, 'desc' => '内容'],
+                'state' => ['name' => 'state', 'type' => 'int', 'default' => 0, 'desc' => '状态'],
+            ],
+            'get' => [
+                'id' => ['name' => 'id', 'require' => true, 'min' => 1, 'desc' => 'ID'],
+            ],
+            'delete' => [
+                'id' => ['name' => 'id', 'require' => true, 'min' => 1, 'desc' => 'ID'],
+            ],
+            'getList' => [
+                'page' => ['name' => 'page', 'type' => 'int', 'min' => 1, 'default' => 1, 'desc' => '第几页'],
+                'perpage' => ['name' => 'perpage', 'type' => 'int', 'min' => 1, 'max' => 20, 'default' => 10, 'desc' => '分页数量'],
+                'state' => ['name' => 'state', 'type' => 'int', 'default' => 0, 'desc' => '状态'],
+            ],
+        ];
     }
 
     /**
@@ -43,20 +45,21 @@ class CURD extends Api {
      * @desc 向数据库插入一条纪录数据
      * @return int id 新增的ID
      */
-    public function insert() {
-        $rs = array();
+    public function insert()
+    {
+        $rs = [];
 
-        $newData = array(
+        $newData = [
             'title' => $this->title,
             'content' => $this->content,
             'state' => $this->state,
-        );
+        ];
 
         $domain = new DomainCURD();
         $id = $domain->insert($newData);
 
         $rs['id'] = $id;
-        return $rs; 
+        return $rs;
     }
 
     /**
@@ -64,14 +67,15 @@ class CURD extends Api {
      * @desc 根据ID更新数据库中的一条纪录数据
      * @return int code 更新的结果，1表示成功，0表示无更新，false表示失败
      */
-    public function update() {
-        $rs = array();
+    public function update()
+    {
+        $rs = [];
 
-        $newData = array(
+        $newData = [
             'title' => $this->title,
             'content' => $this->content,
             'state' => $this->state,
-        );
+        ];
 
         $domain = new DomainCURD();
         $code = $domain->update($this->id, $newData);
@@ -89,7 +93,8 @@ class CURD extends Api {
      * @return int      state       状态
      * @return string   post_date   发布日期
      */
-    public function get() {
+    public function get()
+    {
         $domain = new DomainCURD();
         $data = $domain->get($this->id);
 
@@ -101,8 +106,9 @@ class CURD extends Api {
      * @desc 根据ID删除数据库中的一条纪录数据
      * @return int code 删除的结果，1表示成功，0表示失败
      */
-    public function delete() {
-        $rs = array();
+    public function delete()
+    {
+        $rs = [];
 
         $domain = new DomainCURD();
         $code = $domain->delete($this->id);
@@ -119,8 +125,9 @@ class CURD extends Api {
      * @return int      page    当前第几页
      * @return int      perpage 每页数量
      */
-    public function getList() {
-        $rs = array();
+    public function getList()
+    {
+        $rs = [];
 
         $domain = new DomainCURD();
         $list = $domain->getList($this->state, $this->page, $this->perpage);

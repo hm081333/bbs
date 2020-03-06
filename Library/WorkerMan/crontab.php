@@ -10,8 +10,8 @@ defined('API_ROOT') || define('API_ROOT', dirname(dirname(dirname(__FILE__))));
 
 require_once API_ROOT . '/public/init.php';
 
-use \Workerman\Worker;
-use \Workerman\Lib\Timer;
+use Workerman\Lib\Timer;
+use Workerman\Worker;
 
 $task = new Worker();
 // 开启多少个进程运行定时任务，注意业务是否在多进程有并发问题
@@ -23,7 +23,8 @@ $task->name = 'crontab';
 $task->onWorkerStart = function ($task) {
     // 每1秒执行一次
     Timer::add(1, function () {
-        var_dump(1);die;
+        var_dump(1);
+        die;
     });
 };
 

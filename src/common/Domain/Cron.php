@@ -8,6 +8,8 @@
 
 namespace Common\Domain;
 
+use Library\Traits\Domain;
+
 /**
  * 计划任务 领域层
  * Class Cron
@@ -16,7 +18,5 @@ namespace Common\Domain;
  */
 class Cron
 {
-    use Common;
-
-
+    use Domain;
 }

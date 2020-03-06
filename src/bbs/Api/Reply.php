@@ -2,6 +2,8 @@
 
 namespace Bbs\Api;
 
+use Library\Traits\Api;
+
 /**
  * 文章回复 接口服务类
  * Reply
@@ -9,7 +11,7 @@ namespace Bbs\Api;
  */
 class Reply extends \Common\Api\Reply
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {

@@ -9,6 +9,7 @@
 namespace Common\Domain;
 
 
+use Library\Traits\Domain;
 use function Common\DI;
 
 /**
@@ -19,7 +20,7 @@ use function Common\DI;
  */
 class BaiDuLBS
 {
-    use Common;
+    use Domain;
 
     /**
      * @param $question string 问题
@@ -73,6 +74,24 @@ class BaiDuLBS
     }
 
     /**
+     * 创建验证字符串
+     * @param        $ak
+     * @param        $sk
+     * @param        $url
+     * @param        $param
+     * @param string $method
+     * @return string
+     */
+    public static function caculateAKSN($ak, $sk, $url, $param, $method = 'GET')
+    {
+        if ($method === 'POST') {
+            ksort($param);
+        }
+        $querystring = http_build_query($param);
+        return md5(urlencode($url . '?' . $querystring . $sk));
+    }
+
+    /**
      * 坐标换地址
      * @param string $data
      * @return mixed|string
@@ -108,24 +127,6 @@ class BaiDuLBS
             DI()->logger->error('百毒地图API报错，错误码：' . $rs['status'] . '，错误信息：' . $rs['message']);
         }
         return $rs;
-    }
-
-    /**
-     * 创建验证字符串
-     * @param        $ak
-     * @param        $sk
-     * @param        $url
-     * @param        $param
-     * @param string $method
-     * @return string
-     */
-    public static function caculateAKSN($ak, $sk, $url, $param, $method = 'GET')
-    {
-        if ($method === 'POST') {
-            ksort($param);
-        }
-        $querystring = http_build_query($param);
-        return md5(urlencode($url . '?' . $querystring . $sk));
     }
 
 }

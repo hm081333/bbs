@@ -8,6 +8,8 @@
 
 namespace Common\Domain;
 
+use Library\Traits\Domain;
+
 /**
  * 短信、邮件模板 领域层
  * Message
@@ -16,7 +18,5 @@ namespace Common\Domain;
  */
 class Message
 {
-    use Common;
-
-
+    use Domain;
 }

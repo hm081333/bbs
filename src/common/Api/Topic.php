@@ -3,6 +3,8 @@
 namespace Common\Api;
 
 
+use Library\Traits\Api;
+
 /**
  * 文章接口服务类
  * Topic
@@ -10,7 +12,7 @@ namespace Common\Api;
  */
 class Topic extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {

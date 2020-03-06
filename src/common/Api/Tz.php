@@ -2,9 +2,10 @@
 
 namespace Common\Api;
 
-use function Common\DI;
 use Exception\Exception;
+use Library\Traits\Api;
 use PDO;
+use function Common\DI;
 
 /**
  * 探针模块接口服务
@@ -13,7 +14,7 @@ use PDO;
  */
 class Tz extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {

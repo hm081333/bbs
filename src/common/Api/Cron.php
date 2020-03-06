@@ -9,6 +9,8 @@
 namespace Common\Api;
 
 
+use Library\Traits\Api;
+
 /**
  * 计划任务 接口服务
  * Cron
@@ -16,7 +18,7 @@ namespace Common\Api;
  */
 class Cron extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {

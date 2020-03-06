@@ -2,6 +2,8 @@
 
 namespace Admin\Api;
 
+use Library\Traits\Api;
+
 /**
  * 计划任务 接口服务
  * Cron
@@ -9,7 +11,7 @@ namespace Admin\Api;
  */
 class Cron extends \Common\Api\Cron
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {

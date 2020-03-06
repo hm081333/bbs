@@ -11,7 +11,7 @@
  * 主要是处理 onMessage onClose
  */
 
-use \GatewayWorker\Lib\Gateway;
+use GatewayWorker\Lib\Gateway;
 use PhalApi\PhalApi;
 use PhalApi\Request;
 use function Common\DI;
@@ -26,6 +26,18 @@ class Events
     {
         // var_dump('onWorkerStart', $obj);
         self::sessionSaveHandler()->clearSessionId();
+    }
+
+    /**
+     * Session存储
+     * @return \Library\Session\Redis
+     */
+    public static function sessionSaveHandler()
+    {
+        $session_set_save_handler = new \Library\Session\Redis();
+        $session_set_save_handler->open('', SESSION_NAME);
+        // 初始化Redis存储方式
+        return $session_set_save_handler;
     }
 
     /**
@@ -65,38 +77,15 @@ class Events
     }
 
     /**
-     * Session存储
-     * @return \Library\Session\Redis
+     * 下发消息到客户端
+     * @param string       $client_id
+     * @param string|array $data
+     * @return void
      */
-    public static function sessionSaveHandler()
+    public static function sendToClient($client_id, $data)
     {
-        $session_set_save_handler = new \Library\Session\Redis();
-        $session_set_save_handler->open('', SESSION_NAME);
-        // 初始化Redis存储方式
-        return $session_set_save_handler;
-    }
-
-    /**
-     * 读取session
-     * @param string $session_id
-     * @return mixed
-     */
-    public static function getSession(string $session_id)
-    {
-        // 读取该session_id对应的数据
-        $session_data = self::sessionSaveHandler()->read($session_id);
-        return empty($session_data) ? [] : (DI()->serialize->decrypt($session_data) ?: []);
-    }
-
-    /**
-     * 保存session
-     * @param string $session_id
-     * @param array  $session
-     * @return bool
-     */
-    public static function saveSession(string $session_id, array $session)
-    {
-        return self::sessionSaveHandler()->write($session_id, DI()->serialize->encrypt($session));
+        $data = is_array($data) ? json_encode($data, true) : $data;
+        Gateway::sendToClient($client_id, $data);
     }
 
     /**
@@ -177,21 +166,32 @@ class Events
         // 下发响应数据到客户端
         self::sendToClient($client_id, $response);
     }
+
+    /**
+     * 读取session
+     * @param string $session_id
+     * @return mixed
+     */
+    public static function getSession(string $session_id)
+    {
+        // 读取该session_id对应的数据
+        $session_data = self::sessionSaveHandler()->read($session_id);
+        return empty($session_data) ? [] : (DI()->serialize->decrypt($session_data) ?: []);
+    }
     // Gateway::sendToGroup($room_id, json_encode($new_message));
     // Gateway::joinGroup($client_id, $room_id);
     // Gateway::sendToCurrentClient(json_encode($new_message));
     // Gateway::sendToClient($message_data['to_client_id'], json_encode($new_message));
 
     /**
-     * 下发消息到客户端
-     * @param string       $client_id
-     * @param string|array $data
-     * @return void
+     * 保存session
+     * @param string $session_id
+     * @param array  $session
+     * @return bool
      */
-    public static function sendToClient($client_id, $data)
+    public static function saveSession(string $session_id, array $session)
     {
-        $data = is_array($data) ? json_encode($data, true) : $data;
-        Gateway::sendToClient($client_id, $data);
+        return self::sessionSaveHandler()->write($session_id, DI()->serialize->encrypt($session));
     }
 
     /**

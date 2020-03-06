@@ -2,6 +2,9 @@
 
 namespace Admin\Api;
 
+use Library\Exception\BadRequestException;
+use Library\Traits\Api;
+
 /**
  * 科目接口服务类
  * Subject
@@ -9,7 +12,7 @@ namespace Admin\Api;
  */
 class Subject extends \Common\Api\Subject
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {
@@ -26,7 +29,7 @@ class Subject extends \Common\Api\Subject
     /**
      * 修改课程信息
      * @desc 修改课程信息
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     public function doInfo()
     {

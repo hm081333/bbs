@@ -2,6 +2,8 @@
 
 namespace Common\Api;
 
+use Library\Traits\Api;
+
 /**
  * 物流公司 接口服务类
  * Logistics
@@ -9,7 +11,7 @@ namespace Common\Api;
  */
 class Logistics extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Common\Api;
 
 use Library\Exception\BadRequestException;
+use Library\Traits\Api;
 
 /**
  * 管理员模块接口服务类
@@ -11,7 +11,7 @@ use Library\Exception\BadRequestException;
  */
 class Admin extends Base
 {
-    use Common;
+    use Api;
 
     public function getRules()
     {
@@ -27,15 +27,6 @@ class Admin extends Base
     }
 
     /**
-     * 管理员 领域层
-     * @return \Common\Domain\Admin
-     */
-    protected function Domain_Admin()
-    {
-        return self::getDomain('Admin');
-    }
-
-    /**
      * 登录接口
      * @desc 根据账号和密码进行登录操作
      * @return array
@@ -45,6 +36,15 @@ class Admin extends Base
     {
         $data = get_object_vars($this);
         return self::Domain_Admin()::doSignIn($data);
+    }
+
+    /**
+     * 管理员 领域层
+     * @return \Common\Domain\Admin
+     */
+    protected function Domain_Admin()
+    {
+        return self::getDomain('Admin');
     }
 
     /**

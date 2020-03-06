@@ -9,6 +9,7 @@
 namespace Common\Domain;
 
 use Library\Exception\BadRequestException;
+use Library\Traits\Domain;
 use function Common\decrypt;
 use function Common\DI;
 use function Common\encrypt;
@@ -23,7 +24,7 @@ use function PhalApi\T;
  */
 class Admin
 {
-    use Common;
+    use Domain;
 
     public static $admin;
     public static $admin_token;
@@ -71,30 +72,21 @@ class Admin
     }
 
     /**
-     * 设置管理员登录状态
-     * @param array $user
+     * 获取当前管理员信息
+     * @param bool $user
+     * @return array
      */
-    public static function setAdminToken(array $user)
+    public static function getCurrentAdminInfo($admin = false)
     {
-        //将用户信息存入SESSION中
-        $_SESSION[ADMIN_TOKEN] = encrypt(DI()->serialize->encrypt($user));// 保存在session
-    }
-
-    /**
-     * 获取管理员登录状态
-     * @return mixed
-     */
-    public static function getAdminToken()
-    {
-        return DI()->serialize->decrypt(decrypt($_SESSION[ADMIN_TOKEN] ?? ''));// Session中的管理员信息
-    }
-
-    /**
-     * 注销管理员登录状态
-     */
-    public static function unsetAdminToken()
-    {
-        unset($_SESSION[ADMIN_TOKEN]);
+        $admin = !$admin ? self::$admin : $admin;// 传入user或当前登录user
+        if (!$admin) {
+            return [];
+        }
+        return [
+            'user_name' => $admin['user_name'],
+            'auth' => $admin['auth'],
+            'status' => $admin['status'],
+        ];
     }
 
     /**
@@ -104,6 +96,14 @@ class Admin
     {
         DI()->response->setMsg(T('退出成功'));
         self::unsetAdminToken();
+    }
+
+    /**
+     * 注销管理员登录状态
+     */
+    public static function unsetAdminToken()
+    {
+        unset($_SESSION[ADMIN_TOKEN]);
     }
 
     /**
@@ -136,21 +136,22 @@ class Admin
     }
 
     /**
-     * 获取当前管理员信息
-     * @param bool $user
-     * @return array
+     * 获取管理员登录状态
+     * @return mixed
      */
-    public static function getCurrentAdminInfo($admin = false)
+    public static function getAdminToken()
     {
-        $admin = !$admin ? self::$admin : $admin;// 传入user或当前登录user
-        if (!$admin) {
-            return [];
-        }
-        return [
-            'user_name' => $admin['user_name'],
-            'auth' => $admin['auth'],
-            'status' => $admin['status'],
-        ];
+        return DI()->serialize->decrypt(decrypt($_SESSION[ADMIN_TOKEN] ?? ''));// Session中的管理员信息
+    }
+
+    /**
+     * 设置管理员登录状态
+     * @param array $user
+     */
+    public static function setAdminToken(array $user)
+    {
+        //将用户信息存入SESSION中
+        $_SESSION[ADMIN_TOKEN] = encrypt(DI()->serialize->encrypt($user));// 保存在session
     }
 
 }

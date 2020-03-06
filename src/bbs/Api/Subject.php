@@ -2,6 +2,8 @@
 
 namespace Bbs\Api;
 
+use Library\Traits\Api;
+
 /**
  * 科目接口服务类
  * Subject
@@ -9,7 +11,7 @@ namespace Bbs\Api;
  */
 class Subject extends \Common\Api\Subject
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {

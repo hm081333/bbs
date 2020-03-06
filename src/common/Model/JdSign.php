@@ -8,6 +8,8 @@
 
 namespace Common\Model;
 
+use Library\Traits\Model;
+use PhalApi\long;
 use PhalApi\Model\NotORMModel as NotORM;
 
 /**
@@ -18,16 +20,11 @@ use PhalApi\Model\NotORMModel as NotORM;
  */
 class JdSign extends NotORM
 {
-    use Common;
-
-    protected function getTableName($id)
-    {
-        return 'jd_sign';
-    }
+    use Model;
 
     /**
      * 根据ID更新数据
-     * @param \PhalApi\long $id
+     * @param long $id
      * @param array         $data
      * @return int|TRUE
      */
@@ -55,6 +52,11 @@ class JdSign extends NotORM
         }
         $this->formatExtData($data);
         return $this->getORM($id)->where($where)->update($data);
+    }
+
+    protected function getTableName($id)
+    {
+        return 'jd_sign';
     }
 
 

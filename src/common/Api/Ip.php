@@ -3,6 +3,8 @@
 
 namespace Common\Api;
 
+use Library\Traits\Api;
+
 /**
  * IP地址 接口服务类
  * @ignore
@@ -10,7 +12,7 @@ namespace Common\Api;
  */
 class Ip extends Base
 {
-    use Common;
+    use Api;
 
     /**
      * 接口参数规则
@@ -32,7 +34,8 @@ class Ip extends Base
     public function getInfo()
     {
         $data = get_object_vars($this);
-        return self::getDomain()::getIPInfo($data);
+        self::getModel();
+        return static::getDomain()::getIPInfo($data);
 
     }
 

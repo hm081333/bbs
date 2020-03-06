@@ -9,6 +9,9 @@
 namespace Common\Domain;
 
 
+use Library\Traits\Domain;
+use function Common\DI;
+
 /**
  * 图灵 领域层
  * Class TuLing
@@ -17,7 +20,7 @@ namespace Common\Domain;
  */
 class TuLing
 {
-    use Common;
+    use Domain;
 
     /**
      * @param $question string 问题
@@ -27,7 +30,7 @@ class TuLing
     {
         $tuling_url = 'http://www.tuling123.com/openapi/api';
         $setting = Setting::getSetting('tuling');
-        $rs = \Common\DI()->curl->post($tuling_url, ['key' => $setting['api_key'], 'info' => $question]);
+        $rs = DI()->curl->post($tuling_url, ['key' => $setting['api_key'], 'info' => $question]);
         $rs = json_decode($rs, true);
         return $rs;
     }

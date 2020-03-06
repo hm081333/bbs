@@ -47,6 +47,7 @@ namespace Library;
  * @property \Library\CUrl                           $curl            CURL请求类
  * @property \PhalApi\Tool                           $tool            工具集合类
  * @property \EasyWeChat\OfficialAccount\Application $wechat          微信工具
+ * @property \Library\Tool\ClassInstance             $class           类实例暂存工具
  * @package     \Library\DependenceInjection
  * @link        http://docs.phalconphp.com/en/latest/reference/di.html 实现统一的资源设置、获取与管理，支持延时加载
  * @license     http://www.phalapi.net/license GPL 协议

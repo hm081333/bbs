@@ -6,20 +6,21 @@
  * Time: 17:23
  */
 
-namespace Common\Domain;
+namespace Library\Traits;
 
 use Library\Exception\BadRequestException;
-use PhalApi\Model\NotORMModel;
 use function Common\arr_unix_formatter;
 use function Common\DI;
 use function PhalApi\T;
 
-trait Common
+/**
+ * 领域层 实现
+ * Trait Domain
+ * @package Library\Traits
+ */
+trait Domain
 {
-    private static function DI()
-    {
-        return DI();
-    }
+    use \Library\Traits\ClassDynamicCalled;
 
     /**
      * 查询数据
@@ -149,6 +150,11 @@ trait Common
         return ['id' => $result];
     }
 
+    private static function DI()
+    {
+        return DI();
+    }
+
     /**
      * 根据ID删除数据
      * @param integer $id 删除信息的ID
@@ -162,44 +168,6 @@ trait Common
         if (!$result) {
             throw new BadRequestException(T('删除失败'));
         }
-    }
-
-    /**
-     * 获取指定Domain
-     * @param bool $className 指定调用的类
-     * @return mixed
-     */
-    public static function getDomain($className = false)
-    {
-        $classInfo = explode('\\', __CLASS__);// 拆解当前使用的类名
-        $className = empty($className) ? end($classInfo) : $className;// 当前使用的类名
-        $nameSpace = defined('NAME_SPACE') ? NAME_SPACE : __NAMESPACE__;
-        $class = implode('\\', [$nameSpace, 'Domain', $className]);
-        if ($nameSpace != 'Common' && !class_exists($class)) {
-            $class = implode('\\', ['Common', 'Domain', $className]);
-        }
-        return new $class;
-    }
-
-    /**
-     * 获取当前Domain对应的Model
-     * @param bool $className 指定调用的类
-     * @return \Common\Model\Common|NotORMModel 返回对应的 Model实例
-     */
-    public static function getModel($className = false)
-    {
-        /*$class = str_replace('Common', NAME_SPACE, str_replace('Domain', 'Model', __CLASS__));
-        if (!class_exists($class)) {
-            $class = str_replace(NAME_SPACE, 'Common', $class);
-        }*/
-        $classInfo = explode('\\', __CLASS__);// 拆解当前使用的类名
-        $className = empty($className) ? end($classInfo) : $className;// 当前使用的类名
-        $nameSpace = defined('NAME_SPACE') ? NAME_SPACE : __NAMESPACE__;
-        $class = implode('\\', [$nameSpace, 'Model', $className]);
-        if ($nameSpace != 'Common' && !class_exists($class)) {
-            $class = implode('\\', ['Common', 'Model', $className]);
-        }
-        return new $class;
     }
 
 }

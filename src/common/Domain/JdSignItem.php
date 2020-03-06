@@ -8,6 +8,10 @@
 
 namespace Common\Domain;
 
+use Library\Traits\Domain;
+use Library\Traits\Model;
+use PhalApi\Model\NotORMModel;
+
 /**
  * 京东签到项 领域层
  * JdSignItem
@@ -16,7 +20,7 @@ namespace Common\Domain;
  */
 class JdSignItem
 {
-    use Common;
+    use Domain;
 
     public function statusNames($status = false)
     {
@@ -28,24 +32,6 @@ class JdSignItem
             return $names;
         }
         return $names[$status];
-    }
-
-    /**
-     * 京东签到项 数据层
-     * @return \Common\Model\JdSignItem|\Common\Model\Common|\PhalApi\Model\NotORMModel
-     */
-    protected function Model_JdSignItem()
-    {
-        return self::getModel('JdSignItem');
-    }
-
-    /**
-     * 京东签到项 缓存层
-     * @return \Common\Cache\JdSignItem
-     */
-    protected function Cache_JdSignItem()
-    {
-        return new \Common\Cache\JdSignItem();
     }
 
     /**
@@ -65,6 +51,24 @@ class JdSignItem
             return $items[$key] ?? '';
         }
         return $items;
+    }
+
+    /**
+     * 京东签到项 缓存层
+     * @return \Common\Cache\JdSignItem
+     */
+    protected function Cache_JdSignItem()
+    {
+        return new \Common\Cache\JdSignItem();
+    }
+
+    /**
+     * 京东签到项 数据层
+     * @return \Common\Model\JdSignItem|Model|NotORMModel
+     */
+    protected function Model_JdSignItem()
+    {
+        return self::getModel('JdSignItem');
     }
 
 

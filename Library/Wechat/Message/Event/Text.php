@@ -6,8 +6,8 @@ use Common\Domain\TuLing;
 use Common\Model\TieBa;
 use Common\Model\User;
 use EasyWeChat\Kernel\Contracts\EventHandlerInterface;
-use EasyWeChat\Kernel\Messages\NewsItem as ReturnNewsItem;
 use EasyWeChat\Kernel\Messages\News as ReturnNews;
+use EasyWeChat\Kernel\Messages\NewsItem as ReturnNewsItem;
 use EasyWeChat\Kernel\Messages\Text as ReturnText;
 use Library\DateHelper;
 use function Common\DI;
@@ -91,7 +91,7 @@ class Text implements EventHandlerInterface
                         return new ReturnText('亲爱的，当天请求次数已用完。');
                         break;
                     default:
-                        if (empty($ask['list'])){
+                        if (empty($ask['list'])) {
                             $items = [
                                 new ReturnNewsItem([
                                     'title' => $payload['Content'],

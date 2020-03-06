@@ -14,6 +14,8 @@ use EasyWeChat\Kernel\Support\Collection;
 use Exception;
 use Library\Exception\BadRequestException;
 use Library\Exception\InternalServerErrorException;
+use Library\Traits\Domain;
+use Library\Traits\Model;
 use PhalApi\Model\NotORMModel;
 use Psr\Http\Message\ResponseInterface;
 use function Common\DI;
@@ -28,7 +30,7 @@ use function PhalApi\T;
  */
 class WeChatPublicPlatform
 {
-    use Common;
+    use Domain;
     private $appId;
     private $appSecret;
 
@@ -45,22 +47,6 @@ class WeChatPublicPlatform
     protected function Domain_Setting()
     {
         return self::getDomain('Setting');
-    }
-
-    /**
-     * @return \Common\Model\User|\Common\Model\Common|NotORMModel
-     */
-    protected function Model_User()
-    {
-        return self::getModel('User');
-    }
-
-    /**
-     * @return JdSign
-     */
-    protected function Domain_JdSign()
-    {
-        return self::getDomain('JdSign');
     }
 
     /**
@@ -163,12 +149,11 @@ class WeChatPublicPlatform
     }
 
     /**
-     * 贴吧 领域层
-     * @return TieBa
+     * @return \Common\Model\User|Model|NotORMModel
      */
-    protected function Domain_TieBa()
+    protected function Model_User()
     {
-        return self::getDomain('TieBa');
+        return self::getModel('User');
     }
 
     /**
@@ -251,6 +236,15 @@ class WeChatPublicPlatform
         DI()->logger->debug('微信推送结果', $result);
 
         return $result;
+    }
+
+    /**
+     * 贴吧 领域层
+     * @return TieBa
+     */
+    protected function Domain_TieBa()
+    {
+        return self::getDomain('TieBa');
     }
 
     /**
@@ -396,6 +390,14 @@ class WeChatPublicPlatform
         DI()->logger->debug('微信推送结果', $result);
 
         return $result;
+    }
+
+    /**
+     * @return JdSign
+     */
+    protected function Domain_JdSign()
+    {
+        return self::getDomain('JdSign');
     }
 
 

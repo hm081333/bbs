@@ -2,6 +2,8 @@
 
 namespace Sign\Api;
 
+use Library\Traits\Api;
+
 /**
  * 贴吧 接口服务类
  * TieBa
@@ -9,7 +11,7 @@ namespace Sign\Api;
  */
 class TieBa extends \Common\Api\TieBa
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {

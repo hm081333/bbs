@@ -3,6 +3,8 @@
 namespace Admin\Api;
 
 
+use Library\Traits\Api;
+
 /**
  * 管理员模块接口服务类
  * Setting
@@ -10,7 +12,7 @@ namespace Admin\Api;
  */
 class Setting extends \Common\Api\Setting
 {
-    use \Common\Api\Common;
+    use Api;
 
     public function getRules()
     {

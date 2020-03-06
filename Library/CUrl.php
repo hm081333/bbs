@@ -56,7 +56,7 @@ class CUrl
     /**
      * CUrl constructor.
      * @param int $retryTimes 超时重试次数，默认为1
-     * @param int $timeoutMs 超时时间，单位：毫秒，默认为3000
+     * @param int $timeoutMs  超时时间，单位：毫秒，默认为3000
      * @throws Exception\InternalServerErrorException
      */
     public function __construct($retryTimes = 1, $timeoutMs = 3000)
@@ -72,8 +72,8 @@ class CUrl
 
     /**
      * GET方式的请求
-     * @param string $url 请求的链接
-     * @param int $timeoutMs 超时设置，单位：毫秒
+     * @param string $url       请求的链接
+     * @param int    $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
      * @throws InternalServerErrorException
      */
@@ -82,136 +82,11 @@ class CUrl
         return $this->request($url, [], $timeoutMs);
     }
 
-    public function json_get($url, $timeoutMs = 5000)
-    {
-        return json_decode($this->request($url, [], $timeoutMs), true);
-    }
-
-    /**
-     * POST方式的请求
-     * @param string $url 请求的链接
-     * @param array $data POST的数据
-     * @param int $timeoutMs 超时设置，单位：毫秒
-     * @return string 接口返回的内容，超时返回false
-     * @throws InternalServerErrorException
-     */
-    public function post($url, $data, $timeoutMs = 5000)
-    {
-        return $this->request($url, $data, $timeoutMs);
-    }
-
-    public function json_post($url, $data, $timeoutMs = 5000)
-    {
-        return json_decode($this->request($url, $data, $timeoutMs), true);
-    }
-
-    /**
-     * 获取文件
-     * @param     $url
-     * @param     $path
-     * @param     $file_name
-     * @param int $timeoutMs
-     * @return string
-     * @throws Exception\InternalServerErrorException
-     * @throws InternalServerErrorException
-     */
-    public function getFile($url, $path, $file_name, $timeoutMs = 5000)
-    {
-        if (empty($path) || empty($file_name)) {
-            throw new \Library\Exception\InternalServerErrorException('路径或文件名为空');
-        }
-        if (!is_dir($path)) {
-            mkdir($path, 0777, true);
-        }
-        $fp = fopen($path . $file_name, 'wb');
-        if ($fp === false) {
-            throw new \Library\Exception\InternalServerErrorException('保存文件初始化失败');
-        }
-        $this->setOption([CURLOPT_URL => $url, CURLOPT_FILE => $fp, CURLOPT_HEADER => false, CURLOPT_FOLLOWLOCATION => true, CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs]);
-        $this->request($url);
-        fclose($fp);
-        return $path . $file_name;
-    }
-
-    /** ------------------ 前置方法 ------------------ **/
-
-    /**
-     * 设置请求头，后设置的会覆盖之前的设置
-     *
-     * @param array $header 传入键值对如：
-     *                      ```
-     *                      array(
-     *                      'Accept' => 'text/html',
-     *                      'Connection' => 'keep-alive',
-     *                      )
-     *                      ```
-     *
-     * @return $this
-     */
-    public function setHeader($header)
-    {
-        $this->header = array_merge($this->header, $header);
-        return $this;
-    }
-
-    public function unsetHeader($key)
-    {
-        unset($this->header[$key]);
-        return $this;
-    }
-
-    /**
-     * 设置curl配置项
-     *
-     * - 1、后设置的会覆盖之前的设置
-     * - 2、开发者设置的会覆盖框架的设置
-     *
-     * @param array $option 格式同上
-     *
-     * @return $this
-     */
-    public function setOption($option)
-    {
-        $this->option = $option + $this->option;
-        return $this;
-    }
-
-    /**
-     * @param array $cookie
-     */
-    public function setCookie($cookie)
-    {
-        $this->cookie = array_merge($this->cookie, $cookie);
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getCookie()
-    {
-        return $this->cookie;
-    }
-
-    public function withCookies()
-    {
-        $this->hascookie = true;
-
-        if (!empty($this->cookie)) {
-            $this->setHeader(['Cookie' => $this->getCookieString()]);
-        }
-        $this->setOption([CURLOPT_COOKIEFILE => '']);
-
-        return $this;
-    }
-
-    /** ------------------ 辅助方法 ------------------ **/
-
     /**
      * 统一接口请求
-     * @param string $url 请求的链接
-     * @param array $data POST的数据
-     * @param int $timeoutMs 超时设置，单位：毫秒
+     * @param string $url       请求的链接
+     * @param array  $data      POST的数据
+     * @param int    $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
      * @throws InternalServerErrorException
      */
@@ -314,6 +189,114 @@ class CUrl
         return $ret;
     }
 
+    /** ------------------ 前置方法 ------------------ **/
+
+    public function json_get($url, $timeoutMs = 5000)
+    {
+        return json_decode($this->request($url, [], $timeoutMs), true);
+    }
+
+    /**
+     * POST方式的请求
+     * @param string $url       请求的链接
+     * @param array  $data      POST的数据
+     * @param int    $timeoutMs 超时设置，单位：毫秒
+     * @return string 接口返回的内容，超时返回false
+     * @throws InternalServerErrorException
+     */
+    public function post($url, $data, $timeoutMs = 5000)
+    {
+        return $this->request($url, $data, $timeoutMs);
+    }
+
+    public function json_post($url, $data, $timeoutMs = 5000)
+    {
+        return json_decode($this->request($url, $data, $timeoutMs), true);
+    }
+
+    /**
+     * 获取文件
+     * @param     $url
+     * @param     $path
+     * @param     $file_name
+     * @param int $timeoutMs
+     * @return string
+     * @throws Exception\InternalServerErrorException
+     * @throws InternalServerErrorException
+     */
+    public function getFile($url, $path, $file_name, $timeoutMs = 5000)
+    {
+        if (empty($path) || empty($file_name)) {
+            throw new \Library\Exception\InternalServerErrorException('路径或文件名为空');
+        }
+        if (!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+        $fp = fopen($path . $file_name, 'wb');
+        if ($fp === false) {
+            throw new \Library\Exception\InternalServerErrorException('保存文件初始化失败');
+        }
+        $this->setOption([CURLOPT_URL => $url, CURLOPT_FILE => $fp, CURLOPT_HEADER => false, CURLOPT_FOLLOWLOCATION => true, CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs]);
+        $this->request($url);
+        fclose($fp);
+        return $path . $file_name;
+    }
+
+    /**
+     * 设置curl配置项
+     *
+     * - 1、后设置的会覆盖之前的设置
+     * - 2、开发者设置的会覆盖框架的设置
+     *
+     * @param array $option 格式同上
+     *
+     * @return $this
+     */
+    public function setOption($option)
+    {
+        $this->option = $option + $this->option;
+        return $this;
+    }
+
+    public function unsetHeader($key)
+    {
+        unset($this->header[$key]);
+        return $this;
+    }
+
+    /** ------------------ 辅助方法 ------------------ **/
+
+    public function withCookies()
+    {
+        $this->hascookie = true;
+
+        if (!empty($this->cookie)) {
+            $this->setHeader(['Cookie' => $this->getCookieString()]);
+        }
+        $this->setOption([CURLOPT_COOKIEFILE => '']);
+
+        return $this;
+    }
+
+    /**
+     * 设置请求头，后设置的会覆盖之前的设置
+     *
+     * @param array $header 传入键值对如：
+     *                      ```
+     *                      array(
+     *                      'Accept' => 'text/html',
+     *                      'Connection' => 'keep-alive',
+     *                      )
+     *                      ```
+     *
+     * @return $this
+     */
+    public function setHeader($header)
+    {
+        $this->header = array_merge($this->header, $header);
+        return $this;
+    }
+
     protected function getCookieString()
     {
         $ret = '';
@@ -321,5 +304,22 @@ class CUrl
             $ret .= $key . '=' . $val . ';';
         }
         return trim($ret, ';');
+    }
+
+    /**
+     * @return array
+     */
+    public function getCookie()
+    {
+        return $this->cookie;
+    }
+
+    /**
+     * @param array $cookie
+     */
+    public function setCookie($cookie)
+    {
+        $this->cookie = array_merge($this->cookie, $cookie);
+        return $this;
     }
 }

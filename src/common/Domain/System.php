@@ -8,6 +8,14 @@
 
 namespace Common\Domain;
 
+use Library\Exception\BadRequestException;
+use Library\Exception\InternalServerErrorException;
+use Library\Traits\Domain;
+use function Common\createDir;
+use function Common\emptyDir;
+use function Common\pwd_verify;
+use function PhalApi\T;
+
 /**
  * 系统操作 领域层
  * Class System
@@ -16,7 +24,7 @@ namespace Common\Domain;
  */
 class System
 {
-    use Common;
+    use Domain;
 
     /**
      * 遍历目录。。。无限遍历--注意超时！
@@ -65,18 +73,18 @@ class System
     /**
      * 还原
      * @param $data
-     * @throws \Library\Exception\BadRequestException
-     * @throws \Library\Exception\InternalServerErrorException
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
      */
     public static function restore($data)
     {
-        self::DI()->response->setMsg(\PhalApi\T('还原成功'));
+        self::DI()->response->setMsg(T('还原成功'));
         if (empty($data['password'])) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('请输入管理员密码'));
+            throw new BadRequestException(T('请输入管理员密码'));
         }
         $admin = self::getDomain('Admin')::getInfo(1, 'password');
-        if (!\Common\pwd_verify($data['password'], $admin['password'])) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('密码错误'));
+        if (!pwd_verify($data['password'], $admin['password'])) {
+            throw new BadRequestException(T('密码错误'));
         }
         set_time_limit(0);
         ignore_user_abort(true);
@@ -86,30 +94,30 @@ class System
         $path = $data['name'];
         $file = $dir . $path;
         if (!file_exists($file)) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('找不到该文件'));
+            throw new BadRequestException(T('找不到该文件'));
         }
         $return_val = true;
         system(MySQL . "mysql -u" . $db['user'] . " -p" . $db['password'] . " -h" . $db['host'] . " " . $db['name'] . " < " . $file, $return_val);
         if ($return_val) {
-            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('还原失败'));
+            throw new InternalServerErrorException(T('还原失败'));
         }
     }
 
     /**
      * 备份
      * @param $data
-     * @throws \Library\Exception\BadRequestException
-     * @throws \Library\Exception\InternalServerErrorException
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
      */
     public static function backup($data)
     {
-        self::DI()->response->setMsg(\PhalApi\T('备份成功'));
+        self::DI()->response->setMsg(T('备份成功'));
         if (empty($data['password'])) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('请输入管理员密码'));
+            throw new BadRequestException(T('请输入管理员密码'));
         }
         $admin = self::getDomain('Admin')::getInfo(1, 'password');
-        if (!\Common\pwd_verify($data['password'], $admin['password'])) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('密码错误'));
+        if (!pwd_verify($data['password'], $admin['password'])) {
+            throw new BadRequestException(T('密码错误'));
         }
         set_time_limit(0);
         ignore_user_abort(true);
@@ -117,14 +125,14 @@ class System
         $db = $dbs[DB];
         $dir = API_ROOT . '/data/' . date('Ym', time()) . '/';
         if (!file_exists($dir)) {
-            \Common\createDir($dir);
+            createDir($dir);
         }
         $file_name = date('Y年m月d日-H时i分s秒', time()) . '.sql';
         $file = $dir . $file_name;
         $return_val = true;
         system(MySQL . "mysqldump -u" . $db['user'] . " -p" . $db['password'] . " -h" . $db['host'] . " " . $db['name'] . " > " . $file, $return_val);
         if ($return_val) {
-            throw new \Library\Exception\InternalServerErrorException(\PhalApi\T('备份失败'));
+            throw new InternalServerErrorException(T('备份失败'));
         }
     }
 
@@ -133,13 +141,13 @@ class System
      */
     public static function reset($data)
     {
-        self::DI()->response->setMsg(\PhalApi\T('清空成功'));
+        self::DI()->response->setMsg(T('清空成功'));
         if (empty($data['password'])) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('请输入管理员密码'));
+            throw new BadRequestException(T('请输入管理员密码'));
         }
         $admin = self::getDomain('Admin')::getInfo(1, 'password');
-        if (!\Common\pwd_verify($data['password'], $admin['password'])) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('密码错误'));
+        if (!pwd_verify($data['password'], $admin['password'])) {
+            throw new BadRequestException(T('密码错误'));
         }
         set_time_limit(0);
         ignore_user_abort(true);
@@ -180,10 +188,10 @@ class System
             'static/upload/neditor',// 删除富文本上传内容
         ];
         foreach ($file_paths as $file_path) {
-            \Common\emptyDir($file_path);
+            emptyDir($file_path);
         }
         /* 删除缓存文件 */
-        \Common\emptyDir(API_ROOT . '/runtime/cache');
+        emptyDir(API_ROOT . '/runtime/cache');
         /* 删除日志文件 */
         // \Common\emptyDir(API_ROOT . '/runtime/log');
         /* 写入日志 */

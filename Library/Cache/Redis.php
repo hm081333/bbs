@@ -2,8 +2,8 @@
 
 namespace Library\Cache;
 
+use Library\Exception\InternalServerErrorException;
 use PhalApi\Cache;
-use \Library\Exception\InternalServerErrorException;
 
 /**
  * Redis Redis缓存

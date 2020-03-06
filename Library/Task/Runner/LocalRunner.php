@@ -2,12 +2,12 @@
 
 namespace Task\Runner;
 
-use function Common\DI;
 use PhalApi\Exception\InternalServerErrorException;
-use PhalApi\Task\Runner;
+use PhalApi\PhalApi;
 use PhalApi\Request;
 use PhalApi\Response\JsonResponse;
-use PhalApi\PhalApi;
+use PhalApi\Task\Runner;
+use function Common\DI;
 
 /**
  * 本地调度器 LocalRunner
