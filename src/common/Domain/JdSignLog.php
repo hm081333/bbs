@@ -118,7 +118,6 @@ class JdSignLog
         if (empty($num)) {
             return false;
         }
-        return;
         if (empty($this->sign_key) || empty($this->reward_type) || empty($this->jd_sign_id)) {
             throw new InternalServerErrorException(T('系统异常'));
         }
