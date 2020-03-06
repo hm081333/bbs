@@ -50,12 +50,13 @@ class JdSignLog
      * 获得京豆记录
      * @param        $num
      * @param array  $memo
+     * @return bool
      * @throws BadRequestException
      * @throws InternalServerErrorException
      */
     public function bean($num, $memo = [])
     {
-        $this->setRewardType('bean')->log($num, $memo);
+        return $this->setRewardType('bean')->log($num, $memo);
     }
 
     /**
@@ -119,35 +120,38 @@ class JdSignLog
      * 获得营养液记录
      * @param        $num
      * @param array  $memo
+     * @return bool
      * @throws BadRequestException
      * @throws InternalServerErrorException
      */
     public function nutrients($num, $memo = [])
     {
-        $this->setRewardType('nutrients')->log($num, $memo);
+        return $this->setRewardType('nutrients')->log($num, $memo);
     }
 
     /**
      * 获得白条提额记录
      * @param        $num
      * @param array  $memo
+     * @return bool
      * @throws BadRequestException
      * @throws InternalServerErrorException
      */
     public function baitiao($num, $memo = [])
     {
-        $this->setRewardType('baitiao')->log($num, $memo);
+        return $this->setRewardType('baitiao')->log($num, $memo);
     }
 
     /**
      * 获得钢镚记录
      * @param        $num
      * @param array  $memo
+     * @return bool
      * @throws BadRequestException
      * @throws InternalServerErrorException
      */
     public function coin($num, $memo = [])
     {
-        $this->setRewardType('coin')->log($num, $memo);
+        return $this->setRewardType('coin')->log($num, $memo);
     }
 }

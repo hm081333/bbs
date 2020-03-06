@@ -232,8 +232,6 @@ class JdSign
         $jd_sign_info = $this->getJDSignInfo($jd_sign_id, $jd_sign_info);
         // 设置日志记录的签到ID
         $this->Domain_JdSignLog()->setJdSignId($jd_sign_info['id']);
-        var_dump($this->Domain_JdSignLog()->coin(1));
-        die;
         switch ($this->sign_key) {
             case 'bean':
                 // 签到领京豆 - 京豆
