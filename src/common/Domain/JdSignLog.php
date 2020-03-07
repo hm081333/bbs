@@ -69,9 +69,6 @@ class JdSignLog
      */
     public function log($num, $memo = [])
     {
-        if (time() <= 1583510400) {
-            return false;
-        }
         if (empty($num)) {
             return false;
         }

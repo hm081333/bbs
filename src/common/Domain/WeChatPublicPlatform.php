@@ -311,6 +311,7 @@ class WeChatPublicPlatform
         $users = $this->Model_User()->queryRows("SELECT
             `jd_user`.`id`,
             `jd_user`.`user_id`,
+            `jd_user`.`jd_nick_name`,
             `user`.`open_id`,
             `user`.`user_name`
             FROM
@@ -349,7 +350,7 @@ class WeChatPublicPlatform
 
         $result = DI()->wechat->template_message->send([
             'touser' => $user['open_id'],
-            'template_id' => 'MZGfek36AHUS3WVteDPQXpFqoM2x1c9NtlHYGtWiSXc',
+            'template_id' => 'jcbiBiXSYDMQeeSkEs4TvFPVbO8fMDu7RSOx_wgrtzY',
             'url' => 'http://bbs2.lyihe2.tk/sign',
             // 'miniprogram' => [
             //     'appid' => 'xxxxxxx',
@@ -362,26 +363,34 @@ class WeChatPublicPlatform
                 ],
                 'greeting' => [
                     'value' => $info['greeting'],
+                    'color' => '#009688',
+                ],
+                'jd_nick_name' => [
+                    'value' => $info['jd_nick_name'],
                     'color' => '#173177',
                 ],
-                'jd_sign_count' => [
-                    'value' => $info['jd_sign_count'],
+                'bean_day' => [
+                    'value' => $info['bean_day'],
                     'color' => '#173177',
                 ],
-                'bean_award_day' => [
-                    'value' => $info['bean_award_day'],
+                'bean_month' => [
+                    'value' => $info['bean_month'],
                     'color' => '#173177',
                 ],
                 'nutrients_day' => [
                     'value' => $info['nutrients_day'],
                     'color' => '#173177',
                 ],
-                'bean_award_total' => [
-                    'value' => $info['bean_award_total'],
+                'nutrients_month' => [
+                    'value' => $info['nutrients_month'],
                     'color' => '#173177',
                 ],
-                'nutrients_total' => [
-                    'value' => $info['nutrients_total'],
+                'baitiao_day' => [
+                    'value' => $info['baitiao_day'],
+                    'color' => '#173177',
+                ],
+                'baitiao_month' => [
+                    'value' => $info['baitiao_month'],
                     'color' => '#173177',
                 ],
             ],
@@ -394,6 +403,7 @@ class WeChatPublicPlatform
 
     /**
      * @return JdSign
+     * @throws BadRequestException
      */
     protected function Domain_JdSign()
     {

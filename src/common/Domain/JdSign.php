@@ -10,6 +10,7 @@ namespace Common\Domain;
 
 use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
 use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
+use Library\DateHelper;
 use Library\Exception\BadRequestException;
 use Library\Exception\Exception;
 use Library\Exception\InternalServerErrorException;
@@ -2392,46 +2393,72 @@ class JdSign
      */
     public function getSignStatus($jd_user = false)
     {
-        if (empty($jd_user)) throw new BadRequestException(T('非法参数'));
-        $sign_list = $this->Model_JdSign()->getListByWhere(['jd_user_id' => $jd_user['id'], 'status' => 1], 'sign_key,return_data');
-        if (empty($sign_list)) {
-            throw new BadRequestException(T('该用户不存在开启中的签到'));
-        }
+        if (empty($jd_user) || empty($jd_user['user_name']) || empty($jd_user['jd_nick_name'])) throw new BadRequestException(T('非法参数'));
 
-        $jd_sign_count = count($sign_list);
-        $bean_award_day = 0;
-        $bean_award_total = 0;
-        $nutrients_day = 0;
-        $nutrients_total = 0;
-        foreach ($sign_list as $sign_info) {
-            $return_data = unserialize($sign_info['return_data']);
-            $bean_award_day += $return_data['bean_award_day'] ?? 0;
-            $bean_award_total += $return_data['bean_award_total'] ?? 0;
-            if ($sign_info['sign_key'] != 'doubleSign') {
-                $nutrients_day += $return_data['nutrients_day'] ?? 0;
-                $nutrients_total += $return_data['nutrients_total'] ?? 0;
-            }
-        }
-        unset($sign_info, $sign_list);
+        $result = [];
+        $result['user_name'] = $jd_user['user_name'];
+        $result['jd_nick_name'] = $jd_user['jd_nick_name'];
+
+        $day_time = DateHelper::getDayTime();
+        $month_time = DateHelper::getMonthTime();
+
+        $day_sql = 'SELECT
+                    `jd_sign_log`.`reward_type`,
+                    SUM( `jd_sign_log`.`num` ) AS `num`
+                FROM
+                    `ly_jd_sign_log` AS `jd_sign_log`
+                    LEFT JOIN `ly_jd_sign` AS `jd_sign` ON `jd_sign_log`.`jd_sign_id` = `jd_sign`.`id` 
+                WHERE
+                    `jd_sign`.`jd_user_id` = ? 
+                    AND `jd_sign`.`status` = 1 
+                    AND `jd_sign_log`.`add_time` >= ?
+                    AND `jd_sign_log`.`add_time` <= ?
+                GROUP BY
+                    `jd_sign_log`.`reward_type`';
+        $day_list = $this->Model_JdSign()->queryRows($day_sql, [
+            intval($jd_user['id']),
+            $day_time['begin'],
+            $day_time['end'],
+        ]);
+        $day_list = array_combine(array_column($day_list, 'reward_type'), array_column($day_list, 'num'));
+
+        $month_sql = 'SELECT
+                    `jd_sign_log`.`reward_type`,
+                    SUM( `jd_sign_log`.`num` ) AS `num`
+                FROM
+                    `ly_jd_sign_log` AS `jd_sign_log`
+                    LEFT JOIN `ly_jd_sign` AS `jd_sign` ON `jd_sign_log`.`jd_sign_id` = `jd_sign`.`id` 
+                WHERE
+                    `jd_sign`.`jd_user_id` = ? 
+                    AND `jd_sign`.`status` = 1 
+                    AND `jd_sign_log`.`add_time` >= ?
+                    AND `jd_sign_log`.`add_time` <= ?
+                GROUP BY
+                    `jd_sign_log`.`reward_type`';
+        $month_list = $this->Model_JdSign()->queryRows($month_sql, [
+            intval($jd_user['id']),
+            $month_time['begin'],
+            $month_time['end'],
+        ]);
+        $month_list = array_combine(array_column($month_list, 'reward_type'), array_column($month_list, 'num'));
 
         $h = date('G', time());
         if ($h < 11) {
-            $greeting = '早上好！！！';
+            $result['greeting'] = '早上好';
         } else if ($h < 13) {
-            $greeting = '中午好！！！';
+            $result['greeting'] = '中午好';
         } else if ($h < 17) {
-            $greeting = '下午好！！！';
+            $result['greeting'] = '下午好';
         } else {
-            $greeting = '晚上好！！！';
+            $result['greeting'] = '晚上好';
         }
-        $result = [];
-        $result['user_name'] = $jd_user['user_name'];
-        $result['greeting'] = $greeting;
-        $result['jd_sign_count'] = $jd_sign_count;
-        $result['bean_award_day'] = $bean_award_day;
-        $result['nutrients_day'] = $nutrients_day;
-        $result['bean_award_total'] = $bean_award_total;
-        $result['nutrients_total'] = $nutrients_total;
+
+        $result['bean_day'] = $day_list['bean'] ?? 0;
+        $result['bean_month'] = $month_list['bean'] ?? 0;
+        $result['nutrients_day'] = $day_list['nutrients'] ?? 0;
+        $result['nutrients_month'] = $month_list['nutrients'] ?? 0;
+        $result['baitiao_day'] = $day_list['baitiao'] ?? 0;
+        $result['baitiao_month'] = $month_list['baitiao'] ?? 0;
         return $result;
     }
 
