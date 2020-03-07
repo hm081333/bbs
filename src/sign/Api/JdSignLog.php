@@ -1,15 +1,15 @@
 <?php
 
-namespace Common\Api;
+namespace Sign\Api;
 
 use Library\Traits\Api;
 
 /**
- * 京东签到项 接口服务类
- * JdSignItem
+ * 京东签到记录 接口服务类
+ * JdSignLog
  * @author LYi-Ho 2018-11-24 16:06:44
  */
-class JdSignItem extends Base
+class JdSignLog extends \Common\Api\JdSignLog
 {
     use Api;
 
@@ -18,6 +18,5 @@ class JdSignItem extends Base
         $rules = parent::getRules();
         return $rules;
     }
-
 
 }
