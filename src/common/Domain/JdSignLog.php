@@ -113,6 +113,21 @@ class JdSignLog
         return $this;
     }
 
+    public function rewardTypeNames($type = false)
+    {
+        $types = [
+            'bean' => '京豆',
+            'nutrients' => '营养液',
+            'coin' => '钢镚',
+            'gold' => '金币',
+            'baitiao' => '白条',
+        ];
+        if ($type === false) {
+            return $types;
+        }
+        return $types[$type] ?? '';
+    }
+
     /**
      * 获得营养液记录
      * @param        $num
