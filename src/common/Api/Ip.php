@@ -3,6 +3,9 @@
 
 namespace Common\Api;
 
+use Library\Crypt\RSA\MultiPub2PriCrypt;
+use Library\Exception\BadRequestException;
+use Library\Exception\InternalServerErrorException;
 use Library\Traits\Api;
 
 /**
@@ -28,14 +31,25 @@ class Ip extends Base
     }
 
     /**
+     * IP地址 领域层
+     * @return \Common\Domain\Ip
+     * @throws BadRequestException
+     */
+    public function Domain_Ip()
+    {
+        return self::getModel();
+    }
+
+    /**
      * 获取IP详细信息
      * @return array
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
      */
     public function getInfo()
     {
         $data = get_object_vars($this);
-        self::getModel();
-        return static::getDomain()::getIPInfo($data);
+        return $this->Domain_Ip()::getIPInfo($data);
 
     }
 
