@@ -37,7 +37,7 @@ class Ip extends Base
      */
     public function Domain_Ip()
     {
-        return self::getModel();
+        return self::getDomain();
     }
 
     /**

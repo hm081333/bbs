@@ -3,6 +3,8 @@
 namespace Common\Api;
 
 
+use Library\Exception\BadRequestException;
+use Library\Exception\InternalServerErrorException;
 use Library\Traits\Api;
 
 /**
@@ -30,9 +32,30 @@ class Topic extends Base
     }
 
     /**
+     * 文章 领域层
+     * @return \Common\Domain\Topic
+     * @throws BadRequestException
+     */
+    protected function Domain_Topic()
+    {
+        return self::getDomain();
+    }
+
+    /**
+     * 文章分类 领域层
+     * @return \Common\Domain\Subject
+     * @throws BadRequestException
+     */
+    protected function Domain_Subject()
+    {
+        return self::getDomain('Subject');
+    }
+
+    /**
      * 文章列表
      * @desc 文章列表
      * @return array
+     * @throws BadRequestException
      */
     public function listData()
     {
@@ -41,11 +64,11 @@ class Topic extends Base
         if ($data['class_id'] > 0) {
             $where['class_id=?'] = $data['class_id'];
         }
-        $list = self::getDomain()::getList($this->limit, $this->offset, $where, '*', 'id desc');
+        $list = $this->Domain_Topic()::getList($this->limit, $this->offset, $where, '*', 'id desc');
 
         $list['subject_name'] = '';
         if ($data['class_id'] > 0) {
-            $class = self::getDomain('Subject')::getInfo($data['class_id']);
+            $class = $this->Domain_Subject()::getInfo($data['class_id']);
             if (!empty($class)) {
                 $list['subject_name'] = $class['name'];
                 // \PhalApi\DI()->response->setMsg($class['name']);
@@ -58,25 +81,32 @@ class Topic extends Base
      * 文章详情数据
      * @desc      获取文章详情数据
      * @return array    数据数组
+     * @throws BadRequestException
      */
     public function InfoData()
     {
         self::getModel()->updateViewCount($this->id);// 浏览数+1
-        $data = self::getDomain()::getInfo($this->id);
+        $data = $this->Domain_Topic()::getInfo($this->id);
+        $data['detail'] = htmlspecialchars_decode($data['detail']);
         // $detail = $data['detail'];
         // $detail = preg_replace('/((width)=[\'"]+[0-9]+[\'"]+)|((height)=[\'"]+[0-9]+[\'"]+)/i', '', $detail);
         // $detail = preg_replace('/<a\b[^>]+\bhref="([^"]*)"[^>]*>/i', '<a>', $detail);
-        // self::getDomain()::doUpdate([
+        // $this->>Domain_Topic()::doUpdate([
         //     'id' => $data['id'],
         //     'detail' =>$detail
         // ]);
         return $data;
     }
 
+    /**
+     * @return array
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
+     */
     public function create()
     {
         $data = get_object_vars($this);
-        return self::getDomain()::create($data);
+        return $this->Domain_Topic()::create($data);
     }
 
 }

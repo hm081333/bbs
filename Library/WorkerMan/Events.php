@@ -12,8 +12,8 @@
  */
 
 use GatewayWorker\Lib\Gateway;
+use Library\Request;
 use PhalApi\PhalApi;
-use PhalApi\Request;
 use function Common\DI;
 
 class Events
@@ -113,51 +113,35 @@ class Events
                 break;
             // 请求接口
             case 'api':
-                // 访问服务参数
-                // $request['s'] = $request['s'] ?? 'Common.Base.Index';
-                $request['s'] = $request['s'] ?? '';
-                // 拆解访问参数
-                $service = explode('.', $request['s']);
-                // api地址格式是否正确
-                if (count($service) != 3) {
-                    $apiResult = [
-                        'ret' => 400,
-                        'data' => '',
-                        'msg' => '接口地址有误，请检查后尝试重新请求！',
-                    ];
-                    break;
-                } else {
-                    foreach (explode('|', urldecode($data['Auth'])) as $item) {
-                        $key = substr($item, 0, strlen(USER_TOKEN));
-                        $value = substr($item, strlen(USER_TOKEN));
-                        if ($key == ADMIN_TOKEN) {
-                            \Common\Domain\Admin::$admin_token = $value;
-                        } else if ($key == USER_TOKEN) {
-                            \Common\Domain\User::$user_token = $value;
-                        }
+                foreach (explode('|', urldecode($data['Auth'])) as $item) {
+                    $key = substr($item, 0, strlen(USER_TOKEN));
+                    $value = substr($item, strlen(USER_TOKEN));
+                    if ($key == ADMIN_TOKEN) {
+                        \Common\Domain\Admin::$admin_token = $value;
+                    } else if ($key == USER_TOKEN) {
+                        \Common\Domain\User::$user_token = $value;
                     }
-
-                    $session_id = self::sessionSaveHandler()->getSessionId($client_id);
-                    $_SESSION = self::getSession($session_id);
-                    $server = DI()->cache->get('ws_server:' . $client_id) ?? [];
-                    $_SERVER = array_merge(($_SERVER ?? []), $server);
-                    DI()->cache->expire('ws_server:' . $client_id);
-
-                    // var_dump("session_id|{$session_id}|session", $_SESSION);
-
-                    // 清空上次请求结果数据
-                    DI()->response->setRet(200)->setMsg('')->setData([]);
-                    // 响应操作类
-                    $pai = new PhalApi();
-                    // 重新建立api请求
-                    DI()->request = new Request($request);
-                    // 获取api返回结果
-                    // $apiResult = DI()->pai->response()->getResult();
-                    $apiResult = $pai->response()->getResult();
-                    self::saveSession($session_id, $_SESSION ?? []);
-                    // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
                 }
-                $response['response'] = $apiResult;
+
+                $session_id = self::sessionSaveHandler()->getSessionId($client_id);
+                $_SESSION = self::getSession($session_id);
+                $server = DI()->cache->get('ws_server:' . $client_id) ?? [];
+                $_SERVER = array_merge(($_SERVER ?? []), $server);
+                DI()->cache->expire('ws_server:' . $client_id);
+
+                // var_dump("session_id|{$session_id}|session", $_SESSION);
+
+                // 清空上次请求结果数据
+                DI()->response->setRet(200)->setMsg('')->setData([]);
+                // 响应操作类
+                $pai = new PhalApi();
+                // 重新建立api请求
+                DI()->request = new Request($request);
+                // 获取api返回结果
+                // $apiResult = DI()->pai->response()->getResult();
+                $response['response'] = $pai->response()->getResult();
+                self::saveSession($session_id, $_SESSION ?? []);
+                // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
                 break;
             default:
                 break;

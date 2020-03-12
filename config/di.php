@@ -96,8 +96,8 @@ $di->tool = function () {
 
 // 对称加密
 $di->crypt = function () use ($di) {
-    // return new \Library\Crypt\RSA\MultiPub2PriCrypt($di->config->get('sys.openssl'));
-    return new \Library\Crypt\RSA\Pub2PriCrypt($di->config->get('sys.openssl'));
+    return new \Library\Crypt\RSA\MultiPub2PriCrypt($di->config->get('sys.openssl'));
+    // return new \Library\Crypt\RSA\Pub2PriCrypt($di->config->get('sys.openssl'));
 };
 
 // 支持JsonP的返回
@@ -112,3 +112,6 @@ $di->crypt = function () use ($di) {
 // $di->qrcode = function() {
 //     return new \PhalApi\QrCode\Lite();
 // };
+
+// 注册新的请求服务
+$di->request = new \Library\Request(); // 内含参数解密的实现

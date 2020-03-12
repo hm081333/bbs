@@ -86,6 +86,9 @@ try {
             $domain_JdSign = new \Common\Domain\JdSign();
             $domain_JdSign->setSignKey($type)->doItemSignAll();// 执行签到项目
             break;
+        case 'test':
+            \Common\Domain\Reply::test();
+            break;
         default:
             die('非法参数！');
             break;

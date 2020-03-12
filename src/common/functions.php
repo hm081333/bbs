@@ -299,10 +299,13 @@ function download($path, $file)
  * 打印样式格式化的信息
  * @param $data
  */
-function dump($data)
+function dump(...$args)
 {
     echo '<pre/>';
-    var_dump($data);
+    foreach ($args as $arg) {
+        var_dump($arg);
+    }
+    exit();
 }
 
 /**
