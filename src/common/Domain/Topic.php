@@ -59,6 +59,7 @@ class Topic
         $insert_data['name'] = $user['user_name'];
         $insert_data['email'] = $user['email'];
         $insert_data['add_time'] = time();
+        $insert_data['edit_time'] = time();
         /*if ($this->sticky == 'on') {
             $insert_data['sticky'] = 1;
         }*/

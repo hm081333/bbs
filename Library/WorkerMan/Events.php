@@ -97,6 +97,7 @@ class Events
      */
     public static function onMessage($client_id, $message)
     {
+        $message = json_decode(DI()->crypt->decrypt($message), true);
         DI()->logger->debug("收到消息|client_id|{$client_id}|message|{$message}");
         // 解析接收到的消息
         $data = json_decode($message, true);
@@ -105,7 +106,7 @@ class Events
         // 请求参数
         $request = $data['request'] ?? [];
         // 默认响应数据
-        $response = ['type' => $dataType, 'requestId' => md5(rawurlencode($message)), 'response' => []];
+        $response = ['type' => $dataType];
         switch ($dataType) {
             // 回应心跳
             case 'pong':
@@ -139,11 +140,13 @@ class Events
                 DI()->request = new Request($request);
                 // 获取api返回结果
                 // $apiResult = DI()->pai->response()->getResult();
+                $response['requestId'] = md5(rawurlencode($message));
                 $response['response'] = $pai->response()->getResult();
                 self::saveSession($session_id, $_SESSION ?? []);
                 // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
                 break;
             default:
+                return;
                 break;
         }
         DI()->logger->info("响应消息|client_id|{$client_id}|response", $response);
