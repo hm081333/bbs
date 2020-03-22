@@ -140,6 +140,7 @@ class JdSign
     /**
      * 京东签到项 数据层
      * @return \Common\Model\JdSign|Model|NotORMModel
+     * @throws BadRequestException
      */
     protected function Model_JdSign()
     {
@@ -149,6 +150,7 @@ class JdSign
     /**
      * 京东会员 数据层
      * @return \Common\Model\JdUser|Model|NotORMModel
+     * @throws BadRequestException
      */
     protected function Model_JdUser()
     {
@@ -159,6 +161,7 @@ class JdSign
      * 更改京东签到项目状态
      * @param $jd_sign_id
      * @param $status
+     * @throws BadRequestException
      */
     public function changeSignStatus($jd_sign_id, $status)
     {
@@ -171,6 +174,7 @@ class JdSign
      * 设置签到项key值
      * @param string $sign_key
      * @return $this
+     * @throws BadRequestException
      */
     public function setSignKey(string $sign_key)
     {
@@ -183,6 +187,7 @@ class JdSign
     /**
      * 京东签到记录 领域层
      * @return JdSignLog
+     * @throws BadRequestException
      */
     protected function Domain_JdSignLog()
     {
@@ -566,6 +571,7 @@ class JdSign
     /**
      * 京东会员 逻辑层
      * @return JdUser
+     * @throws BadRequestException
      */
     protected function Domain_JdUser()
     {
@@ -1119,7 +1125,6 @@ class JdSign
             'uuid' => '',
         ]);
         DI()->logger->debug("种豆得豆任务 - 关注商品", $data);
-        sleep(2);
         // 取消收藏商品
         $this->JDFavoriteGood($skuId);
 
@@ -1132,6 +1137,7 @@ class JdSign
      * @param bool $favorite
      * @return array|bool
      * @throws Exception
+     * @throws InternalServerErrorException
      */
     private function JDFavoriteGood($skuId = false, $favorite = false)
     {
@@ -1167,8 +1173,7 @@ class JdSign
     /**
      * 商品收藏状态
      * @param bool $skuId
-     * @param bool $favorite
-     * @return array|bool
+     * @return array|bool|false
      * @throws Exception
      * @throws InternalServerErrorException
      */
@@ -2156,6 +2161,7 @@ class JdSign
     /**
      * 执行 京东金融APP - 翻牌赢钢镚
      * @param array $jd_sign_info
+     * @throws BadRequestException
      * @throws Exception
      */
     private function doJRFlopReward(array $jd_sign_info = [])
