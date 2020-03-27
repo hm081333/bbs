@@ -26,14 +26,13 @@ class Ip
 
     /**
      * 获取ip地址的详细信息
-     * @param array $data
+     * @param string $ip
      * @return mixed
      * @throws BadRequestException
      * @throws InternalServerErrorException
      */
-    public static function getIPInfo(array $data = [])
+    public static function getIPInfo(string $ip)
     {
-        $ip = $data['ip'] ?? '';
         if (empty($ip)) {
             $ip = DI()->tool->getClientIp();// 获得请求IP
         }
