@@ -944,6 +944,7 @@ class JdSign
      * @param bool $follow
      * @return array|bool
      * @throws Exception
+     * @throws InternalServerErrorException
      */
     private function JDFollowShop($shopId = false, $follow = false)
     {
@@ -982,6 +983,7 @@ class JdSign
      * @param bool $shopId
      * @return bool
      * @throws Exception
+     * @throws InternalServerErrorException
      */
     private function JDShopIsFollow($shopId = false)
     {
@@ -995,15 +997,21 @@ class JdSign
             // 'callback' => 'jsonpCBKO',
             'g_ty' => 'ls',
         ]);
-        $data = DI()->curl->setCookie($this->user_cookie)->setHeader([
+        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
             'Referer' => "https://shop.m.jd.com/?shopId={$shopId}",
-        ])->json_get($url);
+        ])->get($url);
 
-        if ($data['iRet'] != 0) throw new Exception($data['errMsg']);
+        $pattern = '/^(try\{\()(.*)(\)\;\}catch\(e\)\{\})$/';
+        preg_match($pattern, $res, $match);
+        if (!isset($match[2])) throw new Exception('商品收藏状态 返回结果错误');
+        $data_str = $match[2];
+        $res = json_decode($data_str, true);
+
+        DI()->logger->debug('店铺收藏状态', $res);
+
+        if ($res['iRet'] != 0) throw new Exception($res['errMsg']);
         // 关注状态：1已收藏 0未收藏
-        $state = $data['state'] ?? 0;
-
-        DI()->logger->debug('店铺收藏状态', $data);
+        $state = $res['state'] ?? 0;
 
         return $state == 1;
     }
