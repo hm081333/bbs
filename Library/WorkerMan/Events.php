@@ -85,6 +85,9 @@ class Events
     public static function sendToClient($client_id, $data)
     {
         $data = is_array($data) ? json_encode($data, true) : $data;
+        // gzip压缩
+        // $data = gzencode($data);
+        $data = \Common\gzip_binary_string_encode($data);
         Gateway::sendToClient($client_id, $data);
     }
 
@@ -99,6 +102,9 @@ class Events
     {
         // $message = json_decode(DI()->crypt->decrypt($message), true);
         // DI()->logger->debug("收到消息|client_id|{$client_id}|message|{$message}");
+        // 解压GZIP
+        // $message = zlib_decode($message) ?: $message;
+        $message = \Common\gzip_binary_string_decode($message) ?: $message;
         // 解析接收到的消息
         $data = json_decode($message, true);
         DI()->logger->debug("收到消息|client_id|{$client_id}|message", $data);

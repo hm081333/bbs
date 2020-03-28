@@ -1,5 +1,6 @@
 <?php
 
+namespace Common\Api;
 
 use Library\Exception\BadRequestException;
 use Library\Traits\Api;

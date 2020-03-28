@@ -39,7 +39,8 @@
         "workerman/workerman": "dev-master",
         "workerman/gateway-worker": "dev-master",
         "overtrue/wechat": "^4.2",
-        "psr/cache": "^1.0@dev"
+        "psr/cache": "^1.0@dev",
+        "ext-zlib": "*"
     },
     "autoload": {
         "files": [

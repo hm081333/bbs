@@ -17,6 +17,27 @@ function DI()
 }
 
 /**
+ * 解密gzip二进制字符串
+ * @param $str
+ * @return string
+ */
+function gzip_binary_string_decode($str)
+{
+    return zlib_decode(mb_convert_encoding($str, 'ISO-8859-1', 'utf-8'));
+}
+
+/**
+ * 生成gzip二进制字符串
+ * @param     $str
+ * @param int $encoding
+ * @return false|string|string[]|null
+ */
+function gzip_binary_string_encode($str, $encoding = ZLIB_ENCODING_DEFLATE)
+{
+    return mb_convert_encoding(zlib_encode($str, $encoding), 'utf-8', 'ISO-8859-1');
+}
+
+/**
  * 多维数组合并
  * @param array $array1
  * @param array $array2

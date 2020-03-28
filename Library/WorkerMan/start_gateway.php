@@ -13,6 +13,7 @@
  */
 
 use GatewayWorker\Gateway;
+use Workerman\Protocols\Websocket;
 use Workerman\Worker;
 
 if (!defined('GLOBAL_START')) {
@@ -37,13 +38,16 @@ $gateway->pingInterval = 10;
 // 允许心跳无响应次数
 $gateway->pingNotResponseLimit = 5;
 // 心跳数据
-$gateway->pingData = '{"type":"ping"}';
+// $gateway->pingData = '{"type":"ping"}';
+// $gateway->pingData = gzencode('{"type":"ping"}');
+$gateway->pingData = \Common\gzip_binary_string_encode('{"type":"ping"}');
 // 服务注册地址
 $gateway->registerAddress = '127.0.0.1:1236';
 
 
 // 当客户端连接上来时，设置连接的onWebSocketConnect，即在websocket握手时的回调
 $gateway->onConnect = function ($connection) use ($gateway) {
+    // $connection->websocketType = Websocket::BINARY_TYPE_ARRAYBUFFER;
     $connection->onWebSocketConnect = function ($connection, $http_header) use ($gateway) {
         // 可以在这里判断连接来源是否合法，不合法就关掉连接
         // $_SERVER['HTTP_ORIGIN']标识来自哪个站点的页面发起的websocket链接
