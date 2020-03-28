@@ -97,10 +97,11 @@ class Events
      */
     public static function onMessage($client_id, $message)
     {
-        $message = json_decode(DI()->crypt->decrypt($message), true);
-        DI()->logger->debug("收到消息|client_id|{$client_id}|message|{$message}");
+        // $message = json_decode(DI()->crypt->decrypt($message), true);
+        // DI()->logger->debug("收到消息|client_id|{$client_id}|message|{$message}");
         // 解析接收到的消息
         $data = json_decode($message, true);
+        DI()->logger->debug("收到消息|client_id|{$client_id}|message", $data);
         // 请求类型 没有请求类型时返回心跳
         $dataType = $data['type'] ?? 'ping';
         // 请求参数
@@ -140,7 +141,8 @@ class Events
                 DI()->request = new Request($request);
                 // 获取api返回结果
                 // $apiResult = DI()->pai->response()->getResult();
-                $response['requestId'] = md5(rawurlencode($message));
+                // $response['requestId'] = md5(rawurlencode($message));
+                $response['requestId'] = md5($request['s'] . $request['t']);
                 $response['response'] = $pai->response()->getResult();
                 self::saveSession($session_id, $_SESSION ?? []);
                 // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
