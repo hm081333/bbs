@@ -40,10 +40,12 @@ class CUrl
      * @var int $retryTimes 超时重试次数；注意，此为失败重试的次数，即：总次数 = 1 + 重试次数
      */
     protected $retryTimes;
+    protected $noRetry = false;
     /**
      * @var int $timeoutMs 超时时间，单位：毫秒
      */
     protected $timeoutMs;
+    protected $timeout = 0;
 
     protected $header = [];
 
@@ -97,6 +99,7 @@ class CUrl
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER => 0,
             CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs,
+            CURLOPT_TIMEOUT_MS => $this->timeout,
             CURLOPT_HTTPHEADER => $this->getHeaders(),
 
             CURLOPT_SSL_VERIFYPEER => false,
@@ -125,7 +128,7 @@ class CUrl
         do {
             $rs = curl_exec($ch);
             $curRetryTimes--;
-        } while ($rs === false && $curRetryTimes >= 0);
+        } while ($rs === false && $curRetryTimes >= 0 && !$this->noRetry);
         $errno = curl_errno($ch);
         if ($errno) {
             throw new InternalServerErrorException(sprintf("%s::%s(%d)\n", $url, curl_error($ch), $errno));
@@ -145,6 +148,10 @@ class CUrl
         if ($this->option) {
             $this->option = [];
         }
+        // 重置不重试选项
+        $this->noRetry = false;
+        // 重置为不超时
+        $this->timeout = 0;
         curl_close($ch);
 
         return $rs;
@@ -261,6 +268,27 @@ class CUrl
     public function unsetHeader($key)
     {
         unset($this->header[$key]);
+        return $this;
+    }
+
+    /**
+     * 设置不重试
+     * @return CUrl
+     */
+    public function setNoRetry()
+    {
+        $this->noRetry = true;
+        return $this;
+    }
+
+    /**
+     * 设置程序超时时间
+     * @param int $timeoutMs
+     * @return CUrl
+     */
+    public function setTimeout($timeoutMs = 5000)
+    {
+        $this->timeout = $timeoutMs;
         return $this;
     }
 

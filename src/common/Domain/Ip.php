@@ -25,6 +25,16 @@ class Ip
     use Domain;
 
     /**
+     * IP库 数据层
+     * @return \Common\Model\Ip
+     * @throws BadRequestException
+     */
+    protected function Model_Ip()
+    {
+        return self::getModel();
+    }
+
+    /**
      * 获取ip地址的详细信息
      * @param string $ip
      * @return mixed
@@ -36,19 +46,23 @@ class Ip
         if (empty($ip)) {
             $ip = DI()->tool->getClientIp();// 获得请求IP
         }
-        $ip_model = self::getModel();
-        $old_ip = $ip_model->getInfo(['ip' => $ip]);
+        $old_ip = $this->Model_Ip()->getInfo(['ip' => $ip]);
         if (!$old_ip) {
-            $data = DI()->curl->get("http://ip.taobao.com/service/getIpInfo.php?ip={$ip}");
-            $data = json_decode($data, true);
-            if (!$data) {
+            try {
+                $data = DI()->curl->setNoRetry()->setTimeout(1000)->get("http://ip.taobao.com/service/getIpInfo.php?ip={$ip}", 1000);
+                $data = json_decode($data, true);
+                if (!$data) {
+                    throw new BadRequestException(T('获取IP信息失败'));
+                }
+            } catch (\Exception $e) {
+                DI()->logger->error($e->getMessage());
                 throw new BadRequestException(T('获取IP信息失败'));
             }
             if ($data['code'] !== 0) {
                 throw new InternalServerErrorException(T($data['data']));
             }
             $ip_info = $data['data'];
-            $ip_model->insert(['ip' => $ip, 'info' => serialize($ip_info), 'add_time' => time()]);
+            $this->Model_Ip()->insert(['ip' => $ip, 'info' => serialize($ip_info), 'add_time' => time()]);
         } else {
             $ip_info = unserialize($old_ip['info']);
         }
