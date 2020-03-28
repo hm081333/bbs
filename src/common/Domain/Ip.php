@@ -31,7 +31,7 @@ class Ip
      * @throws BadRequestException
      * @throws InternalServerErrorException
      */
-    public static function getIPInfo(string $ip)
+    public function getIPInfo(string $ip)
     {
         if (empty($ip)) {
             $ip = DI()->tool->getClientIp();// 获得请求IP

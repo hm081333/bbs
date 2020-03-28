@@ -8,7 +8,9 @@
 
 namespace Library\Traits;
 
+use Library\Exception\Exception;
 use Library\Exception\InternalServerErrorException;
+use function Common\DI;
 use function PhalApi\T;
 
 /**
@@ -28,6 +30,8 @@ trait Model
      * 根据主键值返回对应的表名，注意分表的情况
      *
      * 默认表名为：[表前缀] + 全部小写的匹配表名
+     * @param null $id
+     * @return string
      * @throws InternalServerErrorException
      */
     public function getName($id = null)
@@ -61,7 +65,7 @@ trait Model
      */
     protected function loadTablePrefixs()
     {
-        $tables = self::DI()->config->get('dbs.tables');
+        $tables = DI()->config->get('dbs.tables');
         if (empty($tables)) {
             throw new InternalServerErrorException(T('dbs.tables should not be empty'));
         }
@@ -227,6 +231,7 @@ trait Model
      * @param array $unique
      * @param array $insert
      * @param array $update
+     * @return
      */
     public function insert_update(array $unique, array $insert, array $update = [])
     {

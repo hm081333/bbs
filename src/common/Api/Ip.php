@@ -48,7 +48,7 @@ class Ip extends Base
      */
     public function getInfo()
     {
-        return $this->Domain_Ip()::getIPInfo($this->ip);
+        return $this->Domain_Ip()->getIPInfo($this->ip);
 
     }
 

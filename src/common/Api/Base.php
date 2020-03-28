@@ -119,6 +119,7 @@ class Base extends Api
     /**
      * 管理员 领域层
      * @return Admin
+     * @throws BadRequestException
      */
     protected function Domain_Admin()
     {
@@ -128,6 +129,7 @@ class Base extends Api
     /**
      * 用户 领域层
      * @return \Common\Domain\User
+     * @throws BadRequestException
      */
     protected function Domain_User()
     {
