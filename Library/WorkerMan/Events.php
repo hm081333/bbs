@@ -11,10 +11,14 @@
  * 主要是处理 onMessage onClose
  */
 
+use Common\Domain\Admin;
+use Common\Domain\User;
 use GatewayWorker\Lib\Gateway;
 use Library\Request;
 use PhalApi\PhalApi;
 use function Common\DI;
+use function Common\gzip_binary_string_decode;
+use function Common\gzip_binary_string_encode;
 
 class Events
 {
@@ -87,7 +91,7 @@ class Events
         $data = is_array($data) ? json_encode($data, true) : $data;
         // gzip压缩
         // $data = gzencode($data);
-        $data = \Common\gzip_binary_string_encode($data);
+        $data = gzip_binary_string_encode($data);
         Gateway::sendToClient($client_id, $data);
     }
 
@@ -104,10 +108,10 @@ class Events
         // DI()->logger->debug("收到消息|client_id|{$client_id}|message|{$message}");
         // 解压GZIP
         // $message = zlib_decode($message) ?: $message;
-        $message = \Common\gzip_binary_string_decode($message) ?: $message;
+        $message = gzip_binary_string_decode($message) ?: $message;
         // 解析接收到的消息
         $data = json_decode($message, true);
-        DI()->logger->debug("收到消息|client_id|{$client_id}|message", $data);
+        // DI()->logger->debug("收到消息|client_id|{$client_id}|message", $data);
         // 请求类型 没有请求类型时返回心跳
         $dataType = $data['type'] ?? 'ping';
         // 请求参数
@@ -125,9 +129,9 @@ class Events
                     $key = substr($item, 0, strlen(USER_TOKEN));
                     $value = substr($item, strlen(USER_TOKEN));
                     if ($key == ADMIN_TOKEN) {
-                        \Common\Domain\Admin::$admin_token = $value;
+                        Admin::$admin_token = $value;
                     } else if ($key == USER_TOKEN) {
-                        \Common\Domain\User::$user_token = $value;
+                        User::$user_token = $value;
                     }
                 }
 
@@ -154,10 +158,10 @@ class Events
                 // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
                 break;
             default:
-                return;
+                // return;
                 break;
         }
-        DI()->logger->info("响应消息|client_id|{$client_id}|response", $response);
+        // DI()->logger->info("响应消息|client_id|{$client_id}|response", $response);
         // 下发响应数据到客户端
         self::sendToClient($client_id, $response);
     }
