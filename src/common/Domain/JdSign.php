@@ -555,7 +555,8 @@ class JdSign
                 // 尝试重新请求
                 if ($retryTimes > 0) {
                     if (in_array($errorCode, ['PB001', 'T201'])) {
-                        DI()->logger->debug("尝试重新请求，剩余重试次数{$retryTimes}次|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
+                        DI()->logger->debug("1秒后，尝试重新请求，剩余重试次数{$retryTimes}次|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
+                        sleep(1);
                         return $this->jdRequest($url, $post_data, $retryTimes - 1);
                     } else {
                         DI()->logger->debug("未知错误|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
