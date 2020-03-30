@@ -39,8 +39,8 @@ class Request extends \PhalApi\Request
         if (empty($sign)) {
             return [];
             throw new BadRequestException(T('签名错误'));
-        } else if (empty($t) || (time() - intval($t / 1000)) > 3600) {
-            // 请求构建好后不能超过1小时
+        } else if (empty($t) || (time() - intval($t / 1000)) > 5 * 60) {
+            // 请求构建好后不能超过5分钟
             return [];
             throw new BadRequestException(T('签名错误'));
         }
