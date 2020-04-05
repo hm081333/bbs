@@ -63,7 +63,7 @@ class Events
         // var_dump('onWebSocketConnect', $client_id, $socket_nfo);
         $get = $socket_nfo['get'];
         $server = $socket_nfo['server'];
-        DI()->cache->set('ws_server:' . $client_id, $server);
+        DI()->cache->set('ws_server:' . $client_id, $server, 86400);
         $_COOKIE = $socket_nfo['cookie'];
         // var_dump($get);
         // var_dump($server);
@@ -104,7 +104,11 @@ class Events
      */
     public static function onMessage($client_id, $message)
     {
-        // $message = json_decode(DI()->crypt->decrypt($message), true);
+        // 延长该客户端id对应信息的过期时间
+        DI()->cache->expire('ws_server:' . $client_id, 86400);
+        // 延长该客户端session id的过期时间
+        DI()->cache->expire('session_id:' . $client_id, 86400);
+
         // DI()->logger->debug("收到消息|client_id|{$client_id}|message|{$message}");
         // 解压GZIP
         // $message = zlib_decode($message) ?: $message;
@@ -114,46 +118,37 @@ class Events
         // DI()->logger->debug("收到消息|client_id|{$client_id}|message", $data);
         // 请求类型 没有请求类型时返回心跳
         $dataType = $data['type'] ?? 'ping';
-        // 请求参数
-        $request = $data['request'] ?? [];
         // 默认响应数据
         $response = ['type' => $dataType];
         switch ($dataType) {
-            // 回应心跳
+            // 客户端 发送心跳请求
+            case 'ping':
+                $response['type'] = 'pong';
+                break;
+            // 客户端 响应心跳请求
             case 'pong':
                 return;
                 break;
             // 请求接口
             case 'api':
-                foreach (explode('|', urldecode($data['Auth'])) as $item) {
-                    $key = substr($item, 0, strlen(USER_TOKEN));
-                    $value = substr($item, strlen(USER_TOKEN));
-                    if ($key == ADMIN_TOKEN) {
-                        Admin::$admin_token = $value;
-                    } else if ($key == USER_TOKEN) {
-                        User::$user_token = $value;
-                    }
-                }
-
+                // 该客户端id对应的session id
                 $session_id = self::sessionSaveHandler()->getSessionId($client_id);
+                // 获取该session id储存的数据
                 $_SESSION = self::getSession($session_id);
+                // 该客户端id对应的信息
                 $server = DI()->cache->get('ws_server:' . $client_id) ?? [];
                 $_SERVER = array_merge(($_SERVER ?? []), $server);
-                DI()->cache->expire('ws_server:' . $client_id);
-
                 // var_dump("session_id|{$session_id}|session", $_SESSION);
-
-                // 清空上次请求结果数据
-                DI()->response->setRet(200)->setMsg('')->setData([]);
-                // 响应操作类
-                $pai = new PhalApi();
-                // 重新建立api请求
-                DI()->request = new Request($request);
-                // 获取api返回结果
-                // $apiResult = DI()->pai->response()->getResult();
-                // $response['requestId'] = md5(rawurlencode($message));
-                $response['requestId'] = md5($request['s'] . $request['t']);
-                $response['response'] = $pai->response()->getResult();
+                try {
+                    $response = self::apiHandler($data, $response);
+                } catch (Exception $exception) {
+                    $response['response'] = [
+                        'ret' => 500,
+                        'data' => '',
+                        'msg' => '服务器异常',
+                    ];
+                }
+                // 重新保存session数据
                 self::saveSession($session_id, $_SESSION ?? []);
                 // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
                 break;
@@ -164,6 +159,41 @@ class Events
         // DI()->logger->info("响应消息|client_id|{$client_id}|response", $response);
         // 下发响应数据到客户端
         self::sendToClient($client_id, $response);
+    }
+
+    /**
+     * 处理接口请求
+     * @param $client_id
+     * @param $data
+     * @param $response
+     * @return mixed
+     * @throws Exception
+     */
+    public static function apiHandler($data, $response)
+    {
+        foreach (explode('|', urldecode($data['Auth'])) as $item) {
+            $key = substr($item, 0, strlen(USER_TOKEN));
+            $value = substr($item, strlen(USER_TOKEN));
+            if ($key == ADMIN_TOKEN) {
+                Admin::$admin_token = $value;
+            } else if ($key == USER_TOKEN) {
+                User::$user_token = $value;
+            }
+        }
+
+        // 清空上次请求结果数据
+        DI()->response->setRet(200)->setMsg('')->setData([]);
+        // 响应操作类
+        $pai = new PhalApi();
+        // 请求参数
+        $request = $data['request'] ?? [];
+        // 重新建立api请求
+        DI()->request = new Request($request);
+        // 获取api返回结果
+        $response['response'] = $pai->response()->getResult();
+        // 生成 与前端对应的 请求id
+        $response['requestId'] = md5($request['s'] . $request['t']);
+        return $response;
     }
 
     /**
@@ -201,6 +231,7 @@ class Events
     {
         // var_dump('onClose', "client:{$_SERVER['REMOTE_ADDR']}:{$_SERVER['REMOTE_PORT']} gateway:{$_SERVER['GATEWAY_ADDR']}:{$_SERVER['GATEWAY_PORT']}  client_id:$client_id onClose:''");
         DI()->logger->debug('onClose', "client:{$_SERVER['REMOTE_ADDR']}:{$_SERVER['REMOTE_PORT']} gateway:{$_SERVER['GATEWAY_ADDR']}:{$_SERVER['GATEWAY_PORT']}  client_id:$client_id onClose:''");
+        DI()->cache->delete('ws_server:' . $client_id);
         self::sessionSaveHandler()->delSessionId($client_id);
 
         // 从房间的客户端列表中删除
