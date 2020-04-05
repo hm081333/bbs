@@ -53,7 +53,8 @@
             "Common\\": "src/common",
             "Bbs\\": "src/bbs",
             "Admin\\": "src/admin",
-            "Sign\\": "src/sign"
+            "Sign\\": "src/sign",
+            "Chat\\": "src/chat"
         }
     },
     "repositories": {
