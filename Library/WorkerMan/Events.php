@@ -141,7 +141,15 @@ class Events
                 // var_dump("session_id|{$session_id}|session", $_SESSION);
                 try {
                     $response = self::apiHandler($data, $response);
-                } catch (Exception $exception) {
+                } catch (\Exception $exception) {
+                    DI()->logger->error('api抛出异常', $exception);
+                    $response['response'] = [
+                        'ret' => 500,
+                        'data' => '',
+                        'msg' => '服务器异常',
+                    ];
+                } catch (\PDOException $exception) {
+                    DI()->logger->error('api抛出PDO异常', $exception);
                     $response['response'] = [
                         'ret' => 500,
                         'data' => '',
