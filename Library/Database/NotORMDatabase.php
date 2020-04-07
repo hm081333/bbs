@@ -5,6 +5,7 @@ namespace Library\Database;
 use PDO;
 use PDOException;
 use PhalApi\Exception\InternalServerErrorException;
+use function Common\DI;
 
 /**
  *
@@ -65,6 +66,7 @@ class NotORMDatabase extends \PhalApi\Database\NotORMDatabase
         if (!$this->ping($pdo)) {
             // 连接断开，重连
             unset($this->_pdos[$dbKey]);
+            DI()->logger->info('数据库重连');
             return $this->getPdo($dbKey);
         }
         return $pdo;
@@ -80,6 +82,7 @@ class NotORMDatabase extends \PhalApi\Database\NotORMDatabase
         try {
             $pdo->getAttribute(PDO::ATTR_SERVER_INFO);
         } catch (PDOException $e) {
+            DI()->logger->error('PDO异常', $e);
             if (strpos($e->getMessage(), 'MySQL server has gone away') !== false) {
                 return false;
             }
