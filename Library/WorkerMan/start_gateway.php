@@ -60,6 +60,8 @@ $gateway->onConnect = function ($connection) use ($gateway) {
             'https://bbs2.lyihe2.tk',
             'http://bbs2-ws.lyihe2.tk',
             'https://bbs2-ws.lyihe2.tk',
+            'http://chat.lyiho.tk',
+            'https://chat.lyiho.tk',
         ])) {
             $connection->close();
         }
