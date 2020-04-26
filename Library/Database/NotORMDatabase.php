@@ -5,6 +5,7 @@ namespace Library\Database;
 use PDO;
 use PDOException;
 use PhalApi\Exception\InternalServerErrorException;
+use Workerman\Lib\Timer;
 use function Common\DI;
 
 /**
@@ -14,6 +15,11 @@ use function Common\DI;
  */
 class NotORMDatabase extends \PhalApi\Database\NotORMDatabase
 {
+    /**
+     * @var bool|false|int
+     */
+    private $timer_id = null;
+
     /**
      * @param array   $configs 数据库配置
      * @param boolean $debug   是否开启调试模式
@@ -66,10 +72,39 @@ class NotORMDatabase extends \PhalApi\Database\NotORMDatabase
         if (!$this->ping($pdo)) {
             // 连接断开，重连
             unset($this->_pdos[$dbKey]);
-            DI()->logger->info('数据库重连');
+            DI()->logger->error('数据库连接失败，重连');
             return $this->getPdo($dbKey);
         }
+        // 添加 检测 PDO连接的定时器
+        if (IS_CLI && defined('GLOBAL_START') && empty($this->timer_id)) {
+            // 注意，回调里面使用当前定时器id必须使用引用(&)的方式引入
+            $this->timer_id = Timer::add(60, function () use ($dbKey, $pdo) {
+                // 无法连接
+                if (!$this->ping($pdo)) {
+                    DI()->logger->error('数据库断开，即将销毁所有连接');
+                    // 连接断开，重连
+                    $this->unsetAllConnect();
+                    Timer::del($this->timer_id);
+                    unset($this->timer_id);
+                    // return $this->getPdo($dbKey);
+                }
+            });
+        }
         return $pdo;
+    }
+
+    /**
+     * 销毁所有连接
+     */
+    public function unsetAllConnect()
+    {
+        foreach ($this->_pdos as $key => $pdo) {
+            unset($this->_pdos[$key]);
+        }
+        foreach ($this->_notorms as $key => $notorm) {
+            unset($this->_notorms[$key]);
+        }
+        DI()->logger->info('已销毁所有连接');
     }
 
     /**
