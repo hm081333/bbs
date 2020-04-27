@@ -6,7 +6,11 @@ namespace Common\Api;
 use Library\Exception\BadRequestException;
 use Library\Traits\Api;
 use Library\Uploader;
+use function Common\createDir;
 use function Common\DI;
+use function Common\gzip_binary_string_decode;
+use function Common\res_path;
+use function Common\server_path;
 use function PhalApi\T;
 
 /**
@@ -25,23 +29,35 @@ class Upload extends Base
     public function getRules()
     {
         $rules = parent::getRules();
+        $rules['uploadImage'] = [
+            'path' => ['name' => 'path', 'type' => 'string', 'default' => 'images', 'desc' => '保存路径'],
+            'image' => ['name' => 'image', 'type' => 'array', 'default' => [], 'desc' => '上传的图片信息'],
+        ];
         return $rules;
     }
 
     public function uploadImage()
     {
-        $request = DI()->request->getAll();
-        $image = $request['image'];
-        $imageBinaryString = \Common\gzip_binary_string_decode($image['binaryString']);
+        $image = $this->image;
+        $imageBinaryString = gzip_binary_string_decode($image['binaryString']);
         if (imagecreatefromstring($imageBinaryString) === false) {
-            throw new \Library\Exception\BadRequestException(\PhalApi\T('非法文件'));
+            throw new BadRequestException(T('非法文件'));
         }
-        // file_put_contents(API_ROOT . '/runtime/test/'.$image['name'], $image['binaryString']);
-        if (@$fp = fopen(API_ROOT . '/runtime/test/' . $image['name'], 'w+')) {
-            fwrite($fp, $image['binaryString']);
+        // $image_name = $image['name'];
+        $image_name = date('YmdHis', NOW_TIME) . DI()->tool->createRandStr(4) . strtolower(strrchr($image['name'], '.'));
+        $image_path = 'static/upload/' . $this->path . '/' . $image_name;
+        $server_path = server_path($image_path);
+        if (!is_dir(dirname($server_path))) {
+            createDir(dirname($server_path));
+        }
+        if (@$fp = fopen($server_path, 'w+')) {
+            fwrite($fp, $imageBinaryString);
             fclose($fp);
         }
-        // var_dump($image);
+        return [
+            'url' => res_path($image_path),
+            'src' => $image_path,
+        ];
     }
 
     /**
