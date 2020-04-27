@@ -28,6 +28,22 @@ class Upload extends Base
         return $rules;
     }
 
+    public function uploadImage()
+    {
+        $request = DI()->request->getAll();
+        $image = $request['image'];
+        $imageBinaryString = \Common\gzip_binary_string_decode($image['binaryString']);
+        if (imagecreatefromstring($imageBinaryString) === false) {
+            throw new \Library\Exception\BadRequestException(\PhalApi\T('非法文件'));
+        }
+        // file_put_contents(API_ROOT . '/runtime/test/'.$image['name'], $image['binaryString']);
+        if (@$fp = fopen(API_ROOT . '/runtime/test/' . $image['name'], 'w+')) {
+            fwrite($fp, $image['binaryString']);
+            fclose($fp);
+        }
+        // var_dump($image);
+    }
+
     /**
      * CKFinder控件上传图片
      * @throws BadRequestException
