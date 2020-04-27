@@ -1214,7 +1214,7 @@ class JdSign
 
         if ($res['iRet'] != 0) throw new Exception($res['errMsg']);
 
-        DI()->logger->debug('收藏商品、取消收藏商品', $res);
+        DI()->logger->debug('商品收藏状态', $res);
 
         $data = $res['data'];
         $data = array_combine(array_column($data, 'skuid'), array_column($data, 'state'));
