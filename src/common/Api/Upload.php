@@ -29,7 +29,7 @@ class Upload extends Base
     public function getRules()
     {
         $rules = parent::getRules();
-        $rules['uploadImage'] = [
+        $rules['uploadImageWithBinaryString'] = [
             'path' => ['name' => 'path', 'type' => 'string', 'default' => 'images', 'desc' => '保存路径'],
             'image' => ['name' => 'image', 'type' => 'array', 'default' => [], 'desc' => '上传的图片信息'],
         ];
@@ -41,7 +41,7 @@ class Upload extends Base
      * @return array
      * @throws BadRequestException
      */
-    public function uploadImageWithArrayBuffer()
+    public function uploadImageWithBinaryString()
     {
         $image = $this->image;
         if (empty($image)) {
