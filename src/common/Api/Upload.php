@@ -36,9 +36,17 @@ class Upload extends Base
         return $rules;
     }
 
-    public function uploadImage()
+    /**
+     * 上传二进制图片
+     * @return array
+     * @throws BadRequestException
+     */
+    public function uploadImageWithArrayBuffer()
     {
         $image = $this->image;
+        if (empty($image)) {
+            throw new BadRequestException(T('非法请求'));
+        }
         $imageBinaryString = gzip_binary_string_decode($image['binaryString']);
         if (imagecreatefromstring($imageBinaryString) === false) {
             throw new BadRequestException(T('非法文件'));
@@ -89,13 +97,11 @@ class Upload extends Base
         if (strtolower($result['state']) != 'success') {
             throw new BadRequestException(T($result['state']));
         }
-        /* 返回数据 */
-        $res = $up->getFileInfo();
 
         $return = [
-            'fileName' => $res['title'] ?? '',
-            'uploaded' => $res['state'] == 'SUCCESS' ? 1 : 0,
-            'url' => '/api/' . $res['url'],
+            'fileName' => $result['title'] ?? '',
+            'uploaded' => $result['state'] == 'SUCCESS' ? 1 : 0,
+            'url' => '/api/' . $result['url'],
         ];
         exit(json_encode($return));
     }
