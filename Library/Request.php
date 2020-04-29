@@ -5,7 +5,6 @@ namespace Library;
 
 
 use Library\Exception\BadRequestException;
-use function PhalApi\DI;
 use function PhalApi\T;
 
 class Request extends \PhalApi\Request
@@ -45,8 +44,12 @@ class Request extends \PhalApi\Request
             throw new BadRequestException(T('签名错误'));
         }
         $signOriginal = $s . $t;
-        $unSign = json_decode(DI()->crypt->decrypt($sign, null), true);
+        /*$unSign = json_decode(DI()->crypt->decrypt($sign, null), true);
         if ($unSign != $signOriginal) {
+            return [];
+            throw new BadRequestException(T('签名错误'));
+        }*/
+        if ($sign != md5($signOriginal)) {
             return [];
             throw new BadRequestException(T('签名错误'));
         }
