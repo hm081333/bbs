@@ -96,6 +96,93 @@ class Events
     }
 
     /**
+     * 写入长消息的临时文件
+     * @param $client_id
+     * @param $data
+     * @return bool
+     */
+    public static function writeLongMessageTemp($client_id, $data)
+    {
+        $temp_path = API_ROOT . '/runtime/temp/ws/';
+        if (!is_dir($temp_path)) {
+            \Common\createDir($temp_path);
+        }
+        $temp_file = $temp_path . $client_id . '_' . $data['time'];
+
+        $fopen_mode = $data['index'] == 0 ? 'w' : 'a';
+
+        if (@$fp = fopen($temp_file, $fopen_mode)) {
+            fwrite($fp, $data['request']);
+            fclose($fp);
+        }
+        return true;
+    }
+
+    /**
+     * 读取长消息的临时文件
+     * @param $client_id
+     * @param $data
+     * @return bool
+     */
+    public static function readLongMessageTemp($client_id, $data)
+    {
+        $temp_path = API_ROOT . '/runtime/temp/ws/';
+        if (!is_dir($temp_path)) {
+            \Common\createDir($temp_path);
+        }
+        $temp_file = $temp_path . $client_id . '_' . $data['time'];
+
+        if (@$fp = fopen($temp_file, 'r')) {
+            $message = '';
+            while (false != ($a = fread($fp, 8080))) {//返回false表示已经读取到文件末尾
+                $message .= $a;
+            }
+            fclose($fp);
+            return $message;
+        }
+        return false;
+    }
+
+    public static function delLongMessageTemp($client_id, $data)
+    {
+        $temp_path = API_ROOT . '/runtime/temp/ws/';
+        $temp_file = $temp_path . $client_id . '_' . $data['time'];
+        if (file_exists($temp_file)) {
+            @unlink($temp_file);
+        }
+    }
+
+    /**
+     * 处理长消息
+     * @param $client_id
+     * @param $data
+     * @return mixed
+     */
+    public static function handleLongMessage($client_id, $data)
+    {
+        $message = self::readLongMessageTemp($client_id, $data);
+        $long_data = self::decodeMessage($message);
+        $response = self::onApiMessage($client_id, $long_data);
+        self::delLongMessageTemp($client_id, $data);
+        return $response;
+    }
+
+    /**
+     * 解码收到的消息
+     * @param $message
+     * @return mixed
+     */
+    public static function decodeMessage($message)
+    {
+        // 解压GZIP
+        // $message = zlib_decode($message) ?: $message;
+        $message = gzip_binary_string_decode($message) ?: $message;
+        // var_dump($message);
+        // 解析接收到的消息
+        return json_decode($message, true);
+    }
+
+    /**
      * 有消息时
      * @param string $client_id
      * @param string $message
@@ -110,11 +197,7 @@ class Events
         DI()->cache->expire('session_id:' . $client_id, 86400);
 
         // DI()->logger->debug("收到消息|client_id|{$client_id}|message|{$message}");
-        // 解压GZIP
-        // $message = zlib_decode($message) ?: $message;
-        $message = gzip_binary_string_decode($message) ?: $message;
-        // 解析接收到的消息
-        $data = json_decode($message, true);
+        $data = self::decodeMessage($message);
         // DI()->logger->debug("收到消息|client_id|{$client_id}|message", $data);
         // 请求类型 没有请求类型时返回心跳
         $dataType = $data['type'] ?? 'ping';
@@ -129,36 +212,19 @@ class Events
             case 'pong':
                 return;
                 break;
+            case 'long':
+                self::writeLongMessageTemp($client_id, $data);
+                if ($data['sendType'] != 'end') {
+                    $response['index'] = intval($data['index']) + 1;
+                    $response['time'] = $data['time'];
+                } else {
+                    $response = self::handleLongMessage($client_id, $data);
+                }
+                // var_dump($data);
+                break;
             // 请求接口
             case 'api':
-                // 该客户端id对应的session id
-                $session_id = self::sessionSaveHandler()->getSessionId($client_id);
-                // 获取该session id储存的数据
-                $_SESSION = self::getSession($session_id);
-                // 该客户端id对应的信息
-                $server = DI()->cache->get('ws_server:' . $client_id) ?? [];
-                $_SERVER = array_merge(($_SERVER ?? []), $server);
-                // var_dump("session_id|{$session_id}|session", $_SESSION);
-                try {
-                    $response = self::apiHandler($data, $response);
-                } catch (\Exception $exception) {
-                    DI()->logger->error('api抛出异常', $exception);
-                    $response['response'] = [
-                        'ret' => 500,
-                        'data' => '',
-                        'msg' => '服务器异常',
-                    ];
-                } catch (\PDOException $exception) {
-                    DI()->logger->error('api抛出PDO异常', $exception);
-                    $response['response'] = [
-                        'ret' => 500,
-                        'data' => '',
-                        'msg' => '服务器异常',
-                    ];
-                }
-                // 重新保存session数据
-                self::saveSession($session_id, $_SESSION ?? []);
-                // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
+                $response = self::onApiMessage($client_id, $data);
                 break;
             default:
                 // return;
@@ -167,6 +233,45 @@ class Events
         // DI()->logger->info("响应消息|client_id|{$client_id}|response", $response);
         // 下发响应数据到客户端
         self::sendToClient($client_id, $response);
+    }
+
+    /**
+     * 有接口消息时
+     * @param $client_id
+     * @param $data
+     */
+    public static function onApiMessage($client_id, $data)
+    {
+        $response['type'] = 'api';
+        // 该客户端id对应的session id
+        $session_id = self::sessionSaveHandler()->getSessionId($client_id);
+        // 获取该session id储存的数据
+        $_SESSION = self::getSession($session_id);
+        // 该客户端id对应的信息
+        $server = DI()->cache->get('ws_server:' . $client_id) ?? [];
+        $_SERVER = array_merge(($_SERVER ?? []), $server);
+        // var_dump("session_id|{$session_id}|session", $_SESSION);
+        try {
+            $response = self::apiHandler($data, $response);
+        } catch (\PDOException $exception) {
+            DI()->logger->error('api抛出PDO异常', $exception);
+            $response['response'] = [
+                'ret' => 500,
+                'data' => '',
+                'msg' => '服务器异常',
+            ];
+        } catch (\Exception $exception) {
+            DI()->logger->error('api抛出异常', $exception);
+            $response['response'] = [
+                'ret' => 500,
+                'data' => '',
+                'msg' => '服务器异常',
+            ];
+        }
+        // 重新保存session数据
+        self::saveSession($session_id, $_SESSION ?? []);
+        // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
+        return $response;
     }
 
     /**
