@@ -1,4 +1,7 @@
 <?php
+
+namespace Library\WorkerMan;
+
 /**
  * 用于检测业务代码死循环或者长时间阻塞等问题
  * 如果发现业务卡死，可以将下面declare打开（去掉//注释），并执行php start.php reload
@@ -13,9 +16,13 @@
 
 use Common\Domain\Admin;
 use Common\Domain\User;
+use Exception;
 use GatewayWorker\Lib\Gateway;
 use Library\Request;
+use Library\Session\Redis;
+use PDOException;
 use PhalApi\PhalApi;
+use function Common\createDir;
 use function Common\DI;
 use function Common\gzip_binary_string_decode;
 use function Common\gzip_binary_string_encode;
@@ -34,11 +41,11 @@ class Events
 
     /**
      * Session存储
-     * @return \Library\Session\Redis
+     * @return Redis
      */
     public static function sessionSaveHandler()
     {
-        $session_set_save_handler = new \Library\Session\Redis();
+        $session_set_save_handler = new Redis();
         $session_set_save_handler->open('', SESSION_NAME);
         // 初始化Redis存储方式
         return $session_set_save_handler;
@@ -105,15 +112,17 @@ class Events
     {
         $temp_path = API_ROOT . '/runtime/temp/ws/';
         if (!is_dir($temp_path)) {
-            \Common\createDir($temp_path);
+            createDir($temp_path);
         }
         $temp_file = $temp_path . $client_id . '_' . $data['time'];
 
         $fopen_mode = $data['index'] == 0 ? 'w' : 'a';
+        unset($client_id, $temp_path);
 
         if (@$fp = fopen($temp_file, $fopen_mode)) {
             fwrite($fp, $data['request']);
             fclose($fp);
+            unset($fp, $data);
         }
         return true;
     }
@@ -128,16 +137,19 @@ class Events
     {
         $temp_path = API_ROOT . '/runtime/temp/ws/';
         if (!is_dir($temp_path)) {
-            \Common\createDir($temp_path);
+            createDir($temp_path);
         }
         $temp_file = $temp_path . $client_id . '_' . $data['time'];
+        unset($client_id, $data, $temp_path);
 
         if (@$fp = fopen($temp_file, 'r')) {
             $message = '';
+            ini_set('memory_limit', '-1');
             while (false != ($a = fread($fp, 8080))) {//返回false表示已经读取到文件末尾
                 $message .= $a;
             }
             fclose($fp);
+            unset($fp, $a);
             return $message;
         }
         return false;
@@ -147,6 +159,7 @@ class Events
     {
         $temp_path = API_ROOT . '/runtime/temp/ws/';
         $temp_file = $temp_path . $client_id . '_' . $data['time'];
+        unset($client_id, $data, $temp_path);
         if (file_exists($temp_file)) {
             @unlink($temp_file);
         }
@@ -164,6 +177,7 @@ class Events
         $long_data = self::decodeMessage($message);
         $response = self::onApiMessage($client_id, $long_data);
         self::delLongMessageTemp($client_id, $data);
+        unset($client_id, $data, $message, $long_data);
         return $response;
     }
 
@@ -233,6 +247,7 @@ class Events
         // DI()->logger->info("响应消息|client_id|{$client_id}|response", $response);
         // 下发响应数据到客户端
         self::sendToClient($client_id, $response);
+        unset($client_id, $message, $data, $dataType, $response);
     }
 
     /**
@@ -253,14 +268,14 @@ class Events
         // var_dump("session_id|{$session_id}|session", $_SESSION);
         try {
             $response = self::apiHandler($data, $response);
-        } catch (\PDOException $exception) {
+        } catch (PDOException $exception) {
             DI()->logger->error('api抛出PDO异常', $exception);
             $response['response'] = [
                 'ret' => 500,
                 'data' => '',
                 'msg' => '服务器异常',
             ];
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             DI()->logger->error('api抛出异常', $exception);
             $response['response'] = [
                 'ret' => 500,
@@ -271,6 +286,7 @@ class Events
         // 重新保存session数据
         self::saveSession($session_id, $_SESSION ?? []);
         // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
+        unset($session_id, $data, $_SESSION, $server, $_SERVER);
         return $response;
     }
 
