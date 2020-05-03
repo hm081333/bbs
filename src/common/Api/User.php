@@ -36,12 +36,13 @@ class User extends Base
         ];
         $rules['doInfo'] = [
             'id' => ['name' => 'id', 'type' => 'int', 'require' => true, 'min' => 1, 'desc' => '用户ID'],
-            'user_name' => ['name' => 'user_name', 'type' => 'string', 'require' => true, 'min' => 1, 'desc' => '用户名'],
+            'user_name' => ['name' => 'user_name', 'type' => 'string', 'require' => false, 'min' => 1, 'desc' => '用户名'],
+            'nick_name' => ['name' => 'nick_name', 'type' => 'string', 'require' => false, 'min' => 1, 'desc' => '名字'],
+            'real_name' => ['name' => 'real_name', 'type' => 'string', 'require' => false, 'min' => 1, 'desc' => '姓名'],
             'password' => ['name' => 'password', 'type' => 'string', 'require' => false, 'desc' => '密码'],
-            'email' => ['name' => 'email', 'type' => 'string', 'require' => true, 'regex' => "/^([0-9A-Za-z\\-_\\.]+)@([0-9a-z]+\\.[a-z]{2,3}(\\.[a-z]{2})?)$/i", 'desc' => '邮箱'],
-            'real_name' => ['name' => 'real_name', 'type' => 'string', 'require' => true, 'min' => 1, 'desc' => '姓名'],
-            'birth_time' => ['name' => 'birth', 'type' => 'date', 'format' => 'timestamp', 'require' => true, 'desc' => '生日'],
-            'sex' => ['name' => 'sex', 'type' => 'enum', 'range' => ['1', '2'], 'require' => true, 'desc' => '性别'],
+            'email' => ['name' => 'email', 'type' => 'string', 'require' => false, 'regex' => "/^([0-9A-Za-z\\-_\\.]+)@([0-9a-z]+\\.[a-z]{2,3}(\\.[a-z]{2})?)$/i", 'desc' => '邮箱'],
+            'birth_time' => ['name' => 'birth', 'type' => 'date', 'format' => 'timestamp', 'require' => false, 'desc' => '生日'],
+            'sex' => ['name' => 'sex', 'type' => 'enum', 'range' => ['1', '2'], 'require' => false, 'desc' => '性别'],
         ];
         $rules['infoData'] = [
             'id' => ['name' => 'id', 'type' => 'int', 'require' => true, 'min' => 0, 'desc' => "查询ID"],
@@ -57,7 +58,7 @@ class User extends Base
     public function infoData()
     {
         $user_id = $this->id;
-        $domain_user = $this->Domain_user();
+        $domain_user = $this->Domain_User();
         if ($user_id == 0) {
             $user_info = $domain_user::$user;
         } else {
@@ -80,7 +81,7 @@ class User extends Base
      * 用户 逻辑层
      * @return \Common\Domain\User
      */
-    protected function Domain_user()
+    protected function Domain_User()
     {
         return self::getDomain('User');
     }
@@ -94,7 +95,7 @@ class User extends Base
     public function signIn()
     {
         $data = get_object_vars($this);
-        return $this->Domain_user()::doSignIn($data);
+        return $this->Domain_User()::doSignIn($data);
     }
 
     /**
@@ -103,7 +104,7 @@ class User extends Base
      */
     public function signOut()
     {
-        $this->Domain_user()::doSignOut();
+        $this->Domain_User()::doSignOut();
     }
 
     /**
@@ -113,7 +114,7 @@ class User extends Base
     public function getCurrentUser()
     {
         return [
-            'user' => $this->Domain_user()::getCurrentUserInfo(),
+            'user' => $this->Domain_User()::getCurrentUserInfo(),
         ];
     }
 
@@ -127,6 +128,7 @@ class User extends Base
         $update = [
             'id' => $this->id,
             'user_name' => $this->user_name,
+            'nick_name' => $this->nick_name,
             'email' => $this->email,
             'real_name' => $this->real_name,
             'birth_time' => $this->birth_time,
@@ -136,7 +138,7 @@ class User extends Base
             $update['a_pwd'] = encrypt($this->password);
             $update['password'] = pwd_hash($this->password);
         }
-        $this->Domain_user()::doUpdate($update);
+        $this->Domain_User()::doUpdate($update);
     }
 
     /**
@@ -149,6 +151,6 @@ class User extends Base
     public function signUp()
     {
         $data = get_object_vars($this);
-        return $this->Domain_user()::doSignUp($data);
+        return $this->Domain_User()::doSignUp($data);
     }
 }

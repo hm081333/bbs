@@ -18,6 +18,7 @@ use function Common\DI;
 use function Common\encrypt;
 use function Common\pwd_hash;
 use function Common\pwd_verify;
+use function Common\res_path;
 use function PhalApi\T;
 
 /**
@@ -99,6 +100,8 @@ class User
         return [
             'user_name' => $user['user_name'],
             'email' => $user['email'],
+            'logo' => empty($user['logo']) ? '' : res_path($user['logo']),
+            'nick_name' => $user['nick_name'],
             'real_name' => $user['real_name'],
             'birth_time' => $user['birth_time_date'],
             'birth_time_unix' => $user['birth_time_unix'],
@@ -236,5 +239,26 @@ class User
     {
         //将用户信息存入SESSION中
         $_SESSION[USER_TOKEN] = encrypt(DI()->serialize->encrypt($user));// 保存在session
+    }
+
+    /**
+     * 修改用户信息
+     * @param $user_id
+     * @param $data
+     * @throws BadRequestException
+     */
+    public function editUser($user_id, $data)
+    {
+        if (empty($user_id)) {
+            throw new BadRequestException(T('异常请求'));
+        }
+        \Common\DI()->response->setMsg(\PhalApi\T('操作成功'));
+        $update_data = [
+            'id' => $user_id,
+        ];
+        if (isset($data['nick_name'])) {
+            $update_data['nick_name'] = $data['nick_name'];
+        }
+        self::doUpdate($update_data);
     }
 }
