@@ -153,4 +153,13 @@ class User extends Base
         $data = get_object_vars($this);
         return $this->Domain_User()::doSignUp($data);
     }
+
+    /**
+     * 获取性别数组
+     * @return string|array
+     */
+    public function getSexName()
+    {
+        return $this->Domain_User()::getSexName();
+    }
 }

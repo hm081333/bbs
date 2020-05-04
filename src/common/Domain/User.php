@@ -90,10 +90,11 @@ class User
      * 获取当前会员信息
      * @param bool $user
      * @return array
+     * @throws BadRequestException
      */
     public static function getCurrentUserInfo($user = false)
     {
-        $user = !$user ? self::$user : $user;// 传入user或当前登录user
+        $user = !$user ? self::getCurrentUser() : $user;// 传入user或当前登录user
         if (!$user) {
             return [];
         }
@@ -107,6 +108,7 @@ class User
             'birth_time_unix' => $user['birth_time_unix'],
             'sex' => $user['sex'],
             'sex_name' => self::getSexName($user['sex']),
+            'signature' => $user['signature'],
         ];
     }
 
@@ -213,6 +215,11 @@ class User
                         self::setUserToken($user);
                     }
                 }
+            } else {
+                $user = self::getInfo($user['id']);// 用Token换取会员信息
+                if ($user) {
+                    self::setUserToken($user);
+                }
             }
             self::$user = !$user ? [] : $user;// 获取不到会员时给空，注意不能不赋值
         }
@@ -252,12 +259,18 @@ class User
         if (empty($user_id)) {
             throw new BadRequestException(T('异常请求'));
         }
-        \Common\DI()->response->setMsg(\PhalApi\T('操作成功'));
+        DI()->response->setMsg(T('操作成功'));
         $update_data = [
             'id' => $user_id,
         ];
         if (isset($data['nick_name'])) {
             $update_data['nick_name'] = $data['nick_name'];
+        }
+        if (isset($data['sex'])) {
+            $update_data['sex'] = $data['sex'];
+        }
+        if (isset($data['signature'])) {
+            $update_data['signature'] = $data['signature'];
         }
         self::doUpdate($update_data);
     }
