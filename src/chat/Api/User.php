@@ -23,6 +23,9 @@ class User extends \Common\Api\User
         $rules['editSignature'] = [
             'signature' => ['name' => 'signature', 'type' => 'string', 'default' => '', 'desc' => '个性签名'],
         ];
+        $rules['editLogo'] = [
+            'logo' => ['name' => 'logo', 'type' => 'string', 'default' => '', 'desc' => '头像文件的相对路径'],
+        ];
         return $rules;
     }
 
@@ -33,8 +36,7 @@ class User extends \Common\Api\User
      */
     public function editNickName()
     {
-        $user = $this->Domain_User()::getCurrentUser(true);
-        $this->Domain_User()->editUser($user['id'], ['nick_name' => $this->nick_name]);
+        $this->Domain_User()->editUser(null, ['nick_name' => $this->nick_name]);
         return $this->Domain_User()::getCurrentUserInfo();
     }
 
@@ -45,8 +47,7 @@ class User extends \Common\Api\User
      */
     public function editGender()
     {
-        $user = $this->Domain_User()::getCurrentUser(true);
-        $this->Domain_User()->editUser($user['id'], ['sex' => $this->sex]);
+        $this->Domain_User()->editUser(null, ['sex' => $this->sex]);
         return $this->Domain_User()::getCurrentUserInfo();
     }
 
@@ -57,8 +58,18 @@ class User extends \Common\Api\User
      */
     public function editSignature()
     {
-        $user = $this->Domain_User()::getCurrentUser(true);
-        $this->Domain_User()->editUser($user['id'], ['signature' => $this->signature]);
+        $this->Domain_User()->editUser(null, ['signature' => $this->signature]);
+        return $this->Domain_User()::getCurrentUserInfo();
+    }
+
+    /**
+     * 修改个人头像
+     * @return array
+     * @throws BadRequestException
+     */
+    public function editLogo()
+    {
+        $this->Domain_User()->editUser(null, ['logo' => $this->logo]);
         return $this->Domain_User()::getCurrentUserInfo();
     }
 

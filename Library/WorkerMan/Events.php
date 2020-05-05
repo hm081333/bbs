@@ -145,7 +145,7 @@ class Events
         if (@$fp = fopen($temp_file, 'r')) {
             $message = '';
             ini_set('memory_limit', '-1');
-            while (false != ($a = fread($fp, 8080))) {//返回false表示已经读取到文件末尾
+            while (false != ($a = fread($fp, 10 * 1024))) {//返回false表示已经读取到文件末尾
                 $message .= $a;
             }
             fclose($fp);
@@ -285,8 +285,9 @@ class Events
         }
         // 重新保存session数据
         self::saveSession($session_id, $_SESSION ?? []);
+        $_SESSION = [];
         // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
-        unset($session_id, $data, $_SESSION, $server, $_SERVER);
+        unset($session_id, $data, $server, $_SERVER);
         return $response;
     }
 

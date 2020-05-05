@@ -121,12 +121,15 @@ function server_path($path = '')
  */
 function res_path($path = '')
 {
-    //\Workerman\Worker::getStatus() == \Workerman\Worker::STATUS_RUNNING
-    if ($_SERVER['HTTP_UPGRADE'] == 'websocket') {
+    if (CDN_ROOT) {
+        return CDN_ROOT . '/' . $path;
+    } else if ($_SERVER['HTTP_UPGRADE'] == 'websocket') {
+        //\Workerman\Worker::getStatus() == \Workerman\Worker::STATUS_RUNNING
         //10.0.0.20:8080/ws
         return $_SERVER['HTTP_ORIGIN'] . '/api/' . $path;
+    } else {
+        return URL_ROOT . '/' . $path;
     }
-    return URL_ROOT . '/' . $path;
 }
 
 /**

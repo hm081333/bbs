@@ -29,3 +29,6 @@ defined('SECURITY_KEY') || define('SECURITY_KEY', '@fdskalhfj2387A!');
 // 加密的初始化向量
 defined('SECURITY_IV') || define('SECURITY_IV', '@fdfpu+adj2387A!');
 
+defined('CDN_ROOT') || define('CDN_ROOT', false);
+
+

@@ -19,6 +19,7 @@ use function Common\encrypt;
 use function Common\pwd_hash;
 use function Common\pwd_verify;
 use function Common\res_path;
+use function Common\server_path;
 use function PhalApi\T;
 
 /**
@@ -102,6 +103,7 @@ class User
             'user_name' => $user['user_name'],
             'email' => $user['email'],
             'logo' => empty($user['logo']) ? '' : res_path($user['logo']),
+            'previous_logo' => empty($user['previous_logo']) ? '' : res_path($user['previous_logo']),
             'nick_name' => $user['nick_name'],
             'real_name' => $user['real_name'],
             'birth_time' => $user['birth_time_date'],
@@ -257,7 +259,8 @@ class User
     public function editUser($user_id, $data)
     {
         if (empty($user_id)) {
-            throw new BadRequestException(T('异常请求'));
+            $user = self::getCurrentUser(true);
+            $user_id = $user['id'];
         }
         DI()->response->setMsg(T('操作成功'));
         $update_data = [
@@ -271,6 +274,17 @@ class User
         }
         if (isset($data['signature'])) {
             $update_data['signature'] = $data['signature'];
+        }
+        if (isset($data['logo'])) {
+            if ($data['logo'] == res_path($user['previous_logo'])) {
+                $data['logo'] = $user['previous_logo'];
+            }
+            if (!empty($user['previous_logo']) && $data['logo'] != $user['previous_logo']) {
+                // 删除更早之前的头像
+                @unlink(server_path($user['previous_logo']));
+            }
+            $update_data['previous_logo'] = $user['logo'];
+            $update_data['logo'] = $data['logo'];
         }
         self::doUpdate($update_data);
     }
