@@ -76,17 +76,19 @@ class NotORMDatabase extends \PhalApi\Database\NotORMDatabase
             return $this->getPdo($dbKey);
         }
         // 添加 检测 PDO连接的定时器
-        if (IS_CLI && defined('GLOBAL_START') && empty($this->timer_id)) {
+        if (IS_CLI && empty($pdo->timer_id)) {
             // 注意，回调里面使用当前定时器id必须使用引用(&)的方式引入
-            $this->timer_id = Timer::add(60, function () use ($dbKey, $pdo) {
+            $pdo->timer_id = Timer::add(5, function () use ($dbKey, $pdo) {
                 // 无法连接
                 if (!$this->ping($pdo)) {
                     DI()->logger->error('数据库断开，即将销毁所有连接');
                     // 连接断开，重连
                     $this->unsetAllConnect();
-                    Timer::del($this->timer_id);
-                    unset($this->timer_id);
+                    Timer::del($pdo->timer_id);
+                    unset($pdo->timer_id);
                     // return $this->getPdo($dbKey);
+                } else {
+                    // var_dump('数据库连接正常');
                 }
             });
         }
@@ -115,14 +117,15 @@ class NotORMDatabase extends \PhalApi\Database\NotORMDatabase
     public function ping($pdo)
     {
         try {
-            $pdo->getAttribute(PDO::ATTR_SERVER_INFO);
+            // var_dump('获取mysql信息');
+            return $pdo->getAttribute(PDO::ATTR_SERVER_INFO);
         } catch (PDOException $e) {
             DI()->logger->error('PDO异常', $e);
             if (strpos($e->getMessage(), 'MySQL server has gone away') !== false) {
                 return false;
             }
         }
-        return true;
+        return false;
     }
 
 }

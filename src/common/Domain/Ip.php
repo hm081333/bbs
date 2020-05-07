@@ -59,7 +59,8 @@ class Ip
                 throw new BadRequestException(T('获取IP信息失败'));
             }
             if ($data['code'] !== 0) {
-                throw new InternalServerErrorException(T($data['data']));
+                $msg = $data['msg'] ?? $data['data'];
+                throw new InternalServerErrorException(T($msg));
             }
             $ip_info = $data['data'];
             $this->Model_Ip()->insert(['ip' => $ip, 'info' => serialize($ip_info), 'add_time' => time()]);
