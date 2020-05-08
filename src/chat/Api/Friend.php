@@ -3,6 +3,7 @@
 namespace Chat\Api;
 
 use Library\Traits\Api;
+use function Common\res_path;
 
 /**
  * 好友模块接口服务
@@ -36,13 +37,35 @@ class Friend extends \Common\Api\Friend
         return self::getDomain();
     }
 
+    /**
+     * 用户 缓存层
+     * @return \Common\Cache\User
+     * @throws \Library\Exception\BadRequestException
+     */
+    protected function Cache_User()
+    {
+        return self::getCache('User');
+    }
+
     public function listData()
     {
+
+        $class = new \Library\PinYin();
         $user = $this->Domain_User()::getCurrentUser(true);
         $where = $this->where;
         $where['user_id'] = $user['id'];
-        $list = $this->Domain_Friend()::getList($this->limit, $this->offset, $where, $this->field, $this->order);
-        var_dump($list);
+        // $list = $this->Domain_Friend()::getList($this->limit, $this->offset, $where, $this->field, $this->order);
+        $list = $this->Domain_Friend()::getListByWhere($where, 'friend_id');
+        foreach ($list as &$row) {
+            $friend = $this->Cache_User()->get($row['friend_id']);
+            var_dump($friend);
+            $row = [];
+            $row['user_id'] = $friend['id'];
+            $row['nick_name'] = $friend['nick_name'];
+            $row['logo'] = empty($friend['logo']) ? '' : res_path($friend['logo']);
+            $row['pinyin'] = $class->str2py($row['nick_name']);
+        }
+        unset($row);
         return $list;
     }
 

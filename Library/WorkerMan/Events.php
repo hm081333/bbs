@@ -260,6 +260,8 @@ class Events
         $response['type'] = 'api';
         // 该客户端id对应的session id
         $session_id = self::sessionSaveHandler()->getSessionId($client_id);
+        var_dump('$client_id---',$client_id);
+        var_dump('$session_id---',$session_id);
         // 获取该session id储存的数据
         $_SESSION = self::getSession($session_id);
         // 该客户端id对应的信息
