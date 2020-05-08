@@ -76,7 +76,7 @@ class NotORMDatabase extends \PhalApi\Database\NotORMDatabase
             return $this->getPdo($dbKey);
         }
         // 添加 检测 PDO连接的定时器
-        if (IS_CLI && empty($pdo->timer_id)) {
+        if (IS_CLI && defined('GLOBAL_START') && empty($pdo->timer_id)) {
             // 注意，回调里面使用当前定时器id必须使用引用(&)的方式引入
             $pdo->timer_id = Timer::add(5, function () use ($dbKey, $pdo) {
                 // 无法连接

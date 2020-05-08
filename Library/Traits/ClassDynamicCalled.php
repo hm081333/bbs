@@ -43,6 +43,8 @@ trait ClassDynamicCalled
             $classInstanceTool = self::ClassInstance()->domainInstance;
         } else if ($classType != 'Model') {
             $classInstanceTool = self::ClassInstance()->modelInstance;
+        } else if ($classType != 'Cache') {
+            $classInstanceTool = self::ClassInstance()->cacheInstance;
         } else {
             throw new BadRequestException(T('非法调用'));
         }
@@ -82,6 +84,18 @@ trait ClassDynamicCalled
     protected static function getModel($className = false)
     {
         return self::getClass('Model', $className);
+
+    }
+
+    /**
+     * 获取指定Cache
+     * @param bool $className 指定调用的类
+     * @return mixed 返回对应的 Cache实例
+     * @throws BadRequestException
+     */
+    protected static function getCache($className = false)
+    {
+        return self::getClass('Cache', $className);
 
     }
 }

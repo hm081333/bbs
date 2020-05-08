@@ -36,6 +36,15 @@ class User
     public static $user_token;
 
     /**
+     * 用户缓存
+     * @return \Common\Cache\User
+     */
+    public static function Cache_User()
+    {
+        return self::getCache('User');
+    }
+
+    /**
      * 用户登录
      * @param $data
      * @return mixed
@@ -68,7 +77,7 @@ class User
             // 待更新的会员ID
             // $update['id'] = $user['id'];
             // DI()->logger->debug('user update', $update);
-            self::Model_user()->update($user['id'], $update);
+            self::Cache_User()->update($user['id'], $update);
             // 将用户信息存入SESSION中
             self::setUserToken($user);
             return [
@@ -187,7 +196,7 @@ class User
             throw new InternalServerErrorException(T('注册失败'));// 抛出服务端错误 T标签翻译
         }
 
-        $user = self::getInfo($insert_id);// 获取会员信息
+        $user = self::Cache_User()->get($insert_id);// 获取会员信息
         //将用户信息存入SESSION中
         self::setUserToken($user);
         return [
@@ -205,12 +214,7 @@ class User
     {
         if (!isset(self::$user) || IS_CLI) {
             $user = self::getUserToken();// 获取Session中存储的会员信息
-            // var_dump($user);
             if (!$user) {
-                // $user_token = DI()->request->getHeader(USER_TOKEN,false);// 获取header中携带的Token
-                // $auth = \Common\DI()->request->getHeader('Auth', false);// 获取header中携带的Token
-                // $user_token = substr($auth, strlen(USER_TOKEN));// 截取Token
-                // var_dump(self::$user_token);
                 if (!empty(self::$user_token)) {
                     $user = self::getInfoByWhere(['token' => self::$user_token]);// 用Token换取会员信息
                     if ($user) {
@@ -218,10 +222,7 @@ class User
                     }
                 }
             } else {
-                $user = self::getInfo($user['id']);// 用Token换取会员信息
-                if ($user) {
-                    self::setUserToken($user);
-                }
+                $user = self::Cache_User()->get($user['id']);// 用Token换取会员信息
             }
             self::$user = !$user ? [] : $user;// 获取不到会员时给空，注意不能不赋值
         }
@@ -246,8 +247,12 @@ class User
      */
     public static function setUserToken(array $user)
     {
+        $data = [
+            'id' => $user['id'],
+            'token' => $user['token'],
+        ];
         //将用户信息存入SESSION中
-        $_SESSION[USER_TOKEN] = encrypt(DI()->serialize->encrypt($user));// 保存在session
+        $_SESSION[USER_TOKEN] = encrypt(DI()->serialize->encrypt($data));// 保存在session
     }
 
     /**
@@ -263,9 +268,7 @@ class User
             $user_id = $user['id'];
         }
         DI()->response->setMsg(T('操作成功'));
-        $update_data = [
-            'id' => $user_id,
-        ];
+        $update_data = [];
         if (isset($data['nick_name'])) {
             $update_data['nick_name'] = $data['nick_name'];
         }
@@ -286,6 +289,6 @@ class User
             $update_data['previous_logo'] = $user['logo'];
             $update_data['logo'] = $data['logo'];
         }
-        self::doUpdate($update_data);
+        self::Cache_User()->update($user_id, $update_data);
     }
 }
