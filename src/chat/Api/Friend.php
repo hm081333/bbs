@@ -2,7 +2,9 @@
 
 namespace Chat\Api;
 
+use Library\Exception\BadRequestException;
 use Library\Traits\Api;
+use Library\Pinyin;
 use function Common\res_path;
 
 /**
@@ -30,7 +32,7 @@ class Friend extends \Common\Api\Friend
     /**
      * 好友 领域层
      * @return \Common\Domain\Friend
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     protected function Domain_Friend()
     {
@@ -40,7 +42,7 @@ class Friend extends \Common\Api\Friend
     /**
      * 用户 缓存层
      * @return \Common\Cache\User
-     * @throws \Library\Exception\BadRequestException
+     * @throws BadRequestException
      */
     protected function Cache_User()
     {
@@ -49,8 +51,7 @@ class Friend extends \Common\Api\Friend
 
     public function listData()
     {
-
-        $class = new \Library\PinYin();
+        $pinyin = new Pinyin();
         $user = $this->Domain_User()::getCurrentUser(true);
         $where = $this->where;
         $where['user_id'] = $user['id'];
@@ -58,12 +59,12 @@ class Friend extends \Common\Api\Friend
         $list = $this->Domain_Friend()::getListByWhere($where, 'friend_id');
         foreach ($list as &$row) {
             $friend = $this->Cache_User()->get($row['friend_id']);
-            var_dump($friend);
+            // var_dump($friend);
             $row = [];
             $row['user_id'] = $friend['id'];
             $row['nick_name'] = $friend['nick_name'];
             $row['logo'] = empty($friend['logo']) ? '' : res_path($friend['logo']);
-            $row['pinyin'] = $class->str2py($row['nick_name']);
+            $row['pinyin'] = $pinyin->str2py($row['nick_name']);
         }
         unset($row);
         return $list;
