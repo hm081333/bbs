@@ -2,9 +2,6 @@
 
 namespace Admin\Api;
 
-
-use Library\Traits\Api;
-
 /**
  * 管理员模块接口服务类
  * Setting
@@ -12,8 +9,6 @@ use Library\Traits\Api;
  */
 class Setting extends \Common\Api\Setting
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

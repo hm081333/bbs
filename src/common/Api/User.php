@@ -4,7 +4,6 @@ namespace Common\Api;
 
 use Library\Exception\BadRequestException;
 use Library\Exception\InternalServerErrorException;
-use Library\Traits\Api;
 use function Common\encrypt;
 use function Common\pwd_hash;
 use function PhalApi\T;
@@ -16,8 +15,6 @@ use function PhalApi\T;
  */
 class User extends Base
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

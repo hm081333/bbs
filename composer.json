@@ -31,6 +31,7 @@
         "ext-bcmath": "*",
         "ext-igbinary": "*",
         "ext-xml": "*",
+        "ext-zlib": "*",
         "phalapi/kernal": "2.*.*",
         "phalapi/qrcode": "dev-master",
         "phalapi/cli": "dev-master",
@@ -39,9 +40,8 @@
         "workerman/workerman": "dev-master",
         "workerman/gateway-worker": "dev-master",
         "overtrue/wechat": "^4.2",
-        "psr/cache": "^1.0@dev",
-        "ext-zlib": "*",
-        "overtrue/pinyin": "dev-master"
+        "overtrue/pinyin": "dev-master",
+        "psr/cache": "^1.0@dev"
     },
     "autoload": {
         "files": [

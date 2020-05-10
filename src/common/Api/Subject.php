@@ -2,8 +2,6 @@
 
 namespace Common\Api;
 
-use Library\Traits\Api;
-
 /**
  * 科目接口服务类
  * Subject
@@ -11,8 +9,6 @@ use Library\Traits\Api;
  */
 class Subject extends Base
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

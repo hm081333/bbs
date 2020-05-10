@@ -6,7 +6,6 @@ namespace Common\Api;
 use Library\Crypt\RSA\MultiPub2PriCrypt;
 use Library\Exception\BadRequestException;
 use Library\Exception\InternalServerErrorException;
-use Library\Traits\Api;
 
 /**
  * IP地址 接口服务类
@@ -15,8 +14,6 @@ use Library\Traits\Api;
  */
 class Ip extends Base
 {
-    use Api;
-
     /**
      * 接口参数规则
      * @return array

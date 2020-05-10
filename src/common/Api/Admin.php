@@ -3,7 +3,6 @@
 namespace Common\Api;
 
 use Library\Exception\BadRequestException;
-use Library\Traits\Api;
 
 /**
  * 管理员模块接口服务类
@@ -12,8 +11,6 @@ use Library\Traits\Api;
  */
 class Admin extends Base
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

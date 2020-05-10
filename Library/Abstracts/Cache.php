@@ -12,6 +12,8 @@ use function Common\DI;
 
 abstract class Cache
 {
+    use \Library\Traits\ClassDynamicCalled;
+
     /**
      * 获取缓存
      * @param bool|string $key

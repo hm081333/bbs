@@ -39,11 +39,11 @@ trait ClassDynamicCalled
         if (empty($classType)) {
             throw new BadRequestException(T('非法调用'));
         }
-        if ($classType != 'Domain') {
+        if ($classType == 'Domain') {
             $classInstanceTool = self::ClassInstance()->domainInstance;
-        } else if ($classType != 'Model') {
+        } else if ($classType == 'Model') {
             $classInstanceTool = self::ClassInstance()->modelInstance;
-        } else if ($classType != 'Cache') {
+        } else if ($classType == 'Cache') {
             $classInstanceTool = self::ClassInstance()->cacheInstance;
         } else {
             throw new BadRequestException(T('非法调用'));
@@ -63,6 +63,10 @@ trait ClassDynamicCalled
         $class = implode('\\', [$nameSpace, $classType, $className]);
         if ($nameSpace != 'Common' && !class_exists($class)) {
             $class = implode('\\', ['Common', $classType, $className]);
+        }
+        if ($classInfo == $class) {
+            var_dump(123);
+            die;
         }
         return $classInstanceTool->$className = new $class;
     }

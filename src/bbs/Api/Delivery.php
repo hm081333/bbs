@@ -2,8 +2,6 @@
 
 namespace Bbs\Api;
 
-use Library\Traits\Api;
-
 /**
  * 物流信息 接口服务类
  * Delivery
@@ -11,8 +9,6 @@ use Library\Traits\Api;
  */
 class Delivery extends \Common\Api\Delivery
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

@@ -2,6 +2,7 @@
 
 namespace Common;
 
+use Common\Domain\User;
 use Library\Crypt\RSA\KeyGenerator;
 use Library\DependenceInjection;
 use Library\Tool\HtmlCompress;
@@ -14,6 +15,16 @@ use Library\Tool\HtmlCompress;
 function DI()
 {
     return DependenceInjection::one();
+}
+
+/**
+ * 获取当前登录用户信息
+ * @return array|mixed
+ * @throws \Library\Exception\BadRequestException
+ */
+function user()
+{
+    return User::getCurrentUser(true);
 }
 
 /**

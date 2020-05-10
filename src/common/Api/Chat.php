@@ -3,17 +3,16 @@
 namespace Common\Api;
 
 /**
- * 物流公司 接口服务类
- * Logistics
- * @author LYi-Ho 2018-11-24 16:06:44
+ * 聊天 接口
+ * Chat
+ * @author LYi-Ho 2020-05-10 21:08:17
  */
-class Logistics extends Base
+class Chat extends Base
 {
     public function getRules()
     {
         $rules = parent::getRules();
         return $rules;
     }
-
 
 }

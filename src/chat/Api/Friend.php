@@ -3,9 +3,8 @@
 namespace Chat\Api;
 
 use Library\Exception\BadRequestException;
-use Library\Traits\Api;
-use Library\Pinyin;
 use function Common\res_path;
+use function PhalApi\T;
 
 /**
  * 好友模块接口服务
@@ -14,8 +13,6 @@ use function Common\res_path;
  */
 class Friend extends \Common\Api\Friend
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();
@@ -40,19 +37,15 @@ class Friend extends \Common\Api\Friend
     }
 
     /**
-     * 用户 缓存层
-     * @return \Common\Cache\User
+     * 好友列表
+     * @return array|mixed
      * @throws BadRequestException
      */
-    protected function Cache_User()
-    {
-        return self::getCache('User');
-    }
-
     public function listData()
     {
-        $pinyin = new Pinyin();
         $user = $this->Domain_User()::getCurrentUser(true);
+        // $pinyin = new \Library\PinYin();
+        $pinyin = new \Overtrue\Pinyin\Pinyin();
         $where = $this->where;
         $where['user_id'] = $user['id'];
         // $list = $this->Domain_Friend()::getList($this->limit, $this->offset, $where, $this->field, $this->order);
@@ -64,10 +57,38 @@ class Friend extends \Common\Api\Friend
             $row['user_id'] = $friend['id'];
             $row['nick_name'] = $friend['nick_name'];
             $row['logo'] = empty($friend['logo']) ? '' : res_path($friend['logo']);
-            $row['pinyin'] = $pinyin->str2py($row['nick_name']);
+            // $row['pinyin'] = $pinyin->str2py($row['nick_name']);
+            $row['pinyin'] = $pinyin->abbr($row['nick_name'], PINYIN_NO_TONE | PINYIN_KEEP_NUMBER | PINYIN_KEEP_ENGLISH);
         }
         unset($row);
         return $list;
+    }
+
+    /**
+     * 好友信息
+     * @desc      获取详情数据
+     * @return array    数据数组
+     * @exception 400 非法请求，参数传递错误
+     */
+    public function infoData()
+    {
+        $user = $this->Domain_User()::getCurrentUser(true);
+        $friend = $this->Cache_User()->get($this->id);
+        if (empty($friend)) {
+            throw new BadRequestException(T('无法找到该用户'));
+        }
+        $status = $this->Domain_Friend()->friendStatus($user['id'], $friend['id']);
+        $status_name = $this->Domain_Friend()->friendStatusName($status);
+        return [
+            'status' => $status,
+            'statusName' => $status_name,
+            'friendInfo' => [
+                'id' => $friend['id'],
+                'logo' => empty($friend['logo']) ? '' : res_path($friend['logo']),
+                'nick_name' => $friend['nick_name'],
+                'user_name' => $friend['user_name'],
+            ],
+        ];
     }
 
 }

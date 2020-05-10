@@ -3,7 +3,6 @@
 namespace Chat\Api;
 
 use Library\Exception\BadRequestException;
-use Library\Traits\Api;
 
 /**
  * 用户模块接口服务
@@ -12,8 +11,6 @@ use Library\Traits\Api;
  */
 class User extends \Common\Api\User
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

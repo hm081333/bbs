@@ -2,8 +2,6 @@
 
 namespace Common\Api;
 
-use Library\Traits\Api;
-
 /**
  * 文章回复 接口服务类
  * Reply
@@ -11,8 +9,6 @@ use Library\Traits\Api;
  */
 class Reply extends Base
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

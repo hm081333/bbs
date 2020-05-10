@@ -3,7 +3,6 @@
 namespace Admin\Api;
 
 use Library\Exception\BadRequestException;
-use Library\Traits\Api;
 use function Common\encrypt;
 use function Common\pwd_hash;
 
@@ -14,8 +13,6 @@ use function Common\pwd_hash;
  */
 class Admin extends \Common\Api\Admin
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

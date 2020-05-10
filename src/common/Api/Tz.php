@@ -3,7 +3,6 @@
 namespace Common\Api;
 
 use Exception\Exception;
-use Library\Traits\Api;
 use PDO;
 use function Common\DI;
 
@@ -14,8 +13,6 @@ use function Common\DI;
  */
 class Tz extends Base
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

@@ -20,12 +20,23 @@ class User extends Cache
     }
 
     /**
-     * 好友 model
+     * 好友 领域层
+     * @return \Common\Domain\User
+     * @throws BadRequestException
+     */
+    protected function Domain_User()
+    {
+        return self::getDomain();
+    }
+
+    /**
+     * 好友 模型层
      * @return \Common\Model\User
+     * @throws BadRequestException
      */
     protected function Model_User()
     {
-        return new \Common\Model\User();
+        return self::getModel();
     }
 
     /**
@@ -40,7 +51,7 @@ class User extends Cache
             $name = $this->getTableName();
             $user = DI()->cache->get($name);
             if ($user == null) {
-                $user = $this->Model_User()->get($user_id);
+                $user = $this->Domain_User()::getInfo($user_id);
                 if ($user) {
                     $this->set($user_id, $user);
                 }

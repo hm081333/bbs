@@ -5,7 +5,6 @@ namespace Common\Api;
 use Common\Domain\JdSignItem;
 use Library\Exception\BadRequestException;
 use Library\Exception\Exception;
-use Library\Traits\Api;
 
 /**
  * 京东签到记录 接口服务类
@@ -14,8 +13,6 @@ use Library\Traits\Api;
  */
 class JdSignLog extends Base
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

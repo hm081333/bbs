@@ -3,7 +3,6 @@
 namespace Common\Api;
 
 use Library\Exception\BadRequestException;
-use Library\Traits\Api;
 
 /**
  * 百度ID 接口服务类
@@ -12,7 +11,6 @@ use Library\Traits\Api;
  */
 class BaiDuId extends Base
 {
-    use Api;
 
     public function getRules()
     {

@@ -4,7 +4,6 @@
 namespace Common\Api;
 
 use Library\Exception\BadRequestException;
-use Library\Traits\Api;
 use Library\Uploader;
 use function Common\createDir;
 use function Common\DI;
@@ -20,8 +19,6 @@ use function PhalApi\T;
  */
 class Upload extends Base
 {
-    use Api;
-
     /**
      * 接口参数规则
      * @return array

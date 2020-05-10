@@ -2,8 +2,6 @@
 
 namespace Common\Api;
 
-use Library\Traits\Api;
-
 /**
  * 物流信息 接口服务类
  * Delivery
@@ -11,7 +9,6 @@ use Library\Traits\Api;
  */
 class Delivery extends Base
 {
-    use Api;
 
     public function getRules()
     {

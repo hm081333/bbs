@@ -2,10 +2,8 @@
 
 namespace Common\Api;
 
-
 use Library\Exception\BadRequestException;
 use Library\Exception\InternalServerErrorException;
-use Library\Traits\Api;
 
 /**
  * 文章接口服务类
@@ -14,8 +12,6 @@ use Library\Traits\Api;
  */
 class Topic extends Base
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

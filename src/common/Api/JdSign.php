@@ -4,7 +4,6 @@ namespace Common\Api;
 
 use Library\Exception\BadRequestException;
 use Library\Exception\Exception;
-use Library\Traits\Api;
 
 /**
  * 京东签到 接口服务类
@@ -13,8 +12,6 @@ use Library\Traits\Api;
  */
 class JdSign extends Base
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

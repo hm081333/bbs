@@ -5,7 +5,6 @@ namespace Common\Api;
 
 use Common\Domain\Admin;
 use Library\Exception\BadRequestException;
-use Library\Traits\ClassDynamicCalled;
 use PhalApi\Api;
 use function Common\DI;
 
@@ -16,7 +15,7 @@ use function Common\DI;
  */
 class Base extends Api
 {
-    use \Library\Traits\Api, ClassDynamicCalled;
+    use \Library\Traits\Api;
 
     /**
      * 基础服务构造函数
@@ -134,6 +133,16 @@ class Base extends Api
     protected function Domain_User()
     {
         return self::getDomain('User');
+    }
+
+    /**
+     * 用户 缓存层
+     * @return \Common\Cache\User
+     * @throws BadRequestException
+     */
+    protected function Cache_User()
+    {
+        return self::getCache('User');
     }
 
     /**

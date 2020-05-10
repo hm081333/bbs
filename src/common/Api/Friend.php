@@ -2,8 +2,6 @@
 
 namespace Common\Api;
 
-use Library\Traits\Api;
-
 /**
  * 好友模块接口服务
  * Friend
@@ -11,8 +9,6 @@ use Library\Traits\Api;
  */
 class Friend extends Base
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

@@ -2,8 +2,6 @@
 
 namespace Bbs\Api;
 
-use Library\Traits\Api;
-
 /**
  * 用户模块接口服务
  * User
@@ -11,8 +9,6 @@ use Library\Traits\Api;
  */
 class User extends \Common\Api\User
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

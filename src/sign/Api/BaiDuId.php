@@ -2,8 +2,6 @@
 
 namespace Sign\Api;
 
-use Library\Traits\Api;
-
 /**
  * 百度ID 接口服务类
  * BaiDuId
@@ -11,8 +9,6 @@ use Library\Traits\Api;
  */
 class BaiDuId extends \Common\Api\BaiDuId
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

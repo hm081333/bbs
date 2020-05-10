@@ -2,8 +2,6 @@
 
 namespace Common\Api;
 
-use Library\Traits\Api;
-
 /**
  * 系统操作 接口服务类
  * @ignore
@@ -11,8 +9,6 @@ use Library\Traits\Api;
  */
 class System extends Base
 {
-    use Api;
-
     /**
      * 接口参数规则
      * @return array

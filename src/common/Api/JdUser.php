@@ -3,7 +3,6 @@
 namespace Common\Api;
 
 use Library\Exception\BadRequestException;
-use Library\Traits\Api;
 use Library\Traits\Model;
 use PhalApi\Model\NotORMModel;
 
@@ -14,8 +13,6 @@ use PhalApi\Model\NotORMModel;
  */
 class JdUser extends Base
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();

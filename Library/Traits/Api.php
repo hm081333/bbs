@@ -11,5 +11,5 @@ namespace Library\Traits;
  */
 trait Api
 {
-
+    use \Library\Traits\ClassDynamicCalled;
 }

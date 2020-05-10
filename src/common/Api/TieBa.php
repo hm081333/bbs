@@ -5,7 +5,6 @@ namespace Common\Api;
 use Library\Exception\BadRequestException;
 use Library\Exception\Exception;
 use Library\Exception\InternalServerErrorException;
-use Library\Traits\Api;
 use Sign\Domain\QQLogin;
 use function Common\DI;
 use function PhalApi\T;
@@ -17,8 +16,6 @@ use function PhalApi\T;
  */
 class TieBa extends Base
 {
-    use Api;
-
     public function getRules()
     {
         $rules = parent::getRules();
