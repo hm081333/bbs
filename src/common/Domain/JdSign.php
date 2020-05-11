@@ -69,7 +69,6 @@ class JdSign
      */
     public function test()
     {
-        die;
     }
 
     /**
@@ -933,6 +932,8 @@ class JdSign
             'uuid' => '',
         ]);
         DI()->logger->debug("种豆得豆任务 - 关注店铺", $data);
+
+        sleep(1);
         // 取消关注店铺
         $this->JDFollowShop($shopId);
 
@@ -951,29 +952,50 @@ class JdSign
     {
         if (!$shopId) return false;
 
-        $follow_url = !$follow ? 'DelShopFav' : 'AddShopFav';
+        if (is_array($shopId)) {
+            $follow_url = !$follow ? 'batchunfollow' : '';
+            $shopIdStr = implode(',', $shopId);
+            $referer = 'https://wqs.jd.com/my/fav/shop_fav.shtml';
+        } else {
+            $follow_url = !$follow ? 'DelShopFav' : 'AddShopFav';
+            $shopIdStr = (string)$shopId;
+            $referer = "https://shop.m.jd.com/?shopId={$shopId}";
+        }
         $url = $this->buildURL("https://wq.jd.com/fav/shop/{$follow_url}", [
-            'shopId' => (string)$shopId,
-            'venderId' => (string)$shopId,
+            'shopId' => $shopIdStr,
+            // 'venderId' => (string)$shopId,
             'sceneval' => '2',
             'g_login_type' => '1',
             // 'callback' => 'jsonpCBKO',
             'g_ty' => 'ls',
         ]);
-        $data = DI()->curl->setCookie($this->user_cookie)->setHeader([
-            'Referer' => "https://shop.m.jd.com/?shopId={$shopId}",
-        ])->json_get($url);
-        // DI()->curl->unsetHeader('Referer');
+        $url = urldecode($url);
+        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
+            'Referer' => $referer,
+        ])->get($url);
+
+        $data = json_decode($res, true);
+        if (!json_decode($res, true)) {
+            $pattern = '/^(try\{\()([\s\S]*)(\)\;\}catch\(e\)\{\})$/';
+            preg_match($pattern, $res, $match);
+            if (!isset($match[2])) throw new Exception('商品收藏状态 返回结果错误');
+            $data_str = $match[2];
+            $data_str = rtrim($data_str, ',}') . '}';
+            $data = json_decode($data_str, true);
+        }
 
         if ($data['iRet'] != 0) throw new Exception($data['errMsg']);
 
         DI()->logger->debug('关注店铺、取消关注店铺', $data);
-        // 店铺收藏状态
-        $follow_state = $this->JDShopIsFollow($shopId);
-        // 取消收藏，但是状态还是已收藏 或者 收藏，但是状态还是未收藏
-        if ((!$follow && $follow_state) || ($follow && !$follow_state)) {
-            // 重新调用关注、取消关注
-            return $this->JDFollowShop($shopId, $follow);
+
+        if (!is_array($shopId)) {
+            // 店铺收藏状态
+            $follow_state = $this->JDShopIsFollow($shopId);
+            // 取消收藏，但是状态还是已收藏 或者 收藏，但是状态还是未收藏
+            if ((!$follow && $follow_state) || ($follow && !$follow_state)) {
+                // 重新调用关注、取消关注
+                return $this->JDFollowShop($shopId, $follow);
+            }
         }
 
         return true;
@@ -1002,13 +1024,13 @@ class JdSign
             'Referer' => "https://shop.m.jd.com/?shopId={$shopId}",
         ])->get($url);
 
-        $pattern = '/^(try\{\()(.*)(\)\;\}catch\(e\)\{\})$/';
+        $pattern = '/^(try\{\()([\s\S]*)(\)\;\}catch\(e\)\{\})$/';
         preg_match($pattern, $res, $match);
         if (!isset($match[2])) throw new Exception('商品收藏状态 返回结果错误');
         $data_str = $match[2];
         $res = json_decode($data_str, true);
 
-        DI()->logger->debug('店铺收藏状态', $res);
+        DI()->logger->debug('店铺收藏状态 - ' . $shopId, $res);
 
         if ($res['iRet'] != 0) throw new Exception($res['errMsg']);
         // 关注状态：1已收藏 0未收藏
@@ -1134,6 +1156,8 @@ class JdSign
             'uuid' => '',
         ]);
         DI()->logger->debug("种豆得豆任务 - 关注商品", $data);
+
+        sleep(1);
         // 取消收藏商品
         $this->JDFavoriteGood($skuId);
 
@@ -1152,31 +1176,92 @@ class JdSign
     {
         if (!$skuId) return false;
 
-        $favorite = !$favorite ? 'FavCommDel' : 'FavCommAdd';
-        $url = $this->buildURL("https://wq.jd.com/fav/comm/{$favorite}", [
-            // 'shopId' => (string)'',
-            'commId' => (string)$skuId,
-            'sceneval' => '2',
+        $favorite = !$favorite ? 'Del' : 'Add';
+        if (is_array($skuId)) {
+            $favorite = 'Batch' . $favorite;
+            $skuIdStr = implode(',', $skuId);
+            $referer = 'https://wqs.jd.com/my/fav/goods_fav.shtml';
+        } else {
+            $skuIdStr = (string)$skuId;
+            $referer = "https://shop.m.jd.com/?shopId={$skuId}";
+        }
+        $url = $this->buildURL("https://wq.jd.com/fav/comm/FavComm{$favorite}", [
+            'commId' => $skuIdStr,
+            'sceneval' => 2,
+            'g_login_type' => 1,
+            'g_ty' => 'ls',
         ]);
+        $url = urldecode($url);
+        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
+            'Referer' => $referer,
+        ])->get($url);
 
-        $data = DI()->curl->setCookie($this->user_cookie)->setHeader([
-            'Referer' => "https://shop.m.jd.com/?shopId={$skuId}",
-        ])->json_get($url);
-        // DI()->curl->unsetHeader('Referer');
-
+        $data = json_decode($res, true);
+        if (!json_decode($res, true)) {
+            $pattern = '/^(try\{\()([\s\S]*)(\)\;\}catch\(e\)\{\})$/';
+            preg_match($pattern, $res, $match);
+            if (!isset($match[2])) throw new Exception('商品收藏状态 返回结果错误');
+            $data_str = $match[2];
+            $data_str = rtrim($data_str, ',}') . '}';
+            $data = json_decode($data_str, true);
+        }
         if ($data['iRet'] != 0) throw new Exception($data['errMsg']);
 
         DI()->logger->debug('收藏商品、取消收藏商品', $data);
 
-        // 商品收藏状态
-        $follow_state = $this->JDGoodIsFavorite($skuId);
-        // 取消收藏，但是状态还是已收藏 或者 收藏，但是状态还是未收藏
-        if ((!$favorite && $follow_state[$skuId]) || ($favorite && !$follow_state[$skuId])) {
-            // 重新调用收藏、取消收藏
-            return $this->JDFavoriteGood($skuId, $favorite);
+        if (!is_array($skuId)) {
+            // 商品收藏状态
+            $follow_state = $this->JDGoodIsFavorite($skuId);
+            // 取消收藏，但是状态还是已收藏 或者 收藏，但是状态还是未收藏
+            if ((!$favorite && $follow_state[$skuId]) || ($favorite && !$follow_state[$skuId])) {
+                // 重新调用收藏、取消收藏
+                return $this->JDFavoriteGood($skuId, $favorite);
+            }
         }
 
         return true;
+    }
+
+    /**
+     * 收藏的商品列表
+     * @param int $page
+     * @param int $pageSize
+     * @return array|bool
+     * @throws Exception
+     * @throws InternalServerErrorException
+     */
+    private function JDFavoriteGoodList($page = 1, $pageSize = 10)
+    {
+        $url = $this->buildURL('https://wq.jd.com/fav/comm/FavCommQueryFilter', [
+            // 'shopId' => (string)'',
+            'cp' => $page,
+            'pageSize' => $pageSize,
+            'category' => 0,
+            'promote' => 0,
+            'cutPrice' => 0,
+            'coupon' => 0,
+            'stock' => 0,
+            'areaNo' => '1_72_4139_0',
+            'sceneval' => 2,
+            'g_login_type' => 1,
+            // 'callback' => 'jsonpCBKB',
+            'g_ty' => 'ls',
+        ]);
+
+        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
+            'Referer' => 'https://wqs.jd.com/my/fav/goods_fav.shtml',
+        ])->get($url);
+        $pattern = '/^(try\{\()([\s\S]*)(\)\;\}catch\(e\)\{\})$/';
+        preg_match($pattern, $res, $match);
+        if (!isset($match[2])) throw new Exception('商品收藏状态 返回结果错误');
+        $data_str = $match[2];
+        $res = json_decode($data_str, true);
+
+        if ($res['iRet'] != 0) throw new Exception($res['errMsg']);
+
+        DI()->logger->debug('收藏的商品列表', $res);
+
+        return $res['data'];
     }
 
     /**
@@ -1207,6 +1292,7 @@ class JdSign
         // DI()->curl->unsetHeader('Referer');
 
         $pattern = '/^(try\{\()(.*)(\)\;\}catch\(e\)\{\})$/';
+        $pattern = '/^(try\{\()([\s\S]*)(\)\;\}catch\(e\)\{\})$/';
         preg_match($pattern, $res, $match);
         if (!isset($match[2])) throw new Exception('商品收藏状态 返回结果错误');
         $data_str = $match[2];
@@ -1214,10 +1300,12 @@ class JdSign
 
         if ($res['iRet'] != 0) throw new Exception($res['errMsg']);
 
-        DI()->logger->debug('商品收藏状态', $res);
+        DI()->logger->debug('商品收藏状态 - ' . $skuId, $res);
 
         $data = $res['data'];
         $data = array_combine(array_column($data, 'skuid'), array_column($data, 'state'));
+
+        DI()->logger->debug('商品收藏状态 - ' . $skuId, $data);
 
         return $data;
     }
