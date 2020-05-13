@@ -2,6 +2,7 @@
 
 namespace Chat\Api;
 
+use Library\DateHelper;
 use Library\Exception\BadRequestException;
 use function Common\res_path;
 
@@ -48,21 +49,49 @@ class Chat extends \Common\Api\Chat
         $where['FIND_IN_SET(?, user_ids)'] = $user['id'];
         $list = $this->Domain_Chat()::getList($this->limit, $this->offset, $where, $this->field, $this->order);
         foreach ($list['rows'] as &$row) {
-            $user_ids = explode(',', $row['user_ids']);
-            $row = [
-                'chat_user' => [],
-            ];
-            foreach ($user_ids as $user_id) {
-                $row['chat_user'][] = $chat_user = $this->Cache_User()->get($user_id);
-                if ($user_id != $user['id']) {
-                    $row['name'] = $chat_user['remark_name'] ?? $chat_user['nick_name'];
-                    $row['logo'] = empty($chat_user['logo']) ? '' : res_path($chat_user['logo']);
-                    $row['last_time'] = '下午 9:33';
-                    $row['last_message'] = '冲鸭！复工后不能少的"治愈三宝"，统统享会员超低价！';
+            // 聊天室信息
+            $chat_info = $row;
+            // 最后消息时间
+            $last_time = $chat_info['last_time_unix'] ?? $chat_info['last_time'];
+            $row = [];
+            if ($chat_info['is_group']) {
+                // 群聊名称
+                $row['name'] = $chat_info['name'];
+                $row['logo'] = '';
+            } else {
+                // $row['chat_user'] = [];
+                $user_ids = explode(',', $chat_info['user_ids']);
+                foreach ($user_ids as $user_id) {
+                    $chat_user = $this->Cache_User()->get($user_id);
+                    // $row['chat_user'][] = $chat_user;
+                    if ($user_id != $user['id']) {
+                        $row['name'] = $chat_user['remark_name'] ?? $chat_user['nick_name'];
+                        $row['logo'] = empty($chat_user['logo']) ? '' : res_path($chat_user['logo']);
+                    }
                 }
+                unset($user_ids, $chat_user);
+            }
+            #TODO 最后消息内容
+            $row['last_message'] = '冲鸭！复工后不能少的"治愈三宝"，统统享会员超低价！';
+            // 最后消息时间
+            if (date('Ymd', $last_time) == date('Ymd', time())) {
+                // 当天
+                $row['last_time_short'] = date('A h:i', $last_time);
+                $pat = ['AM', 'PM'];
+                $string = ['上午', '下午'];
+                $row['last_time_short'] = str_replace($pat, $string, $row['last_time_short']);
+            } else if ($last_time >= strtotime(date('Y-m-d') . ' -1 day')) {
+                // 昨天
+                $row['last_time_short'] = '昨天';
+            } else if ($last_time >= strtotime(date('Y-m-d') . ' -7 day')) {
+                // 近一周
+                $row['last_time_short'] = DateHelper::getWeekName($last_time);
+            } else {
+                // 更早
+                $row['last_time_short'] = date('Y/n/j', $last_time);
             }
         }
-        unset($row);
+        unset($row, $chat_info);
         return $list;
     }
 

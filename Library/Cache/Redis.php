@@ -138,6 +138,42 @@ class Redis implements Cache
         return $value !== false ? $this->unformatValue($value) : null;
     }
 
+    /**
+     * 添加到有序集合
+     * @param $key
+     * @param $score
+     * @param $value
+     * @return int
+     */
+    public function zAdd($key, $score, $value)
+    {
+        return $this->redis->zAdd($this->formatKey($key), $score, $this->formatValue($value));
+    }
+
+    /**
+     * 通过索引区间返回有序集合指定区间内的成员
+     * @param $key
+     * @param $start
+     * @param $end
+     * @return array
+     */
+    public function zRemRangeByScore($key, $start, $end)
+    {
+        return $this->redis->zRange($this->formatKey($key), $start, $end);
+    }
+
+    /**
+     * 通过分数返回有序集合指定区间内的成员
+     * @param $key
+     * @param $startScore
+     * @param $endScore
+     * @return array
+     */
+    public function zRangeByScore($key, $startScore, $endScore)
+    {
+        return $this->redis->zRangeByScore($this->formatKey($key), $startScore, $endScore);
+    }
+
     protected function formatKey($key)
     {
         return $this->prefix . $key;

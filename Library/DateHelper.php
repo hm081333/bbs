@@ -9,7 +9,44 @@ namespace Library;
  */
 class DateHelper
 {
-
+    /**
+     * 获取时间对应周几
+     * @param bool   $time
+     * @param string $type
+     * @return false|string
+     */
+    public static function getWeekName($time = false, $type = 'zh_cn')
+    {
+        $time = $time ?: time();
+        $week_day = date('N', $time);
+        if ($type == 'num') {
+            return $week_day;
+        } else if ($type == 'zh_cn') {
+            switch ($week_day) {
+                case 1:
+                    return '星期一';
+                    break;
+                case 2:
+                    return '星期二';
+                    break;
+                case 3:
+                    return '星期三';
+                    break;
+                case 4:
+                    return '星期四';
+                    break;
+                case 5:
+                    return '星期五';
+                    break;
+                case 6:
+                    return '星期六';
+                    break;
+                case 7:
+                    return '星期七';
+                    break;
+            }
+        }
+    }
 
     /**
      * 获取某一天的时间间隔
