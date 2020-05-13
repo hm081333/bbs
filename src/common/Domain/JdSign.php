@@ -69,13 +69,16 @@ class JdSign
      */
     public function test()
     {
-        $data = $this->Model_JdUser()->get(1);
+        $data = $this->Model_JdUser()->get(2);
         // 设置请求所需的cookie
         $this->user_cookie = [
             'pt_key' => $data['pt_key'],
             'pt_pin' => $data['pt_pin'],
             'pt_token' => $data['pt_token'],
         ];
+        $this->liftGooseData();
+        die;
+
         // $res = $this->JDFavoriteGood('954762', false);
         // var_dump($res);
         //    JDFavoriteGood
@@ -147,13 +150,23 @@ class JdSign
     }
 
     /**
-     * 京东签到项 数据层
+     * 京东签到 数据层
      * @return \Common\Model\JdSign|Model|NotORMModel
      * @throws BadRequestException
      */
     protected function Model_JdSign()
     {
         return self::getModel('JdSign');
+    }
+
+    /**
+     * 京东签到项 数据层
+     * @return \Common\Model\JdSignItem|Model|NotORMModel
+     * @throws BadRequestException
+     */
+    protected function Model_JdSignItem()
+    {
+        return self::getModel('JdSignItem');
     }
 
     /**
@@ -288,6 +301,10 @@ class JdSign
                 // 每日赚京豆签到 - 京豆
                 $this->doJRSignRecords($jd_sign_info);
                 break;
+            case 'jrLiftGoose':
+                // 天天提鹅 - 鹅蛋
+                $this->doJRLiftGoose($jd_sign_info);
+                break;
             default:
                 throw new BadRequestException(T('不存在该签到项'));
                 break;
@@ -353,6 +370,107 @@ class JdSign
             'pt_pin' => $data['pt_pin'],
             'pt_token' => $data['pt_token'],
         ];
+        return $data;
+    }
+
+    /**
+     * 执行 京东金融APP - 天天提鹅
+     * @param array $jd_sign_info
+     * @throws BadRequestException
+     * @throws Exception
+     * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     */
+    private function doJRLiftGoose(array $jd_sign_info = [])
+    {
+        // if ($this->is_today($jd_sign_info['return_data']['sign_time'])) {
+        //     return;
+        //     // throw new \Library\Exception\Exception(\PhalApi\T('今天已签到'));
+        // }
+
+        // 查询是否能翻牌
+        $info = $this->JRLiftGooseInfo();
+        if (empty($info) || $info['grassEggTotal'] <= 0) {
+            return;
+        }
+
+        // 提鹅收蛋
+        $this->JRLiftGooseCollectEgg();
+
+        $this->Model_JdSign()->updateByWhere([
+            'id' => intval($jd_sign_info['id']),
+            'sign_key' => $this->sign_key,
+            'status' => 1,
+        ], $this->initUpdateSignData([
+        ]));
+
+    }
+
+    /**
+     * 京东金融APP - 天天提鹅 信息
+     */
+    public function JRLiftGooseInfo()
+    {
+        $url = $this->buildURL('https://ms.jr.jd.com/gw/generic/uc/h5/m/toDailyHome', [
+            'reqData' => json_encode([
+                'riskDeviceInfo' => json_encode([
+                    // 'eid' => 'AJNTTHQZ4S4ZFEELZIRBLDWEYL5HDI4QEU2ZKNZTJSQTMIBRRHIKWOJPYDO4GHFZXDZF6MVJBJE5FNKJL26PFZ42DE',
+                    // 'fp' => 'acae8b8ff9ab57a68e37ba35b81d0899',
+                    // 'token' => 'RE3EQC5WIFMYWVROHSNKBHNR7AXTTJKNKYYBCFDIFHPI7TAOIUBPBUSLIGUCZND72SYEUKGB3OA32',
+                ]),
+                'environment' => 'jrApp',
+                'channelLv' => 'yxjh',
+                'shareUuid' => '',
+            ]),
+        ]);
+        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
+            // /?channelLv=yxjh&jrcontainer=h5&jrlogin=true    30次循环
+            'Referer' => 'https://active.jd.com/forever/btgoose',
+        ])->get($url);
+        // DI()->logger->debug($res);
+        $res = json_decode($res, true);
+        if ($res['resultCode'] != 0) {
+            throw new Exception($res['resultMsg']);
+        }
+        $resData = $res['resultData'];
+        if ($resData['code'] != '0000') {
+            throw new Exception($resData['msg']);
+        }
+        $data = $resData['data'];
+
+        DI()->logger->debug('天天提鹅 信息', $data);
+
+        return $data;
+    }
+
+    /**
+     * 京东金融APP - 天天提鹅 提鹅收蛋
+     */
+    public function JRLiftGooseCollectEgg()
+    {
+        $url = $this->buildURL('https://ms.jr.jd.com/gw/generic/uc/h5/m/toWithdraw', [
+            'reqData' => json_encode([
+                'environment' => 'jrApp',
+                'shareUuid' => '',
+            ]),
+        ]);
+        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
+            // /?channelLv=yxjh&jrcontainer=h5&jrlogin=true    32次循环
+            'Referer' => 'https://active.jd.com/forever/btgoose',
+        ])->get($url);
+        $res = json_decode($res, true);
+        if ($res['resultCode'] != 0) {
+            throw new Exception($res['resultMsg']);
+        }
+        $resData = $res['resultData'];
+        if ($resData['code'] != '0000') {
+            throw new Exception($resData['msg']);
+        }
+        $data = $resData['data'];
+
+        DI()->logger->debug('天天提鹅 提鹅收蛋', $data);
+
         return $data;
     }
 

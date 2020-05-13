@@ -79,6 +79,9 @@ try {
                 case 'jrSignRecords':// 每日赚京豆签到
                     $di->logger->info('执行定时:每日赚京豆签到');
                     break;
+                case 'jrLiftGoose':// 每日赚京豆签到
+                    $di->logger->info('执行定时:天天提鹅');
+                    break;
                 default:
                     die('非法参数！');
                     break;

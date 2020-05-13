@@ -12,4 +12,5 @@
 46 */1 * * * php /var/www/bbs/bin/task.php -a jd -t jrFlopReward >/dev/null 2>&1
 48 */1 * * * php /var/www/bbs/bin/task.php -a jd -t jrLottery >/dev/null 2>&1
 50 */1 * * * php /var/www/bbs/bin/task.php -a jd -t jrSignRecords >/dev/null 2>&1
+*/1 * * * * php /var/www/bbs/bin/task.php -a jd -t jrLiftGoose >/dev/null 2>&1
 10 10 * * * /var/www/bbs/bin/auto_backup.sh
