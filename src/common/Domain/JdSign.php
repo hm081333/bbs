@@ -1634,6 +1634,11 @@ class JdSign
             for ($i = $item['currentFinishTimes']; $i < $item['totalPrizeTimes']; $i++) {
                 $taskItemId = $taskItems[$i]['id'];
                 $this->vvipclub_doTask($taskName, $taskItemId);
+                // 关注店铺任务
+                if ($taskName == 'attentionTask') {
+                    // 取消关注
+                    $this->JDFollowShop($item['shopId'], false);
+                }
             }
         }
     }
