@@ -42,7 +42,7 @@ class DateHelper
                     return '星期六';
                     break;
                 case 7:
-                    return '星期七';
+                    return '星期日';
                     break;
             }
         }

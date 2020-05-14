@@ -37,7 +37,7 @@ class Chat extends \Common\Api\Chat
     }
 
     /**
-     * 好友列表
+     * 聊天室列表
      * @return array|mixed
      * @throws BadRequestException
      */
@@ -47,13 +47,17 @@ class Chat extends \Common\Api\Chat
         $where = $this->where;
         // $where['user_id'] = $user['id'];
         $where['FIND_IN_SET(?, user_ids)'] = $user['id'];
-        $list = $this->Domain_Chat()::getList($this->limit, $this->offset, $where, $this->field, $this->order);
+        // $order = $this->order;
+        $order = 'last_time DESC';
+        $list = $this->Domain_Chat()::getList($this->limit, $this->offset, $where, $this->field, $order);
         foreach ($list['rows'] as &$row) {
             // 聊天室信息
             $chat_info = $row;
             // 最后消息时间
             $last_time = $chat_info['last_time_unix'] ?? $chat_info['last_time'];
-            $row = [];
+            $row = [
+                'id' => $chat_info['id'],
+            ];
             if ($chat_info['is_group']) {
                 // 群聊名称
                 $row['name'] = $chat_info['name'];
@@ -83,7 +87,7 @@ class Chat extends \Common\Api\Chat
             } else if ($last_time >= strtotime(date('Y-m-d') . ' -1 day')) {
                 // 昨天
                 $row['last_time_short'] = '昨天';
-            } else if ($last_time >= strtotime(date('Y-m-d') . ' -7 day')) {
+            } else if ($last_time >= strtotime(date('Y-m-d') . ' -6 day')) {
                 // 近一周
                 $row['last_time_short'] = DateHelper::getWeekName($last_time);
             } else {
@@ -96,7 +100,7 @@ class Chat extends \Common\Api\Chat
     }
 
     /**
-     * 好友信息
+     * 聊天室信息
      * @desc      获取详情数据
      * @return array    数据数组
      * @exception 400 非法请求，参数传递错误
