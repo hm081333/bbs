@@ -23,6 +23,9 @@ class Chat extends \Common\Api\Chat
             'where' => ['name' => 'where', 'type' => 'array', 'default' => [], 'desc' => '查询条件'],
             'order' => ['name' => 'order', 'type' => 'string', 'default' => 'id desc', 'desc' => '排序方式'],
         ];
+        $rules['infoData'] = [
+            'id' => ['name' => 'id', 'type' => 'int', 'require' => true, 'min' => 1, 'desc' => "查询ID"],
+        ];
         return $rules;
     }
 
@@ -33,7 +36,17 @@ class Chat extends \Common\Api\Chat
      */
     protected function Domain_Chat()
     {
-        return self::getDomain();
+        return self::getDomain('Chat');
+    }
+
+    /**
+     * 好友 领域层
+     * @return \Common\Domain\Friend
+     * @throws BadRequestException
+     */
+    protected function Domain_Friend()
+    {
+        return self::getDomain('Friend');
     }
 
     /**
@@ -63,17 +76,15 @@ class Chat extends \Common\Api\Chat
                 $row['name'] = $chat_info['name'];
                 $row['logo'] = '';
             } else {
-                // $row['chat_user'] = [];
-                $user_ids = explode(',', $chat_info['user_ids']);
-                foreach ($user_ids as $user_id) {
-                    $chat_user = $this->Cache_User()->get($user_id);
-                    // $row['chat_user'][] = $chat_user;
-                    if ($user_id != $user['id']) {
-                        $row['name'] = $chat_user['remark_name'] ?? $chat_user['nick_name'];
-                        $row['logo'] = empty($chat_user['logo']) ? '' : res_path($chat_user['logo']);
-                    }
-                }
-                unset($user_ids, $chat_user);
+                $friend_info = $this->Domain_Friend()::getInfoByWhere([
+                    'user_id' => $user['id'],
+                    'FIND_IN_SET(friend_id, ?)' => $chat_info['user_ids'],
+                ], 'friend_id,remark_name');
+                $friend_remark_name = $friend_info['remark_name'];
+                $friend_info = $this->Cache_User()->get($friend_info['friend_id']);
+                $row['name'] = empty($friend_remark_name) ? $friend_info['nick_name'] : $friend_remark_name;
+                $row['logo'] = empty($friend_info['logo']) ? '' : res_path($friend_info['logo']);
+
             }
             #TODO 最后消息内容
             $row['last_message'] = '冲鸭！复工后不能少的"治愈三宝"，统统享会员超低价！';
@@ -107,7 +118,29 @@ class Chat extends \Common\Api\Chat
      */
     public function infoData()
     {
-        return [];
+        $user = $this->Domain_User()::getCurrentUser(true);
+        $chat_info = $this->Domain_Chat()::getInfo($this->id, 'id,is_group,is_delete,name,user_ids');
+        $chat_info['is_delete'] = boolval($chat_info['is_delete']);
+        $chat_info['is_group'] = boolval($chat_info['is_group']);
+        $chat_info['people_count'] = 2;
+        if ($chat_info['is_group']) {
+            $chat_info['user_ids'] = explode(',', $chat_info['user_ids']);
+            //  群聊人数
+            $chat_info['people_count'] = count($chat_info['user_ids']);
+            // 群聊名称
+            $chat_info['logo'] = '';
+        } else {
+            $friend_info = $this->Domain_Friend()::getInfoByWhere([
+                'user_id' => $user['id'],
+                'FIND_IN_SET(friend_id, ?)' => $chat_info['user_ids'],
+            ], 'friend_id,remark_name');
+            $friend_remark_name = $friend_info['remark_name'];
+            $friend_info = $this->Cache_User()->get($friend_info['friend_id']);
+            $chat_info['name'] = empty($friend_remark_name) ? $friend_info['nick_name'] : $friend_remark_name;
+            $chat_info['logo'] = empty($friend_info['logo']) ? '' : res_path($friend_info['logo']);
+        }
+        unset($chat_info['user_ids']);
+        return $chat_info;
     }
 
 }
