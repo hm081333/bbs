@@ -1693,6 +1693,7 @@ class JdSign
 
         // 完成所有任务，获取免费次数
         $this->vvipclub_doTaskAll();
+        die;
 
         // 京享值领京豆相关信息
         $luckyBox_info = $this->vvipclub_luckyBox();
@@ -1755,7 +1756,7 @@ class JdSign
                 // 关注店铺任务
                 if ($taskName == 'attentionTask') {
                     // 取消关注
-                    $this->JDFollowShop($item['shopId'], false);
+                    $this->JDFollowShop($taskItems[$i]['shopId'], false);
                 }
             }
         }
