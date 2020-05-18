@@ -658,26 +658,30 @@ class JdSign
             if ($res['success']) {
                 $data = $res['data'];
             } else {
-                DI()->logger->error('请求失败', $res);
+                DI()->logger->error('请求失败|URL|' . $url, $post_data);
+                DI()->logger->error('请求失败|RES', $res);
                 throw new Exception($res['message']);
             }
         } else {
             $code = $res['code'] ?? false;
             if ($code === false) {
-                DI()->logger->error('接口异常', $res);
+                DI()->logger->error('接口异常|URL|' . $url, $post_data);
+                DI()->logger->error('接口异常|RES', $res);
                 throw new Exception(T('接口异常'));
             } else if ($code == 3) {
                 $this->Domain_JdUser()::loginStatusExpired($this->user_cookie);
                 throw new Exception(T('请更新登录状态cookie'));
             } else if ($code != 0) {
                 // 除去正常code的其他返回
-                DI()->logger->error('京东返回未知状态|jdRequest', $res);
+                DI()->logger->error('京东返回未知状态|URL|' . $url, $post_data);
+                DI()->logger->error('京东返回未知状态|RES', $res);
             }
             $data = $res['data'] ?? $res;
             $errorCode = $res['errorCode'] ?? false;
             $errorMessage = $res['errorMessage'] ?? false;
             if (!empty($errorMessage)) {
-                DI()->logger->error("请求返回错误|URL|{$url}", $res);
+                DI()->logger->error('请求返回错误|URL|' . $url, $post_data);
+                DI()->logger->error('请求返回错误|RES', $res);
                 // {"code":"0","errorCode":"PB001","errorMessage":"抱歉，活动太火爆了"}
                 // 尝试重新请求
                 if ($retryTimes > 0) {
@@ -1161,7 +1165,8 @@ class JdSign
 
         DI()->logger->debug('店铺收藏状态 - ' . $shopId, $res);
 
-        if ($res['iRet'] != 0) throw new Exception($res['errMsg']);
+        // if ($res['iRet'] != 0) throw new Exception($res['errMsg']);
+        if ($res['iRet'] != 0) return true;
         // 关注状态：1已收藏 0未收藏
         $state = $res['state'] ?? 0;
 
@@ -1693,7 +1698,6 @@ class JdSign
 
         // 完成所有任务，获取免费次数
         $this->vvipclub_doTaskAll();
-        die;
 
         // 京享值领京豆相关信息
         $luckyBox_info = $this->vvipclub_luckyBox();
@@ -1751,12 +1755,12 @@ class JdSign
             // 任务列表
             $taskItems = $item['taskItems'];
             for ($i = $item['currentFinishTimes']; $i < $item['totalPrizeTimes']; $i++) {
-                $taskItemId = $taskItems[$i]['id'];
-                $this->vvipclub_doTask($taskName, $taskItemId);
+                $taskItem = $taskItems[$i];
+                $this->vvipclub_doTask($taskName, $taskItem['id']);
                 // 关注店铺任务
                 if ($taskName == 'attentionTask') {
                     // 取消关注
-                    $this->JDFollowShop($taskItems[$i]['shopId'], false);
+                    $this->JDFollowShop($taskItem['shopId'], false);
                 }
             }
         }
@@ -1931,6 +1935,7 @@ class JdSign
 
         for ($i = 0; $i < $info['lotteryCount']; $i++) {
             $bean_award += $this->lotteryDraw();
+            sleep(1);
         }
 
         // 记录本次签到收益
@@ -2109,7 +2114,8 @@ class JdSign
         } else if ($resultCode == 0) {
             $data = $res['resultData'];
         } else {
-            DI()->logger->debug('京东金融返回未知状态', $res);
+            DI()->logger->error('京东金融返回未知状态 URL|' . $url, $data);
+            DI()->logger->error('京东金融返回未知状态 RES', $res);
             throw new Exception(T('请求失败'));
         }
 
