@@ -1739,10 +1739,10 @@ class JdSign
      */
     private function vvipclub_doTaskAll()
     {
-        $list = $this->vvipclub_lotteryTaskList();
+        $list = $this->vvipclub_lotteryTask();
         foreach ($list as $item) {
             $taskName = $item['taskName'];
-            $item = $this->vvipclub_lotteryTaskInfo($taskName);
+            $item = $this->vvipclub_lotteryTask($taskName);
             // 不存在该任务 信息
             if (empty($item)) {
                 continue;
@@ -1767,48 +1767,24 @@ class JdSign
     }
 
     /**
-     * 京享值领京豆 任务列表
-     * @return mixed
-     * @throws BadRequestException
-     * @throws Exception
-     * @throws InternalServerErrorException
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     */
-    private function vvipclub_lotteryTaskList()
-    {
-        $url = $this->buildURL('https://api.m.jd.com/client.action', [
-            'appid' => 'vip_h5',
-            'functionId' => 'vvipclub_lotteryTask',
-            // 'body' => json_encode([
-            //     'info' => 'shareTask,browseTask,attentionTask',
-            //     'withItem' => false,
-            // ]),
-        ]);
-
-        $data = $this->jdRequest($url);
-
-        // DI()->logger->debug('京享值领京豆 任务列表', $data);
-
-        return $data;
-    }
-
-    /**
-     * 京享值领京豆 任务详情
+     * 京享值领京豆 任务
      * @param $taskName
      * @return array|bool
      * @throws Exception
      */
-    private function vvipclub_lotteryTaskInfo($taskName)
+    private function vvipclub_lotteryTask($taskName = false)
     {
-        $url = $this->buildURL('https://api.m.jd.com/client.action', [
+        $params = [
             'appid' => 'vip_h5',
             'functionId' => 'vvipclub_lotteryTask',
-            'body' => json_encode([
+        ];
+        if ($taskName) {
+            $params['body'] = json_encode([
                 'info' => $taskName,
                 'withItem' => true,
-            ]),
-        ]);
+            ]);
+        }
+        $url = $this->buildURL('https://api.m.jd.com/client.action', $params);
 
         try {
             $data = $this->jdRequest($url);
