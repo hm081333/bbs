@@ -6,11 +6,11 @@ namespace Library\Session;
 use function Common\DI;
 
 /**
- * SESSION Redis存储方式
- * Class Redis
+ * SESSION 文件存储方式
+ * Class File
  * @package Library\Session
  */
-class Redis extends Basic
+class File extends Basic
 {
     //session-lifetime
     private $lifeTime;
@@ -18,8 +18,7 @@ class Redis extends Basic
     protected function cache()
     {
         // TODO: Implement cache() method.
-        return new \Library\Cache\Redis(DI()->config->get('sys.cache.redis'));
+        return new \Library\Cache\File(DI()->config->get('sys.cache.file'));
     }
-
 
 }

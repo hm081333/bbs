@@ -68,7 +68,8 @@ $di->serialize = new \Library\Serialize();
 $di->cache = function () use ($di) {
     // return new \PhalApi\Cache\MemcacheCache($di->config->get('sys.cache.memcache'));
     // return new \PhalApi\Cache\FileCache($di->config->get('sys.cache.file'));
-    return new \Library\Cache\Redis($di->config->get('sys.cache.redis'));
+    return new \Library\Cache\File($di->config->get('sys.cache.file'));
+    // return new \Library\Cache\Redis($di->config->get('sys.cache.redis'));
 };
 
 // 惰性加载Redis

@@ -48,6 +48,7 @@ class Ip
         }
         $old_ip = $this->Model_Ip()->getInfo(['ip' => $ip]);
         if (!$old_ip) {
+            throw new BadRequestException(T('获取IP信息失败'));
             try {
                 $data = DI()->curl->setNoRetry()->setTimeout(1000)->get("http://ip.taobao.com/service/getIpInfo.php?ip={$ip}", 1000);
                 $data = json_decode($data, true);
@@ -58,6 +59,7 @@ class Ip
                 DI()->logger->error($e->getMessage());
                 throw new BadRequestException(T('获取IP信息失败'));
             }
+            var_dump($data);
             if ($data['code'] !== 0) {
                 $msg = $data['msg'] ?? $data['data'];
                 throw new InternalServerErrorException(T($msg));
