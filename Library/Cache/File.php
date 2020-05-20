@@ -93,6 +93,11 @@ class File implements Cache
         @unlink($filePath);
     }
 
+    public function expire($key, $ttl = 3600)
+    {
+        return true;
+    }
+
     /**
      * 拉取缓存，拉取后同时删除缓存
      * @return minxed|NULL 缓存不存在时返回NULL
