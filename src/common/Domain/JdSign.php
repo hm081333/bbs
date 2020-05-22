@@ -428,12 +428,15 @@ class JdSign
             // /?channelLv=yxjh&jrcontainer=h5&jrlogin=true    30次循环
             'Referer' => 'https://active.jd.com/forever/btgoose',
         ])->get($url);
-        // DI()->logger->debug($res);
-        $res = json_decode($res, true);
-        if ($res['resultCode'] != 0) {
-            throw new Exception($res['resultMsg']);
+        $resArr = json_decode($res, true);
+        if (empty($resArr)) {
+            DI()->logger->debug('天天提鹅 信息 返回异常', $res);
+            return false;
         }
-        $resData = $res['resultData'];
+        if ($resArr['resultCode'] != 0) {
+            throw new Exception($resArr['resultMsg']);
+        }
+        $resData = $resArr['resultData'];
         if ($resData['code'] != '0000') {
             throw new Exception($resData['msg']);
         }
