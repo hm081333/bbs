@@ -290,6 +290,7 @@ class Events
         $_SESSION = [];
         // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
         unset($session_id, $data, $server, $_SERVER);
+        var_dump($response);
         return $response;
     }
 

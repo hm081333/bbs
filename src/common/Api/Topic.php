@@ -60,7 +60,7 @@ class Topic extends Base
         if ($data['class_id'] > 0) {
             $where['class_id=?'] = $data['class_id'];
         }
-        $list = $this->Domain_Topic()::getList($this->limit, $this->offset, $where, '*', 'id desc');
+        $list = $this->Domain_Topic()::getList($this->limit, $this->offset, $where, 'id,title,add_time', 'id desc');
 
         $list['subject_name'] = '';
         if ($data['class_id'] > 0) {
