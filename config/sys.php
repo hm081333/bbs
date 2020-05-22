@@ -38,7 +38,7 @@ return [
         // 文件缓存
         'file' => [
             // 缓存文件保存路径
-            'path' => API_ROOT . '/Runtime',
+            'path' => API_ROOT . '/runtime',
             // 缓存前缀
             'prefix' => 'bbs',
         ],

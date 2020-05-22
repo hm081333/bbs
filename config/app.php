@@ -36,7 +36,7 @@ return [
         //MQ队列设置，可根据使用需要配置
         'mq' => [
             'file' => [
-                'path' => API_ROOT . '/Runtime',
+                'path' => API_ROOT . '/runtime',
                 'prefix' => 'bbs_task',
             ],
             'redis' => [
