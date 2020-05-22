@@ -1774,6 +1774,10 @@ class JdSign
      */
     private function vvipclub_lotteryTask($taskName = false)
     {
+        // 跳过分享任务
+        if ($taskName == 'shareTask') {
+            return false;
+        }
         $params = [
             'appid' => 'vip_h5',
             'functionId' => 'vvipclub_lotteryTask',
