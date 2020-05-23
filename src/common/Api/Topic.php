@@ -57,19 +57,15 @@ class Topic extends Base
     {
         $data = get_object_vars($this);
         $where = [];
+        $class = [];
         if ($data['class_id'] > 0) {
-            $where['class_id=?'] = $data['class_id'];
+            $class = $this->Domain_Subject()::getInfo($data['class_id']);
+            $where['class_id=?'] = $class['id'];
         }
         $list = $this->Domain_Topic()::getList($this->limit, $this->offset, $where, 'id,title,add_time', 'id desc');
 
-        $list['subject_name'] = '';
-        if ($data['class_id'] > 0) {
-            $class = $this->Domain_Subject()::getInfo($data['class_id']);
-            if (!empty($class)) {
-                $list['subject_name'] = $class['name'];
-                // \PhalApi\DI()->response->setMsg($class['name']);
-            }
-        }
+        $list['subject_name'] = $class['name'] ?? '';
+
         return $list;
     }
 
