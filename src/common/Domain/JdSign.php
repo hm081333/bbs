@@ -433,7 +433,10 @@ class JdSign
             DI()->logger->debug('天天提鹅 信息 返回异常', $res);
             return false;
         }
-        if ($resArr['resultCode'] != 0) {
+        if ($resArr['resultCode'] == 3) {
+            $this->Domain_JdUser()::loginStatusExpired($this->user_cookie);
+            throw new Exception(T('请更新登录状态cookie'));
+        } else if ($resArr['resultCode'] != 0) {
             throw new Exception($resArr['resultMsg']);
         }
         $resData = $resArr['resultData'];
