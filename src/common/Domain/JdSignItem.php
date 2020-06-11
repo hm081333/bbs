@@ -43,7 +43,7 @@ class JdSignItem
     {
         $items = $this->Cache_JdSignItem()->get();
         if (!isset($items)) {
-            $items = $this->Model_JdSignItem()->getListByWhere(['status' => 1], '`key`,`name`', 'id asc');
+            $items = $this->Model_JdSignItem()->getListByWhere([], '`key`,`name`', 'id asc');
             $items = array_combine(array_column($items, 'key'), array_column($items, 'name'));
             $this->Cache_JdSignItem()->set(false, $items);
         }

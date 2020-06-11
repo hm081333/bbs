@@ -4,7 +4,6 @@ namespace Common\Api;
 
 use Common\Domain\JdSignItem;
 use Library\Exception\BadRequestException;
-use Library\Exception\Exception;
 
 /**
  * 京东签到记录 接口服务类
@@ -31,7 +30,9 @@ class JdSignLog extends Base
         $data = get_object_vars($this);
         $list = $this->Domain_JdSignLog()::getList($data['limit'], $data['offset'], $data['where'], $data['field'], $data['order']);
         array_walk($list['rows'], function (&$value) {
-            $value['sign_key_name'] = $this->Domain_JdSignItem()->itemKeyName($value['sign_key']);
+            $sign_key = $this->Domain_JdSignItem()::getInfoByWhere(['key' => $value['sign_key']]);
+            $value['sign_key_name'] = $sign_key['name'];
+            // $value['sign_key_status'] = $sign_key['status'];
             $value['reward_type_name'] = $this->Domain_JdSignLog()->rewardTypeNames($value['reward_type']);
             return $value;
         });

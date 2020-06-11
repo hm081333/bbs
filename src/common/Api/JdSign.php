@@ -38,7 +38,9 @@ class JdSign extends Base
         $data['where']['user_id'] = $this->session_user['id'];
         $list = $this->Domain_JdSign()::getList($data['limit'], $data['offset'], $data['where'], $data['field'], $data['order']);
         array_walk($list['rows'], function (&$value) {
-            $value['sign_key_name'] = $this->Domain_JdSignItem()->itemKeyName($value['sign_key']);
+            $sign_key = $this->Domain_JdSignItem()::getInfoByWhere(['key' => $value['sign_key']]);
+            $value['sign_key_name'] = $sign_key['name'];
+            $value['sign_key_status'] = $sign_key['status'];
             return $value;
         });
         return $list;
