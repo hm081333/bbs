@@ -60,7 +60,7 @@ return [ //前后端通信相关的配置,注释只允许使用多行方式
             'img.baidu.com',
             'bbs.com',
             'bbs2.com',
-            'bbs.lyihe2.tk',
+            'bbs.lyiho.tk',
             'bbs.lyiho.com',
         ],
     'catcherActionName' => 'catchimage', //执行抓取远程图片的action名称

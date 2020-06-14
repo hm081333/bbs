@@ -200,7 +200,7 @@ class WeChatPublicPlatform
         $result = DI()->wechat->template_message->send([
             'touser' => $user['open_id'],
             'template_id' => 'Ogvc_rROWerSHvfgo1IOJIL103bso0H3jLYEAwTuKKg',
-            'url' => 'http://bbs2.lyihe2.tk/tieba',
+            'url' => 'http://bbs2.lyiho.tk/tieba',
             // 'miniprogram' => [
             //     'appid' => 'xxxxxxx',
             //     'pagepath' => 'pages/xxx',
@@ -281,7 +281,7 @@ class WeChatPublicPlatform
         $result = DI()->wechat->template_message->send([
             'touser' => $openid,
             'template_id' => 'm4MFI5pcseC177w2-a-Tm-6XvhWsYf02pNCEIr2eCeo',
-            'url' => 'http://bbs2.lyihe2.tk/sign',
+            'url' => 'http://bbs2.lyiho.tk/sign',
             'data' => [
                 'user_name' => [
                     'value' => $user_info['user_name'],
@@ -351,7 +351,7 @@ class WeChatPublicPlatform
         $result = DI()->wechat->template_message->send([
             'touser' => $user['open_id'],
             'template_id' => 'jcbiBiXSYDMQeeSkEs4TvFPVbO8fMDu7RSOx_wgrtzY',
-            'url' => 'http://bbs2.lyihe2.tk/sign',
+            'url' => 'http://bbs2.lyiho.tk/sign',
             // 'miniprogram' => [
             //     'appid' => 'xxxxxxx',
             //     'pagepath' => 'pages/xxx',

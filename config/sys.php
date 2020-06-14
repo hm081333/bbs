@@ -114,7 +114,7 @@ return [
         // 允许请求的地址
         'Access-Control-Allow-Origin' => [
             'http://localhost:8080',
-            'http://bbs.lyihe2.tk:8080',
+            'http://bbs.lyiho.tk:8080',
             'http://192.168.1.135:8080',
         ],
         // 允许请求的Headers
