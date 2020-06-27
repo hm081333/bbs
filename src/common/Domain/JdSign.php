@@ -415,9 +415,6 @@ class JdSign
         $url = $this->buildURL('https://ms.jr.jd.com/gw/generic/uc/h5/m/toDailyHome', [
             'reqData' => json_encode([
                 'riskDeviceInfo' => json_encode([
-                    // 'eid' => 'AJNTTHQZ4S4ZFEELZIRBLDWEYL5HDI4QEU2ZKNZTJSQTMIBRRHIKWOJPYDO4GHFZXDZF6MVJBJE5FNKJL26PFZ42DE',
-                    // 'fp' => 'acae8b8ff9ab57a68e37ba35b81d0899',
-                    // 'token' => 'RE3EQC5WIFMYWVROHSNKBHNR7AXTTJKNKYYBCFDIFHPI7TAOIUBPBUSLIGUCZND72SYEUKGB3OA32',
                 ]),
                 'environment' => 'jrApp',
                 'channelLv' => 'yxjh',
