@@ -457,13 +457,18 @@ class JdSign
     {
         $url = $this->buildURL('https://ms.jr.jd.com/gw/generic/uc/h5/m/toWithdraw', [
             'reqData' => json_encode([
+                'riskDeviceInfo' => json_encode([
+                ]),
                 'environment' => 'jrApp',
+                'channelLv' => 'yxjh',
                 'shareUuid' => '',
             ]),
         ]);
+        // var_dump($url);
+        // die;
         $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
             // /?channelLv=yxjh&jrcontainer=h5&jrlogin=true    32次循环
-            'Referer' => 'https://active.jd.com/forever/btgoose',
+            'Referer' => 'https://active.jd.com/forever/btgoose/?channelLv=yxjh&jrcontainer=h5&jrlogin=true',
         ])->get($url);
         $res = json_decode($res, true);
         if ($res['resultCode'] != 0) {
