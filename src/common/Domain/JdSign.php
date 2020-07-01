@@ -237,6 +237,8 @@ class JdSign
                 try {
                     $this->doItemSign(0, $jd_sign_info);
                 } catch (\Exception $e) {
+                    var_dump($e);
+                    die;
                     DI()->logger->error("执行签到项|{$this->sign_key}|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
@@ -421,10 +423,10 @@ class JdSign
                 'shareUuid' => '',
             ]),
         ]);
-        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
-            // /?channelLv=yxjh&jrcontainer=h5&jrlogin=true    30次循环
-            'Referer' => 'https://active.jd.com/forever/btgoose',
-        ])->get($url);
+        $res = DI()->curl
+            ->setCookie($this->user_cookie)
+            ->setReferer('https://active.jd.com/forever/btgoose')
+            ->get($url);
         $resArr = json_decode($res, true);
         if (empty($resArr)) {
             DI()->logger->debug('天天提鹅 信息 返回异常', $res);
@@ -463,10 +465,10 @@ class JdSign
         ]);
         // var_dump($url);
         // die;
-        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
-            // /?channelLv=yxjh&jrcontainer=h5&jrlogin=true    32次循环
-            'Referer' => 'https://active.jd.com/forever/btgoose/?channelLv=yxjh&jrcontainer=h5&jrlogin=true',
-        ])->get($url);
+        $res = DI()->curl
+            ->setCookie($this->user_cookie)
+            ->setReferer('https://active.jd.com/forever/btgoose/?channelLv=yxjh&jrcontainer=h5&jrlogin=true')
+            ->get($url);
         $res = json_decode($res, true);
         if ($res['resultCode'] != 0) {
             throw new Exception($res['resultMsg']);
@@ -1110,9 +1112,10 @@ class JdSign
             'g_ty' => 'ls',
         ]);
         $url = urldecode($url);
-        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
-            'Referer' => $referer,
-        ])->get($url);
+        $res = DI()->curl
+            ->setCookie($this->user_cookie)
+            ->setReferer($referer)
+            ->get($url);
 
         $data = json_decode($res, true);
         if (!json_decode($res, true)) {
@@ -1161,9 +1164,10 @@ class JdSign
             // 'callback' => 'jsonpCBKO',
             'g_ty' => 'ls',
         ]);
-        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
-            'Referer' => "https://shop.m.jd.com/?shopId={$shopId}",
-        ])->get($url);
+        $res = DI()->curl
+            ->setCookie($this->user_cookie)
+            ->setReferer("https://shop.m.jd.com/?shopId={$shopId}")
+            ->get($url);
 
         $pattern = '/^(try\{\()([\s\S]*)(\)\;\}catch\(e\)\{\})$/';
         preg_match($pattern, $res, $match);
@@ -1334,9 +1338,10 @@ class JdSign
             'g_ty' => 'ls',
         ]);
         $url = urldecode($url);
-        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
-            'Referer' => $referer,
-        ])->get($url);
+        $res = DI()->curl
+            ->setCookie($this->user_cookie)
+            ->setReferer($referer)
+            ->get($url);
 
         $data = json_decode($res, true);
         if (!json_decode($res, true)) {
@@ -1390,9 +1395,10 @@ class JdSign
             'g_ty' => 'ls',
         ]);
 
-        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
-            'Referer' => 'https://wqs.jd.com/my/fav/goods_fav.shtml',
-        ])->get($url);
+        $res = DI()->curl
+            ->setCookie($this->user_cookie)
+            ->setReferer('https://wqs.jd.com/my/fav/goods_fav.shtml')
+            ->get($url);
 
         $pattern = '/^(try\{\()([\s\S]*)(\)\;\}catch\(e\)\{\})$/';
         preg_match($pattern, $res, $match);
@@ -1429,10 +1435,10 @@ class JdSign
             'sceneval' => '2',
         ]);
 
-        $res = DI()->curl->setCookie($this->user_cookie)->setHeader([
-            'Referer' => "https://item.m.jd.com/product/{$skuId[0]}.html?sceneval=2",
-        ])->get($url);
-        // DI()->curl->unsetHeader('Referer');
+        $res = DI()->curl
+            ->setCookie($this->user_cookie)
+            ->setReferer("https://item.m.jd.com/product/{$skuId[0]}.html?sceneval=2")
+            ->get($url);
 
         $pattern = '/^(try\{\()([\s\S]*)(\)\;\}catch\(e\)\{\})$/';
         preg_match($pattern, $res, $match);
@@ -2515,6 +2521,16 @@ class JdSign
     }
 
     /**
+     * 设置引用地址
+     * @param bool|string $referer
+     * @return \Library\CUrl
+     */
+    private function setReferer($referer = false)
+    {
+        return DI()->curl->setReferer($referer);
+    }
+
+    /**
      * 京东金融APP 金币抽奖 信息
      * @return bool|mixed
      * @throws BadRequestException
@@ -2530,6 +2546,8 @@ class JdSign
                 'actKey' => 'AbeQry',
             ]),
         ]);
+
+        $this->setReferer('https://m.jr.jd.com/member/coinlottery/index.html?channel=01-qd-190306');
 
         $res = $this->jrRequest($url);
         DI()->logger->debug('金币抽奖 信息', $res);
@@ -2563,9 +2581,9 @@ class JdSign
             ]),
         ]);
 
-        DI()->curl->setHeader(['Referer' => 'https://m.jr.jd.com/member/coinlottery/index.html?channel=01-qd-190306']);
+        $this->setReferer('https://m.jr.jd.com/member/coinlottery/index.html?channel=01-qd-190306');
+
         $res = $this->jrRequest($url);
-        // DI()->curl->unsetHeader('Referer');
         DI()->logger->debug('金币抽奖', $res);
 
         // if ($res['code'] != '1000') {
@@ -2630,7 +2648,7 @@ class JdSign
     {
         $url = $this->buildURL('https://ms.jr.jd.com/gw/generic/zc/h5/m/signRecords');
 
-        DI()->curl->setHeader(['Referer' => 'https://jddx.jd.com/m/jddnew/money/index.html?from=dlqfl']);
+        DI()->curl->setReferer('https://jddx.jd.com/m/jddnew/money/index.html?from=dlqfl');
         $res = $this->jrRequest($url, [
             'reqData' => json_encode([
                 'bizLine' => 2,
@@ -2642,7 +2660,6 @@ class JdSign
                 'clientVersion' => '11.0',
             ]),
         ]);
-        // DI()->curl->unsetHeader('Referer');
         DI()->logger->debug('每日赚京豆 信息', $res);
 
         if ($res['resultCode'] != '00000') {
@@ -2683,7 +2700,7 @@ class JdSign
     {
         $url = $this->buildURL('https://ms.jr.jd.com/gw/generic/zc/h5/m/signRewardGift');
 
-        DI()->curl->setHeader(['Referer' => 'https://jddx.jd.com/m/jddnew/money/index.html?from=dlqfl']);
+        DI()->curl->setReferer('https://jddx.jd.com/m/jddnew/money/index.html?from=dlqfl');
         $res = $this->jrRequest($url, [
             'reqData' => json_encode([
                 'bizLine' => 2,
@@ -2694,7 +2711,6 @@ class JdSign
                 'clientVersion' => '11.0',
             ]),
         ]);
-        // DI()->curl->unsetHeader('Referer');
         // DI()->logger->debug('每日赚京豆 - 签到', $res);
 
         if ($res['resultCode'] != '00000') {
@@ -2803,14 +2819,14 @@ class JdSign
             // 'callback'=>'GetJDUserInfoUnion',
             'g_ty' => 'ls',
         ]);
-        $result = DI()->curl->setCookie([
-            'pt_key' => $data['pt_key'],
-            'pt_pin' => $data['pt_pin'],
-            'pt_token' => $data['pt_token'],
-        ])->setHeader([
-            'Referer' => 'https://home.m.jd.com/myJd/newhome.action',
-        ])->json_get($url);
-        // DI()->curl->unsetHeader('Referer');
+        $result = DI()->curl
+            ->setCookie([
+                'pt_key' => $data['pt_key'],
+                'pt_pin' => $data['pt_pin'],
+                'pt_token' => $data['pt_token'],
+            ])
+            ->setReferer('https://home.m.jd.com/myJd/newhome.action')
+            ->json_get($url);
         if ($result['retcode'] != 0 || empty($result['data'])) {
             DI()->logger->error('获取京东会员信息错误', $result);
             throw new Exception(T('未知错误'));

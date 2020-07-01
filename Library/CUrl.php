@@ -325,6 +325,17 @@ class CUrl
         return $this;
     }
 
+    /**
+     * 设置引用地址
+     * @param string $referer
+     * @return $this
+     */
+    public function setReferer($referer)
+    {
+        $this->header['Referer'] = $referer;
+        return $this;
+    }
+
     protected function getCookieString()
     {
         $ret = '';
