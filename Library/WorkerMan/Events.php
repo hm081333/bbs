@@ -95,11 +95,27 @@ class Events
      */
     public static function sendToClient($client_id, $data)
     {
+        $data = self::parseData($data);
+        Gateway::sendToClient($client_id, $data);
+    }
+
+    public static function parseData($data)
+    {
         $data = is_array($data) ? json_encode($data, true) : $data;
         // gzip压缩
         // $data = gzencode($data);
         $data = gzip_binary_string_encode($data);
-        Gateway::sendToClient($client_id, $data);
+        //             type: 'send',
+        //             sendType: sendType,
+        //             index: index,
+        //             time: time,
+        //             request: longData.substr(start, maxBinaryBufferSize),
+        $maxBinaryBufferSize = 4096;
+        if (strlen($data) > $maxBinaryBufferSize) {
+            $receive_time = floor(microtime(true) * 1000);
+            $times = ceil(strlen($data) / $maxBinaryBufferSize);
+        }
+        return $data;
     }
 
     /**
@@ -145,7 +161,7 @@ class Events
         if (@$fp = fopen($temp_file, 'r')) {
             $message = '';
             ini_set('memory_limit', '-1');
-            while (false != ($a = fread($fp, 10 * 1024))) {//返回false表示已经读取到文件末尾
+            while (false != ($a = fread($fp, 4 * 1024))) {//返回false表示已经读取到文件末尾
                 $message .= $a;
             }
             fclose($fp);
@@ -226,7 +242,7 @@ class Events
             case 'pong':
                 return;
                 break;
-            case 'long':
+            case 'send':
                 self::writeLongMessageTemp($client_id, $data);
                 if ($data['sendType'] != 'end') {
                     $response['index'] = intval($data['index']) + 1;
