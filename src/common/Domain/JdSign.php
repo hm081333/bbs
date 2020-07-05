@@ -681,6 +681,11 @@ class JdSign
             } else if ($code == 3) {
                 $this->Domain_JdUser()::loginStatusExpired($this->user_cookie);
                 throw new Exception(T('请更新登录状态cookie'));
+            } else if ($code == -1) {
+                // 除去正常code的其他返回
+                DI()->logger->error('京东内部接口连接超时|URL|' . $url, $post_data);
+                DI()->logger->error('京东内部接口连接超时|RES', $res);
+                $res['errorMessage'] = $res['echo'];
             } else if ($code != 0) {
                 // 除去正常code的其他返回
                 DI()->logger->error('京东返回未知状态|URL|' . $url, $post_data);
