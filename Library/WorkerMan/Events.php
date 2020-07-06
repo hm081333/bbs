@@ -29,6 +29,8 @@ use function Common\gzip_binary_string_encode;
 
 class Events
 {
+    static $maxBinaryBufferSize = 4096;
+
     /**
      * 服务启动时
      * @param $obj
@@ -95,48 +97,90 @@ class Events
      */
     public static function sendToClient($client_id, $data)
     {
-        $data = self::parseData($data);
-        Gateway::sendToClient($client_id, $data);
-    }
-
-    public static function parseData($data)
-    {
         $data = is_array($data) ? json_encode($data, true) : $data;
         // gzip压缩
         // $data = gzencode($data);
         $data = gzip_binary_string_encode($data);
-        //             type: 'send',
-        //             sendType: sendType,
-        //             index: index,
-        //             time: time,
-        //             request: longData.substr(start, maxBinaryBufferSize),
-        $maxBinaryBufferSize = 4096;
-        if (strlen($data) > $maxBinaryBufferSize) {
-            $receive_time = floor(microtime(true) * 1000);
-            $times = ceil(strlen($data) / $maxBinaryBufferSize);
+        $data = self::parseData($client_id, $data);
+        Gateway::sendToClient($client_id, $data);
+    }
+
+    /**
+     * 格式化发送消息
+     * @param $client_id
+     * @param $data
+     * @return false|string|string[]|null
+     */
+    public static function parseData($client_id, $data)
+    {
+        if (strlen($data) > self::$maxBinaryBufferSize) {
+            $time = floor(microtime(true) * 1000);
+            $times = ceil(strlen($data) / self::$maxBinaryBufferSize) - 1;
+            $index = 0;
+            $start = $index * self::$maxBinaryBufferSize;
+            if ($index >= $times) {
+                $sendType = 'end';
+            } else {
+                $sendType = 'sending';
+            }
+            self::writeLongMessageTemp($client_id, $time, $index, $data, 'send');
+            return gzip_binary_string_encode(json_encode([
+                'type' => 'receive',
+                'sendType' => $sendType,
+                'index' => $index,
+                'time' => $time,
+                'request' => base64_encode(substr($data, $start, self::$maxBinaryBufferSize)),
+            ], true));
         }
         return $data;
     }
 
     /**
-     * 写入长消息的临时文件
+     * 发送长消息
      * @param $client_id
-     * @param $data
+     * @param $time
+     * @param $index
+     */
+    public static function sendLongMessage($client_id, $time, $index)
+    {
+        $request = self::readLongMessageTempWithIndex($client_id, $time, $index * self::$maxBinaryBufferSize, 'send');
+        if (!$request || strlen($request) < self::$maxBinaryBufferSize) {
+            $sendType = 'end';
+            self::delLongMessageTemp($client_id, $time, 'send');
+        } else {
+            $sendType = 'sending';
+        }
+        Gateway::sendToClient($client_id, gzip_binary_string_encode(json_encode([
+            'type' => 'receive',
+            'sendType' => $sendType,
+            'index' => $index,
+            'time' => $time,
+            'request' => base64_encode($request ?: ''),
+        ], true)));
+    }
+
+    /**
+     * 写入长消息的临时文件
+     * @param        $client_id
+     * @param        $micro_time
+     * @param int    $index
+     * @param string $data
+     * @param string $type
      * @return bool
      */
-    public static function writeLongMessageTemp($client_id, $data)
+    public static function writeLongMessageTemp($client_id, $micro_time, $index = 0, $data = '', $type = 'receive')
     {
-        $temp_path = API_ROOT . '/runtime/temp/ws/';
+        $temp_path = API_ROOT . "/runtime/temp/ws/{$type}/";
         if (!is_dir($temp_path)) {
             createDir($temp_path);
         }
-        $temp_file = $temp_path . $client_id . '_' . $data['time'];
+        $temp_file = $temp_path . $client_id . '_' . $micro_time;
 
-        $fopen_mode = $data['index'] == 0 ? 'w' : 'a';
+        $fopen_mode = $index == 0 ? 'w' : 'a';
         unset($client_id, $temp_path);
 
         if (@$fp = fopen($temp_file, $fopen_mode)) {
-            fwrite($fp, $data['request']);
+            fwrite($fp, $data);
             fclose($fp);
             unset($fp, $data);
         }
@@ -145,23 +189,24 @@ class Events
 
     /**
      * 读取长消息的临时文件
-     * @param $client_id
-     * @param $data
+     * @param        $client_id
+     * @param        $micro_time
+     * @param string $type
      * @return bool
      */
-    public static function readLongMessageTemp($client_id, $data)
+    public static function readLongMessageTemp($client_id, $micro_time, $type = 'receive')
     {
-        $temp_path = API_ROOT . '/runtime/temp/ws/';
+        $temp_path = API_ROOT . "/runtime/temp/ws/{$type}/";
         if (!is_dir($temp_path)) {
             createDir($temp_path);
         }
-        $temp_file = $temp_path . $client_id . '_' . $data['time'];
-        unset($client_id, $data, $temp_path);
+        $temp_file = $temp_path . $client_id . '_' . $micro_time;
+        unset($client_id, $micro_time, $temp_path);
 
         if (@$fp = fopen($temp_file, 'r')) {
             $message = '';
             ini_set('memory_limit', '-1');
-            while (false != ($a = fread($fp, 4 * 1024))) {//返回false表示已经读取到文件末尾
+            while (false != ($a = fread($fp, self::$maxBinaryBufferSize))) {//返回false表示已经读取到文件末尾
                 $message .= $a;
             }
             fclose($fp);
@@ -171,11 +216,44 @@ class Events
         return false;
     }
 
-    public static function delLongMessageTemp($client_id, $data)
+    /**
+     * 读取长消息的临时文件
+     * @param        $client_id
+     * @param        $micro_time
+     * @param string $type
+     * @return bool
+     */
+    public static function readLongMessageTempWithIndex($client_id, $micro_time, $offset = 0, $type = 'receive')
     {
-        $temp_path = API_ROOT . '/runtime/temp/ws/';
-        $temp_file = $temp_path . $client_id . '_' . $data['time'];
-        unset($client_id, $data, $temp_path);
+        $temp_path = API_ROOT . "/runtime/temp/ws/{$type}/";
+        if (!is_dir($temp_path)) {
+            createDir($temp_path);
+        }
+        $temp_file = $temp_path . $client_id . '_' . $micro_time;
+        unset($client_id, $micro_time, $temp_path);
+
+        if (@$fp = fopen($temp_file, 'r')) {
+            ini_set('memory_limit', '-1');
+            fseek($fp, $offset);
+            $message = fread($fp, self::$maxBinaryBufferSize);
+            fclose($fp);
+            unset($fp, $a);
+            return $message;
+        }
+        return false;
+    }
+
+    /**
+     * 删除长消息的临时文件
+     * @param        $client_id
+     * @param        $micro_time
+     * @param string $type
+     */
+    public static function delLongMessageTemp($client_id, $micro_time, $type = 'receive')
+    {
+        $temp_path = API_ROOT . "/runtime/temp/ws/{$type}/";
+        $temp_file = $temp_path . $client_id . '_' . $micro_time;
+        unset($client_id, $micro_time, $temp_path);
         if (file_exists($temp_file)) {
             @unlink($temp_file);
         }
@@ -189,10 +267,10 @@ class Events
      */
     public static function handleLongMessage($client_id, $data)
     {
-        $message = self::readLongMessageTemp($client_id, $data);
+        $message = self::readLongMessageTemp($client_id, $data['time']);
         $long_data = self::decodeMessage($message);
         $response = self::onApiMessage($client_id, $long_data);
-        self::delLongMessageTemp($client_id, $data);
+        self::delLongMessageTemp($client_id, $data['time']);
         unset($client_id, $data, $message, $long_data);
         return $response;
     }
@@ -243,7 +321,7 @@ class Events
                 return;
                 break;
             case 'send':
-                self::writeLongMessageTemp($client_id, $data);
+                self::writeLongMessageTemp($client_id, $data['time'], $data['index'], $data['request']);
                 if ($data['sendType'] != 'end') {
                     $response['index'] = intval($data['index']) + 1;
                     $response['time'] = $data['time'];
@@ -251,6 +329,10 @@ class Events
                     $response = self::handleLongMessage($client_id, $data);
                 }
                 // var_dump($data);
+                break;
+            case 'receive':
+                self::sendLongMessage($client_id, $data['time'], $data['index']);
+                return;
                 break;
             // 请求接口
             case 'api':
@@ -276,8 +358,8 @@ class Events
         $response['type'] = 'api';
         // 该客户端id对应的session id
         $session_id = self::sessionSaveHandler()->getSessionId($client_id);
-        var_dump('$client_id---' . $client_id);
-        var_dump('$session_id---' . $session_id);
+        // var_dump('$client_id---' . $client_id);
+        // var_dump('$session_id---' . $session_id);
         // 获取该session id储存的数据
         $_SESSION = self::getSession($session_id);
         // 该客户端id对应的信息
@@ -306,7 +388,7 @@ class Events
         $_SESSION = [];
         // var_dump("session_id|{$session_id}|session", $_SESSION, '----------');
         unset($session_id, $data, $server, $_SERVER);
-        var_dump($response);
+        // var_dump($response);
         return $response;
     }
 
