@@ -32,20 +32,41 @@ function user()
  * @param $str
  * @return string
  */
-function gzip_binary_string_decode($str)
+function compress_string_decode($str)
 {
-    return zlib_decode(mb_convert_encoding($str, 'ISO-8859-1', 'utf-8'));
+    return compress_binary_decode(mb_convert_encoding($str, 'ISO-8859-1', 'utf-8'));
 }
 
 /**
  * 生成gzip二进制字符串
  * @param     $str
- * @param int $encoding
+ * @param int $encoding ZLIB_ENCODING_RAW|ZLIB_ENCODING_DEFLATE|ZLIB_ENCODING_GZIP
  * @return false|string|string[]|null
  */
-function gzip_binary_string_encode($str, $encoding = ZLIB_ENCODING_DEFLATE)
+function compress_string_encode($str, $encoding = ZLIB_ENCODING_RAW)
 {
-    return mb_convert_encoding(zlib_encode($str, $encoding), 'utf-8', 'ISO-8859-1');
+    return mb_convert_encoding(compress_binary_encode($str, $encoding), 'utf-8', 'ISO-8859-1');
+}
+
+/**
+ * 解密gzip二进制
+ * @param $data
+ * @return string
+ */
+function compress_binary_decode($data)
+{
+    return zlib_decode($data);
+}
+
+/**
+ * 生成gzip二进制
+ * @param     $data
+ * @param int $encoding ZLIB_ENCODING_RAW|ZLIB_ENCODING_DEFLATE|ZLIB_ENCODING_GZIP
+ * @return string
+ */
+function compress_binary_encode($data, $encoding = ZLIB_ENCODING_RAW)
+{
+    return zlib_encode($data, $encoding);
 }
 
 /**

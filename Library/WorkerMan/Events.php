@@ -22,10 +22,11 @@ use Library\Request;
 use Library\Session\Redis;
 use PDOException;
 use PhalApi\PhalApi;
+use function Common\compress_string_decode;
 use function Common\createDir;
 use function Common\DI;
-use function Common\gzip_binary_string_decode;
-use function Common\gzip_binary_string_encode;
+use function Common\compress_binary_decode;
+use function Common\compress_binary_encode;
 
 class Events
 {
@@ -98,9 +99,11 @@ class Events
     public static function sendToClient($client_id, $data)
     {
         $data = is_array($data) ? json_encode($data, true) : $data;
+
         // gzip压缩
         // $data = gzencode($data);
-        $data = gzip_binary_string_encode($data);
+
+        $data = compress_binary_encode($data, ZLIB_ENCODING_RAW);
         $data = self::parseData($client_id, $data);
         Gateway::sendToClient($client_id, $data);
     }
@@ -114,6 +117,7 @@ class Events
     public static function parseData($client_id, $data)
     {
         if (strlen($data) > self::$maxBinaryBufferSize) {
+            // var_dump($data);
             $time = floor(microtime(true) * 1000);
             $times = ceil(strlen($data) / self::$maxBinaryBufferSize) - 1;
             $index = 0;
@@ -124,13 +128,16 @@ class Events
                 $sendType = 'sending';
             }
             self::writeLongMessageTemp($client_id, $time, $index, $data, 'send');
-            return gzip_binary_string_encode(json_encode([
+
+            $data = json_encode([
                 'type' => 'receive',
                 'sendType' => $sendType,
                 'index' => $index,
                 'time' => $time,
                 'request' => base64_encode(substr($data, $start, self::$maxBinaryBufferSize)),
-            ], true));
+            ], true);
+
+            return compress_binary_encode($data, ZLIB_ENCODING_RAW);
         }
         return $data;
     }
@@ -146,17 +153,20 @@ class Events
         $request = self::readLongMessageTempWithIndex($client_id, $time, $index * self::$maxBinaryBufferSize, 'send');
         if (!$request || strlen($request) < self::$maxBinaryBufferSize) {
             $sendType = 'end';
-            self::delLongMessageTemp($client_id, $time, 'send');
+            // self::delLongMessageTemp($client_id, $time, 'send');
         } else {
             $sendType = 'sending';
         }
-        Gateway::sendToClient($client_id, gzip_binary_string_encode(json_encode([
+
+        $data = json_encode([
             'type' => 'receive',
             'sendType' => $sendType,
             'index' => $index,
             'time' => $time,
             'request' => base64_encode($request ?: ''),
-        ], true)));
+        ], true);
+
+        Gateway::sendToClient($client_id, compress_binary_encode($data, ZLIB_ENCODING_RAW));
     }
 
     /**
@@ -268,6 +278,8 @@ class Events
     public static function handleLongMessage($client_id, $data)
     {
         $message = self::readLongMessageTemp($client_id, $data['time']);
+        var_dump($message);
+        var_dump(compress_string_decode($message));
         $long_data = self::decodeMessage($message);
         $response = self::onApiMessage($client_id, $long_data);
         self::delLongMessageTemp($client_id, $data['time']);
@@ -284,7 +296,7 @@ class Events
     {
         // 解压GZIP
         // $message = zlib_decode($message) ?: $message;
-        $message = gzip_binary_string_decode($message) ?: $message;
+        $message = compress_binary_decode($message) ?: $message;
         // var_dump($message);
         // 解析接收到的消息
         return json_decode($message, true);
@@ -321,6 +333,7 @@ class Events
                 return;
                 break;
             case 'send':
+                // var_dump($data);
                 self::writeLongMessageTemp($client_id, $data['time'], $data['index'], $data['request']);
                 if ($data['sendType'] != 'end') {
                     $response['index'] = intval($data['index']) + 1;

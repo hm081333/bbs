@@ -7,7 +7,7 @@ use Library\Exception\BadRequestException;
 use Library\Uploader;
 use function Common\createDir;
 use function Common\DI;
-use function Common\gzip_binary_string_decode;
+use function Common\compress_binary_decode;
 use function Common\res_path;
 use function Common\server_path;
 use function PhalApi\T;
@@ -44,7 +44,7 @@ class Upload extends Base
         if (empty($image)) {
             throw new BadRequestException(T('非法请求'));
         }
-        $imageBinaryString = gzip_binary_string_decode($image['binaryString']);
+        $imageBinaryString = compress_binary_decode($image['binaryString']);
         if (imagecreatefromstring($imageBinaryString) === false) {
             throw new BadRequestException(T('非法文件'));
         }
