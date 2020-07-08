@@ -22,11 +22,11 @@ use Library\Request;
 use Library\Session\Redis;
 use PDOException;
 use PhalApi\PhalApi;
+use function Common\compress_binary_decode;
+use function Common\compress_binary_encode;
 use function Common\compress_string_decode;
 use function Common\createDir;
 use function Common\DI;
-use function Common\compress_binary_decode;
-use function Common\compress_binary_encode;
 
 class Events
 {
@@ -278,8 +278,7 @@ class Events
     public static function handleLongMessage($client_id, $data)
     {
         $message = self::readLongMessageTemp($client_id, $data['time']);
-        var_dump($message);
-        var_dump(compress_string_decode($message));
+        $message = compress_string_decode($message);
         $long_data = self::decodeMessage($message);
         $response = self::onApiMessage($client_id, $long_data);
         self::delLongMessageTemp($client_id, $data['time']);
