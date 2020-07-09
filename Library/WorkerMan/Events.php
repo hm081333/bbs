@@ -153,7 +153,7 @@ class Events
         $request = self::readLongMessageTempWithIndex($client_id, $time, $index * self::$maxBinaryBufferSize, 'send');
         if (!$request || strlen($request) < self::$maxBinaryBufferSize) {
             $sendType = 'end';
-            // self::delLongMessageTemp($client_id, $time, 'send');
+            self::delLongMessageTemp($client_id, $time, 'send');
         } else {
             $sendType = 'sending';
         }
