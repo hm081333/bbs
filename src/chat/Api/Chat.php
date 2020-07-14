@@ -5,6 +5,7 @@ namespace Chat\Api;
 use Library\DateHelper;
 use Library\Exception\BadRequestException;
 use function Common\res_path;
+use function PhalApi\T;
 
 /**
  * 聊天 接口服务
@@ -120,6 +121,9 @@ class Chat extends \Common\Api\Chat
     {
         $user = $this->Domain_User()::getCurrentUser(true);
         $chat_info = $this->Domain_Chat()::getInfo($this->id, 'id,is_group,is_delete,name,user_ids');
+        if (!$chat_info) {
+            throw new BadRequestException(T('不存在该聊天室'));
+        }
         $chat_info['is_delete'] = boolval($chat_info['is_delete']);
         $chat_info['is_group'] = boolval($chat_info['is_group']);
         $chat_info['people_count'] = 2;

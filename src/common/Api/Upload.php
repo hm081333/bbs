@@ -7,7 +7,6 @@ use Library\Exception\BadRequestException;
 use Library\Uploader;
 use function Common\createDir;
 use function Common\DI;
-use function Common\compress_binary_decode;
 use function Common\res_path;
 use function Common\server_path;
 use function PhalApi\T;
@@ -28,7 +27,7 @@ class Upload extends Base
         $rules = parent::getRules();
         $rules['uploadImageWithBinaryString'] = [
             'path' => ['name' => 'path', 'type' => 'string', 'default' => 'images', 'desc' => '保存路径'],
-            'image' => ['name' => 'image', 'type' => 'array', 'default' => [], 'desc' => '上传的图片信息'],
+            'image' => ['name' => 'image', 'type' => 'string', 'default' => [], 'desc' => '上传的图片信息'],
         ];
         return $rules;
     }
@@ -41,15 +40,15 @@ class Upload extends Base
     public function uploadImageWithBinaryString()
     {
         $image = $this->image;
-        if (empty($image)) {
-            throw new BadRequestException(T('非法请求'));
-        }
-        $imageBinaryString = compress_binary_decode($image['binaryString']);
+        if (empty($image)) throw new BadRequestException(T('非法请求'));
+        // $imageBinaryString = compress_binary_decode($image);
+        // $imageBinaryString = compress_string_decode($image);
+        $imageBinaryString = mb_convert_encoding($image, 'ISO-8859-1', 'utf-8');
         if (imagecreatefromstring($imageBinaryString) === false) {
             throw new BadRequestException(T('非法文件'));
         }
-        // $image_name = $image['name'];
-        $image_name = date('YmdHis', NOW_TIME) . DI()->tool->createRandStr(4) . strtolower(strrchr($image['name'], '.'));
+        [$width, $height, $type, $attr] = getimagesizefromstring($imageBinaryString);
+        $image_name = date('YmdHis', NOW_TIME) . DI()->tool->createRandStr(4) . image_type_to_extension($type);
         $image_path = 'static/upload/' . $this->path . '/' . $image_name;
         $server_path = server_path($image_path);
         if (!is_dir(dirname($server_path))) {
