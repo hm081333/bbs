@@ -3,6 +3,7 @@
 namespace Chat\Api;
 
 use Library\Exception\BadRequestException;
+use function Common\res_path;
 
 /**
  * 聊天消息 接口服务
@@ -14,22 +15,25 @@ class ChatMessage extends \Common\Api\Chat
     public function getRules()
     {
         $rules = parent::getRules();
-        $rules['chatMessageListData'] = [
-            'chat_id' => ['name' => 'chat_id', 'type' => 'int', 'require' => true, 'default' => 0, 'desc' => '聊天室ID'],
-            'offset' => ['name' => 'offset', 'type' => 'int', 'default' => 0, 'desc' => "开始位置"],
-            'limit' => ['name' => 'limit', 'type' => 'int', 'default' => PAGE_NUM, 'desc' => '数量'],
-            'field' => ['name' => 'field', 'type' => 'string', 'default' => '*', 'desc' => '查询字段'],
-            'where' => ['name' => 'where', 'type' => 'array', 'default' => [], 'desc' => '查询条件'],
-            'order' => ['name' => 'order', 'type' => 'string', 'default' => 'id desc', 'desc' => '排序方式'],
-        ];
         $rules['listData'] = [
             'offset' => ['name' => 'offset', 'type' => 'int', 'default' => 0, 'desc' => "开始位置"],
             'limit' => ['name' => 'limit', 'type' => 'int', 'default' => PAGE_NUM, 'desc' => '数量'],
             'field' => ['name' => 'field', 'type' => 'string', 'default' => '*', 'desc' => '查询字段'],
             'where' => ['name' => 'where', 'type' => 'array', 'default' => [], 'desc' => '查询条件'],
-            'order' => ['name' => 'order', 'type' => 'string', 'default' => 'id desc', 'desc' => '排序方式'],
+            'order' => ['name' => 'order', 'type' => 'string', 'default' => 'id DESC', 'desc' => '排序方式'],
         ];
+        $rules['chatMessageListData'] = $rules['listData'];
         return $rules;
+    }
+
+    /**
+     * 聊天 领域层
+     * @return \Common\Domain\Chat
+     * @throws BadRequestException
+     */
+    protected function Domain_Chat()
+    {
+        return self::getDomain('Chat');
     }
 
     /**
@@ -37,7 +41,7 @@ class ChatMessage extends \Common\Api\Chat
      * @return \Common\Domain\ChatMessage
      * @throws BadRequestException
      */
-    protected function DomainChatMessage()
+    protected function Domain_ChatMessage()
     {
         return self::getDomain('ChatMessage');
     }
@@ -47,7 +51,7 @@ class ChatMessage extends \Common\Api\Chat
      * @return \Common\Domain\Friend
      * @throws BadRequestException
      */
-    protected function DomainFriend()
+    protected function Domain_Friend()
     {
         return self::getDomain('Friend');
     }
@@ -58,11 +62,29 @@ class ChatMessage extends \Common\Api\Chat
     public function chatMessageListData()
     {
         $user = $this->Domain_User()::getCurrentUser(true);
-        $this->where['chat_id'] = $this->chat_id;
-        // var_dump($user);
-        $list = $this->DomainChatMessage()::getList($this->limit, $this->offset, $this->where, $this->field, $this->order);
-        var_dump($list);
-        die;
+        $this->field = 'id,user_id,message,add_time';
+        // $this->where['id < ?']='';
+        $list = $this->Domain_ChatMessage()::getList($this->limit, $this->offset, $this->where, $this->field, $this->order);
+        $rows = $list['rows'];
+        $list['rows'] = [];
+        foreach ($rows as $row) {
+            $message_user = $this->Domain_User()->get($row['user_id']);
+            $list['rows'][] = [
+                'message_id' => $row['id'],
+                'message' => $row['message'],
+                'type' => $row['user_id'] == $user['id'] ? 'send' : 'receive',
+                'user' => [
+                    'user_id' => $message_user['id'],
+                    'user_name' => $message_user['user_name'],
+                    'nick_name' => $message_user['nick_name'],
+                    'logo' => empty($message_user['logo']) ? '' : res_path($message_user['logo']),
+                ],
+                'add_time' => $row['add_time'],
+                'add_time_date' => $row['add_time_date'],
+                'add_time_unix' => $row['add_time_unix'],
+            ];
+        }
+        return $list;
     }
 
     /**
