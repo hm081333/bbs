@@ -237,8 +237,6 @@ class JdSign
                 try {
                     $this->doItemSign(0, $jd_sign_info);
                 } catch (\Exception $e) {
-                    var_dump($e);
-                    die;
                     DI()->logger->error("执行签到项|{$this->sign_key}|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
@@ -802,6 +800,8 @@ class JdSign
         //     // throw new \Library\Exception\Exception(\PhalApi\T('未到下次收取时间'));
         // }
 
+        // 允许收取好友营养液
+        $this->canCollectUserNutr = true;
         // 如果允许扫描时间大于当前时间，重定义是否允许收取好友营养液的变量
         if (isset($jd_sign_info['return_data']['canCollectUserNutr']) && $jd_sign_info['return_data']['canCollectUserNutr'] > time()) {
             $this->canCollectUserNutr = false;
