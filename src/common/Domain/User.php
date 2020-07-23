@@ -109,6 +109,7 @@ class User
             return [];
         }
         return [
+            'id' => $user['id'],
             'user_name' => $user['user_name'],
             'email' => $user['email'],
             'logo' => empty($user['logo']) ? '' : res_path($user['logo']),
@@ -202,6 +203,17 @@ class User
         return [
             'user' => self::getCurrentUserInfo($user),
         ];
+    }
+
+    /**
+     * 获取会员信息
+     * @param $user_id
+     * @return array|mixed|null
+     * @throws BadRequestException
+     */
+    public function get(int $user_id)
+    {
+        return self::Cache_User()->get($user_id);
     }
 
     /**

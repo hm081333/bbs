@@ -90,6 +90,18 @@ try {
             $domain_JdSign->setSignKey($type)->doItemSignAll();// 执行签到项目
             break;
         case 'test':
+            // 模拟生成聊天记录数据
+            $model_message = new \Common\Model\ChatMessage();
+            $start_time = 1593563400;
+            for ($i = 0; $i < 240; $i++) {
+                $add_time = $start_time + ($i * 3600);
+                $model_message->insert([
+                    'chat_id' => 1,
+                    'user_id' => $i % 2 == 1 ? 1 : 2,
+                    'message' => '现在是北京时间：' . date('Y年m月d日 H时i分s秒', $add_time),
+                    'add_time' => $add_time,
+                ]);
+            }
             break;
         default:
             die('非法参数！');

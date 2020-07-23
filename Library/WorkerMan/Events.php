@@ -278,7 +278,7 @@ class Events
     public static function handleLongMessage($client_id, $data)
     {
         $message = self::readLongMessageTemp($client_id, $data['time']);
-        $message = compress_string_decode($message);
+        // $message = compress_string_decode($message);
         $long_data = self::decodeMessage($message);
         $response = self::onApiMessage($client_id, $long_data);
         self::delLongMessageTemp($client_id, $data['time']);
@@ -295,7 +295,8 @@ class Events
     {
         // 解压GZIP
         // $message = zlib_decode($message) ?: $message;
-        $message = compress_binary_decode($message) ?: $message;
+        // $message = compress_binary_decode($message) ?: $message;
+        $message = compress_binary_decode($message) ?: compress_string_decode($message);
         // var_dump($message);
         // 解析接收到的消息
         return json_decode($message, true);

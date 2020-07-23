@@ -237,8 +237,6 @@ class JdSign
                 try {
                     $this->doItemSign(0, $jd_sign_info);
                 } catch (\Exception $e) {
-                    var_dump($e);
-                    die;
                     DI()->logger->error("执行签到项|{$this->sign_key}|异常|{$e->getMessage()}", $jd_sign_info);
                 }
             }
@@ -429,7 +427,7 @@ class JdSign
             ->get($url);
         $resArr = json_decode($res, true);
         if (empty($resArr)) {
-            DI()->logger->debug('天天提鹅 信息 返回异常', $res);
+            DI()->logger->error('天天提鹅 信息 返回异常', $res);
             return false;
         }
         if ($resArr['resultCode'] == 3) {
@@ -444,7 +442,7 @@ class JdSign
         }
         $data = $resData['data'];
 
-        DI()->logger->debug('天天提鹅 信息', $data);
+        // DI()->logger->debug('天天提鹅 信息', $data);
 
         return $data;
     }
@@ -479,7 +477,7 @@ class JdSign
         }
         $data = $resData['data'];
 
-        DI()->logger->debug('天天提鹅 提鹅收蛋', $data);
+        // DI()->logger->debug('天天提鹅 提鹅收蛋', $data);
 
         return $data;
     }
@@ -585,7 +583,7 @@ class JdSign
         ]);
 
         $data = $this->jdRequest($url);
-        DI()->logger->debug('京东APP签到 信息', $data);
+        // DI()->logger->debug('京东APP签到 信息', $data);
         // 签到状态 根据测试, 1 表示已签到, 2 表示未签到, 3 表示未登录
         $sign_status = $data['status'] ?? 0;
         // if ($sign_status == 1) {
@@ -701,11 +699,11 @@ class JdSign
                 // 尝试重新请求
                 if ($retryTimes > 0) {
                     if (in_array($errorCode, ['PB001', 'T201'])) {
-                        DI()->logger->debug("1秒后，尝试重新请求，剩余重试次数{$retryTimes}次|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
+                        DI()->logger->error("1秒后，尝试重新请求，剩余重试次数{$retryTimes}次|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
                         sleep(1);
                         return $this->jdRequest($url, $post_data, $retryTimes - 1);
                     } else {
-                        DI()->logger->debug("未知错误|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
+                        DI()->logger->error("未知错误|errorCode|{$errorCode}|errorMessage|{$errorMessage}");
                     }
                 }
                 throw new Exception($errorMessage);
@@ -753,7 +751,7 @@ class JdSign
         ]);
 
         $data = $this->jdRequest($url);
-        DI()->logger->debug('京东APP签到', $data);
+        // DI()->logger->debug('京东APP签到', $data);
         return $data;
     }
 
@@ -802,6 +800,8 @@ class JdSign
         //     // throw new \Library\Exception\Exception(\PhalApi\T('未到下次收取时间'));
         // }
 
+        // 允许收取好友营养液
+        $this->canCollectUserNutr = true;
         // 如果允许扫描时间大于当前时间，重定义是否允许收取好友营养液的变量
         if (isset($jd_sign_info['return_data']['canCollectUserNutr']) && $jd_sign_info['return_data']['canCollectUserNutr'] > time()) {
             $this->canCollectUserNutr = false;
@@ -1078,7 +1078,7 @@ class JdSign
             'osVersion' => '',
             'uuid' => '',
         ]);
-        DI()->logger->debug("种豆得豆任务 - 关注店铺", $data);
+        // DI()->logger->debug("种豆得豆任务 - 关注店铺", $data);
 
         sleep(1);
         // 取消关注店铺
@@ -1134,7 +1134,7 @@ class JdSign
 
         if ($data['iRet'] != 0) throw new Exception($data['errMsg']);
 
-        DI()->logger->debug('关注店铺、取消关注店铺', $data);
+        // DI()->logger->debug('关注店铺、取消关注店铺', $data);
 
         if (!is_array($shopId)) {
             // 店铺收藏状态
@@ -1180,7 +1180,7 @@ class JdSign
         $data_str = $match[2];
         $res = json_decode($data_str, true);
 
-        DI()->logger->debug('店铺收藏状态 - ' . $shopId, $res);
+        // DI()->logger->debug('店铺收藏状态 - ' . $shopId, $res);
 
         // if ($res['iRet'] != 0) throw new Exception($res['errMsg']);
         if ($res['iRet'] != 0) return true;
@@ -1220,7 +1220,7 @@ class JdSign
             'uuid' => '',
         ]);
 
-        DI()->logger->debug("完成奖励营养液的任务 - 逛逛会场", $data);
+        // DI()->logger->debug("完成奖励营养液的任务 - 逛逛会场", $data);
 
         return $data['nutrState'] == 1 ? 1 : 0;
     }
@@ -1306,7 +1306,7 @@ class JdSign
             'osVersion' => '',
             'uuid' => '',
         ]);
-        DI()->logger->debug("种豆得豆任务 - 关注商品", $data);
+        // DI()->logger->debug("种豆得豆任务 - 关注商品", $data);
 
         sleep(1);
         // 取消收藏商品
@@ -1359,7 +1359,7 @@ class JdSign
         }
         if ($data['iRet'] != 0) throw new Exception($data['errMsg']);
 
-        DI()->logger->debug('收藏商品、取消收藏商品', $data);
+        // DI()->logger->debug('收藏商品、取消收藏商品', $data);
 
         if (!is_array($skuId)) {
             // 商品收藏状态{"954762":"1"}
@@ -1413,7 +1413,7 @@ class JdSign
 
         if ($res['iRet'] != 0) throw new Exception($res['errMsg']);
 
-        DI()->logger->debug('收藏的商品列表', $res);
+        // DI()->logger->debug('收藏的商品列表', $res);
 
         return $res['data'];
     }
@@ -1453,12 +1453,12 @@ class JdSign
 
         if ($res['iRet'] != 0) throw new Exception($res['errMsg']);
 
-        DI()->logger->debug('商品收藏状态 - ' . $skuIdStr, $res);
+        // DI()->logger->debug('商品收藏状态 - ' . $skuIdStr, $res);
 
         $data = $res['data'];
         $data = array_combine(array_column($data, 'skuid'), array_column($data, 'state'));
 
-        DI()->logger->debug('商品收藏状态 - ' . $skuIdStr, $data);
+        // DI()->logger->debug('商品收藏状态 - ' . $skuIdStr, $data);
 
         return $data;
     }
@@ -1498,7 +1498,7 @@ class JdSign
         // 下次收取时间 时间戳
         // $nextReceiveTime = substr($data['nextReceiveTime'] ?? '0', 0, 10);
 
-        DI()->logger->debug('收取营养液', $data);
+        // DI()->logger->debug('收取营养液', $data);
 
         // 只返回 本次收取数量
         return $data['nutrients'];
@@ -1612,7 +1612,7 @@ class JdSign
 
         $data = $this->jdRequest($url);
 
-        DI()->logger->debug('收取用户的营养液', $data);
+        // DI()->logger->debug('收取用户的营养液', $data);
 
         // 收取结果 1 收取成功 2 没有可收取的营养液 3 今日收取次数已达上限
         $collectResult = $data['collectResult'] ?? 0;
@@ -1658,7 +1658,7 @@ class JdSign
 
         $data = $this->jdRequest($url);
 
-        DI()->logger->debug('培养京豆', $data);
+        // DI()->logger->debug('培养京豆', $data);
 
         return $data;
     }
@@ -1694,7 +1694,7 @@ class JdSign
 
         $data = $this->jdRequest($url);
 
-        DI()->logger->debug('收取京豆', $data);
+        // DI()->logger->debug('收取京豆', $data);
 
         return $data['awardBean'] ?? 0;
     }
@@ -1866,7 +1866,7 @@ class JdSign
 
         $data = $this->jdRequest($url);
 
-        DI()->logger->debug('京享值领京豆 信息', $data);
+        // DI()->logger->debug('京享值领京豆 信息', $data);
 
         return $data;
     }
@@ -1896,7 +1896,7 @@ class JdSign
 
         $data = $this->jdRequest($url);
 
-        DI()->logger->debug('京享值领京豆 摇一摇', $data);
+        // DI()->logger->debug('京享值领京豆 摇一摇', $data);
 
         $bean_award = $data['prizeBean']['count'] ?? 0;
 
@@ -1981,7 +1981,7 @@ class JdSign
         ]);
 
         $data = $this->jdRequest($url);
-        DI()->logger->debug('福利转盘 信息', $data);
+        // DI()->logger->debug('福利转盘 信息', $data);
         $this->lotteryCode = $data['lotteryCode'] ?? '';
         return $data;
     }
@@ -2010,7 +2010,7 @@ class JdSign
 
         try {
             $data = $this->jdRequest($url);
-            DI()->logger->debug('福利转盘 抽奖', $data);
+            // DI()->logger->debug('福利转盘 抽奖', $data);
             //{"isWinner":"0","chances":"1","prizeType":"5","prizeId":"910582","prizeName":"1个京豆","tips":"京豆1个","prizeSendNumber":"1"}
             $prizeType = $data['prizeType'] ?? false;
             // $prizeId = $data['prizeId'] ?? false;
@@ -2080,7 +2080,7 @@ class JdSign
             ]),
         ];
         $res = $this->jrRequest($url, $form_data);
-        DI()->logger->debug('京东金融APP签到 信息', $res);
+        // DI()->logger->debug('京东金融APP签到 信息', $res);
         if ($res['resBusiCode'] != 0) {
             throw new Exception($res['resBusiMsg']);
         }
@@ -2146,7 +2146,7 @@ class JdSign
                 ]),
             ]),
         ]);
-        DI()->logger->debug('京东金融APP签到', $res);
+        // DI()->logger->debug('京东金融APP签到', $res);
         if ($res['resBusiCode'] != 0) {
             throw new Exception($res['resBusiMsg']);
         }
@@ -2225,7 +2225,7 @@ class JdSign
         ];
 
         $res = $this->jrRequest($url, $form_data);
-        DI()->logger->debug('领取双签礼包', $res);
+        // DI()->logger->debug('领取双签礼包', $res);
 
         if ($res['code'] != 200) {
             DI()->logger->error("领取双签礼包|{$res['msg']}", $res);
@@ -2276,7 +2276,7 @@ class JdSign
             'uuid' => '',
         ]);
 
-        DI()->logger->debug("完成奖励营养液的任务|awardType|{$awardType}", $data);
+        // DI()->logger->debug("完成奖励营养液的任务|awardType|{$awardType}", $data);
 
         return $data['nutrNum'] ?? 0;
     }
@@ -2381,7 +2381,7 @@ class JdSign
 
         $res = $this->jrRequest($url, $form_data);
 
-        DI()->logger->debug('提升白条额度', $res);
+        // DI()->logger->debug('提升白条额度', $res);
 
         if (empty($res['result'])) {
             DI()->logger->error("提升白条额度", $res);
@@ -2438,7 +2438,7 @@ class JdSign
         ]);
 
         $res = DI()->curl->setCookie($this->user_cookie)->json_get($url);
-        DI()->logger->debug('翻牌赢钢镚 信息', $res);
+        // DI()->logger->debug('翻牌赢钢镚 信息', $res);
 
         if ($res['code'] != 1) {
             DI()->logger->error("翻牌赢钢镚 信息|{$res['msg']}", $res);
@@ -2476,7 +2476,7 @@ class JdSign
         ]);
 
         $res = DI()->curl->setCookie($this->user_cookie)->json_get($url);
-        DI()->logger->debug('翻牌赢钢镚', $res);
+        // DI()->logger->debug('翻牌赢钢镚', $res);
 
         if ($res['code'] != 1) {
             DI()->logger->error("翻牌赢钢镚|{$res['msg']}", $res);
@@ -2555,7 +2555,7 @@ class JdSign
         $this->setReferer('https://m.jr.jd.com/member/coinlottery/index.html?channel=01-qd-190306');
 
         $res = $this->jrRequest($url);
-        DI()->logger->debug('金币抽奖 信息', $res);
+        // DI()->logger->debug('金币抽奖 信息', $res);
 
         if ($res['code'] != '0000') {
             DI()->logger->error("金币抽奖 信息|{$res['msg']}", $res);
@@ -2589,7 +2589,7 @@ class JdSign
         $this->setReferer('https://m.jr.jd.com/member/coinlottery/index.html?channel=01-qd-190306');
 
         $res = $this->jrRequest($url);
-        DI()->logger->debug('金币抽奖', $res);
+        // DI()->logger->debug('金币抽奖', $res);
 
         // if ($res['code'] != '1000') {
         //     DI()->logger->error("金币抽奖|{$res['msg']}", $res);
@@ -2665,7 +2665,7 @@ class JdSign
                 'clientVersion' => '11.0',
             ]),
         ]);
-        DI()->logger->debug('每日赚京豆 信息', $res);
+        // DI()->logger->debug('每日赚京豆 信息', $res);
 
         if ($res['resultCode'] != '00000') {
             DI()->logger->error("每日赚京豆 - 连续签到信息|{$res['resultMsg']}", $res);
@@ -2674,7 +2674,7 @@ class JdSign
 
         $data = $res['data'];
         if (empty($data['signRecords'])) {
-            DI()->logger->debug("每日赚京豆 - 连续签到信息", $data);
+            // DI()->logger->debug("每日赚京豆 - 连续签到信息", $data);
             return 0;
         }
 
@@ -2724,7 +2724,7 @@ class JdSign
         }
 
         $data = $res['data'];
-        DI()->logger->debug('每日赚京豆 - 签到', $data);
+        // DI()->logger->debug('每日赚京豆 - 签到', $data);
 
         return $data['rewardAmount'] ?? 0;
     }
