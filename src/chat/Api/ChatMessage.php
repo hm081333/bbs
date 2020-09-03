@@ -3,7 +3,9 @@
 namespace Chat\Api;
 
 use Library\Exception\BadRequestException;
+use Library\Exception\Exception;
 use function Common\res_path;
+use function PhalApi\T;
 
 /**
  * 聊天消息 接口服务
@@ -65,6 +67,9 @@ class ChatMessage extends \Common\Api\Chat
         $this->field = 'id,user_id,message,add_time';
         // $this->where['id < ?']='';
         $list = $this->Domain_ChatMessage()::getList($this->limit, $this->offset, $this->where, $this->field, $this->order);
+        if ($list['total'] <= 0) {
+            throw new Exception(T('没有更多消息'));
+        }
         $rows = $list['rows'];
         $list['rows'] = [];
         foreach ($rows as $row) {

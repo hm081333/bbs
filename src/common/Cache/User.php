@@ -49,11 +49,11 @@ class User extends Cache
     {
         if (!empty($user_id)) {
             $name = $this->getTableName();
-            $user = DI()->cache->get($name);
+            $user = parent::get($name);
             if ($user == null) {
                 $user = $this->Domain_User()::getInfo($user_id);
                 if ($user) {
-                    $this->set($user_id, $user);
+                    parent::set($user_id, $user);
                 }
             }
         }

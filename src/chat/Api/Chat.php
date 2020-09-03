@@ -41,6 +41,36 @@ class Chat extends \Common\Api\Chat
     }
 
     /**
+     * 聊天 领域层
+     * @return \Common\Domain\ChatMessage
+     * @throws BadRequestException
+     */
+    protected function Domain_ChatMessage()
+    {
+        return self::getDomain('ChatMessage');
+    }
+
+    /**
+     * 聊天 模型层
+     * @return \Common\Model\ChatMessage
+     * @throws BadRequestException
+     */
+    protected function Model_ChatMessage()
+    {
+        return self::getModel('ChatMessage');
+    }
+
+    /**
+     * 聊天 缓存层
+     * @return \Common\Cache\Chat
+     * @throws BadRequestException
+     */
+    protected function Cache_Chat()
+    {
+        return self::getCache('Chat');
+    }
+
+    /**
      * 好友 领域层
      * @return \Common\Domain\Friend
      * @throws BadRequestException
@@ -87,8 +117,8 @@ class Chat extends \Common\Api\Chat
                 $row['logo'] = empty($friend_info['logo']) ? '' : res_path($friend_info['logo']);
 
             }
-            #TODO 最后消息内容
-            $row['last_message'] = '冲鸭！复工后不能少的"治愈三宝"，统统享会员超低价！';
+            $last_message = $this->Model_ChatMessage()->getListLimitByWhere(1, 0, ['chat_id' => $chat_info['id']], 'id desc', 'message');
+            $row['last_message'] = $last_message[0]['message'] ?? '';
             // 最后消息时间
             if (date('Ymd', $last_time) == date('Ymd', time())) {
                 // 当天
@@ -120,30 +150,22 @@ class Chat extends \Common\Api\Chat
     public function infoData()
     {
         $user = $this->Domain_User()::getCurrentUser(true);
-        $chat_info = $this->Domain_Chat()::getInfo($this->id, 'id,is_group,is_delete,name,user_ids');
+        $chat_info = $this->Cache_Chat()->get($this->id);
         if (!$chat_info) {
             throw new BadRequestException(T('不存在该聊天室'));
         }
-        $chat_info['is_delete'] = boolval($chat_info['is_delete']);
-        $chat_info['is_group'] = boolval($chat_info['is_group']);
-        $chat_info['people_count'] = 2;
         if ($chat_info['is_group']) {
-            $chat_info['user_ids'] = explode(',', $chat_info['user_ids']);
-            //  群聊人数
-            $chat_info['people_count'] = count($chat_info['user_ids']);
             // 群聊名称
-            $chat_info['logo'] = '';
+            // $chat_info['logo'] = '';
         } else {
             $friend_info = $this->Domain_Friend()::getInfoByWhere([
                 'user_id' => $user['id'],
-                'FIND_IN_SET(friend_id, ?)' => $chat_info['user_ids'],
+                'FIND_IN_SET(friend_id, ?)' => $chat_info['user_ids_str'],
             ], 'friend_id,remark_name');
-            $friend_remark_name = $friend_info['remark_name'];
             $friend_info = $this->Cache_User()->get($friend_info['friend_id']);
-            $chat_info['name'] = empty($friend_remark_name) ? $friend_info['nick_name'] : $friend_remark_name;
-            $chat_info['logo'] = empty($friend_info['logo']) ? '' : res_path($friend_info['logo']);
+            $chat_info['name'] = empty($friend_info['remark_name']) ? $friend_info['nick_name'] : $friend_info['remark_name'];
+            // $chat_info['logo'] = empty($friend_info['logo']) ? '' : res_path($friend_info['logo']);
         }
-        unset($chat_info['user_ids']);
         return $chat_info;
     }
 
