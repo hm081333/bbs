@@ -18,9 +18,13 @@ class JDFlashSale
     private $KEY;
     private $LogDetails = false; //是否开启响应日志, true则开启
 
-    public function __construct($stop = 0)
+    public function __construct()
     {
-        sleep($stop);
+    }
+
+    public function main($stop = 0)
+    {
+        usleep($stop * 1000);
         $this->JDPETUrl = [
             'url' => 'https://api.m.jd.com/client.action?functionId=partitionJdSgin',
             'headers' => [
@@ -49,7 +53,7 @@ class JDFlashSale
                             $merge['JDFSale']['notify'] = "京东商城-闪购: 失败, 原因: 已签过 ⚠️";
                         } else if (preg_match('/不存在|已结束|\"2008\"|\"3001\"/', $data)) {
                             //$merge['JDFSale']['notify'] = "京东商城-闪购: 失败, 原因: 需瓜分 ⚠️";
-                            new FlashSaleDivide($stop);
+                            call_user_func([new FlashSaleDivide, 'main'], $stop);
                         } else if (preg_match('/(\"code\":\"3\"|\"1003\")/', $data)) {
                             $merge['JDFSale']['notify'] = "京东商城-闪购: 失败, 原因: Cookie失效‼️";
                         } else {

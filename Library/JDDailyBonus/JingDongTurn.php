@@ -18,9 +18,13 @@ class JingDongTurn
     private $KEY;
     private $LogDetails = false; //是否开启响应日志, true则开启
 
-    public function __construct($stop = 0)
+    public function __construct()
     {
-        sleep($stop);
+    }
+
+    public function main($stop = 0)
+    {
+        usleep($stop * 1000);
         $this->JDTUrl = [
             'url' => 'https://api.m.jd.com/client.action?functionId=wheelSurfIndex&body=%7B%22actId%22%3A%22jgpqtzjhvaoym%22%2C%22appSource%22%3A%22jdhome%22%7D&appid=ld',
             'headers' => [
@@ -37,7 +41,7 @@ class JingDongTurn
                     $Details = $this->LogDetails ? "response:\n" . $data : '';
                     if ($cc) {
                         DI()->logger->info("京东商城-转盘查询成功 " . $Details);
-                        return new JingDongTurnSign($stop, $cc);
+                        return call_user_func([new JingDongTurnSign, 'main'], $stop, $cc);
                     } else {
                         $merge['JDTurn']['notify'] = "京东商城-转盘: 失败, 原因: 查询错误 ⚠️";
                         $merge['JDTurn']['fail'] = 1;

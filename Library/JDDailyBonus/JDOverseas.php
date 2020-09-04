@@ -18,9 +18,13 @@ class JDOverseas
     private $KEY;
     private $LogDetails = false; //是否开启响应日志, true则开启
 
-    public function __construct($stop = 0)
+    public function __construct()
     {
-        sleep($stop);
+    }
+
+    public function main($stop = 0)
+    {
+        usleep($stop * 1000);
         $this->OverseasUrl = [
             'url' => 'https://api.m.jd.com/client.action?functionId=checkin',
             'headers' => [

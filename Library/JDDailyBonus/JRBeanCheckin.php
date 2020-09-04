@@ -18,9 +18,13 @@ class JRBeanCheckin
     private $KEY;
     private $LogDetails = false; //是否开启响应日志, true则开启
 
-    public function __construct($stop = 0)
+    public function __construct()
     {
-        sleep($stop);
+    }
+
+    public function main($stop = 0)
+    {
+        usleep($stop * 1000);
         $this->JRBUrl = [
             'url' => 'https://ms.jr.jd.com/gw/generic/zc/h5/m/signRewardGift',
             'headers' => [

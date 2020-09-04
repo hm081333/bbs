@@ -17,9 +17,13 @@ class JDMagicCube
     private $KEY;
     private $LogDetails = false; //是否开启响应日志, true则开启
 
-    public function __construct($stop = 0)
+    public function __construct()
     {
-        sleep($stop);
+    }
+
+    public function main($stop = 0)
+    {
+        usleep($stop * 1000);
         $this->JDUrl = [
             'url' => 'https://api.m.jd.com/client.action?functionId=getNewsInteractionInfo&appid=smfe',
             'headers' => [
@@ -35,7 +39,7 @@ class JDMagicCube
                     preg_match('/\"interactionId\":(\d+)/', $data, $matches);
                     $merge['JDCube']['key'] = $matches[1];
                     DI()->logger->info('京东魔方-查询活动成功 ' . $Details);
-                    new JDMagicCubeSign($stop, $merge['JDCube']['key']);
+                    call_user_func([new JDMagicCubeSign,'main'],$stop, $merge['JDCube']['key']);
                 } else {
                     DI()->logger->info('京东魔方-查询活动失败 ');
                 }

@@ -18,9 +18,13 @@ class JingDongCash
     private $KEY;
     private $LogDetails = false; //是否开启响应日志, true则开启
 
-    public function __construct($stop = 0)
+    public function __construct()
     {
-        sleep($stop);
+    }
+
+    public function main($stop = 0)
+    {
+        usleep($stop * 1000);
         $this->JDCAUrl = [
             'url' => 'https://api.m.jd.com/client.action?functionId=ccSignInNew',
             'headers' => [
@@ -39,34 +43,34 @@ class JingDongCash
                     $cc = json_decode($data, true);
                     if ($cc['busiCode'] == "0") {
                         DI()->logger->info("京东现金-红包签到成功 ".$Details);
-                            if ($cc['result']['signResult']['signData']['amount']) {
-                                $merge['JDCash']['notify'] = "京东现金-红包: 成功, 明细: ".$cc['result']['signResult']['signData']['amount']."红包 🧧";
-                                $merge['JDCash']['Cash'] = $cc['result']['signResult']['signData']['amount'];
-                                $merge['JDCash']['success'] = 1;
-                            } else {
-                                $merge['JDCash']['notify'] = "京东现金-红包: 成功, 明细: 无红包 🧧";
-                                $merge['JDCash']['success'] = 1;
-                            }
+                        if ($cc['result']['signResult']['signData']['amount']) {
+                            $merge['JDCash']['notify'] = "京东现金-红包: 成功, 明细: ".$cc['result']['signResult']['signData']['amount']."红包 🧧";
+                            $merge['JDCash']['Cash'] = $cc['result']['signResult']['signData']['amount'];
+                            $merge['JDCash']['success'] = 1;
                         } else {
+                            $merge['JDCash']['notify'] = "京东现金-红包: 成功, 明细: 无红包 🧧";
+                            $merge['JDCash']['success'] = 1;
+                        }
+                    } else {
                         DI()->logger->info("京东现金-红包签到失败 ".$Details);
-                            if (preg_match('/(\"busiCode\":\"1002\"|完成签到)/', $data)) {
-                                $merge['JDCash']['notify'] = "京东现金-红包: 失败, 原因: 已签过 ⚠️";
+                        if (preg_match('/(\"busiCode\":\"1002\"|完成签到)/', $data)) {
+                            $merge['JDCash']['notify'] = "京东现金-红包: 失败, 原因: 已签过 ⚠️";
+                            $merge['JDCash']['fail'] = 1;
+                        } else {
+                            if (preg_match('/(不存在|已结束)/', $data)) {
+                                $merge['JDCash']['notify'] = "京东现金-红包: 失败, 原因: 活动已结束 ⚠️";
                                 $merge['JDCash']['fail'] = 1;
                             } else {
-                                if (preg_match('/(不存在|已结束)/', $data)) {
-                                    $merge['JDCash']['notify'] = "京东现金-红包: 失败, 原因: 活动已结束 ⚠️";
+                                if (preg_match('/(\"busiCode\":\"3\"|未登录)/', $data)) {
+                                    $merge['JDCash']['notify'] = "京东现金-红包: 失败, 原因: Cookie失效‼️";
                                     $merge['JDCash']['fail'] = 1;
                                 } else {
-                                    if (preg_match('/(\"busiCode\":\"3\"|未登录)/', $data)) {
-                                        $merge['JDCash']['notify'] = "京东现金-红包: 失败, 原因: Cookie失效‼️";
-                                        $merge['JDCash']['fail'] = 1;
-                                    } else {
-                                        $merge['JDCash']['notify'] = "京东现金-红包: 失败, 原因: 未知 ⚠️";
-                                        $merge['JDCash']['fail'] = 1;
-                                    }
+                                    $merge['JDCash']['notify'] = "京东现金-红包: 失败, 原因: 未知 ⚠️";
+                                    $merge['JDCash']['fail'] = 1;
                                 }
                             }
                         }
+                    }
                 }
             } catch (\Exception $eor) {
                 $nobyda->AnError('京东现金-红包', 'JDCash', $eor);

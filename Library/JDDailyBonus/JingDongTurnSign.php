@@ -18,9 +18,13 @@ class JingDongTurnSign
     private $KEY;
     private $LogDetails = false; //是否开启响应日志, true则开启
 
-    public function __construct($stop = 0, $code = false)
+    public function __construct()
     {
-        sleep($stop);
+    }
+
+    public function main($stop = 0, $code = false)
+    {
+        usleep($stop * 1000);
         $this->JDTUrl = [
             'url' => "https://api.m.jd.com/client.action?functionId=lotteryDraw&body=%7B%22actId%22%3A%22jgpqtzjhvaoym%22%2C%22appSource%22%3A%22jdhome%22%2C%22lotteryCode%22%3A%22{$code}%22%7D&appid=ld",
             'headers' => [
@@ -51,7 +55,7 @@ class JingDongTurnSign
                                 $merge['JDTurn']['success'] += 1;
                                 $merge['JDTurn']['bean'] += $cc['data']['prizeSendNumber'];
                                 if ($cc['data']['chances'] != "0") {
-                                    new JingDongTurnSign(2000, $code);
+                                    call_user_func([new JingDongTurnSign, 'main'], 2000, $code);
                                 }
                             } else {
                                 DI()->logger->info("京东商城-转盘签到失败 " . $Details);
@@ -59,7 +63,7 @@ class JingDongTurnSign
                                     $merge['JDTurn']['notify'] .= $merge['JDTurn']['notify'] ? "\n京东商城-转盘: 成功, 状态: 未中奖 🐶 (多次)" : "京东商城-转盘: 成功, 状态: 未中奖 🐶";
                                     $merge['JDTurn']['success'] += 1;
                                     if ($cc['data']['chances'] != "0") {
-                                        new JingDongTurnSign(2000, $code);
+                                        call_user_func([new JingDongTurnSign, 'main'], 2000, $code);
                                     }
                                 } else if (preg_match('/(T215|次数为0)/', $data)) {
                                     $merge['JDTurn']['notify'] = "京东商城-转盘: 失败, 原因: 已转过 ⚠️";

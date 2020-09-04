@@ -18,9 +18,13 @@ class JingRongDoll
     private $KEY;
     private $LogDetails = false; //是否开启响应日志, true则开启
 
-    public function __construct($stop = 0, $type = false, $num = false)
+    public function __construct()
     {
-        sleep($stop);
+    }
+
+    public function main($stop = 0, $type = false, $num = false)
+    {
+        usleep($stop * 1000);
         $this->DollUrl = [
             'url' => 'https://nu.jr.jd.com/gw/generic/jrm/h5/m/process',
             'headers' => [
@@ -43,7 +47,7 @@ class JingRongDoll
                             if ($cc['resultData']['data']['businessData']['pickStatus'] == 2) {
                                 if (preg_match('/\"rewardPrice\":\"?(\d+)/', $data, $matches)) {
                                     $JRDoll_bean = $matches[1];
-                                    new JingRongDoll($stop, "4", $JRDoll_bean);
+                                    call_user_func([new JingRongDoll, 'main'], $stop, "4", $JRDoll_bean);
                                 } else {
                                     $merge['JRDoll']['success'] = 1;
                                     $merge['JRDoll']['notify'] = "京东金融-娃娃: 成功, 明细: 无京豆 🐶";

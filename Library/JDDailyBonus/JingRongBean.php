@@ -18,9 +18,13 @@ class JingRongBean
     private $KEY;
     private $LogDetails = false; //是否开启响应日志, true则开启
 
-    public function __construct($stop = 0)
+    public function __construct()
     {
-        sleep($stop);
+    }
+
+    public function main($stop = 0)
+    {
+        usleep($stop * 1000);
         $this->login = [
             'url' => 'https://ms.jr.jd.com/gw/generic/zc/h5/m/signRecords',
             'headers' => [
@@ -39,7 +43,7 @@ class JingRongBean
                     $Details = $this->LogDetails ? "response:\n" . $data : '';
                     if (preg_match('/\"login\":true/', $data)) {
                         DI()->logger->info("京东金融-金贴登录成功 " . $Details);
-                        new JRBeanCheckin(200);
+                        call_user_func([new JRBeanCheckin, 'main'], 200);
                     } else {
                         DI()->logger->info("京东金融-金贴登录失败 " . $Details);
                         if (preg_match('/\"login\":false/', $data)) {
