@@ -45,8 +45,9 @@ try {
                     die();
                     break;
                 case 'test':
-                    $domain_JdSign = new \Common\Domain\JdSign();
-                    $domain_JdSign->test();
+                    // $domain_JdSign = new \Common\Domain\JdSign();
+                    // $domain_JdSign->test();
+                    new \Library\JDDailyBonus\initial();
                     die('测试');
                     break;
                 case 'bean':// 签到领京豆

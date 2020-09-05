@@ -13,50 +13,50 @@ use function PhalApi\T;
  */
 class JingRongBean
 {
-    private $login;
+     /**
+     * @var initial
+     */
+    private $initial; // 初始化参数
 
-    private $KEY;
-    private $LogDetails = false; //是否开启响应日志, true则开启
-
-    public function __construct()
+    public function __construct(initial $initial)
     {
+        $this->initial = $initial;
     }
 
     public function main($stop = 0)
     {
         usleep($stop * 1000);
-        $this->login = [
+        $login = [
             'url' => 'https://ms.jr.jd.com/gw/generic/zc/h5/m/signRecords',
             'headers' => [
                 'Content-Type' => 'application/x-www-form-urlencoded',
-                'Cookie' => $this->KEY,
+                'Cookie' => $this->initial->KEY,
                 'Referer' => 'https://jddx.jd.com/m/money/index.html?from=sign',
             ],
             'body' => 'reqData=%7B%22bizLine%22%3A2%7D',
         ];
-        $nobyda = new nobyda();
-        $nobyda->post($this->login, function ($error, $response, $data) use ($nobyda) {
+        $this->initial->custom->post($login, function ($error, $response, $data) use ($stop) {
             try {
                 if ($error) {
                     throw new InternalServerErrorException(T($error));
                 } else {
-                    $Details = $this->LogDetails ? "response:\n" . $data : '';
+                    $Details = $this->initial->LogDetails ? "response:\n" . $data : '';
                     if (preg_match('/\"login\":true/', $data)) {
-                        DI()->logger->info("京东金融-金贴登录成功 " . $Details);
-                        call_user_func([new JRBeanCheckin, 'main'], 200);
+                        $this->initial->custom->log("京东金融-金贴登录成功 " . $Details);
+                        call_user_func([new JRBeanCheckin($this->initial), 'main'], 200);
                     } else {
-                        DI()->logger->info("京东金融-金贴登录失败 " . $Details);
+                        $this->initial->custom->log("京东金融-金贴登录失败 " . $Details);
                         if (preg_match('/\"login\":false/', $data)) {
-                            $merge['JRBean']['notify'] = "京东金融-金贴: 失败, 原因: Cookie失效‼️";
-                            $merge['JRBean']['fail'] = 1;
+                            $this->initial->merge['JRBean']['notify'] = "京东金融-金贴: 失败, 原因: Cookie失效‼️";
+                            $this->initial->merge['JRBean']['fail'] = 1;
                         } else {
-                            $merge['JRBean']['notify'] = "京东金融-金贴: 登录接口需修正 ‼️‼️";
-                            $merge['JRBean']['fail'] = 1;
+                            $this->initial->merge['JRBean']['notify'] = "京东金融-金贴: 登录接口需修正 ‼️‼️";
+                            $this->initial->merge['JRBean']['fail'] = 1;
                         }
                     }
                 }
             } catch (\Exception $eor) {
-                $nobyda->AnError('金融金贴-登录', 'JRBean', $eor);
+                $this->initial->custom->AnError('金融金贴-登录', 'JRBean', $eor);
             } finally {
                 return;
             }

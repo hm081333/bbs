@@ -13,38 +13,39 @@ use function PhalApi\T;
  */
 class JDMagicCube
 {
-    private $JDUrl;
-    private $KEY;
-    private $LogDetails = false; //是否开启响应日志, true则开启
+    /**
+     * @var initial
+     */
+    private $initial; // 初始化参数
 
-    public function __construct()
+    public function __construct(initial $initial)
     {
+        $this->initial = $initial;
     }
 
     public function main($stop = 0)
     {
         usleep($stop * 1000);
-        $this->JDUrl = [
+        $JDUrl = [
             'url' => 'https://api.m.jd.com/client.action?functionId=getNewsInteractionInfo&appid=smfe',
             'headers' => [
-                'Cookie' => $this->KEY,
+                'Cookie' => $this->initial->KEY,
             ],
         ];
-        $nobyda = new nobyda();
-        $nobyda->get($this->JDUrl, function ($error, $response, $data) use ($nobyda, $stop) {
+        $this->initial->custom->get($JDUrl, function ($error, $response, $data) use ($stop) {
             try {
                 if ($error) throw new InternalServerErrorException(T($error));
                 if (preg_match('/\"interactionId\":\d+/', $data)) {
-                    $Details = $this->LogDetails ? "response:\n" . $data : '';
+                    $Details = $this->initial->LogDetails ? "response:\n" . $data : '';
                     preg_match('/\"interactionId\":(\d+)/', $data, $matches);
-                    $merge['JDCube']['key'] = $matches[1];
-                    DI()->logger->info('京东魔方-查询活动成功 ' . $Details);
-                    call_user_func([new JDMagicCubeSign,'main'],$stop, $merge['JDCube']['key']);
+                    $this->initial->merge['JDCube']['key'] = $matches[1];
+                    $this->initial->custom->log('京东魔方-查询活动成功 ' . $Details);
+                    call_user_func([new JDMagicCubeSign($this->initial), 'main'], $stop, $this->initial->merge['JDCube']['key']);
                 } else {
-                    DI()->logger->info('京东魔方-查询活动失败 ');
+                    $this->initial->custom->log('京东魔方-查询活动失败 ');
                 }
             } catch (\Exception $eor) {
-                $nobyda->AnError('京东魔方-查询', 'JDCube', $eor);
+                $this->initial->custom->AnError('京东魔方-查询', 'JDCube', $eor);
             } finally {
                 return;
             }

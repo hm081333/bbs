@@ -4,18 +4,24 @@ namespace Library\JDDailyBonus;
 
 use function Common\DI;
 
-class nobyda
+class custom
 {
     public $start;
+    /**
+     * @var initial
+     */
+    private $initial; // 初始化参数
+    public $disable = 0;
 
-    public function __construct()
+    public function __construct(initial $initial)
     {
         $this->start = time();
+        $this->initial = $initial;
     }
 
     public function notify($title, $subtitle, $message)
     {
-        log($title . $subtitle . $message);
+        $this->log($title . $subtitle . $message);
     }
 
     public function node()
@@ -59,7 +65,7 @@ class nobyda
         $options['headers']['User-Agent'] = 'JD4iPhone/167169 (iPhone; iOS 13.4.1; Scale/3.00)';
         $error = false;
         $response = false;
-        $body = DI()->curl->setHeader($options['headers'] ?? [])->post($options['url'], $options['body']);
+        $body = DI()->curl->setHeader($options['headers'] ?? [])->post($options['url'], $options['body'] ?? '');
         $callback($error, $this->adapterStatus($response), $body);
     }
 
@@ -70,16 +76,15 @@ class nobyda
 
     public function AnError($name, $key, $er)
     {
-        $merge=[];
-        if (!$merge[$key]['notify']) {
-            $merge[$key]['notify'] = `${name}: 异常, 已输出日志 ‼️`;
+        if (!$this->initial->merge[$key]['notify']) {
+            $this->initial->merge[$key]['notify'] = "{$name}: 异常, 已输出日志 ‼️";
         } else {
-            $merge[$key]['notify'] += `\n${name}: 异常, 已输出日志 ‼️ (2)`;
+            $this->initial->merge[$key]['notify'] .= "\n{$name}: 异常, 已输出日志 ‼️ (2)";
         }
-        $merge[$key]['error'] = 1;
+        $this->initial->merge[$key]['error'] = 1;
         $er_str = json_encode($er);
         $line = preg_match('/\"line\"/', $er_str);
-        return DI()->logger->info(`‼️${name}发生错误\n‼️名称: ${$er['name']}\n‼️描述: ${$er['message']}${$line ? `\n‼️行列: ${$er_str}` : ``}`);
+        $this->log("‼️{$name}发生错误\n‼️名称: {$er['name']}\n‼️描述: {$er['message']}" . ($line ? "\n‼️行列: ${$er_str}" : ''));
     }
 
     public function time()

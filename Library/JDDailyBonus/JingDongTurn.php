@@ -13,43 +13,43 @@ use function PhalApi\T;
  */
 class JingDongTurn
 {
-    private $JDTUrl;
+     /**
+     * @var initial
+     */
+    private $initial; // 初始化参数
 
-    private $KEY;
-    private $LogDetails = false; //是否开启响应日志, true则开启
-
-    public function __construct()
+    public function __construct(initial $initial)
     {
+        $this->initial = $initial;
     }
 
     public function main($stop = 0)
     {
         usleep($stop * 1000);
-        $this->JDTUrl = [
+        $JDTUrl = [
             'url' => 'https://api.m.jd.com/client.action?functionId=wheelSurfIndex&body=%7B%22actId%22%3A%22jgpqtzjhvaoym%22%2C%22appSource%22%3A%22jdhome%22%7D&appid=ld',
             'headers' => [
-                'Cookie' => $this->KEY,
+                'Cookie' => $this->initial->KEY,
             ],
         ];
-        $nobyda = new nobyda();
-        $nobyda->get($this->JDTUrl, function ($error, $response, $data) use ($nobyda, $stop) {
+        $this->initial->custom->get($JDTUrl, function ($error, $response, $data) use ( $stop) {
             try {
                 if ($error) {
                     throw new InternalServerErrorException(T($error));
                 } else {
                     $cc = json_decode($data, true)['data']['lotteryCode'];
-                    $Details = $this->LogDetails ? "response:\n" . $data : '';
+                    $Details = $this->initial->LogDetails ? "response:\n" . $data : '';
                     if ($cc) {
-                        DI()->logger->info("京东商城-转盘查询成功 " . $Details);
-                        return call_user_func([new JingDongTurnSign, 'main'], $stop, $cc);
+                        $this->initial->custom->log("京东商城-转盘查询成功 " . $Details);
+                        return call_user_func([new JingDongTurnSign($this->initial), 'main'], $stop, $cc);
                     } else {
-                        $merge['JDTurn']['notify'] = "京东商城-转盘: 失败, 原因: 查询错误 ⚠️";
-                        $merge['JDTurn']['fail'] = 1;
-                        DI()->logger->info("京东商城-转盘查询失败 " . $Details);
+                        $this->initial->merge['JDTurn']['notify'] = "京东商城-转盘: 失败, 原因: 查询错误 ⚠️";
+                        $this->initial->merge['JDTurn']['fail'] = 1;
+                        $this->initial->custom->log("京东商城-转盘查询失败 " . $Details);
                     }
                 }
             } catch (\Exception $eor) {
-                $nobyda->AnError('京东转盘-查询', 'JDTurn', $eor);
+                $this->initial->custom->AnError('京东转盘-查询', 'JDTurn', $eor);
             } finally {
                 return;
             }
