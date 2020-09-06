@@ -31,6 +31,7 @@ use function PhalApi\T;
 class WeChatPublicPlatform
 {
     use Domain;
+
     private $appId;
     private $appSecret;
 
@@ -51,18 +52,32 @@ class WeChatPublicPlatform
 
     /**
      * 拉取身份信息的唯一code
+     * @param string $redirect
      * @param string $scope
      */
-    public function getOpenIdCode($scope = 'snsapi_base')
+    public function getOpenIdCode($redirect, $scope = 'snsapi_base')
     {
         if (isWeChat()) {
             //$scope = 'snsapi_userinfo';
             //若提示“该链接无法访问”，请检查参数是否填写错误，是否拥有scope参数对应的授权作用域权限。
-            $redirect_uri = urlencode(URL_ROOT . 'tieba.php');
-            $url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$this->appId} &redirect_uri={$redirect_uri}&response_type=code&scope={$scope}&state=STATE#wechat_redirect";
+            // $redirect = urlencode(URL_ROOT . 'tieba.php');
+            $url = $this->getOpenIdCodeUrl($redirect, $scope);
             Header("Location: $url");
             die;
         }
+    }
+
+    /**
+     * 拉取身份信息的唯一code的链接
+     * @param string $redirect
+     * @param string $scope
+     */
+    public function getOpenIdCodeUrl($redirect, $scope = 'snsapi_base')
+    {
+        //$scope = 'snsapi_userinfo';
+        //若提示“该链接无法访问”，请检查参数是否填写错误，是否拥有scope参数对应的授权作用域权限。
+        // $redirect = urlencode(URL_ROOT . 'tieba.php');
+        return "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$this->appId} &redirect_uri={$redirect}&response_type=code&scope={$scope}&state=STATE#wechat_redirect";
     }
 
     /**
