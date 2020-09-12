@@ -77,7 +77,10 @@ class WeChatPublicPlatform
         //$scope = 'snsapi_userinfo';
         //若提示“该链接无法访问”，请检查参数是否填写错误，是否拥有scope参数对应的授权作用域权限。
         // $redirect = urlencode(URL_ROOT . 'tieba.php');
-        return "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$this->appId} &redirect_uri={$redirect}&response_type=code&scope={$scope}&state=STATE#wechat_redirect";
+        if ($redirect == urldecode($redirect)) {
+            $redirect = urlencode($redirect);
+        }
+        return "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$this->appId}&redirect_uri={$redirect}&response_type=code&scope={$scope}&state=STATE#wechat_redirect";
     }
 
     /**
