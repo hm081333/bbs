@@ -12,6 +12,7 @@ use EasyWeChat\Kernel\Exceptions\InvalidArgumentException;
 use EasyWeChat\Kernel\Exceptions\InvalidConfigException;
 use EasyWeChat\Kernel\Support\Collection;
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use Library\Exception\BadRequestException;
 use Library\Exception\InternalServerErrorException;
 use Library\Traits\Domain;
@@ -19,6 +20,7 @@ use Library\Traits\Model;
 use PhalApi\Model\NotORMModel;
 use Psr\Http\Message\ResponseInterface;
 use function Common\DI;
+use function Common\getGreeting;
 use function Common\isWeChat;
 use function PhalApi\T;
 
@@ -44,6 +46,7 @@ class WeChatPublicPlatform
 
     /**
      * @return Setting
+     * @throws BadRequestException
      */
     protected function Domain_Setting()
     {
@@ -55,7 +58,7 @@ class WeChatPublicPlatform
      * @param string $redirect
      * @param string $scope
      */
-    public function getOpenIdCode($redirect, $scope = 'snsapi_base')
+    public function getOpenIdCode(string $redirect, $scope = 'snsapi_base')
     {
         if (isWeChat()) {
             //$scope = 'snsapi_userinfo';
@@ -71,8 +74,9 @@ class WeChatPublicPlatform
      * 拉取身份信息的唯一code的链接
      * @param string $redirect
      * @param string $scope
+     * @return string
      */
-    public function getOpenIdCodeUrl($redirect, $scope = 'snsapi_base')
+    public function getOpenIdCodeUrl(string $redirect, $scope = 'snsapi_base')
     {
         //$scope = 'snsapi_userinfo';
         //若提示“该链接无法访问”，请检查参数是否填写错误，是否拥有scope参数对应的授权作用域权限。
@@ -87,8 +91,8 @@ class WeChatPublicPlatform
      * 通过code拉取openid和access_token
      * @param $code
      * @return mixed
+     * @throws InternalServerErrorException
      * @throws \Library\Exception\Exception
-     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function getOpenId($code)
     {
@@ -109,8 +113,8 @@ class WeChatPublicPlatform
      * $scope = 'snsapi_userinfo'的后续
      * @param $code
      * @return mixed
+     * @throws InternalServerErrorException
      * @throws \Library\Exception\Exception
-     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function getSnsApiUserInfo($code)
     {
@@ -140,8 +144,9 @@ class WeChatPublicPlatform
     /**
      * 通过获取的openid达到自动登陆的效果
      * @param $code
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
      * @throws \Library\Exception\Exception
-     * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function openIdLogin($code)
     {
@@ -168,6 +173,7 @@ class WeChatPublicPlatform
 
     /**
      * @return \Common\Model\User|Model|NotORMModel
+     * @throws BadRequestException
      */
     protected function Model_User()
     {
@@ -208,6 +214,7 @@ class WeChatPublicPlatform
      * @throws InternalServerErrorException
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
+     * @throws GuzzleException
      */
     private function sendTiebaSignDetail($user = [])
     {
@@ -218,7 +225,7 @@ class WeChatPublicPlatform
         $result = DI()->wechat->template_message->send([
             'touser' => $user['open_id'],
             'template_id' => 'Ogvc_rROWerSHvfgo1IOJIL103bso0H3jLYEAwTuKKg',
-            'url' => 'http://bbs2.lyiho.tk/tieba',
+            'url' => 'http://bbs2.lyiho.tk/sign',
             // 'miniprogram' => [
             //     'appid' => 'xxxxxxx',
             //     'pagepath' => 'pages/xxx',
@@ -259,6 +266,7 @@ class WeChatPublicPlatform
     /**
      * 贴吧 领域层
      * @return TieBa
+     * @throws BadRequestException
      */
     protected function Domain_TieBa()
     {
@@ -270,6 +278,7 @@ class WeChatPublicPlatform
      * @param array $jd_user_info
      * @return array|Collection|object|ResponseInterface|string
      * @throws BadRequestException
+     * @throws GuzzleException
      * @throws InternalServerErrorException
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
@@ -279,22 +288,13 @@ class WeChatPublicPlatform
         if (empty($jd_user_info)) throw new BadRequestException(T('非法请求'));
         /** @var $user_model \Common\Model\User */
         $user_model = $this->Model_User();
-        $user_info = $user_model->get(intval($jd_user_info['user_id']));
+        $user_info = $user_model->get($jd_user_info['user_id']);
         if (!$user_info) throw new InternalServerErrorException(T('获取状态失败'));
 
         $openid = $user_info['open_id'];
         if (empty($openid)) return false;
 
-        $h = date('G', time());
-        if ($h < 11) {
-            $greeting = '早上好！';
-        } else if ($h < 13) {
-            $greeting = '中午好！';
-        } else if ($h < 17) {
-            $greeting = '下午好！';
-        } else {
-            $greeting = '晚上好！';
-        }
+        $greeting = getGreeting();
 
         $result = DI()->wechat->template_message->send([
             'touser' => $openid,
@@ -353,6 +353,7 @@ class WeChatPublicPlatform
      * @param array $user
      * @return array|Collection|object|ResponseInterface|string
      * @throws BadRequestException
+     * @throws GuzzleException
      * @throws InternalServerErrorException
      * @throws InvalidArgumentException
      * @throws InvalidConfigException

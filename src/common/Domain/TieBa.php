@@ -475,16 +475,7 @@ class TieBa
     public function getSignStatus($user = [])
     {
         if (empty($user)) throw new BadRequestException(T('非法参数'));
-        $h = date('G', time());
-        if ($h < 11) {
-            $greeting = '早上好！';
-        } else if ($h < 13) {
-            $greeting = '中午好！';
-        } else if ($h < 17) {
-            $greeting = '下午好！';
-        } else {
-            $greeting = '晚上好！';
-        }
+        $greeting = \Common\getGreeting();
         $day_time = DateHelper::getDayTime();
         $tieba_model = $this->Model_TieBa();
         $total = $tieba_model->getCount(['user_id=?' => $user['user_id']]);

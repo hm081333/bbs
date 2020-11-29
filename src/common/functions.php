@@ -428,3 +428,23 @@ function deleteDir($path)
     rmdir($path);
     return true;
 }
+
+/**
+ * 根据时间获取打招呼方式
+ * @param false $h 时间，小时
+ * @return string
+ */
+function getGreeting($h = false)
+{
+    $h = $h ?: date('G', time());
+    if ($h < 11) {
+        $greeting = '早上好！';
+    } else if ($h < 13) {
+        $greeting = '中午好！';
+    } else if ($h < 17) {
+        $greeting = '下午好！';
+    } else {
+        $greeting = '晚上好！';
+    }
+    return $greeting;
+}
