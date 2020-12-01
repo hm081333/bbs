@@ -98,8 +98,9 @@ class Events
      */
     public static function sendToClient($client_id, $data)
     {
+        // var_dump($data);
         $data = is_array($data) ? json_encode($data, true) : $data;
-
+        // var_dump($data);
         // gzip压缩
         // $data = gzencode($data);
 
@@ -375,12 +376,13 @@ class Events
         // var_dump('$session_id---' . $session_id);
         // 获取该session id储存的数据
         $_SESSION = self::getSession($session_id);
+        $_SESSION['worker_client_id'] = $client_id;
         // 该客户端id对应的信息
         $server = DI()->cache->get('ws_server:' . $client_id) ?? [];
         $_SERVER = array_merge(($_SERVER ?? []), $server);
         // var_dump("session_id|{$session_id}|session", $_SESSION);
         try {
-            $response = self::apiHandler($data, $response);
+            $response = self::apiHandler($client_id, $data, $response);
         } catch (PDOException $exception) {
             DI()->logger->error('api抛出PDO异常', $exception);
             $response['response'] = [
@@ -413,7 +415,7 @@ class Events
      * @return mixed
      * @throws Exception
      */
-    public static function apiHandler($data, $response)
+    public static function apiHandler($client_id, $data, $response)
     {
         foreach (explode('|', urldecode($data['Auth'])) as $item) {
             $key = substr($item, 0, strlen(USER_TOKEN));
@@ -425,12 +427,15 @@ class Events
             }
         }
 
+        DI()->debug = false;
         // 清空上次请求结果数据
         DI()->response->setRet(200)->setMsg('')->setData([]);
         // 响应操作类
         $pai = new PhalApi();
         // 请求参数
         $request = $data['request'] ?? [];
+        $request['worker_client_id'] = $client_id;
+        // var_dump($request);
         // 重新建立api请求
         DI()->request = new Request($request);
         // 获取api返回结果

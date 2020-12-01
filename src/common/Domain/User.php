@@ -105,8 +105,11 @@ class User
     public static function getCurrentUserInfo($user = false)
     {
         $user = !$user ? self::getCurrentUser() : $user;// 传入user或当前登录user
-        if (!$user) {
+        if (empty($user)) {
             return [];
+        }
+        if (!empty($_SESSION['worker_client_id']) && $user['client_id'] != $_SESSION['worker_client_id']) {
+            self::updateClientId($user['id']);
         }
         return [
             'id' => $user['id'],
@@ -141,8 +144,10 @@ class User
      */
     public static function doSignOut()
     {
-        DI()->response->setMsg(T('退出成功'));
+        $user = self::getCurrentUser(true);
+        self::deleteClientId($user['id']);
         self::unsetUserToken();
+        DI()->response->setMsg(T('退出成功'));
     }
 
     /**
@@ -216,6 +221,20 @@ class User
         return self::Cache_User()->get($user_id);
     }
 
+    public static function updateClientId($user_id)
+    {
+        if (empty($_SESSION['worker_client_id'])) {
+            return false;
+        }
+        self::Cache_User()->update($user_id, ['client_id' => $_SESSION['worker_client_id']]);
+        return true;
+    }
+
+    public static function deleteClientId($user_id = [])
+    {
+        self::Cache_User()->update($user_id, ['client_id' => '']);
+    }
+
     /**
      * 取得当前登录会员
      * @param bool $thr
@@ -235,6 +254,10 @@ class User
                 }
             } else {
                 $user = self::Cache_User()->get($user['id']);// 用Token换取会员信息
+            }
+            if (!empty($user) && !empty($_SESSION['worker_client_id']) && $user['client_id'] != $_SESSION['worker_client_id']) {
+                $user['client_id'] = $_SESSION['worker_client_id'];
+                self::updateClientId($user['id']);
             }
             self::$user = !$user ? [] : $user;// 获取不到会员时给空，注意不能不赋值
         }

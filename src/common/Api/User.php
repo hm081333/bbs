@@ -45,6 +45,9 @@ class User extends Base
             'id' => ['name' => 'id', 'type' => 'int', 'require' => true, 'min' => 0, 'desc' => "查询ID"],
             'field' => ['name' => 'field', 'type' => 'string', 'default' => '*', 'desc' => '查询字段'],
         ];
+        $rules['getCurrentUser'] = [
+            'worker_client_id' => ['name' => 'worker_client_id', 'type' => 'string', 'default' => '', 'desc' => "客户端ID"],
+        ];
         return $rules;
     }
 

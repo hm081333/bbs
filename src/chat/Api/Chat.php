@@ -119,6 +119,10 @@ class Chat extends \Common\Api\Chat
             }
             $last_message = $this->Model_ChatMessage()->getListLimitByWhere(1, 0, ['chat_id' => $chat_info['id']], 'id desc', 'message');
             $row['last_message'] = $last_message[0]['message'] ?? '';
+            $row['last_message'] = \Common\strToHtml($row['last_message']);
+            if ($warp = strpos($row['last_message'], '<br/>')) {
+                $row['last_message'] = substr($row['last_message'], 0, $warp);
+            }
             // 最后消息时间
             if (date('Ymd', $last_time) == date('Ymd', time())) {
                 // 当天

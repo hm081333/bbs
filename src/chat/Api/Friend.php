@@ -72,23 +72,7 @@ class Friend extends \Common\Api\Friend
      */
     public function infoData()
     {
-        $user = $this->Domain_User()::getCurrentUser(true);
-        $friend = $this->Cache_User()->get($this->id);
-        if (empty($friend)) {
-            throw new BadRequestException(T('无法找到该用户'));
-        }
-        $status = $this->Domain_Friend()->friendStatus($user['id'], $friend['id']);
-        $status_name = $this->Domain_Friend()->friendStatusName($status);
-        return [
-            'status' => $status,
-            'statusName' => $status_name,
-            'friendInfo' => [
-                'id' => $friend['id'],
-                'logo' => empty($friend['logo']) ? '' : res_path($friend['logo']),
-                'nick_name' => $friend['nick_name'],
-                'user_name' => $friend['user_name'],
-            ],
-        ];
+        return $this->Domain_Friend()->info($this->id);
     }
 
 }

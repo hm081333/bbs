@@ -4,7 +4,9 @@ namespace Chat\Api;
 
 use Library\Exception\BadRequestException;
 use Library\Exception\Exception;
+use function Common\DI;
 use function Common\res_path;
+use function Common\unix_formatter;
 use function PhalApi\T;
 
 /**
@@ -25,6 +27,11 @@ class ChatMessage extends \Common\Api\Chat
             'order' => ['name' => 'order', 'type' => 'string', 'default' => 'id DESC', 'desc' => '排序方式'],
         ];
         $rules['chatMessageListData'] = $rules['listData'];
+        $rules['sendChatMessage'] = [
+            'chat_id' => ['name' => 'chat_id', 'type' => 'int', 'require' => true, 'desc' => '聊天室ID'],
+            'message' => ['name' => 'message', 'type' => 'string', 'require' => true, 'desc' => '消息内容'],
+            'send_time' => ['name' => 'send_time', 'type' => 'int', 'require' => true, 'desc' => "发送时间"],
+        ];
         return $rules;
     }
 
@@ -76,7 +83,7 @@ class ChatMessage extends \Common\Api\Chat
             $message_user = $this->Domain_User()->get($row['user_id']);
             $list['rows'][] = [
                 'message_id' => $row['id'],
-                'message' => $row['message'],
+                'message' => \Common\strToHtml($row['message']),
                 'type' => $row['user_id'] == $user['id'] ? 'send' : 'receive',
                 'user' => [
                     'user_id' => $message_user['id'],
@@ -102,6 +109,14 @@ class ChatMessage extends \Common\Api\Chat
         $user = $this->Domain_User()::getCurrentUser(true);
         var_dump($user);
         die;
+    }
+
+    public function sendChatMessage()
+    {
+        $chat_id = $this->chat_id;
+        $message = $this->message;
+        $send_time = $this->send_time;
+        return $this->Domain_ChatMessage()->sendChatMessage($chat_id, $message, $send_time);
     }
 
 }

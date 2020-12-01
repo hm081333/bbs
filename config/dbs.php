@@ -19,7 +19,8 @@ return [
             'user' => 'root',                  //数据库用户名
             'password' => 'root',                        //数据库密码
             'port' => 3306,                    //数据库端口
-            'charset' => 'UTF8',                  //数据库字符集
+            // 'charset' => 'UTF8',                  //数据库字符集
+            'charset' => 'UTF8MB4',                  //数据库字符集
             'option' => [
                 PDO::ATTR_PERSISTENT => false,
             ],

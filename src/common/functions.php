@@ -448,3 +448,11 @@ function getGreeting($h = false)
     }
     return $greeting;
 }
+
+function strToHtml($str)
+{
+    $pat = array("\n\r", "\r\n", "\n", "\r", );
+    $string = array("<br/>", "<br/>", "<br/>", "<br/>", );
+    $html= str_replace($pat, $string, $str);
+    return $html;
+}
