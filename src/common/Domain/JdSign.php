@@ -69,14 +69,14 @@ class JdSign
      */
     public function test()
     {
-        $data = $this->Model_JdUser()->get(2);
+        $data = $this->Model_JdUser()->get(1);
         // 设置请求所需的cookie
         $this->user_cookie = [
             'pt_key' => $data['pt_key'],
             'pt_pin' => $data['pt_pin'],
             'pt_token' => $data['pt_token'],
         ];
-        $this->liftGooseData();
+        // $this->channelTaskList();
         die;
 
         // $res = $this->JDFavoriteGood('954762', false);
@@ -811,18 +811,16 @@ class JdSign
         $plant_info = $this->plantBeanInfo();
         // 现持有营养液数量
         $nutrients = $plant_info['nutrients'] ?? 0;
-
         // 1、种豆得豆任务
-        foreach ($plant_info['awardList'] as $award) {
-            // limitFlag为2代表任务已完成
-            if (isset($award['childAwardList'])) {
-                foreach ($award['childAwardList'] as $childAward) {
-                    $nutrients += $this->doPlantBeanAward($childAward);
-                }
-                unset($childAward);
-            } else {
-                $nutrients += $this->doPlantBeanAward($award);
-            }
+        foreach ($plant_info['taskList'] as $award) {
+            // if (isset($award['childAwardList'])) {
+            //     foreach ($award['childAwardList'] as $childAward) {
+            //         $nutrients += $this->doPlantBeanAward($childAward);
+            //     }
+            //     unset($childAward);
+            // } else {
+            $nutrients += $this->doPlantBeanAward($award);
+            // }
         }
 
         // 2、可收取营养液数量大于0
@@ -904,7 +902,7 @@ class JdSign
                 'shareUuid' => '',
                 'followType' => '1',
                 'monitor_source' => 'plant_m_plant_index',
-                'version' => '8.4.0.0',
+                'version' => '9.2.4.0',
             ]),
             'appid' => 'ld',
             'client' => 'android',
@@ -939,7 +937,8 @@ class JdSign
         // 本次可领取数量
         $nutrCount = $timeNutrientsRes['nutrCount'] ?? 0;
         // 任务列表
-        $awardList = $data['awardList'];
+        // $awardList = $data['awardList'];
+        $taskList = $data['taskList'];
 
         return [
             // 'entryId' => $entryId,
@@ -950,7 +949,8 @@ class JdSign
             // 'timeNutrientsResState' => $timeNutrientsResState,
             // 'nextReceiveTime' => $nextReceiveTime,
             'nutrCount' => $nutrCount,
-            'awardList' => $awardList,
+            // 'awardList' => $awardList,
+            'taskList' => $taskList,
         ];
     }
 
@@ -967,16 +967,22 @@ class JdSign
     private function doPlantBeanAward($info = false)
     {
         // limitFlag为2代表任务已完成
-        if ($info === false || $info['limitFlag'] == 2) return 0;
+        if ($info === false || $info['isFinished'] == 1) return 0;
 
         // var_dump($info['awardName'] . ' ---- ' . $info['awardType']);
+        // 逛一逛   ---- 0
         // 每日签到 ---- 1
         // 邀请好友 ---- 2
         // 浏览店铺 ---- 3
         // 医药会场 ---- 4
         // 关注商品 ---- 5
         // 金融双签 ---- 7
+        // 评价商品 ---- 8
+        // 关注频道 ---- 10
         switch (intval($info['awardType'])) {
+            case 0:
+                return $this->receiveNutrientsTask($info['taskType']);
+                break;
             case 3:
                 return $this->shopTaskList();
                 break;
@@ -986,10 +992,229 @@ class JdSign
             case 5:
                 return $this->productTaskList();
                 break;
+            case 10:
+                // return $this->channelTaskList();
+                break;
             default:
                 break;
         }
         return 0;
+    }
+
+    /**
+     * 种豆得豆任务 - 关注频道 - 列表
+     * @return array|bool
+     * @throws BadRequestException
+     * @throws Exception
+     * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     */
+    private function channelTaskList()
+    {
+        $url = $this->buildURL('https://api.m.jd.com/client.action', [
+            'functionId' => 'plantChannelTaskList',
+            // 'body' => json_encode([
+            // ]),
+            'appid' => 'ld',
+        ]);
+
+        $data = $this->jdRequest($url);
+
+        // DI()->logger->debug("种豆得豆任务 - 关注频道 - 列表", $data);
+
+        // 奖励的营养液数量
+        $nutrients = 0;
+        $goodChannelList = $data['goodChannelList'] ?? [];
+        $normalChannelList = $data['normalChannelList'] ?? [];
+        foreach ($goodChannelList as $item) {
+            // 任务状态为2表示还能领取营养液
+            if ($item['taskState'] == 2) {
+                $nutrients += $this->channelNutrientsTask($item['channelId'], $item['channelTaskId']);
+            }
+        }
+        unset($goodChannelList, $item);
+        foreach ($normalChannelList as $item) {
+            // 任务状态为2表示还能领取营养液
+            if ($item['taskState'] == 2) {
+                $nutrients += $this->channelNutrientsTask($item['channelId'], $item['channelTaskId']);
+            }
+        }
+        unset($normalChannelList, $item);
+
+        return $nutrients;
+    }
+
+    /**
+     * 种豆得豆任务 - 关注频道
+     * @param bool $channelId
+     * @param bool $channelTaskId
+     * @return array|bool
+     * @throws BadRequestException
+     * @throws Exception
+     * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     */
+    private function channelNutrientsTask($channelId = false, $channelTaskId = false)
+    {
+        if (!$channelId || !$channelTaskId) return 0;
+        $url = $this->buildURL('https://api.m.jd.com/client.action', [
+            'functionId' => 'plantChannelNutrientsTask',
+        ]);
+
+        $data = $this->jdRequest($url, [
+            'body' => json_encode([
+                // 'monitor_refer' => 'plant_shopNutrientsTask',
+                // 'monitor_source' => 'plant_app_plant_index',
+                'channelId' => (string)$channelId,
+                'channelTaskId' => (string)$channelTaskId,
+                // 'version' => '8.4.0.0',
+            ]),
+            'appid' => 'ld',
+            // 'client' => 'android',
+            // 'clientVersion' => ' nexus 5 build/mra58n) applewebkit/537.36 (khtml, like gecko) chrome/79.0.3945.117 mobile safari/537.36',
+            // 'networkType' => '',
+            // 'osVersion' => '',
+            // 'uuid' => '',
+        ]);
+        // DI()->logger->debug("种豆得豆任务 - 关注频道", $data);
+
+        sleep(1);
+        // 取消关注频道
+        $this->JDFollowChannel($channelId);
+
+        return $data['nutrCount'] ?? 0;
+    }
+
+    /**
+     * 关注频道、取消关注频道
+     * @param bool $channelId
+     * @param bool $follow
+     * @return array|bool
+     * @throws Exception
+     * @throws InternalServerErrorException
+     */
+    private function JDFollowChannel($channelId = false, $follow = false)
+    {
+        if (!$channelId) return false;
+
+        $url = $this->buildURL('https://api.m.jd.com/client.action', [
+            'functionId' => 'userFollow',
+        ]);
+        var_dump([
+            'body' => json_encode([
+                'businessId' => (string)1,
+                'type' => (string)$follow ? 1 : 0,
+                'themeId' => (string)$channelId,
+                'uuid' => "",
+            ]),
+            'build' => '167490',
+            'client' => 'apple',
+            'clientVersion' => '9.3.2',
+            'd_brand' => 'apple',
+            'd_model' => 'iPhone8,2',
+            'openudid' => 'aa6b251c3bcf545aa13ff0bf8e95f2e1063d1f8d',
+            'scope' => '11',
+            'partner' => 'apple',
+            'sign' => (string)$follow ? '69214b06d0cc56151b273e3bbf528a14' : '753f06da0d02525fba469f9bce26c77e',
+            'st' => (string)$follow ? '1608361183950' : '1608361173420',
+            'sv' => (string)$follow ? '101' : '122',
+        ]);
+        die;
+
+        $data = $this->jdRequest($url, [
+            'body' => json_encode([
+                'businessId' => (string)1,
+                'type' => (string)$follow ? 1 : 0,
+                'themeId' => (string)$channelId,
+                'uuid' => "",
+            ]),
+            'build' => '167490',
+            'client' => 'apple',
+            'clientVersion' => '9.3.2',
+            'd_brand' => 'apple',
+            'd_model' => 'iPhone8,2',
+            'openudid' => 'aa6b251c3bcf545aa13ff0bf8e95f2e1063d1f8d',
+            'scope' => '11',
+            'partner' => 'apple',
+            'sign' => (string)$follow ? '69214b06d0cc56151b273e3bbf528a14' : '753f06da0d02525fba469f9bce26c77e',
+            'st' => (string)$follow ? '1608361183950' : '1608361173420',
+            'sv' => (string)$follow ? '101' : '122',
+        ]);
+
+        var_dump($data);
+        die;
+
+        if ($data['iRet'] != 0) throw new Exception($data['errMsg']);
+
+        // DI()->logger->debug('关注频道、取消关注频道', $data);
+
+        if (!is_array($channelId)) {
+            // 频道收藏状态
+            $follow_state = $this->JDShopIsFollow($channelId);
+            // 取消收藏，但是状态还是已收藏 或者 收藏，但是状态还是未收藏
+            if ((!$follow && $follow_state) || ($follow && !$follow_state)) {
+                sleep(1);
+                // 重新调用关注、取消关注
+                return $this->JDFollowShop($channelId, $follow);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 频道收藏状态
+     * @param bool $channelId
+     * @return bool
+     * @throws Exception
+     * @throws InternalServerErrorException
+     */
+    private function JDChannelIsFollow($channelId = false)
+    {
+        if (!$channelId) return false;
+
+        $url = $this->buildURL('https://api.m.jd.com/client.action', [
+            'functionId' => 'isUserFollow',
+        ]);
+
+        $data = $this->jdRequest($url, [
+            'body' => json_encode([
+                'themeId' => (string)$channelId,
+                'informationParam' => [
+                    'isRvc' => '0',
+                    'fp' => '-1',
+                    'eid' => 'D5SANAC3364JDSN32CEB3NFH3YLI47G6XP2WOZAN3CGCTAWJBSMOOCIOALJ3ULNQG65MBOO2UATUUB5LCS5NKYANBR7TWYJJ4SVB6NOCK2X5PS5OCZDQ',
+                    'shshshfp' => '-1',
+                    'userAgent' => '-1',
+                    'referUrl' => '-1',
+                    'shshshfpa' => '-1',
+                ],
+                'businessId' => (string)1,
+            ]),
+            'build' => '167490',
+            'client' => 'apple',
+            'clientVersion' => '9.3.2',
+            'd_brand' => 'apple',
+            'd_model' => 'iPhone8,2',
+            'openudid' => 'aa6b251c3bcf545aa13ff0bf8e95f2e1063d1f8d',
+            'scope' => '11',
+            'partner' => 'apple',
+            'sign' => 'ddcfbbf8ab0926f8b2d0e3a21f3c45c0',
+            'st' => '1608361135762',
+            'sv' => '120',
+        ]);
+
+        var_dump($data);
+        die;
+
+        // DI()->logger->debug('频道收藏状态 - ' . $shopId, $res);
+
+        // 关注状态：1已收藏 0未收藏
+        $state = $res['followStatus'] ?? 0;
+
+        return $state == 1;
     }
 
     /**
