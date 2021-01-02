@@ -46,7 +46,8 @@
     "autoload": {
         "files": [
             "src/common/functions.php",
-            "src/sign/functions.php"
+            "src/sign/functions.php",
+            "src/chat/functions.php"
         ],
         "psr-4": {
             "Library\\": "Library",

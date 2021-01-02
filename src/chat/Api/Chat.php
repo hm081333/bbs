@@ -4,6 +4,7 @@ namespace Chat\Api;
 
 use Library\DateHelper;
 use Library\Exception\BadRequestException;
+use function Chat\sortTime;
 use function Common\res_path;
 use function PhalApi\T;
 
@@ -124,22 +125,7 @@ class Chat extends \Common\Api\Chat
                 $row['last_message'] = substr($row['last_message'], 0, $warp);
             }
             // 最后消息时间
-            if (date('Ymd', $last_time) == date('Ymd', time())) {
-                // 当天
-                $row['last_time_short'] = date('A h:i', $last_time);
-                $pat = ['AM', 'PM'];
-                $string = ['上午', '下午'];
-                $row['last_time_short'] = str_replace($pat, $string, $row['last_time_short']);
-            } else if ($last_time >= strtotime(date('Y-m-d') . ' -1 day')) {
-                // 昨天
-                $row['last_time_short'] = '昨天';
-            } else if ($last_time >= strtotime(date('Y-m-d') . ' -6 day')) {
-                // 近一周
-                $row['last_time_short'] = DateHelper::getWeekName($last_time);
-            } else {
-                // 更早
-                $row['last_time_short'] = date('Y/n/j', $last_time);
-            }
+            $row['last_time_short'] = sortTime($last_time);
         }
         unset($row, $chat_info);
         return $list;
