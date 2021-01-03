@@ -43,8 +43,8 @@ class JingDongTurn
                         $this->initial->custom->log("京东商城-转盘查询成功 " . $Details);
                         return call_user_func([new JingDongTurnSign($this->initial), 'main'], $stop, $cc);
                     } else {
-                        $this->initial->merge['JDTurn']['notify'] = "京东商城-转盘: 失败, 原因: 查询错误 ⚠️";
-                        $this->initial->merge['JDTurn']['fail'] = 1;
+                        $this->initial->merge->JDTurn->notify = "京东商城-转盘: 失败, 原因: 查询错误 ⚠️";
+                        $this->initial->merge->JDTurn->fail = 1;
                         $this->initial->custom->log("京东商城-转盘查询失败 " . $Details);
                     }
                 }

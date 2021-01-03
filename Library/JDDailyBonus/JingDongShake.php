@@ -13,7 +13,7 @@ use function PhalApi\T;
  */
 class JingDongShake
 {
-     /**
+    /**
      * @var initial
      */
     private $initial; // 初始化参数
@@ -32,49 +32,45 @@ class JingDongShake
                 'Cookie' => $this->initial->KEY,
             ],
         ];
-        $this->initial->custom->get($JDSh, function ($error, $response, $data) use ( $stop) {
+        $this->initial->custom->get($JDSh, function ($error, $response, $data) use ($stop) {
             try {
                 if ($error) {
                     throw new InternalServerErrorException(T($error));
                 } else {
                     $Details = $this->initial->LogDetails ? "response:\n" . $data : '';
                     $cc = json_decode($data, true);
+                    $also = $this->initial->merge->JDShake->notify ? true : false;
                     if (preg_match('/prize/', $data)) {
                         $this->initial->custom->log("京东商城-摇一摇签到成功 " . $Details);
+                        $this->initial->merge->JDShake->success += 1;
                         if ($cc['data']['prizeBean']) {
-                            $this->initial->merge['JDShake']['notify'] .= $this->initial->merge['JDShake']['notify'] ? "\n京东商城-摇摇: 成功, 明细: " . $cc['data']['prizeBean']['count'] . "京豆 🐶 (多次)" : "京东商城-摇摇: 成功, 明细: " . $cc['data']['prizeBean']['count'] . "京豆 🐶";
-                            $this->initial->merge['JDShake']['bean'] += $cc['data']['prizeBean']['count'];
-                            $this->initial->merge['JDShake']['success'] += 1;
+                            $this->initial->merge->JDShake->bean += $cc['data']['prizeBean']['count'] ?: 0;
+                            $this->initial->merge->JDShake->notify .= ($also ? "\n" : "") . "京东商城-摇摇: " . ($also ? "多次" : "成功") . ", 明细: " . ($this->initial->merge->JDShake->bean ?: "无") . "京豆 🐶";
+                        } else if ($cc['data']['prizeCoupon']) {
+                            $this->initial->merge->JDShake->notify .= ($also ? "\n" : "") . "京东商城-摇摇: " . ($also ? "多次" : "成功") . "获得满" . $cc['data']['prizeCoupon']['quota'] . "减" . $cc['data']['prizeCoupon']['discount'] . "优惠券→ " . $cc['data']['prizeCoupon']['limitStr'];
                         } else {
-                            if ($cc['data']['prizeCoupon']) {
-                                $this->initial->merge['JDShake']['notify'] .= $this->initial->merge['JDShake']['notify'] ? "\n京东商城-摇摇(多次): 获得满" . $cc['data']['prizeCoupon']['quota'] . "减" . $cc['data']['prizeCoupon']['discount'] . "优惠券→ " . $cc['data']['prizeCoupon']['limitStr'] : "京东商城-摇摇: 获得满" . $cc['data']['prizeCoupon']['quota'] . "减" . $cc['data']['prizeCoupon']['discount'] . "优惠券→ " . $cc['data']['prizeCoupon']['limitStr'];
-                                $this->initial->merge['JDShake']['success'] += 1;
-                            } else {
-                                $this->initial->merge['JDShake']['notify'] .= $this->initial->merge['JDShake']['notify'] ? "\n京东商城-摇摇: 失败, 原因: 未知 ⚠️ (多次)" : "京东商城-摇摇: 失败, 原因: 未知 ⚠️";
-                                $this->initial->merge['JDShake']['fail'] += 1;
-                            }
+                            $this->initial->merge->JDShake->notify .= ($also ? "\n" : "") . "\n京东商城-摇摇: 成功, 原因: 未知 ⚠️" . ($also ? "多次" : "");
+                            // $this->initial->merge->JDShake->fail += 1;
                         }
                         if ($cc['data']['luckyBox']['freeTimes'] != 0) {
-                            call_user_func([new JingDongShake($this->initial),'main'],$stop);
+                            call_user_func([new JingDongShake($this->initial), 'main'], $stop);
                         }
                     } else {
                         $this->initial->custom->log("京东商城-摇一摇签到失败 " . $Details);
                         if (preg_match('/true/', $data)) {
-                            $this->initial->merge['JDShake']['notify'] .= $this->initial->merge['JDShake']['notify'] ? "\n京东商城-摇摇: 成功, 明细: 无奖励 🐶 (多次)" : "京东商城-摇摇: 成功, 明细: 无奖励 🐶";
-                            $this->initial->merge['JDShake']['success'] += 1;
+                            $this->initial->merge->JDShake->notify .= ($also ? "\n" : "") . "京东商城-摇摇: 成功, 明细: 无奖励 🐶" . ($also ? "多次" : "");
+                            $this->initial->merge->JDShake->success += 1;
                             if ($cc['data']['luckyBox']['freeTimes'] != 0) {
-                                call_user_func([new JingDongShake($this->initial),'main'],$stop);
+                                call_user_func([new JingDongShake($this->initial), 'main'], $stop);
                             }
                         } else {
+                            $this->initial->merge->JDShake->fail = 1;
                             if (preg_match('/(无免费|8000005|9000005)/', $data)) {
-                                $this->initial->merge['JDShake']['notify'] = "京东商城-摇摇: 失败, 原因: 已摇过 ⚠️";
-                                $this->initial->merge['JDShake']['fail'] = 1;
+                                $this->initial->merge->JDShake->notify = "京东商城-摇摇: 失败, 原因: 已摇过 ⚠️";
                             } else if (preg_match('/(未登录|101)/', $data)) {
-                                $this->initial->merge['JDShake']['notify'] = "京东商城-摇摇: 失败, 原因: Cookie失效‼️";
-                                $this->initial->merge['JDShake']['fail'] = 1;
+                                $this->initial->merge->JDShake->notify = "京东商城-摇摇: 失败, 原因: Cookie失效‼️";
                             } else {
-                                $this->initial->merge['JDShake']['notify'] .= $this->initial->merge['JDShake']['notify'] ? "\n京东商城-摇摇: 失败, 原因: 未知 ⚠️ (多次)" : "京东商城-摇摇: 失败, 原因: 未知 ⚠️";
-                                $this->initial->merge['JDShake']['fail'] += 1;
+                                $this->initial->merge->JDShake->notify .= ($also ? "\n" : "") . "\n京东商城-摇摇: 失败, 原因: 未知 ⚠️" . ($also ? "多次" : "");
                             }
                         }
                     }

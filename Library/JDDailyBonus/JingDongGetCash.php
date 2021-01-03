@@ -41,22 +41,22 @@ class JingDongGetCash
                     $cc = json_decode($data, true);
                     if ($cc['data']['success']) {
                         $this->initial->custom->log("京东商城-现金签到成功 " . $Details);
-                        $this->initial->merge['JDGetCash']['success'] = 1;
+                        $this->initial->merge->JDGetCash->success = 1;
                         if ($cc['data']['result'] && $cc['data']['result']['signCash']) {
-                            $this->initial->merge['JDGetCash']['Cash'] = $cc['data']['result']['signCash'];
-                            $this->initial->merge['JDGetCash']['notify'] = "京东商城-现金: 成功, 明细: " . $this->initial->merge['JDGetCash']['Cash'] . "现金 💰";
+                            $this->initial->merge->JDGetCash->Cash = $cc['data']['result']['signCash'];
+                            $this->initial->merge->JDGetCash->notify = "京东商城-现金: 成功, 明细: " . $this->initial->merge->JDGetCash->Cash . "现金 💰";
                         } else {
-                            $this->initial->merge['JDGetCash']['notify'] = "京东商城-现金: 成功, 明细: 无现金 💰";
+                            $this->initial->merge->JDGetCash->notify = "京东商城-现金: 成功, 明细: 无现金 💰";
                         }
                     } else {
                         $this->initial->custom->log("京东商城-现金签到失败 " . $Details);
-                        $this->initial->merge['JDGetCash']['fail'] = 1;
+                        $this->initial->merge->JDGetCash->fail = 1;
                         if (preg_match('/\"bizCode\":201|已经签过/', $data)) {
-                            $this->initial->merge['JDGetCash']['notify'] = "京东商城-现金: 失败, 原因: 已签过 ⚠️";
+                            $this->initial->merge->JDGetCash->notify = "京东商城-现金: 失败, 原因: 已签过 ⚠️";
                         } else if (preg_match('/\"code\":300|退出登录/', $data)) {
-                            $this->initial->merge['JDGetCash']['notify'] = "京东商城-现金: 失败, 原因: Cookie失效‼️";
+                            $this->initial->merge->JDGetCash->notify = "京东商城-现金: 失败, 原因: Cookie失效‼️";
                         } else {
-                            $this->initial->merge['JDGetCash']['notify'] = "京东商城-现金: 失败, 原因: 未知 ⚠️";
+                            $this->initial->merge->JDGetCash->notify = "京东商城-现金: 失败, 原因: 未知 ⚠️";
                         }
                     }
                 }

@@ -41,22 +41,22 @@ class JingDongPrize
                     $Details = $this->initial->LogDetails ? "response:\n" . $data : '';
                     if (preg_match('/\"raffleActKey\":\"[a-zA-z0-9]{3,}\"/', $data)) {
                         $cc = json_decode($data, true);
-                        $this->initial->merge['JDPrize']['key'] = $cc['data']['floorInfoList'][0]['detail']['raffleActKey'];
+                        $this->initial->merge->JDPrize->key = $cc['data']['floorInfoList'][0]['detail']['raffleActKey'];
                         $this->initial->custom->log("京东商城-大奖查询成功 " . $Details);
-                        if ($this->initial->merge['JDPrize']['key']) {
-                            call_user_func([new JDPrizeCheckin($this->initial), 'main'], $stop, $this->initial->merge['JDPrize']['key']);
+                        if ($this->initial->merge->JDPrize->key) {
+                            call_user_func([new JDPrizeCheckin($this->initial), 'main'], $stop, $this->initial->merge->JDPrize->key);
                         } else {
-                            $this->initial->merge['JDPrize']['notify'] = "京东商城-大奖: 失败, 原因: 无奖池 ⚠️";
-                            $this->initial->merge['JDPrize']['fail'] = 1;
+                            $this->initial->merge->JDPrize->notify = "京东商城-大奖: 失败, 原因: 无奖池 ⚠️";
+                            $this->initial->merge->JDPrize->fail = 1;
                         }
                     } else {
                         $this->initial->custom->log("京东商城-大奖查询KEY失败 " . $Details);
                         if (preg_match('/(未登录|\"101\")/', $data)) {
-                            $this->initial->merge['JDPrize']['notify'] = "京东大奖-登录: 失败, 原因: Cookie失效‼️";
-                            $this->initial->merge['JDPrize']['fail'] = 1;
+                            $this->initial->merge->JDPrize->notify = "京东大奖-登录: 失败, 原因: Cookie失效‼️";
+                            $this->initial->merge->JDPrize->fail = 1;
                         } else {
-                            $this->initial->merge['JDPrize']['notify'] = "京东大奖-登录: 失败, 原因: 未知 ⚠️";
-                            $this->initial->merge['JDPrize']['fail'] = 1;
+                            $this->initial->merge->JDPrize->notify = "京东大奖-登录: 失败, 原因: 未知 ⚠️";
+                            $this->initial->merge->JDPrize->fail = 1;
                         }
                     }
                 }

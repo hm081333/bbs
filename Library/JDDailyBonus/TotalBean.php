@@ -41,16 +41,16 @@ class TotalBean
                     $cc = json_decode($data, true);
                     if ($cc['base']['jdNum'] != 0) {
                         $this->initial->custom->log("京东-总京豆查询成功 " . $Details);
-                        $this->initial->merge['JDShake']['Qbear'] = $cc['base']['jdNum'];
+                        $this->initial->merge->JDShake->Qbear = $cc['base']['jdNum'];
                     } else {
                         $this->initial->custom->log("京东-总京豆查询失败 " . $Details);
                     }
                     if (preg_match('/\"nickname\" ?: ?\"(.+?)\",/', $data)) {
-                        $this->initial->merge['JDShake']['nickname'] = $cc['base']['nickname'];
+                        $this->initial->merge->JDShake->nickname = $cc['base']['nickname'];
                     } else if (preg_match('/\"no ?login\.?\"/', $data)) {
-                        $this->initial->merge['JDShake']['nickname'] = "Cookie失效 ‼️";
+                        $this->initial->merge->JDShake->nickname = "Cookie失效 ‼️";
                     } else {
-                        $this->initial->merge['JDShake']['nickname'] = '';
+                        $this->initial->merge->JDShake->nickname = '';
                     }
                 }
             } catch (\Exception $eor) {

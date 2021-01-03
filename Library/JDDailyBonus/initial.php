@@ -51,44 +51,44 @@ class initial
         // 京东商城-菜场
         'JDVege' => 'Wcu2LVCFMkBP3HraRvb7pgSpt64',
     ];
-    public $merge = [
-        'SpeedUp' => [],
-        'JDBean' => [],
-        'JDTurn' => [],
-        'JRDoll' => [],
-        'JRDSign' => [],
-        'Overseas' => [],
-        'JDFSale' => [],
-        'JDPet' => [],
-        'JD3C' => [],
-        'JDTreasure' => [],
-        'JDBaby' => [],
-        'JDSubsidy' => [],
-        'JDDrug' => [],
-        'JDClocks' => [],
-        'JDBook' => [],
-        'JDGStore' => [],
-        'JDShand' => [],
-        'JDMakeup' => [],
-        'JDWomen' => [],
-        'JDCare' => [],
-        'JDFood' => [],
-        'JDClean' => [],
-        'JDVege' => [],
-        'JDJewels' => [],
-        'JDCube' => [],
-        'JDPrize' => [],
-        'JRSteel' => [],
-        'JRBean' => [],
-        'subsidy' => [],
-        'JDCash' => [],
-        'JDGetCash' => [],
-        'JDShake' => [],
-    ];
+//    public $merge = [
+//        'SpeedUp' => [],
+//        'JDBean' => [],
+//        'JDTurn' => [],
+//        'JRDoll' => [],
+//        'JRDSign' => [],
+//        'Overseas' => [],
+//        'JDFSale' => [],
+//        'JDPet' => [],
+//        'JD3C' => [],
+//        'JDTreasure' => [],
+//        'JDBaby' => [],
+//        'JDSubsidy' => [],
+//        'JDDrug' => [],
+//        'JDClocks' => [],
+//        'JDBook' => [],
+//        'JDGStore' => [],
+//        'JDShand' => [],
+//        'JDMakeup' => [],
+//        'JDWomen' => [],
+//        'JDCare' => [],
+//        'JDFood' => [],
+//        'JDClean' => [],
+//        'JDVege' => [],
+//        'JDJewels' => [],
+//        'JDCube' => [],
+//        'JDPrize' => [],
+//        'JRSteel' => [],
+//        'JRBean' => [],
+//        'subsidy' => [],
+//        'JDCash' => [],
+//        'JDGetCash' => [],
+//        'JDShake' => [],
+//    ];
 
     public function __construct($key = false)
     {
-        $this->initialMerge();
+//        $this->initialMerge();
         $this->custom = new custom($this);
         if ($key) {
             $this->KEY = $key;
@@ -105,6 +105,17 @@ class initial
 
     public function __get($name)
     {
+        // TODO: Implement __get() method.
+        if (!isset($this->$name)) {
+            switch ($name) {
+                case 'merge':
+                    $this->$name = new merge();
+                    break;
+                default:
+                    $this->$name = null;
+                    break;
+            }
+        }
         return $this->$name;
     }
 
@@ -144,7 +155,7 @@ class initial
         call_user_func([new JDFlashSale($this), 'main'], $this->stop); //京东闪购
         call_user_func([new JDOverseas($this), 'main'], $this->stop); //京东国际
         call_user_func([new JingDongCash($this), 'main'], $this->stop); //京东现金红包
-        call_user_func([new JDMagicCube($this), 'main'], $this->stop); //京东小魔方
+        call_user_func([new JDMagicCube($this), 'main'], $this->stop, 2); //京东小魔方
         call_user_func([new JingDongGetCash($this), 'main'], $this->stop); //京东领现金
         call_user_func([new JingDongPrize($this), 'main'], $this->stop); //京东抽大奖
         call_user_func([new JingDongSubsidy($this), 'main'], $this->stop); //京东金贴

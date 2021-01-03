@@ -42,21 +42,21 @@ class FlashSaleDivide
                     $Details = $this->initial->LogDetails ? "response:\n" . $data : '';
                     $cc = json_decode($data, true);
                     if ($cc['result']['code'] == 0) {
-                        $this->initial->merge['JDFSale']['success'] = 1;
-                        $this->initial->merge['JDFSale']['bean'] = $cc['result']['jdBeanNum'] ?: 0;
-                        $this->initial->merge['JDFSale']['notify'] = "京东闪购-瓜分: 成功, 明细: " . ($this->initial->merge['JDFSale']['bean'] || "无") . "京豆 🐶";
+                        $this->initial->merge->JDFSale->success = 1;
+                        $this->initial->merge->JDFSale->bean = $cc['result']['jdBeanNum'] ?: 0;
+                        $this->initial->merge->JDFSale->notify = "京东闪购-瓜分: 成功, 明细: " . ($this->initial->merge->JDFSale->bean || "无") . "京豆 🐶";
                         $this->initial->custom->log("京东闪购-瓜分签到成功 " . $Details);
                     } else {
-                        $this->initial->merge['JDFSale']['fail'] = 1;
+                        $this->initial->merge->JDFSale->fail = 1;
                         $this->initial->custom->log("京东闪购-瓜分签到失败 " . $Details);
                         if (preg_match('/已参与|已领取|\"2006\"/', $data)) {
-                            $this->initial->merge['JDFSale']['notify'] = "京东闪购-瓜分: 失败, 原因: 已瓜分 ⚠️";
+                            $this->initial->merge->JDFSale->notify = "京东闪购-瓜分: 失败, 原因: 已瓜分 ⚠️";
                         } else if (preg_match('/不存在|已结束|未开始|\"2008\"|\"2012\"/', $data)) {
-                            $this->initial->merge['JDFSale']['notify'] = "京东闪购-瓜分: 失败, 原因: 活动已结束 ⚠️";
+                            $this->initial->merge->JDFSale->notify = "京东闪购-瓜分: 失败, 原因: 活动已结束 ⚠️";
                         } else if (preg_match('/\"code\":\"1003\"|未获取/', $data)) {
-                            $this->initial->merge['JDFSale']['notify'] = "京东闪购-瓜分: 失败, 原因: Cookie失效‼️";
+                            $this->initial->merge->JDFSale->notify = "京东闪购-瓜分: 失败, 原因: Cookie失效‼️";
                         } else {
-                            $this->initial->merge['JDFSale']['notify'] = "京东闪购-瓜分: 失败, 原因: 未知 ⚠️";
+                            $this->initial->merge->JDFSale->notify = "京东闪购-瓜分: 失败, 原因: 未知 ⚠️";
                         }
                     }
                 }

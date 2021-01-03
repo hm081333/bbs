@@ -42,23 +42,23 @@ class JDOverseas
                     $Details = $this->initial->LogDetails ? "response:\n" . $data : '';
                     if (preg_match('/\"type\":\d+?,/', $data)) {
                         $this->initial->custom->log("京东商城-国际签到成功 " . $Details);
-                        $this->initial->merge['Overseas']['success'] = 1;
+                        $this->initial->merge->Overseas->success = 1;
                         if (preg_match('/\"jdBeanAmount\":[1-9]+/', $data)) {
                             preg_match('/\"jdBeanAmount\":(\d+)/', $data, $matches);
-                            $this->initial->merge['Overseas']['bean'] = $matches[1];
-                            $this->initial->merge['Overseas']['notify'] = "京东商城-国际: 成功, 明细: " . $this->initial->merge['Overseas']['bean'] . "京豆 🐶";
+                            $this->initial->merge->Overseas->bean = $matches[1];
+                            $this->initial->merge->Overseas->notify = "京东商城-国际: 成功, 明细: " . $this->initial->merge->Overseas->bean . "京豆 🐶";
                         } else {
-                            $this->initial->merge['Overseas']['notify'] = "京东商城-国际: 成功, 明细: 无京豆 🐶";
+                            $this->initial->merge->Overseas->notify = "京东商城-国际: 成功, 明细: 无京豆 🐶";
                         }
                     } else {
                         $this->initial->custom->log("京东商城-国际签到失败 " . $Details);
-                        $this->initial->merge['Overseas']['fail'] = 1;
+                        $this->initial->merge->Overseas->fail = 1;
                         if (preg_match('/(\"code\":\"13\"|重复签到)/', $data)) {
-                            $this->initial->merge['Overseas']['notify'] = "京东商城-国际: 失败, 原因: 已签过 ⚠️";
+                            $this->initial->merge->Overseas->notify = "京东商城-国际: 失败, 原因: 已签过 ⚠️";
                         } else if (preg_match('/\"code\":\"-1\"/', $data)) {
-                            $this->initial->merge['Overseas']['notify'] = "京东商城-国际: 失败, 原因: Cookie失效‼️";
+                            $this->initial->merge->Overseas->notify = "京东商城-国际: 失败, 原因: Cookie失效‼️";
                         } else {
-                            $this->initial->merge['Overseas']['notify'] = "京东商城-国际: 失败, 原因: 未知 ⚠️";
+                            $this->initial->merge->Overseas->notify = "京东商城-国际: 失败, 原因: 未知 ⚠️";
                         }
                     }
                 }

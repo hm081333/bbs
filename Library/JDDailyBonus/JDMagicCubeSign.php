@@ -26,8 +26,14 @@ class JDMagicCubeSign
     public function main($stop = 0, $id = false)
     {
         usleep($stop * 1000);
+        $body = [];
+        if ($id['sign']) {
+            $body['sign'] = $id['sign'];
+        }
+        $body['interactionId'] = $id['id'];
+        $body = json_encode($body);
         $JDMCUrl = [
-            'url' => 'https://api.m.jd.com/client.action?functionId=getNewsInteractionLotteryInfo&appid=smfe' . $id ? "&body=%7B%22interactionId%22%3A{id}%7D" : '',
+            'url' => 'https://api.m.jd.com/client.action?functionId=getNewsInteractionLotteryInfo&appid=smfe' . ($id ? '&body=' . urlencode($body) : ''),
             'headers' => [
                 'Cookie' => $this->initial->KEY,
             ],
@@ -41,30 +47,26 @@ class JDMagicCubeSign
                     $cc = json_decode($data, true);
                     if (preg_match('/(\"name\":)/', $data)) {
                         $this->initial->custom->log("京东商城-魔方签到成功 " . $Details);
+                        $this->initial->merge->JDCube->success = 1;
                         if (preg_match('/(\"name\":\"京豆\")/', $data)) {
-                            $this->initial->merge['JDCube']['notify'] = "京东商城-魔方: 成功, 明细: " . $cc['result']['lotteryInfo']['quantity'] . "京豆 🐶";
-                            $this->initial->merge['JDCube']['bean'] = $cc['result']['lotteryInfo']['quantity'];
-                            $this->initial->merge['JDCube']['success'] = 1;
+                            $this->initial->merge->JDCube->bean = $cc['result']['lotteryInfo']['quantity'];
+                            $this->initial->merge->JDCube->notify = "京东商城-魔方: 成功, 明细: " . ($this->initial->merge->JDCube->bean ?: '无') . "京豆 🐶";
                         } else {
-                            $this->initial->merge['JDCube']['notify'] = "京东商城-魔方: 成功, 明细: " . $cc['result']['lotteryInfo']['name'] . " 🎉";
-                            $this->initial->merge['JDCube']['success'] = 1;
+                            $this->initial->merge->JDCube->notify = "京东商城-魔方: 成功, 明细: " . ($cc['result']['lotteryInfo']['name'] ?: '未知') . " 🎉";
                         }
                     } else {
                         $this->initial->custom->log("京东商城-魔方签到失败 " . $Details);
+                        $this->initial->merge->JDCube->fail = 1;
                         if (preg_match('/(一闪而过|已签到|已领取)/', $data)) {
-                            $this->initial->merge['JDCube']['notify'] = "京东商城-魔方: 失败, 原因: 无机会 ⚠️";
-                            $this->initial->merge['JDCube']['fail'] = 1;
+                            $this->initial->merge->JDCube->notify = "京东商城-魔方: 失败, 原因: 无机会 ⚠️";
                         } else {
                             if (preg_match('/(不存在|已结束)/', $data)) {
-                                $this->initial->merge['JDCube']['notify'] = "京东商城-魔方: 失败, 原因: 活动已结束 ⚠️";
-                                $this->initial->merge['JDCube']['fail'] = 1;
+                                $this->initial->merge->JDCube->notify = "京东商城-魔方: 失败, 原因: 活动已结束 ⚠️";
                             } else {
                                 if (preg_match('/(\"code\":3)/', $data)) {
-                                    $this->initial->merge['JDCube']['notify'] = "京东商城-魔方: 失败, 原因: Cookie失效‼️";
-                                    $this->initial->merge['JDCube']['fail'] = 1;
+                                    $this->initial->merge->JDCube->notify = "京东商城-魔方: 失败, 原因: Cookie失效‼️";
                                 } else {
-                                    $this->initial->merge['JDCube']['notify'] = "京东商城-魔方: 失败, 原因: 未知 ⚠️";
-                                    $this->initial->merge['JDCube']['fail'] = 1;
+                                    $this->initial->merge->JDCube->notify = "京东商城-魔方: 失败, 原因: 未知 ⚠️";
                                 }
                             }
                         }

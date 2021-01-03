@@ -44,27 +44,27 @@ class JRDoubleSign
                         // if (preg_match('/\"count\":\d+/',$data)) {
                         if (preg_match('/\"count\":(\d+)/', $data, $matches)) {
                             $this->initial->custom->log("京东金融-双签签到成功 " . $Details);
-                            $this->initial->merge['JRDSign']['bean'] = $matches[1];
-                            $this->initial->merge['JRDSign']['notify'] = "京东金融-双签: 成功, 明细: " . $this->initial->merge['JRDSign']['bean'] . "京豆 🐶";
-                            $this->initial->merge['JRDSign']['success'] = 1;
+                            $this->initial->merge->JRDSign->bean = $matches[1];
+                            $this->initial->merge->JRDSign->notify = "京东金融-双签: 成功, 明细: " . $this->initial->merge->JRDSign->bean . "京豆 🐶";
+                            $this->initial->merge->JRDSign->success = 1;
                         } else {
                             $this->initial->custom->log("京东金融-双签签到失败 " . $Details);
-                            $this->initial->merge['JRDSign']['fail'] = 1;
+                            $this->initial->merge->JRDSign->fail = 1;
                             if (preg_match('/已领取/', $data)) {
-                                $this->initial->merge['JRDSign']['notify'] = "京东金融-双签: 失败, 原因: 已签过 ⚠️";
+                                $this->initial->merge->JRDSign->notify = "京东金融-双签: 失败, 原因: 已签过 ⚠️";
                             } else if (preg_match('/未在/', $data)) {
-                                $this->initial->merge['JRDSign']['notify'] = "京东金融-双签: 失败, 原因: 未在京东签到 ⚠️";
+                                $this->initial->merge->JRDSign->notify = "京东金融-双签: 失败, 原因: 未在京东签到 ⚠️";
                             } else {
-                                $this->initial->merge['JRDSign']['notify'] = "京东金融-双签: 失败, 原因: 无奖励 🐶";
+                                $this->initial->merge->JRDSign->notify = "京东金融-双签: 失败, 原因: 无奖励 🐶";
                             }
                         }
                     } else {
                         $this->initial->custom->log("京东金融-双签签到失败 " . $Details);
-                        $this->initial->merge['JRDSign']['fail'] = 1;
+                        $this->initial->merge->JRDSign->fail = 1;
                         if (preg_match('/(\"resultCode\":3|请先登录)/', $data)) {
-                            $this->initial->merge['JRDSign']['notify'] = "京东金融-双签: 失败, 原因: Cookie失效‼️";
+                            $this->initial->merge->JRDSign->notify = "京东金融-双签: 失败, 原因: Cookie失效‼️";
                         } else {
-                            $this->initial->merge['JRDSign']['notify'] = "京东金融-双签: 失败, 原因: 未知 ⚠️";
+                            $this->initial->merge->JRDSign->notify = "京东金融-双签: 失败, 原因: 未知 ⚠️";
                         }
                     }
                 }
