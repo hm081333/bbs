@@ -36,7 +36,7 @@ class JDUserSign
         $JDUrl = [
             'url' => 'https://api.m.jd.com/client.action?functionId=userSign',
             'headers' => [
-                'Content-Type' => 'application/x-www-form-urlencoded',
+                // 'Content-Type' => 'application/x-www-form-urlencoded',
                 'Cookie' => $this->initial->KEY,
             ],
             'body' => "body={$body}&client=wh5",
@@ -47,32 +47,32 @@ class JDUserSign
                     throw new InternalServerErrorException(T($error));
                 } else {
                     $Details = $this->initial->LogDetails ? "response:\n" . $data : '';
-                    $cc = json_decode($data);
+                    // $cc = json_decode($data);
                     if (preg_match('/签到成功/', $data)) {
                         $this->initial->custom->log("{$title}签到成功(1){$Details}");
                         if (preg_match('/(\"text\":\"\d+京豆\")/', $data)) {
                             preg_match('/\d+/', $cc['awardList'][0]['text'], $beanQuantity);
                             var_dump($beanQuantity);
                             die;
-                            $this->initial->merge[$key]['notify'] = "{$title}: 成功, 明细: {$beanQuantity}京豆 🐶";
-                            $this->initial->merge[$key]['bean'] = $beanQuantity;
-                            $this->initial->merge[$key]['success'] = 1;
+                            $this->initial->merge->$key->notify = "{$title}: 成功, 明细: {$beanQuantity}京豆 🐶";
+                            $this->initial->merge->$key->bean = $beanQuantity;
+                            $this->initial->merge->$key->success = 1;
                         } else {
-                            $this->initial->merge[$key]['notify'] = "{$title}: 成功, 明细: 无京豆 🐶";
-                            $this->initial->merge[$key]['success'] = 1;
+                            $this->initial->merge->$key->notify = "{$title}: 成功, 明细: 无京豆 🐶";
+                            $this->initial->merge->$key->success = 1;
                         }
                     } else {
                         $this->initial->custom->log("{$title}签到失败(1){$Details}");
                         if (preg_match('/(已签到|已领取)/', $data)) {
-                            $this->initial->merge[$key]['notify'] = "{$title}: 失败, 原因: 已签过 ⚠️";
+                            $this->initial->merge->$key->notify = "{$title}: 失败, 原因: 已签过 ⚠️";
                         } else if (preg_match('/(不存在|已结束|未开始)/', $data)) {
-                            $this->initial->merge[$key]['notify'] = "{$title}: 失败, 原因: 活动已结束 ⚠️";
+                            $this->initial->merge->$key->notify = "{$title}: 失败, 原因: 活动已结束 ⚠️";
                         } else if ($cc['code'] == 3) {
-                            $this->initial->merge[$key]['notify'] = "{$title}: 失败, 原因: Cookie失效‼️";
+                            $this->initial->merge->$key->notify = "{$title}: 失败, 原因: Cookie失效‼️";
                         } else {
-                            $this->initial->merge[$key]['notify'] = "{$title}: 失败, 原因: 未知 ⚠️";
+                            $this->initial->merge->$key->notify = "{$title}: 失败, 原因: 未知 ⚠️";
                         }
-                        $this->initial->merge[$key]['fail'] = 1;
+                        $this->initial->merge->$key->fail = 1;
                     }
                 }
             } catch (Exception $eor) {
@@ -113,24 +113,24 @@ class JDUserSign
                     if ($cc['success'] == true) {
                         $this->initial->custom->log("{$title}签到成功(2){$Details}");
                         if (preg_match('/\"jdBeanQuantity\":\d+/', $data)) {
-                            $this->initial->merge[$key]['notify'] = "{$title}: 成功, 明细: {$cc['data']['jdBeanQuantity']}京豆 🐶";
-                            $this->initial->merge[$key]['bean'] = $cc['data']['jdBeanQuantity'];
+                            $this->initial->merge->$key->notify = "{$title}: 成功, 明细: {$cc['data']['jdBeanQuantity']}京豆 🐶";
+                            $this->initial->merge->$key->bean = $cc['data']['jdBeanQuantity'];
                         } else {
-                            $this->initial->merge[$key]['notify'] = "{$title}: 成功, 明细: 无京豆 🐶";
+                            $this->initial->merge->$key->notify = "{$title}: 成功, 明细: 无京豆 🐶";
                         }
-                        $this->initial->merge[$key]['success'] = 1;
+                        $this->initial->merge->$key->success = 1;
                     } else {
                         $this->initial->custom->log("{$title}签到失败(2){$Details}");
                         if (preg_match('/(已经签到|已经领取)/', $data)) {
-                            $this->initial->merge[$key]['notify'] = "{$title}: 失败, 原因: 已签过 ⚠️";
+                            $this->initial->merge->$key->notify = "{$title}: 失败, 原因: 已签过 ⚠️";
                         } else if (preg_match('/(不存在|已结束|未开始)/', $data)) {
-                            $this->initial->merge[$key]['notify'] = "{$title}: 失败, 原因: 活动已结束 ⚠️";
+                            $this->initial->merge->$key->notify = "{$title}: 失败, 原因: 活动已结束 ⚠️";
                         } else if (preg_match('/(没有登录|B0001)/', $data)) {
-                            $this->initial->merge[$key]['notify'] = "{$title}: 失败, 原因: Cookie失效‼️";
+                            $this->initial->merge->$key->notify = "{$title}: 失败, 原因: Cookie失效‼️";
                         } else {
-                            $this->initial->merge[$key]['notify'] = "{$title}: 失败, 原因: 未知 ⚠️";
+                            $this->initial->merge->$key->notify = "{$title}: 失败, 原因: 未知 ⚠️";
                         }
-                        $this->initial->merge[$key]['fail'] = 1;
+                        $this->initial->merge->$key->fail = 1;
                     }
                 }
             } catch (Exception $eor) {

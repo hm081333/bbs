@@ -41,7 +41,7 @@ class TotalSteel
                     if (preg_match('/(\"gbBalance\":\d+)/', $data)) {
                         $this->initial->custom->log("京东-总钢镚查询成功 " . $Details);
                         $cc = json_decode($data, true);
-                        $this->initial->merge['JRSteel']['TSteel'] = $cc['gbBalance'];
+                        $this->initial->merge->JRSteel->TSteel = $cc['gbBalance'];
                     } else {
                         $this->initial->custom->log("京东-总钢镚查询失败 " . $Details);
                     }

@@ -43,7 +43,7 @@ class TotalCash
                     if (preg_match('/(\"totalBalance\":\d+)/', $data)) {
                         $this->initial->custom->log("京东-总红包查询成功 " . $Details);
                         $cc = json_decode($data, true);
-                        $this->initial->merge['JDCash']['TCash'] = $cc['totalBalance'];
+                        $this->initial->merge->JDCash->TCash = $cc['totalBalance'];
                     } else {
                         $this->initial->custom->log("京东-总红包查询失败 " . $Details);
                     }

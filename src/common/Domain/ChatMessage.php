@@ -5,6 +5,7 @@ namespace Common\Domain;
 use Library\Exception\BadRequestException;
 use Library\Traits\Domain;
 use Library\WorkerMan\Push;
+use function Chat\sortTime;
 use function Common\res_path;
 use function Common\unix_formatter;
 
@@ -99,6 +100,8 @@ class ChatMessage
     {
         $message_info['chat_id'] = $chat_id;
         $message_info['type'] = 'receive';
+        $message_info['last_time_short'] = sortTime($message_info['add_time_unix']);
+
         $chat_info = $this->Domain_Chat()::getInfo($chat_id, 'user_ids');
         $chat_user_ids = explode(',', $chat_info['user_ids']);
         foreach ($chat_user_ids as $chat_user_id) {

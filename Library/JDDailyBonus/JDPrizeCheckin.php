@@ -43,35 +43,35 @@ class JDPrizeCheckin
                     if (preg_match('/\"success\":true/', $data)) {
                         $this->initial->custom->log("京东商城-大奖签到成功 " . $Details);
                         if (preg_match('/\"beanNumber\":\d+/', $data)) {
-                            $this->initial->merge['JDPrize']['notify'] = "京东商城-大奖: 成功, 明细: " . $c['data']['beanNumber'] . "京豆 🐶";
-                            $this->initial->merge['JDPrize']['success'] = 1;
-                            $this->initial->merge['JDPrize']['bean'] = $c['data']['beanNumber'];
+                            $this->initial->merge->JDPrize->notify = "京东商城-大奖: 成功, 明细: " . $c['data']['beanNumber'] . "京豆 🐶";
+                            $this->initial->merge->JDPrize->success = 1;
+                            $this->initial->merge->JDPrize->bean = $c['data']['beanNumber'];
                         } else if (preg_match('/\"couponInfoVo\"/', $data)) {
                             if (preg_match('/\"limitStr\"/', $data)) {
-                                $this->initial->merge['JDPrize']['notify'] = "京东商城-大奖: 获得满" . $c['data']['couponInfoVo']['quota'] . "减" . $c['data']['couponInfoVo']['discount'] . "优惠券→ " . $c['data']['couponInfoVo']['limitStr'];
-                                $this->initial->merge['JDPrize']['success'] = 1;
+                                $this->initial->merge->JDPrize->notify = "京东商城-大奖: 获得满" . $c['data']['couponInfoVo']['quota'] . "减" . $c['data']['couponInfoVo']['discount'] . "优惠券→ " . $c['data']['couponInfoVo']['limitStr'];
+                                $this->initial->merge->JDPrize->success = 1;
                             } else {
-                                $this->initial->merge['JDPrize']['notify'] = "京东商城-大奖: 成功, 明细: 优惠券";
-                                $this->initial->merge['JDPrize']['success'] = 1;
+                                $this->initial->merge->JDPrize->notify = "京东商城-大奖: 成功, 明细: 优惠券";
+                                $this->initial->merge->JDPrize->success = 1;
                             }
                         } else if (preg_match('/\"pitType\":0/', $data)) {
-                            $this->initial->merge['JDPrize']['notify'] = "京东商城-大奖: 成功, 明细: 未中奖 🐶";
-                            $this->initial->merge['JDPrize']['success'] = 1;
+                            $this->initial->merge->JDPrize->notify = "京东商城-大奖: 成功, 明细: 未中奖 🐶";
+                            $this->initial->merge->JDPrize->success = 1;
                         } else {
-                            $this->initial->merge['JDPrize']['notify'] = "京东商城-大奖: 成功, 明细: 未知 🐶";
-                            $this->initial->merge['JDPrize']['success'] = 1;
+                            $this->initial->merge->JDPrize->notify = "京东商城-大奖: 成功, 明细: 未知 🐶";
+                            $this->initial->merge->JDPrize->success = 1;
                         }
                     } else {
                         $this->initial->custom->log("京东商城-大奖签到失败 " . $Details);
-                        $this->initial->merge['JDPrize']['fail'] = 1;
+                        $this->initial->merge->JDPrize->fail = 1;
                         if (preg_match('/(已用光|7000003)/', $data)) {
-                            $this->initial->merge['JDPrize']['notify'] = "京东商城-大奖: 失败, 原因: 已签过 ⚠️";
+                            $this->initial->merge->JDPrize->notify = "京东商城-大奖: 失败, 原因: 已签过 ⚠️";
                         } else if (preg_match('/(未登录|\"101\")/', $data)) {
-                            $this->initial->merge['JDPrize']['notify'] = "京东商城-大奖: 失败, 原因: Cookie失效‼️";
+                            $this->initial->merge->JDPrize->notify = "京东商城-大奖: 失败, 原因: Cookie失效‼️";
                         } else if (preg_match('/7000005/', $data)) {
-                            $this->initial->merge['JDPrize']['notify'] = "京东商城-大奖: 失败, 原因: 未中奖 ⚠️";
+                            $this->initial->merge->JDPrize->notify = "京东商城-大奖: 失败, 原因: 未中奖 ⚠️";
                         } else {
-                            $this->initial->merge['JDPrize']['notify'] = "京东商城-大奖: 失败, 原因: 未知 ⚠️";
+                            $this->initial->merge->JDPrize->notify = "京东商城-大奖: 失败, 原因: 未知 ⚠️";
                         }
                     }
                 }

@@ -63,6 +63,7 @@ class custom
     public function post($options, $callback)
     {
         $options['headers']['User-Agent'] = 'JD4iPhone/167169 (iPhone; iOS 13.4.1; Scale/3.00)';
+        if ($options['body']) $options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
         $error = false;
         $response = false;
         $body = DI()->curl->setHeader($options['headers'] ?? [])->post($options['url'], $options['body'] ?? '');
@@ -74,17 +75,22 @@ class custom
         DI()->logger->info($message);
     }
 
-    public function AnError($name, $key, $er)
+    public function AnError($name, $key, $er, $response = false, $body = false)
     {
-        if (!$this->initial->merge[$key]['notify']) {
-            $this->initial->merge[$key]['notify'] = "{$name}: 异常, 已输出日志 ‼️";
+        if (!$this->initial->merge->$key->notify) {
+            $this->initial->merge->$key->notify = "{$name}: 异常, 已输出日志 ‼️";
         } else {
-            $this->initial->merge[$key]['notify'] .= "\n{$name}: 异常, 已输出日志 ‼️ (2)";
+            $this->initial->merge->$key->notify .= "\n{$name}: 异常, 已输出日志 ‼️ (2)";
         }
-        $this->initial->merge[$key]['error'] = 1;
+        $this->initial->merge->$key->error = 1;
         $er_str = json_encode($er);
         $line = preg_match('/\"line\"/', $er_str);
-        $this->log("‼️{$name}发生错误\n‼️名称: {$er['name']}\n‼️描述: {$er['message']}" . ($line ? "\n‼️行列: ${$er_str}" : ''));
+        $this->log(
+            "‼️{$name}发生错误\n‼️名称: {$er['name']}\n‼️描述: {$er['message']}"
+            . ($line ? "\n‼️行列: ${$er_str}" : '')
+            . ($response && $response['status'] ? "\n‼️状态: {$response['status']}" : '')
+            . ($body ? '\n‼️响应: ' . ($response && $response['status'] != 503 ? $body : 'Omit.') : '')
+        );
     }
 
     public function time()
