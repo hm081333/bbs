@@ -87,7 +87,6 @@ class Events
         }
         DI()->logger->debug('websocket session id', $session_id);
         self::sessionSaveHandler()->setSessionId($client_id, $session_id);
-
     }
 
     /**
@@ -384,6 +383,7 @@ class Events
         try {
             $response = self::apiHandler($client_id, $data, $response);
         } catch (PDOException $exception) {
+            // var_dump($exception);
             DI()->logger->error('api抛出PDO异常', $exception);
             $response['response'] = [
                 'ret' => 500,

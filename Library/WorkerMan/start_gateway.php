@@ -51,10 +51,10 @@ $gateway->onConnect = function ($connection) use ($gateway) {
         // 可以在这里判断连接来源是否合法，不合法就关掉连接
         // $_SERVER['HTTP_ORIGIN']标识来自哪个站点的页面发起的websocket链接
         if (!in_array(($_SERVER['HTTP_ORIGIN'] ?? ''), [
-            'http://localhost:8080',
-            'http://127.0.0.1:8080',
-            'http://10.0.0.20:8080',
-            'http://192.168.1.135:8080',
+            'http://localhost:8888',
+            'http://127.0.0.1:8888',
+            'http://10.0.0.20:8888',
+            'http://192.168.1.36:8888',
             'http://bbs2.lyiho.tk',
             'https://bbs2.lyiho.tk',
             'http://bbs2-ws.lyiho.tk',
@@ -67,13 +67,14 @@ $gateway->onConnect = function ($connection) use ($gateway) {
         // onWebSocketConnect 里面$_GET $_SERVER是可用的
         // var_dump($_GET, $_SERVER);
         // 重写后需要调起原方法，不然没有 onWebSocketConnect 通知
-        $gateway->onWebsocketConnect($connection, $http_header);
+        // $gateway->onWebsocketConnect($connection, $http_header);
     };
 };
 
 
 // 如果不是在根目录启动，则运行runAll方法
 if (!defined('GLOBAL_START')) {
+    defined('GLOBAL_START') || define('GLOBAL_START', true);
     Worker::runAll();
 }
 
