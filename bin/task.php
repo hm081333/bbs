@@ -91,6 +91,9 @@ try {
             $domain_JdSign->setSignKey($type)->doItemSignAll();// 执行签到项目
             break;
         case 'test':
+            new \Library\JDDailyBonus\initial('mba_muid=1605981630702658105508; shshshfpa=ca5636e3-7749-a014-a89f-a41c4efba133-1605981642; shshshfpb=a0XyQtYgC75YzxbcT3BB3hg%3D%3D; 3AB9D23F7A4B3C9B=ZGN2BQVJVHUQFQAJAWHCNGY34KM46IPJCS4YYTS2EFMHZO46MPAXISPCFTXRN57XVH7PNWR3VCYXX6BKIWPEWEEGWE; whwswswws=; __jdu=1605981630702658105508; __jda=122270672.1605981630702658105508.1605981630.1606406268.1608646325.3; __jdv=122270672%7Cdirect%7C-%7Cnone%7C-%7C1608646325391; __jdc=122270672; shshshfp=dfb24b4dd09f7799ecbaa0eb3134cd92; shshshsID=715b7a945cfe3470f5686b46fbd3791b_1_1608646331651; jcap_dvzw_fp=e21f5292e03bc26b3dd28b4d721262f3$939104805299; TrackerID=Sq3KIXwORotYTQqRnAmeSCX1fRKPQOX5Py4_jREbOUAp3__GD44gRtgN7L8ymUC60VgGjNQ4ePXim-1uV-wVAaHLWhkB6VuXAjI5-eZULrFNat5qLU4UG42ZMtqSDDT_; pt_key=AAJf4f9WADBQCcbGIEiKWnda5enybLohBqvKUHZaeSsaKGkaF7ey9fW_FoqlrepB52GA5goCloA; pt_pin=hm081333; pt_token=ou2pv1uw; pwdt_id=hm081333; sfstoken=tk01maf041be7a8sMSsxKzJ4MjJK2TpAkHho95uiTTV6HuUZ8ZTo/4Ia0ydGwsCp7bPDHJycnlgFWJ+nyb+VHCIkV2QC; mobilev=html5; __jdb=122270672.4.1605981630702658105508|3.1608646325; mba_sid=16086463253949403903484851050.4; __jd_ref_cls=JDReact_StartReactModule');
+            die;
+
             // 模拟生成聊天记录数据
             $model_message = new \Common\Model\ChatMessage();
             $start_time = 1593563400;
