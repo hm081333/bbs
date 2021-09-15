@@ -99,7 +99,7 @@ function res_path($path = '')
         //10.0.0.20:8080/ws
         return \request()->server('HTTP_ORIGIN') . '/api/' . $path;
     } else {
-        $url_root = (isset($_SERVER['HTTPS']) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . (dirname(dirname($_SERVER['PHP_SELF'])) == '\\' ? '' : dirname($_SERVER['PHP_SELF']));
+        $url_root = (!empty(\request()->server('HTTPS')) && 'on' === \request()->server('HTTPS') ? 'https' : 'http') . '://' . \request()->server('HTTP_HOST') . (dirname(dirname(\request()->server('PHP_SELF'))) == '\\' ? '/' : dirname(\request()->server('PHP_SELF')));
         return config('app.cdn_root', $url_root) . $path;
     }
 }

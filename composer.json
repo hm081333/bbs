@@ -27,11 +27,12 @@
     "ext-openssl": "*",
     "ext-igbinary": "*",
     "ext-gd": "*",
-    "ext-zend": "*",
     "ext-mysqli": "*",
     "ext-pdo": "*",
     "ext-curl": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "topthink/think-worker": "^3.0",
+    "topthink/think-swoole": "^4.0"
   },
   "require-dev": {
     "symfony/var-dumper": "^4.2",

@@ -10,5 +10,8 @@ use think\Model;
  */
 class JdSignItem extends Model
 {
-    //
+    public function getDisabledAttr($value,$data)
+    {
+        return $data['status'] == 0;
+    }
 }

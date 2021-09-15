@@ -573,7 +573,7 @@ class TiebaApi
             `ly_tieba` AS `t`
             LEFT JOIN `ly_baiduid` AS `bid` ON `t`.`baidu_id` = `bid`.`id` 
         WHERE
-            `t`.`id` =?
+            `t`.`id`=?
         ",
             [
                 $tieba_id,
@@ -582,7 +582,7 @@ class TiebaApi
         $tieba_info = $tieba_info[0] ?? [];
         if (empty($tieba_info)) throw new BadRequestException(T('您没有该贴吧'));
         $this->doSign($tieba_info['tieba'], $tieba_id, $tieba_info['bduss'], $tieba_info['fid']);
-        return (new TieBa())->where($tieba_id)->find();
+        return (new TieBa())->where(['id' => $tieba_id])->find();
     }
 
     /**

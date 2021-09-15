@@ -10,5 +10,17 @@ use think\Request;
 
 class BaiDuId extends BaseController
 {
+    public function listData()
+    {
+        $user = $this->request->getCurrentUser(true);
+        $this->where[] = ['user_id', '=', $user['id']];
+        return parent::listData();
+    }
+    public function allListData()
+    {
+        $user = $this->request->getCurrentUser(true);
+        $this->where[] = ['user_id', '=', $user['id']];
+        return parent::allListData();
+    }
 
 }
