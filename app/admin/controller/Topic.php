@@ -3,9 +3,10 @@ declare (strict_types = 1);
 
 namespace app\admin\controller;
 
+use app\BaseController;
 use think\Request;
 
-class Topic
+class Topic extends BaseController
 {
     /**
      * 显示资源列表

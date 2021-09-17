@@ -29,7 +29,7 @@ return [
     // 错误显示信息,非调试模式有效
     'error_message' => '页面错误！请稍后再试～',
     // 显示错误信息
-    'show_error_msg' => false,
+    'show_error_msg' => true,
 
     'session_name' => '9cf3eeaffa0c8386508f932a354adf70',
     'admin_token' => '1858d7d84c1f48cd63eda4f989dbf9e7',

@@ -25,17 +25,17 @@ class Tz extends BaseController
         return success('', [
             'serverID' => $serverID,
             'serverUser' => @get_current_user(),
-            'serverDomain' => @$_SERVER['SERVER_NAME'],
-            'serverAddr' => DIRECTORY_SEPARATOR == '/' ? @$_SERVER['SERVER_ADDR'] : @gethostbyname($_SERVER['SERVER_NAME']),
-            'remoteAddr' => @$_SERVER['REMOTE_ADDR'],
+            'serverDomain' => $this->request->server('SERVER_NAME'),
+            'serverAddr' => DIRECTORY_SEPARATOR == '/' ? $this->request->server('SERVER_ADDR') : @gethostbyname($this->request->server('SERVER_NAME')),
+            'remoteAddr' => $this->request->server('REMOTE_ADDR'),
             'serverOS' => $os[0],
             'kernel' => DIRECTORY_SEPARATOR == '/' ? $os[2] : $os[1],
-            'serverSoftware' => $_SERVER['SERVER_SOFTWARE'],
+            'serverSoftware' => $this->request->server('SERVER_SOFTWARE'),
             'serverLang' => getenv("HTTP_ACCEPT_LANGUAGE"),
-            'serverPort' => $_SERVER['SERVER_PORT'],
+            'serverPort' => $this->request->server('SERVER_PORT'),
             'serverName' => DIRECTORY_SEPARATOR == '/' ? $os[1] : $os[2],
-            'absolutePath' => $_SERVER['DOCUMENT_ROOT'] ? str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']) : str_replace('\\', '/', dirname(__FILE__)),
-            'adminMail' => $_SERVER['SERVER_ADMIN'],
+            'absolutePath' => $this->request->server('DOCUMENT_ROOT') ? str_replace('\\', '/', $this->request->server('DOCUMENT_ROOT')) : str_replace('\\', '/', dirname(__FILE__)),
+            'adminMail' => $this->request->server('SERVER_ADMIN'),
         ]);
     }
 

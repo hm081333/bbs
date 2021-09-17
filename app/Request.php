@@ -33,7 +33,7 @@ class Request extends \think\Request
      * 设置管理员登录状态
      * @param  $admin
      */
-    public function setAdminToken($admin)
+    public function setAdmin($admin)
     {
         //将管理员信息存入SESSION中
         session(config('app.admin_token'), opensslEncrypt(Serialize::encrypt(['id' => $admin['id']])));// 保存在session
@@ -43,7 +43,7 @@ class Request extends \think\Request
      * 获取管理员登录状态
      * @return mixed
      */
-    public function getAdminToken()
+    public function getAdmin()
     {
         return Serialize::decrypt(opensslDecrypt(session(config('app.admin_token')) ?? ''));// Session中的管理员信息
     }
@@ -51,7 +51,7 @@ class Request extends \think\Request
     /**
      * 清除管理员登录状态
      */
-    public function clearAdminToken()
+    public function unsetAdmin()
     {
         session(config('app.admin_token'), null);
     }
@@ -68,17 +68,17 @@ class Request extends \think\Request
     public function getCurrentAdmin(bool $thr = false)
     {
         if ($this->admin) return $this->admin;
-        $admin = $this->getAdminToken();// 获取Session中存储的管理员信息
+        $admin = $this->getAdmin();// 获取Session中存储的管理员信息
         if ($admin) {
             $admin = (new Admin())->where('id', $admin['id'])->find();
         } else if (!empty($this->admin_token)) {
             $admin = (new Admin())->where('token', $this->admin_token)->find();// 用Token换取管理员信息
         }
         if ($admin) {
-            $this->setAdminToken($admin);
+            $this->setAdmin($admin);
             $this->admin = $admin;
         } else if ($thr) {
-            throw new BadRequestException('请登录',2);
+            throw new BadRequestException('请登录', 2);
         }
         return $this->admin;
     }
@@ -91,7 +91,7 @@ class Request extends \think\Request
      * 设置用户登录状态
      * @param  $user
      */
-    public function setUserToken($user)
+    public function setUser($user)
     {
         //将用户信息存入SESSION中
         session(config('app.user_token'), opensslEncrypt(Serialize::encrypt(['id' => $user['id']])));// 保存在session
@@ -101,7 +101,7 @@ class Request extends \think\Request
      * 获取用户登录状态
      * @return mixed
      */
-    public function getUserToken()
+    public function getUser()
     {
         return Serialize::decrypt(opensslDecrypt(session(config('app.user_token')) ?? ''));// Session中的用户信息
     }
@@ -109,7 +109,7 @@ class Request extends \think\Request
     /**
      * 清除管理员登录状态
      */
-    public function clearUserToken()
+    public function unsetUser()
     {
         session(config('app.user_token'), null);
     }
@@ -126,7 +126,7 @@ class Request extends \think\Request
     public function getCurrentUser(bool $thr = false)
     {
         if ($this->user) return $this->user;
-        $user = $this->getUserToken();// 获取Session中存储的用户信息
+        $user = $this->getUser();// 获取Session中存储的用户信息
         if ($user) {
             $user = (new User())->where('id', $user['id'])->find();
         } else if (!empty($this->user_token)) {
@@ -137,10 +137,10 @@ class Request extends \think\Request
                 $user->client_id = session('worker_client_id');
                 $user->save();
             }
-            $this->setUserToken($user);
+            $this->setUser($user);
             $this->user = $user;
         } else if ($thr) {
-            throw new BadRequestException('请登录',1);
+            throw new BadRequestException('请登录', 1);
         }
         return $this->user;
     }

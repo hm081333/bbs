@@ -63,8 +63,8 @@ class TieBa extends BaseController
      */
     public function doSignByTieBaId($tieba_id)
     {
-        (new TiebaApi())->doSignByTieBaId($tieba_id);
-        return success('签到成功');
+        $info = (new TiebaApi())->doSignByTieBaId($tieba_id);
+        return success('签到成功', $info);
     }
 
     /**

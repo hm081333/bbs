@@ -10,5 +10,13 @@ use think\Model;
  */
 class Admin extends Model
 {
-    //
+    public function getAdminInfo()
+    {
+        if ($this->isEmpty()) return [];
+        return [
+            'user_name' => $this->getAttr('user_name'),
+            'auth' => $this->getAttr('auth'),
+            'status' => $this->getAttr('status'),
+        ];
+    }
 }

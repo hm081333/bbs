@@ -4,40 +4,15 @@ declare (strict_types=1);
 namespace app\admin\controller;
 
 use app\BaseController;
+use library\exception\BadRequestException;
 use think\Exception;
 use think\Request;
 
 class User extends BaseController
 {
-    /**
-     * 显示资源列表
-     *
-     * @return \think\Response
-     */
-    public function index()
+    public function infoData()
     {
-        //
-    }
-
-    /**
-     * 显示创建资源表单页.
-     *
-     * @return \think\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * 保存新建的资源
-     *
-     * @param \think\Request $request
-     * @return \think\Response
-     */
-    public function save(Request $request)
-    {
-        //
+        return (new \app\common\controller\User($this->app))->infoData();
     }
 
     /**
@@ -56,21 +31,8 @@ class User extends BaseController
             'topic',
             'reply',
         ])->where('id', $id)->find();
-        if (!$user_info) {
-            throw new Exception('没有找到该用户');
-        }
+        if (!$user_info) throw new BadRequestException('没有找到该用户');
         return success('', $user_info->toArray());
-    }
-
-    /**
-     * 显示编辑资源表单页.
-     *
-     * @param int $id
-     * @return \think\Response
-     */
-    public function edit($id)
-    {
-        //
     }
 
     /**
@@ -94,17 +56,6 @@ class User extends BaseController
         $user->save();
 
         return success('操作成功');
-    }
-
-    /**
-     * 删除指定资源
-     *
-     * @param int $id
-     * @return \think\Response
-     */
-    public function delete($id)
-    {
-        //
     }
 
 }

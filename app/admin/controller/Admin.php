@@ -4,12 +4,15 @@ declare (strict_types=1);
 namespace app\admin\controller;
 
 use app\BaseController;
-use app\Request;
-use library\facade\Serialize;
-use think\Exception;
+use app\middleware\Auth;
+use library\exception\BadRequestException;
 
 class Admin extends BaseController
 {
+    protected $middleware = [
+        Auth::class => ['except' => ['signIn']],
+    ];
+
     /**
      * 保存更新的资源
      * @param int $id
@@ -35,7 +38,7 @@ class Admin extends BaseController
     /**
      * 管理员登录
      * @return array|\think\Response
-     * @throws Exception
+     * @throws BadRequestException
      */
     public function signIn()
     {
@@ -44,30 +47,30 @@ class Admin extends BaseController
         $password = $post_data['password'];   // 密码参数
         $remember = $post_data['remember'];   // 记住登录
         if (empty($user_name)) {
-            throw new Exception('请输入账号');
+            throw new BadRequestException('请输入账号');
         } else if (empty($password)) {
-            throw new Exception('请输入密码');
+            throw new BadRequestException('请输入密码');
         }
         $admin = $this->modelAdmin->where('user_name', $user_name)->findOrEmpty();
         if ($admin->isEmpty()) {
-            throw new Exception('用户不存在');
+            throw new BadRequestException('用户不存在');
         } else if (!pwd_verify($password, $admin->password)) {
-            throw new Exception('密码错误');
+            throw new BadRequestException('密码错误');
         }
         $admin->token = '';
         if (empty($admin['a_pwd'])) {
             $admin->a_pwd = opensslEncrypt($password);;
         }
         if ($remember) {
-            $admin->token = md5(config('app.admin_token') . md5(uniqid(mt_rand())));
+            $admin->token = md5(config('app.admin_token') . md5(uniqid((string)mt_rand())));
         } else {
             $admin->token = '';
         }
         $admin->save();
         //将用户信息存入SESSION中
-        $this->request->setAdminToken($admin);
+        $this->request->setAdmin($admin);
         return success('登陆成功', [
-            'admin' => $admin->toArray(),
+            'admin' => $admin->getAdminInfo(),
             'token' => $admin->token,
         ]);
     }
@@ -78,8 +81,9 @@ class Admin extends BaseController
      */
     public function getCurrentAdmin()
     {
+        $admin = $this->request->getCurrentAdmin();
         return success('', [
-            'admin' => $this->request->getCurrentAdmin()->toArray(),
+            'admin' => $admin ? $admin->getAdminInfo() : $admin,
         ]);
     }
 
@@ -89,7 +93,7 @@ class Admin extends BaseController
      */
     public function signOut()
     {
-        $this->request->clearAdminToken();
+        $this->request->unsetAdmin();
         return success('退出成功');
     }
 

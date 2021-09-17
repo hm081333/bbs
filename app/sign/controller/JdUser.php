@@ -4,8 +4,6 @@ declare (strict_types=1);
 namespace app\sign\controller;
 
 use app\BaseController;
-use think\model\Collection;
-use think\Request;
 
 class JdUser extends BaseController
 {
@@ -59,6 +57,13 @@ class JdUser extends BaseController
             ->order('id asc')
             ->select();
         return success('', ['total' => $total, 'rows' => $rows, 'offset' => $offset, 'limit' => $limit, 'sign_list' => $sign_list]);
+    }
+
+    public function allListData()
+    {
+        $user = $this->request->getCurrentUser(true);
+        $this->where[] = ['user_id', '=', $user['id']];
+        return parent::allListData();
     }
 
 }

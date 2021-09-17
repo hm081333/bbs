@@ -10,7 +10,6 @@ use think\Model;
  */
 class Topic extends Model
 {
-    //
 
     //region 获取器
     /**

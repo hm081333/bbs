@@ -4,10 +4,10 @@ declare (strict_types=1);
 namespace app\admin\controller;
 
 use app\BaseController;
-use think\Exception;
+use library\exception\BadRequestException;
+use library\exception\InternalServerErrorException;
 use think\facade\Db;
 use think\facade\Log;
-use think\Request;
 
 /**
  * Class System
@@ -23,9 +23,9 @@ class System extends BaseController
     public function backup()
     {
         $data = $this->request->post();
-        if (empty($data['password'])) throw new Exception('请输入管理员密码');
+        if (empty($data['password'])) throw new BadRequestException('请输入管理员密码');
         $admin = $this->modelAdmin->field('password')->where('id', 1)->find();
-        if (!pwd_verify($data['password'], $admin['password'])) throw new Exception('密码错误');
+        if (!pwd_verify($data['password'], $admin['password'])) throw new BadRequestException('密码错误');
         set_time_limit(0);
         ignore_user_abort(true);
         $db = config('database.connections.' . config('database.default'));
@@ -37,9 +37,7 @@ class System extends BaseController
         $file = $dir . $file_name;
         $return_val = true;
         system("mysqldump -h{$db['hostname']} -P{$db['hostport']} -u{$db['username']} -p{$db['password']} {$db['database']} > {$file}", $return_val);
-        if ($return_val) {
-            throw new Exception('备份失败');
-        }
+        if ($return_val) throw new InternalServerErrorException('备份失败');
         return success('备份成功');
     }
 
@@ -50,21 +48,19 @@ class System extends BaseController
     public function restore()
     {
         $data = $this->request->post();
-        if (empty($data['password'])) throw new Exception('请输入管理员密码');
+        if (empty($data['password'])) throw new BadRequestException('请输入管理员密码');
         $admin = $this->modelAdmin->field('password')->where('id', 1)->find();
-        if (!pwd_verify($data['password'], $admin['password'])) throw new Exception('密码错误');
+        if (!pwd_verify($data['password'], $admin['password'])) throw new BadRequestException('密码错误');
         set_time_limit(0);
         ignore_user_abort(true);
         $db = config('database.connections.' . config('database.default'));
         $file = root_path('backup/data') . $data['name'];
         if (!file_exists($file)) {
-            throw new Exception('找不到该文件');
+            throw new BadRequestException('找不到该文件');
         }
         $return_val = true;
         system("mysql -h{$db['hostname']} -P{$db['hostport']} -u{$db['username']} -p{$db['password']} {$db['database']} < {$file}", $return_val);
-        if ($return_val) {
-            throw new Exception('还原失败');
-        }
+        if ($return_val) throw new InternalServerErrorException('还原失败');
         return success('还原成功');
     }
 
@@ -75,9 +71,9 @@ class System extends BaseController
     public function reset()
     {
         $data = $this->request->post();
-        if (empty($data['password'])) throw new Exception('请输入管理员密码');
+        if (empty($data['password'])) throw new BadRequestException('请输入管理员密码');
         $admin = $this->modelAdmin->field('password')->where('id', 1)->find();
-        if (!pwd_verify($data['password'], $admin['password'])) throw new Exception('密码错误');
+        if (!pwd_verify($data['password'], $admin['password'])) throw new BadRequestException('密码错误');
         set_time_limit(0);
         ignore_user_abort(true);
         /* 数据库配置 */

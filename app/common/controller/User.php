@@ -91,7 +91,7 @@ class User extends BaseController
         }
         $user->save();
         // 将用户信息存入SESSION中
-        $this->request->setUserToken($user);
+        $this->request->setUser($user);
         return success('登陆成功', [
             'user' => $user->getUserInfo(),
             'token' => $user->token,
@@ -111,7 +111,7 @@ class User extends BaseController
         $user = $this->request->getCurrentUser(true);
         $user->client_id = '';
         $user->save();
-        $this->request->clearUserToken();
+        $this->request->unsetUser();
         return success('退出成功');
     }
 
@@ -148,7 +148,7 @@ class User extends BaseController
         $user->appendData($insert_data);
 
         //将用户信息存入SESSION中
-        $this->request->setUserToken($user);
+        $this->request->setUser($user);
         return success('注册成功', [
             'user' => $user->toArray(),
         ]);

@@ -4,35 +4,63 @@ declare (strict_types=1);
 namespace app;
 
 use app\middleware\Auth;
+use app\model\Admin;
+use app\model\BaiDuId;
+use app\model\Chat;
+use app\model\ChatMessage;
+use app\model\Common;
+use app\model\Cron;
+use app\model\Delivery;
+use app\model\Friend;
+use app\model\Ip;
+use app\model\JdSign;
+use app\model\JdSignItem;
+use app\model\JdSignLog;
+use app\model\JdUser;
+use app\model\Logistics;
+use app\model\LogisticsCompany;
+use app\model\Message;
+use app\model\Reply;
+use app\model\Setting;
+use app\model\Subject;
+use app\model\TieBa;
+use app\model\Topic;
+use app\model\User;
+use library\exception\BadRequestException;
 use think\App;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\DbException;
+use think\db\exception\ModelNotFoundException;
 use think\Exception;
 use think\exception\ValidateException;
+use think\Model;
+use think\response\Json;
 use think\Validate;
 
 /**
  * 控制器基础类
- * @property \app\model\Admin $modelAdmin Admin
- * @property \app\model\BaiDuId $modelBaiDuId BaiDuId
- * @property \app\model\Chat $modelChat Chat
- * @property \app\model\ChatMessage $modelChatMessage ChatMessage
- * @property \app\model\Common $modelCommon Common
- * @property \app\model\Cron $modelCron Cron
- * @property \app\model\Delivery $modelDelivery Delivery
- * @property \app\model\Friend $modelFriend Friend
- * @property \app\model\Ip $modelIp Ip
- * @property \app\model\JdSign $modelJdSign JdSign
- * @property \app\model\JdSignItem $modelJdSignItem JdSignItem
- * @property \app\model\JdSignLog $modelJdSignLog JdSignLog
- * @property \app\model\JdUser $modelJdUser JdUser
- * @property \app\model\Logistics $modelLogistics Logistics
- * @property \app\model\LogisticsCompany $modelLogisticsCompany LogisticsCompany
- * @property \app\model\Message $modelMessage Message
- * @property \app\model\Reply $modelReply Reply
- * @property \app\model\Setting $modelSetting Setting
- * @property \app\model\Subject $modelSubject Subject
- * @property \app\model\TieBa $modelTieBa TieBa
- * @property \app\model\Topic $modelTopic Topic
- * @property \app\model\User $modelUser User
+ * @property Admin $modelAdmin Admin
+ * @property BaiDuId $modelBaiDuId BaiDuId
+ * @property Chat $modelChat Chat
+ * @property ChatMessage $modelChatMessage ChatMessage
+ * @property Common $modelCommon Common
+ * @property Cron $modelCron Cron
+ * @property Delivery $modelDelivery Delivery
+ * @property Friend $modelFriend Friend
+ * @property Ip $modelIp Ip
+ * @property JdSign $modelJdSign JdSign
+ * @property JdSignItem $modelJdSignItem JdSignItem
+ * @property JdSignLog $modelJdSignLog JdSignLog
+ * @property JdUser $modelJdUser JdUser
+ * @property Logistics $modelLogistics Logistics
+ * @property LogisticsCompany $modelLogisticsCompany LogisticsCompany
+ * @property Message $modelMessage Message
+ * @property Reply $modelReply Reply
+ * @property Setting $modelSetting Setting
+ * @property Subject $modelSubject Subject
+ * @property TieBa $modelTieBa TieBa
+ * @property Topic $modelTopic Topic
+ * @property User $modelUser User
  * Class BaseController
  * @package app
  */
@@ -130,7 +158,7 @@ abstract class BaseController
                 return $this->$name;
             }
         }
-        throw new Exception('非法调用不存在函数');
+        throw new BadRequestException('非法调用不存在函数');
     }
 
     //region 基础接口
@@ -144,7 +172,7 @@ abstract class BaseController
     }
 
     /**
-     * @return \think\Model
+     * @return Model
      */
     private function getModel()
     {
@@ -165,10 +193,10 @@ abstract class BaseController
     /**
      * 列表数据
      * @desc      获取列表数据
-     * @return \think\response\Json    数据列表
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
+     * @return array    数据列表
+     * @throws DataNotFoundException
+     * @throws DbException
+     * @throws ModelNotFoundException
      * @exception 400 非法请求，参数传递错误
      */
     public function listData()
@@ -190,16 +218,25 @@ abstract class BaseController
             $rows = $this->getModel()->where($where)->field($field)->order($order)->limit($offset, $limit)->select();
         }
         $this->where = [];
-        return success('', ['total' => $total, 'rows' => $rows, 'offset' => $offset, 'limit' => $limit]);
+        return [
+            'ret' => 200,
+            'data' => [
+                'total' => $total,
+                'rows' => $rows,
+                'offset' => $offset,
+                'limit' => $limit,
+            ],
+            'msg' => ''
+        ];
     }
 
     /**
      * 列表数据 不分页
      * @desc      获取列表数据 不分页
-     * @return \think\response\Json    数据列表
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
+     * @return array    数据列表
+     * @throws DataNotFoundException
+     * @throws DbException
+     * @throws ModelNotFoundException
      * @exception 400 非法请求，参数传递错误
      */
     public function allListData()
@@ -213,16 +250,20 @@ abstract class BaseController
         $order = $this->request->param('order', 'id desc');
         $list = $this->getModel()->where($where)->field($field)->order($order)->select();
         $this->where = [];
-        return success('', $list);
+        return [
+            'ret' => 200,
+            'data' => $list,
+            'msg' => ''
+        ];
     }
 
     /**
      * 详情数据
      * @desc      获取详情数据
-     * @return \think\response\Json    数据数组
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
+     * @return array    数据数组
+     * @throws DataNotFoundException
+     * @throws DbException
+     * @throws ModelNotFoundException
      * @exception 400 非法请求，参数传递错误
      */
     public function infoData()
@@ -231,19 +272,31 @@ abstract class BaseController
         $id = $this->request->param('id/d', 0);
         // 查询字段
         $field = $this->request->param('field', '*');
-        return success('', $this->getModel()->where($id)->field($field)->find());
+        $info = $this->getModel()->where([
+            ['id', '=', $id]
+        ])->field($field)->find();
+        return [
+            'ret' => 200,
+            'data' => $info,
+            'msg' => ''
+        ];
     }
 
     /**
      * 删除数据
      * @desc 删除数据
-     * @return \think\response\Json
+     * @return array
      */
     public function delInfo()
     {
         // 查询ID
         $id = $this->request->param('id/d', 0);
-        return success('', $this->getModel()->where($id)->delete());
+        $res = $this->getModel()->where($id)->delete();
+        return [
+            'ret' => 200,
+            'data' => $res,
+            'msg' => ''
+        ];
     }
     //endregion
 }
