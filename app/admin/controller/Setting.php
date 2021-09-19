@@ -17,13 +17,11 @@ class Setting extends BaseController
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    public function read()
+    public function get()
     {
         $name = $this->request->post('setting_key_name');
         $setting = $this->modelSetting->where('id', 1)->cache()->find();// 从数据库获取
-        if ($name !== false) {
-            return isset($setting[$name]) ? unserialize($setting[$name]) : false;
-        }
+        if ($name !== false) $setting = isset($setting[$name]) ? unserialize($setting[$name]) : false;
         return success('', $setting);
     }
 
@@ -32,13 +30,13 @@ class Setting extends BaseController
      * 保存更新的资源
      * @return \think\Response
      */
-    public function update()
+    public function set()
     {
         $name = $this->request->post('setting_key_name');
         // 获取并序列化 存进数据库的是一个序列
-        $data = $this->request->post('setting_key_data', [], 'serialize');
+        $data = $this->request->post('setting_key_data', []);
         $setting = $this->modelSetting->where('id', 1)->cache()->find();// 从数据库获取
-        $setting->$name = $data;// 替换当前修改的数据
+        $setting->$name = serialize($data);// 替换当前修改的数据
         $setting->save();
         return success('操作成功');
     }
