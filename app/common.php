@@ -94,14 +94,15 @@ function server_path($path = '')
  */
 function res_path($path = '')
 {
+    $url_root = '';
     if (\request()->server('HTTP_UPGRADE') == 'websocket') {
         //\Workerman\Worker::getStatus() == \Workerman\Worker::STATUS_RUNNING
         //10.0.0.20:8080/ws
-        return \request()->server('HTTP_ORIGIN') . '/api/' . $path;
+        $url_root = \request()->server('HTTP_ORIGIN') . '/api/';
     } else {
-        $url_root = (!empty(\request()->server('HTTPS')) && 'on' === \request()->server('HTTPS') ? 'https' : 'http') . '://' . \request()->server('HTTP_HOST') . (dirname(dirname(\request()->server('PHP_SELF'))) == '\\' ? '/' : dirname(\request()->server('PHP_SELF')));
-        return config('app.cdn_root', $url_root) . $path;
+        $url_root = config('app.cdn_root', (!empty(\request()->server('HTTPS')) && 'on' === \request()->server('HTTPS') ? 'https' : 'http') . '://' . \request()->server('HTTP_HOST') . (dirname(dirname(\request()->server('PHP_SELF'))) == '\\' ? '' : dirname(\request()->server('PHP_SELF'))));
     }
+    return $url_root . ((substr($url_root, -1, 1) != '/' && substr($path, 0, 1) != '/') ? '/' : '') . $path;
 }
 
 //endregion
@@ -305,6 +306,14 @@ function getGreeting($h = false)
         $greeting = '晚上好！';
     }
     return $greeting;
+}
+
+function strToHtml($str)
+{
+    $pat = array("\n\r", "\r\n", "\n", "\r",);
+    $string = array("<br/>", "<br/>", "<br/>", "<br/>",);
+    $html = str_replace($pat, $string, $str);
+    return $html;
 }
 
 //endregion

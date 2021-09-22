@@ -5,7 +5,7 @@
 return [
     // 指令定义
     'commands' => [
-        'task' => \library\exception\command\Task::class,
-        'optimize:model' => \library\exception\command\optimize\Model::class
+        'task' => \app\command\Task::class,
+        'optimize:model' => \app\command\optimize\Model::class
     ],
 ];

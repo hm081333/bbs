@@ -18,8 +18,9 @@ class PathInfoInit
      */
     public function handle(Request $request, Closure $next)
     {
-        $s = $request->get('s', $request->param('s', ''));
+        $s = $request->post('s', $request->get('s', $request->param('s', '')));
         $s = str_replace('.', '/', $s);
+        // dump($s);
         $request->setPathinfo($s);
         // dump($request);
         // die;

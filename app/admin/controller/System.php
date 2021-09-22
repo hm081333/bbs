@@ -128,7 +128,7 @@ class System extends BaseController
      */
     public function backupList()
     {
-        return $this->dirFile(root_path('backup/data'));
+        return success('', $this->dirFile(root_path('backup/data')));
     }
 
     /**
@@ -145,26 +145,25 @@ class System extends BaseController
      *      ksort() 函数用于对数组单元按照键名从低到高进行排序。
      *      krsort() 函数用于对数组单元按照键名从高到低进行排序。
      */
-    private function dirFile($path, $dir_name = '', $i = 0, $all = [])
+    private function dirFile($path, $dir_name = '', $all = [])
     {
         $dir = opendir($path);//打开目录
         while (($file = readdir($dir)) != false) {
             //逐个文件读取，添加!=false条件，是为避免有文件或目录的名称为0
-            if ($file == '.' || $file == '..') {//判断是否为.或..，默认都会有
+            if ($file == '.' || $file == '..' || strpos($file, '.') === 0) {//判断是否为.或..，默认都会有
                 continue;
             }
             if (is_dir($path . '/' . $file)) {//如果为目录
                 $rs = $this->dirFile($path . '/' . $file, $file);//继续读取该目录下的目录或文件
                 $all += $rs;
             } else {
-                $i += 1;
                 if ($dir_name == '') {
-                    $all[$i] = [
+                    $all[] = [
                         'file_name' => $file,
                         'file_size' => filesize($path . '/' . $file),
                     ];
                 } else {
-                    $all[$dir_name][$i] = [
+                    $all[$dir_name][] = [
                         'file_name' => $file,
                         'file_size' => filesize($path . '/' . $file),
                     ];

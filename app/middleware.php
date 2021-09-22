@@ -10,7 +10,7 @@ return [
     // Session初始化
     \think\middleware\SessionInit::class,
     // 跨域请求支持
-    \think\middleware\AllowCrossDomain::class,
+    \app\middleware\AllowCrossDomain::class,
     // 请求令牌支持
     // \app\middleware\Auth::class,
 ];

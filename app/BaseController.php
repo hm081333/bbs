@@ -174,7 +174,7 @@ abstract class BaseController
     /**
      * @return Model
      */
-    private function getModel()
+    protected function getModel()
     {
         // 拆解当前使用的类名
         $classInfo = explode('\\', get_called_class());
