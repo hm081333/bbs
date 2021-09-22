@@ -11,6 +11,8 @@ return [
     \think\middleware\SessionInit::class,
     // 跨域请求支持
     \app\middleware\AllowCrossDomain::class,
+    // Trace
+    \library\trace\TraceDebug::class,
     // 请求令牌支持
     // \app\middleware\Auth::class,
 ];

@@ -31,8 +31,6 @@ return [
     // 显示错误信息
     'show_error_msg' => true,
 
-    'session_name' => '9cf3eeaffa0c8386508f932a354adf70',
     'admin_token' => '1858d7d84c1f48cd63eda4f989dbf9e7',
     'user_token' => '85cc39d65ded51e8ffb949503e83ed65',
-    'post_key' => 'abac49e1f519fe724f10e4fb40cf0a38',
 ];

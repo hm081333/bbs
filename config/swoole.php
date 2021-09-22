@@ -31,7 +31,6 @@ return [
             ],
         ],
         'listen' => [
-            // 'message' => \app\listener\WebsocketTest::class,
             'event' => \app\listener\WebsocketEvent::class, //重要的事件监听类
         ],
         'subscribe' => [
