@@ -1,85 +1,78 @@
 <?php
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace app\chat\controller;
 
+use app\BaseController;
 use think\Request;
 
-class User
+class User extends BaseController
 {
     /**
-     * 显示资源列表
-     *
-     * @return \think\Response
+     * 修改昵称
+     * @param string $nick_name 更新的名称
+     * @return \think\response\Json
+     * @throws \library\exception\BadRequestException
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
-    public function index()
+    public function editNickName($nick_name = '')
     {
-        //
+        $user = $this->request->getCurrentUser(true);
+        $user->nick_name = $nick_name;
+        $user->save();
+        return success('操作成功', $user->getUserInfo());
     }
 
     /**
-     * 显示创建资源表单页.
-     *
-     * @return \think\Response
+     * 修改性别
+     * @param $sex string|int 性别
+     * @return \think\response\Json
+     * @throws \library\exception\BadRequestException
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
-    public function create()
+    public function editGender($sex)
     {
-        //
+        $user = $this->request->getCurrentUser(true);
+        $user->sex = $sex;
+        $user->save();
+        return success('操作成功', $user->getUserInfo());
     }
 
     /**
-     * 保存新建的资源
-     *
-     * @param  \think\Request  $request
-     * @return \think\Response
+     * 修改个性签名
+     * @param string $signature
+     * @return \think\response\Json
+     * @throws \library\exception\BadRequestException
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
-    public function save(Request $request)
+    public function editSignature($signature = '')
     {
-        //
+        $user = $this->request->getCurrentUser(true);
+        $user->signature = $signature;
+        $user->save();
+        return success('操作成功', $user->getUserInfo());
     }
 
     /**
-     * 显示指定的资源
-     *
-     * @param  int  $id
-     * @return \think\Response
+     * 修改个人头像
+     * @param string $logo
+     * @return \think\response\Json
+     * @throws \library\exception\BadRequestException
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
-    public function read($id)
+    public function editLogo($logo = '')
     {
-        //
-    }
-
-    /**
-     * 显示编辑资源表单页.
-     *
-     * @param  int  $id
-     * @return \think\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * 保存更新的资源
-     *
-     * @param  \think\Request  $request
-     * @param  int  $id
-     * @return \think\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * 删除指定资源
-     *
-     * @param  int  $id
-     * @return \think\Response
-     */
-    public function delete($id)
-    {
-        //
+        $user = $this->request->getCurrentUser(true);
+        $user->logo = $logo;
+        $user->save();
+        return success('操作成功', $user->getUserInfo());
     }
 }

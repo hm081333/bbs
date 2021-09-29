@@ -24,8 +24,9 @@ class User extends BaseController
      */
     public function getCurrentUser()
     {
+        $user = $this->request->getCurrentUser();
         return success('', [
-            'user' => $this->request->getCurrentUser(),
+            'user' => $user ? $user->getUserInfo() : [],
         ]);
     }
 
@@ -150,7 +151,7 @@ class User extends BaseController
         //将用户信息存入SESSION中
         $this->request->setUser($user);
         return success('注册成功', [
-            'user' => $user->toArray(),
+            'user' => $user->getUserInfo(),
         ]);
     }
 

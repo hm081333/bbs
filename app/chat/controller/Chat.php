@@ -48,8 +48,8 @@ class Chat extends BaseController
                         ->field('friend_id,remark_name')
                         ->where([
                             ['user_id', '=', $user['id']],
+                            ['friend_id', 'in', $chat_info['user_ids']],
                         ])
-                        ->whereRaw("FIND_IN_SET(friend_id, :ids)", ['ids' => $chat_info['user_ids']])
                         ->find();
                     $friend_remark_name = $friend_info['remark_name'];
                     $friend_info = $this->modelUser->where(['id' => $friend_info['friend_id']])->cache()->find();
@@ -106,8 +106,8 @@ class Chat extends BaseController
                 ->field('friend_id,remark_name')
                 ->where([
                     ['user_id', '=', $user['id']],
+                    ['friend_id', 'in', $chat_info['user_ids']],
                 ])
-                ->whereRaw("FIND_IN_SET(friend_id, :ids)", ['ids' => $chat_info['user_ids']])
                 ->find();
             $friend_info = $this->modelUser->where(['id' => $friend_info['friend_id']])->cache()->find();
             $chat_info['name'] = empty($friend_info['remark_name']) ? $friend_info['nick_name'] : $friend_info['remark_name'];

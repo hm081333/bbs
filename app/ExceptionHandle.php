@@ -53,31 +53,26 @@ class ExceptionHandle extends Handle
      *
      * @access public
      * @param \think\Request $request
-     * @param Throwable $e
+     * @param Throwable      $e
      * @return Response
      */
     public function render($request, Throwable $e): Response
     {
         // 添加自定义异常处理机制
-        if ($e instanceof Exception) {
-            if ($request->isJson()) {
-                $response = Response::create($this->convertExceptionToArray($e), 'json');
-                $responseData = $response->getData();
-                unset($responseData['code'], $responseData['datas'], $responseData['message']);
-                $response->data(array_merge([
-                    'ret' => $response->getData()['code'],
-                    'data' => [],
-                    'msg' => $response->getData()['message'] ?? '',
-                ], $responseData));
-                return $response;
-            } else {
-                $response = Response::create($this->renderExceptionContent($e));
-            }
-
-            return $response;
+        // if ($e instanceof Exception) {
+        if ($request->isJson() && $e instanceof Exception) {
+            $responseData = $this->convertExceptionToArray($e);
+            $responseData = array_merge([
+                'ret' => $responseData['code'] ?? 0,
+                'data' => [],
+                'msg' => $responseData['message'] ?? '',
+            ], $responseData);
+            unset($responseData['code'], $responseData['datas'], $responseData['message']);
+            return Response::create($responseData, 'json');
+        } else {
+            // 其他错误交给系统处理
+            return parent::render($request, $e);
         }
-
-        // 其他错误交给系统处理
-        return parent::render($request, $e);
+        // }
     }
 }

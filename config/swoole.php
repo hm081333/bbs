@@ -31,7 +31,9 @@ return [
             ],
         ],
         'listen' => [
-            'event' => \app\listener\WebsocketEvent::class, //重要的事件监听类
+            'Event' => \app\listener\WebsocketEvent::class,
+            'Connect' => \app\listener\WebsocketConnect::class,
+            'Open' => \app\listener\WebsocketOpen::class,
         ],
         'subscribe' => [
         ],

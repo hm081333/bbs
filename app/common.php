@@ -94,14 +94,7 @@ function server_path($path = '')
  */
 function res_path($path = '')
 {
-    $url_root = '';
-    if (\request()->server('HTTP_UPGRADE') == 'websocket') {
-        //\Workerman\Worker::getStatus() == \Workerman\Worker::STATUS_RUNNING
-        //10.0.0.20:8080/ws
-        $url_root = \request()->server('HTTP_ORIGIN') . '/api/';
-    } else {
-        $url_root = config('app.cdn_root', (!empty(\request()->server('HTTPS')) && 'on' === \request()->server('HTTPS') ? 'https' : 'http') . '://' . \request()->server('HTTP_HOST') . (dirname(dirname(\request()->server('PHP_SELF'))) == '\\' ? '' : dirname(\request()->server('PHP_SELF'))));
-    }
+    $url_root = config('app.cdn_root', (!empty(\request()->server('HTTPS')) && 'on' === \request()->server('HTTPS') ? 'https' : 'http') . '://' . \request()->server('HTTP_HOST') . (dirname(dirname(\request()->server('PHP_SELF'))) == '\\' ? '' : dirname(\request()->server('PHP_SELF'))));
     return $url_root . ((substr($url_root, -1, 1) != '/' && substr($path, 0, 1) != '/') ? '/' : '') . $path;
 }
 
@@ -153,8 +146,8 @@ function opensslDecrypt(string $data): string
 /**
  * 密码加密方法
  * @param string $password 需要加密的密码
- * @param string $algo 加密模式
- * @param array $options 加密选项
+ * @param string $algo     加密模式
+ * @param array  $options  加密选项
  * @return false|string|null
  */
 function pwd_hash(string $password, $algo = PASSWORD_DEFAULT, array $options = [])
@@ -165,7 +158,7 @@ function pwd_hash(string $password, $algo = PASSWORD_DEFAULT, array $options = [
 /**
  * 密码验证方法
  * @param string $password 需要对比的密码
- * @param string $hash 加密后的密码
+ * @param string $hash     加密后的密码
  * @return bool
  */
 function pwd_verify(string $password, string $hash): bool
@@ -178,8 +171,8 @@ function pwd_verify(string $password, string $hash): bool
 //region 响应
 /**
  * @param string $msg
- * @param array $data
- * @param int $code
+ * @param array  $data
+ * @param int    $code
  * @return Json
  */
 function success($msg = '', $data = [], $code = 200): Json
@@ -187,7 +180,7 @@ function success($msg = '', $data = [], $code = 200): Json
     return \json([
         'ret' => $code,
         'data' => $data,
-        'msg' => $msg
+        'msg' => $msg,
     ]);
 }
 
@@ -233,8 +226,8 @@ function sqlAdds($s)
 
 /**
  * 获取两段文本之间的文本
- * @param string $text 完整的文本
- * @param string $left 左边文本
+ * @param string $text  完整的文本
+ * @param string $left  左边文本
  * @param string $right 右边文本
  * @return string “左边文本”与“右边文本”之间的文本
  */
@@ -257,7 +250,7 @@ function textMiddle($text, $left, $right)
  * [可当preg_match()的简化版本去理解]
  * @param string $exp 匹配表达式
  * @param string $str 在这个字符串内运行匹配
- * @param int $pat 规定匹配模式，0表示尽可能多匹配，1表示尽可能少匹配
+ * @param int    $pat 规定匹配模式，0表示尽可能多匹配，1表示尽可能少匹配
  * @return array 匹配结果，$matches[0]将包含完整模式匹配到的文本， $matches[1] 将包含第一个捕获子组匹配到的文本，以此类推。
  */
 function easy_match($exp, $str, $pat = 0)
@@ -310,10 +303,84 @@ function getGreeting($h = false)
 
 function strToHtml($str)
 {
-    $pat = array("\n\r", "\r\n", "\n", "\r",);
-    $string = array("<br/>", "<br/>", "<br/>", "<br/>",);
+    $pat = ["\n\r", "\r\n", "\n", "\r",];
+    $string = ["<br/>", "<br/>", "<br/>", "<br/>",];
     $html = str_replace($pat, $string, $str);
     return $html;
+}
+
+function unix_formatter($time = false, $full = false)
+{
+    if ($time <= 0) {
+        // return '-';
+        return '';
+    }
+    if ($full) {
+        return date('Y-m-d H:i:s', $time);
+    } else {
+        return date('Y-m-d', $time);
+    }
+}
+
+/**
+ * 随机字符串生成
+ *
+ * @param int    $len   需要随机的长度，不要太长
+ * @param string $chars 随机生成字符串的范围
+ *
+ * @return string
+ */
+function createRandStr($len, $chars = null)
+{
+    if (!$chars) {
+        $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    }
+    return substr(str_shuffle(str_repeat($chars, rand(5, 8))), 0, $len);
+}
+
+//endregion
+
+//region 压缩解压缩二进制
+/**
+ * 解密gzip二进制字符串
+ * @param $str
+ * @return string
+ */
+function compress_string_decode($str)
+{
+    return compress_binary_decode(mb_convert_encoding($str, 'ISO-8859-1', 'utf-8'));
+}
+
+/**
+ * 生成gzip二进制字符串
+ * @param     $str
+ * @param int $encoding ZLIB_ENCODING_RAW|ZLIB_ENCODING_DEFLATE|ZLIB_ENCODING_GZIP
+ * @return false|string|string[]|null
+ */
+function compress_string_encode($str, $encoding = ZLIB_ENCODING_RAW)
+{
+    return mb_convert_encoding(compress_binary_encode($str, $encoding), 'utf-8', 'ISO-8859-1');
+}
+
+/**
+ * 解密gzip二进制
+ * @param $data
+ * @return string
+ */
+function compress_binary_decode($data)
+{
+    return zlib_decode($data);
+}
+
+/**
+ * 生成gzip二进制
+ * @param     $data
+ * @param int $encoding ZLIB_ENCODING_RAW|ZLIB_ENCODING_DEFLATE|ZLIB_ENCODING_GZIP
+ * @return string
+ */
+function compress_binary_encode($data, $encoding = ZLIB_ENCODING_RAW)
+{
+    return zlib_encode($data, $encoding);
 }
 
 //endregion

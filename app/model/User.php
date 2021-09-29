@@ -78,7 +78,7 @@ class User extends Model
             'real_name' => $this->getAttr('real_name'),
             'birth_time' => $this->getAttr('birth_time'),
             'sex' => $this->getAttr('sex'),
-            'sex_name' => $this->getAttr('sex'),
+            'sex_name' => sexName($this->getAttr('sex')),
             'signature' => $this->getAttr('signature'),
         ];
     }

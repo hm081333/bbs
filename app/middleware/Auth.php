@@ -43,6 +43,7 @@ class Auth
                 $request->getCurrentUser();
                 break;
             case 'sign':
+            case 'chat':
                 // 获取会员登录状态
                 $request->getCurrentUser(true);
                 break;

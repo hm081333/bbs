@@ -11,9 +11,15 @@ use think\db\exception\DataNotFoundException;
 use think\db\exception\DbException;
 use think\db\exception\ModelNotFoundException;
 use think\Exception;
+use think\swoole\Websocket;
 
 class Request extends \think\Request
 {
+    /**
+     * @var Websocket websocket连接实例
+     */
+    public $websocket;
+
     //region 身份令牌
     /**
      * @var string 管理员令牌
@@ -68,14 +74,16 @@ class Request extends \think\Request
     public function getCurrentAdmin(bool $thr = false)
     {
         if ($this->admin) return $this->admin;
-        $admin = $this->getAdmin();// 获取Session中存储的管理员信息
-        if ($admin) {
-            $admin = (new Admin())->where('id', $admin['id'])->find();
-        } else if (!empty($this->admin_token)) {
-            $admin = (new Admin())->where('token', $this->admin_token)->find();// 用Token换取管理员信息
+        $admin = $session_admin = $this->getAdmin();// 获取Session中存储的管理员信息
+        if (!$session_admin && !empty($this->admin_token)) {
+            $admin = (new Admin())->field('id')->where('token', $this->admin_token)->find();// 用Token换取管理员信息
         }
         if ($admin) {
-            $this->setAdmin($admin);
+            $admin = (new Admin())->where('id', $admin['id'])->find();
+            if ($this->admin && $this->websocket) {
+                $this->websocket->join("admin.{$admin->id}");
+            }
+            if (!$session_admin) $this->setAdmin($admin);
             $this->admin = $admin;
         } else if ($thr) {
             throw new BadRequestException('请登录', 2);
@@ -126,18 +134,20 @@ class Request extends \think\Request
     public function getCurrentUser(bool $thr = false)
     {
         if ($this->user) return $this->user;
-        $user = $this->getUser();// 获取Session中存储的用户信息
-        if ($user) {
-            $user = (new User())->where('id', $user['id'])->find();
-        } else if (!empty($this->user_token)) {
-            $user = (new User())->where('token', $this->user_token)->find();// 用Token换取用户信息
+        $user = $session_user = $this->getUser();// 获取Session中存储的用户信息
+        if (!$session_user && !empty($this->user_token)) {
+            $user = (new User())->field('id')->where('token', $this->user_token)->find();// 用Token换取用户信息
         }
         if ($user) {
-            if (!empty(session('worker_client_id')) && $user->client_id != session('worker_client_id')) {
-                $user->client_id = session('worker_client_id');
-                $user->save();
+            $user = (new User())->where('id', $user['id'])->find();
+            // if (!empty(session('worker_client_id')) && $user->client_id != session('worker_client_id')) {
+            //     $user->client_id = session('worker_client_id');
+            //     $user->save();
+            // }
+            if ($this->websocket) {
+                $this->websocket->join("user.{$user->id}");
             }
-            $this->setUser($user);
+            if (!$session_user) $this->setUser($user);
             $this->user = $user;
         } else if ($thr) {
             throw new BadRequestException('请登录', 1);
