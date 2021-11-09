@@ -29,7 +29,7 @@ return [
             // 驱动方式
             'type'   => 'redis',
             // 服务器地址
-            'host'       => '127.0.0.1',
+            'host'       => 'localhost',
             // 缓存前缀
             'prefix'     => 'bbs:',
             // 缓存有效期 0表示永久缓存

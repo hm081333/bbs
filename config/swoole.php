@@ -24,7 +24,7 @@ return [
                 'client_size' => 2048,
             ],
             'redis' => [
-                'host' => '127.0.0.1',
+                'host' => 'localhost',
                 'port' => 6379,
                 'max_active' => 3,
                 'max_wait_time' => 5,
