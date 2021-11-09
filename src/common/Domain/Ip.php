@@ -50,7 +50,7 @@ class Ip
         if (!$old_ip) {
             throw new BadRequestException(T('获取IP信息失败'));
             try {
-                $data = DI()->curl->setNoRetry()->setTimeout(1000)->get("http://ip.taobao.com/service/getIpInfo.php?ip={$ip}", 1000);
+                $data = DI()->curl->setNoRetry()->setTimeout(1000)->get("https://ip.taobao.com/outGetIpInfo?ip={$ip}", 1000);
                 $data = json_decode($data, true);
                 if (!$data) {
                     throw new BadRequestException(T('获取IP信息失败'));
