@@ -113,10 +113,7 @@ function opensslEncrypt(string $data): string
         $config['cipher_algo'],
         $config['passphrase'],
         $config['options'],
-        $config['iv'],
-        $config['tag'],
-        $config['aad'],
-        $config['tag_length']);
+        $config['iv']);
     $encode = base64_encode($encrypted);
     //openssl_encrypt 加密相当于将 mcrypt_encrypt 的加密结果执行一次 base64_encode
     return $encode;
@@ -136,9 +133,7 @@ function opensslDecrypt(string $data): string
         $config['cipher_algo'],
         $config['passphrase'],
         $config['options'],
-        $config['iv'],
-        $config['tag'],
-        $config['aad']);
+        $config['iv']);
     //$decrypted = rtrim($decrypted, "\0");//解密出来的数据后面会出现如图所示的六个红点；这句代码可以处理掉，从而不影响进一步的数据操作
     return $decrypted;
 }
