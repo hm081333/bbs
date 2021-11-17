@@ -64,6 +64,11 @@ class WebsocketEvent
     {
         $request_data = $data[0] ?? [];
         if (is_string($request_data)) $request_data = json_decode($request_data, true);
+        $this->apiHandle($request_data);
+    }
+
+    protected function apiHandle(array $request_data)
+    {
         $sign = md5(($request_data['s'] ?? '') . ($request_data['t'] ?? ''));
         if (isset($request_data['sign']) && $request_data['sign'] != $sign) return false;
         $manager = $this->app->make(Manager::class);
@@ -101,7 +106,7 @@ class WebsocketEvent
         });
     }
 
-    protected function prepareRequest($data)
+    protected function prepareRequest(array $data)
     {
         $req = $this->app->request;
         $header = $req->header();
@@ -172,32 +177,60 @@ class WebsocketEvent
      */
     public function sendToClient($event, $data)
     {
-        // var_dump($data);
-        $data = is_array($data) ? json_encode($data) : $data;
-        // var_dump($data);
-        // gzip压缩
-        // $data = gzencode($data);
-
-        $data = compress_binary_encode($data, ZLIB_ENCODING_RAW);
-        $data = base64_encode($data);
+        $data = $this->apiRequestParse($data);
         $split_data = str_split($data, $this->maxBinaryBufferSize);
         if (count($split_data) > 1) {
             // $micro_time = floor(microtime(true) * 1000);
             foreach ($split_data as $data_index => $data_split) {
-                $this->websocket->emit('long_data', base64_encode(compress_binary_encode(json_encode([
+                $this->websocket->emit('long_data', $this->apiRequestParse([
                     'is_end' => $data_index >= (count($split_data) - 1) ? true : false,
                     'index' => $data_index,
                     // 'time' => $micro_time,
                     'event' => $event,
                     'data' => $data_split,
                     // 'data' => $data_split,
-                ]), ZLIB_ENCODING_RAW)));
+                ]));
             }
         } else {
             dump($event, $data);
             $this->websocket->emit($event, $data);
         }
     }
+
+    /**
+     * 接收长消息
+     * @param $data
+     */
+    public function long_data($data)
+    {
+        $data = $data[0] ?? [];
+        $data = $this->apiResponseParse($data);
+        /* @var $redis \Redis */
+        $redis = Cache::handler();
+        $redis_key = Cache::getCacheKey('long_data:' . $data['event']);
+        $redis->zAdd($redis_key, $data['index'], $data['data']);
+        if ($data['is_end']) {
+            $long_data_arr = $redis->zRange($redis_key, 0, -1);
+            $redis->del($redis_key);
+            $long_data = implode('', $long_data_arr);
+            $long_data = $this->apiResponseParse($long_data);
+            $this->apiHandle($long_data);
+        }
+
+    }
+
+    //region 接口数据处理
+    protected function apiRequestParse($request)
+    {
+        $request = is_array($request) ? json_encode($request) : $request;
+        return base64_encode(compress_binary_encode($request, ZLIB_ENCODING_RAW));
+    }
+
+    protected function apiResponseParse($response)
+    {
+        return json_decode(compress_binary_decode(base64_decode($response)), true);
+    }
+    //endregion
 
     //region 测试代码
 
