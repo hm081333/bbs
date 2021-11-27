@@ -73,8 +73,16 @@ class Delivery extends BaseController
         if (empty($delivery)) throw new BadRequestException('找不到该物流信息');
         // 该物流已经结束 且 有历史信息，返回历史物流信息
         if (!empty($delivery['end_time']) && !empty($delivery['last_message'])) return success('获取成功', $delivery['last_message']);
+
         // 调取接口 获取物流最新信息
-        $logistics = curl()->json_get('http://www.kuaidi100.com/query?type=' . $delivery['code'] . '&postid=' . $delivery['sn']);
+        // $logistics = curl()->json_get('http://www.kuaidi100.com/query?type=' . $delivery['code'] . '&postid=' . $delivery['sn']);
+        $logistics = curl()->setCookie([
+            'Hm_lpvt_22ea01af58ba2be0fec7c11b25e88e6c' => time(),
+        ])->setHeader([
+            'Content-Type' => 'application/x-www-form-urlencoded',
+            'Referer' => 'http://baidu.kuaidi100.com/',
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36',
+        ])->json_get("http://baidu.kuaidi100.com/query?type={$delivery['code']}&postid={$delivery['sn']}&id=4&temp=0." . rand(100000000000000, 999999999999999));
         // 返回物流错误
         if ($logistics['status'] != 200) {
             // 没有历史查询信息
