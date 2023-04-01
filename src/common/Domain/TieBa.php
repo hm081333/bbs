@@ -104,7 +104,7 @@ class TieBa
 
     /**
      * CURL整合--返回数组
-     * @param string     $url
+     * @param string $url
      * @param bool|array $post
      * @return mixed
      * @throws InternalServerErrorException
@@ -172,6 +172,21 @@ class TieBa
     }
 
     /**
+     * 扫描所有用户的所有贴吧并储存--用于一键刷新
+     * @throws BadRequestException
+     * @throws InternalServerErrorException
+     * @throws \PhalApi\Exception\InternalServerErrorException
+     */
+    public function scanTiebaAll()
+    {
+        set_time_limit(0);
+        $bx = $this->Model_BaiDuId()->getListByWhere();
+        foreach ($bx as $by) {
+            $this->scanTiebaByPid($by['id']);
+        }
+    }
+
+    /**
      * 百度ID 数据层
      * @return \Common\Model\BaiDuId|Model|NotORMModel
      */
@@ -197,50 +212,17 @@ class TieBa
         $bname = $cma['name'];
         $pid = $cma['id'];
         unset($cma);
-        $bid = $this->getUserid($bname);
-        $pn = 1;
-        $a = 0;
-        while (true) {
-            if (empty($bid)) {
-                break;
+//        $url = "https://tieba.baidu.com/home/get/panel?ie=utf-8&un={$bname}";
+        $res = DI()->curl->setCookie([
+            'BDUSS' => $bduss,
+        ])->json_get('https://tieba.baidu.com/mo/q/newmoindex');
+        $forums = $res['data']['like_forum'] ?? [];
+        foreach ($forums as $forum) {
+            $vn = addslashes(htmlspecialchars($forum['forum_name']));
+            if ($tieba_model->getCount(['baidu_id' => $pid, 'fid' => $forum['forum_id']]) <= 0) {
+                $tieba_model->insert(['baidu_id' => $pid, 'fid' => $forum['forum_id'], 'tieba' => $vn, 'user_id' => $user_id, 'refresh_time' => time()]);
             }
-            $rc = $this->getTieba($bid, $bduss, $pn);
-            $ngf = isset($rc["forum_list"]["non-gconforum"]) ? $rc["forum_list"]["non-gconforum"] : [];
-            if (!empty($rc['forum_list']['gconforum'])) {
-                foreach ($rc['forum_list']['gconforum'] as $v) {
-                    $ngf[] = $v;
-                }
-            }
-            if (!empty($ngf) && is_array($ngf)) {
-                $refresh_time = $rc['time'];
-                foreach ($ngf as $v) {
-                    $vn = addslashes(htmlspecialchars($v['name']));
-                    $ist = $tieba_model->getCount(['baidu_id' => $pid, 'tieba' => $vn]);
-                    if ($ist == 0) {
-                        $a++;
-                        $tieba_model->insert(['baidu_id' => $pid, 'fid' => $v['id'], 'user_id' => $user_id, 'tieba' => $vn, 'refresh_time' => $refresh_time]);
-                    }
-                }
-                if ($a > 0) {
-                    $baiduid_model->update($pid, ['refresh_time' => $refresh_time]);
-                }
-            }
-            if ((count($ngf) < 1)) {
-                break;
-            }
-            $pn++;
         }
-    }
-
-    /**
-     * 获取贴吧用户id
-     * 获取指定pid用户userid--根据贴吧用户名找
-     * @throws InternalServerErrorException
-     */
-    private function getUserid($name)
-    {
-        $res = DI()->curl->json_get("http://tieba.baidu.com/home/get/panel?ie=utf-8&un={$name}");
-        return $res['data']['id'] ?? false;
     }
 
     /**
