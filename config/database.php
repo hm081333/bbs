@@ -91,6 +91,21 @@ return [
             'prefix_indexes' => true,
         ],
 
+        // 添加 MongoDB 的数据库的信息:
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'host' => env('MONGO_HOST', '127.0.0.1'),
+            'port' => env('MONGO_PORT', 27017),
+            'database' => env('MONGO_DATABASE', 'forge'),
+            'username' => env('MONGO_USERNAME', ''),
+            'password' => env('MONGO_PASSWORD', ''),
+            'options' => [
+                // here you can pass more settings to the Mongo Driver Manager
+                // see https://www.php.net/manual/en/mongodb-driver-manager.construct.php under "Uri Options" for a list of complete parameters that you can use
+                'database' => env('MONGO_AUTHENTICATION_DATABASE', ''), // required with Mongo 3+
+            ],
+        ],
+
     ],
 
     /*

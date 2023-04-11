@@ -13,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends BaseModel implements
+class AuthModel extends BaseModel implements
     AuthenticatableContract,
     AuthorizableContract,
     CanResetPasswordContract,
@@ -24,16 +24,6 @@ class User extends BaseModel implements
 
     //region 类属性
     /**
-     * 可批量分配的属性。
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'mobile',
-        'password',
-    ];
-
-    /**
      * 应该为序列化隐藏的属性。
      *
      * @var array<int, string>
@@ -41,14 +31,6 @@ class User extends BaseModel implements
     protected $hidden = [
         'password',
         'o_pwd',
-    ];
-
-    protected $appends = [
-        // 'sex_name',
-    ];
-
-    protected $with = [
-        // 'avatar',
     ];
     //endregion
 
@@ -71,7 +53,7 @@ class User extends BaseModel implements
     public function getJWTCustomClaims()
     {
         return [
-            'account_type' => 'user',
+            'account_type' => static::class,
         ];
     }
     //endregion
