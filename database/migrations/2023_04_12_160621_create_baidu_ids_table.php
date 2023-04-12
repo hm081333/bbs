@@ -16,7 +16,10 @@ return new class extends Migration
         Schema::create('baidu_ids', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->softDeletes();
         });
+        // 表注释
+        \Illuminate\Support\Facades\DB::statement("ALTER TABLE `zz_baidu_ids` comment '百度ID表'");
     }
 
     /**
