@@ -45,7 +45,7 @@ class Kernel extends HttpKernel
         ValidatePostSize::class,// 验证 POST 数据大小
         TrimStrings::class,// 清理请求内容前后空白字符
         ConvertEmptyStringsToNull::class,// 空字符转成 null
-        AccessLog::class,// 访问日志
+        //AccessLog::class,// 访问日志
     ];
 
     /**

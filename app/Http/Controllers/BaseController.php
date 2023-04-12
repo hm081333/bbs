@@ -3,11 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\Request\BadRequestException;
-use App\Traits\Auth\AdminAuth;
-use App\Traits\Auth\AgencyManagerAuth;
-use App\Traits\Auth\EnterpriseManagerAuth;
-use App\Traits\Auth\RecommenderAuth;
-use App\Traits\Auth\SchoolManagerAuth;
 use App\Traits\Auth\UserAuth;
 use App\Traits\JsonResponses;
 use App\Utils\ValidateRule;
@@ -16,12 +11,13 @@ use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Tymon\JWTAuth\JWTGuard;
+
 /**
  * 控制器类
  * @property \App\Models\AuthModel $modelAuthModel AuthModel
+ * @property \App\Models\BaiduId $modelBaiduId BaiduId
  * @property \App\Models\BaseModel $modelBaseModel BaseModel
  * @property \App\Models\User $modelUser User
  * Class Controller
@@ -30,7 +26,7 @@ class BaseController extends \Illuminate\Routing\Controller
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     use JsonResponses;
-    //use AdminAuth, UserAuth, RecommenderAuth, SchoolManagerAuth, EnterpriseManagerAuth, AgencyManagerAuth;
+    use UserAuth;
 
     public function __get($name)
     {
