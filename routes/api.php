@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\OpcacheController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,14 +16,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
-});
-
-Route::prefix('opcache')->name('opcache.')->group(function () {
-    Route::get('config', [OpcacheController::class, 'config']);
-    Route::get('status', [OpcacheController::class, 'status']);
-    Route::get('reset', [OpcacheController::class, 'reset']);
-    Route::get('clear', [OpcacheController::class, 'clear']);
-    Route::get('compile', [OpcacheController::class, 'compile']);
 });
 
 Route::any('webhook', function (\Illuminate\Http\Request $request) {

@@ -11,18 +11,23 @@ class ModelMap extends Command
     protected $signature = 'optimize:model-map';
 
     protected $description = '生成模型类映射';
+    protected $base_controller_name = 'BaseController';
 
     public function handle()
     {
-        $BaseControllerDoc = ['/**
- * 控制器类'];
         $model_list = Tools::scanFile(app_path('Models'));
         $result = $this->makeDocProperty($model_list, '\\App\\Models');
-        $BaseControllerDoc = array_merge($BaseControllerDoc, $result['doc']);
-        $BaseControllerDoc[] = ' * Class Controller
- */';
         file_put_contents(config_path('model_map.php'), "<?php   \nreturn " . var_export($result['alias'], true) . ';');
-        file_put_contents(storage_path('logs/BaseControllerDoc.log'), implode(PHP_EOL, $BaseControllerDoc));
+        $BaseControllerDocBegin = '/**' . PHP_EOL . ' * 控制器类';
+        $BaseControllerDocEnd = ' * Class Controller' . PHP_EOL . ' */';
+        $BaseControllerDoc = array_merge([
+            $BaseControllerDocBegin,
+        ], $result['doc'], [
+            $BaseControllerDocEnd,
+        ]);
+        $BaseControllerFilePath = app_path('Http/Controllers/' . $this->base_controller_name . '.php');
+        $BaseControllerContent = file_get_contents($BaseControllerFilePath);
+        file_put_contents($BaseControllerFilePath, preg_replace('/(\/\*\*[^\/]+\/)?\sclass ' . $this->base_controller_name . '/', implode(PHP_EOL, $BaseControllerDoc) . PHP_EOL . 'class ' . $this->base_controller_name, $BaseControllerContent));
         // 指令输出
         $this->info('生成模型类映射完成！');
         return 0;

@@ -19,12 +19,18 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Tymon\JWTAuth\JWTGuard;
-
+/**
+ * 控制器类
+ * @property \App\Models\AuthModel $modelAuthModel AuthModel
+ * @property \App\Models\BaseModel $modelBaseModel BaseModel
+ * @property \App\Models\User $modelUser User
+ * Class Controller
+ */
 class BaseController extends \Illuminate\Routing\Controller
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     use JsonResponses;
-    use AdminAuth, UserAuth, RecommenderAuth, SchoolManagerAuth, EnterpriseManagerAuth, AgencyManagerAuth;
+    //use AdminAuth, UserAuth, RecommenderAuth, SchoolManagerAuth, EnterpriseManagerAuth, AgencyManagerAuth;
 
     public function __get($name)
     {
