@@ -87,40 +87,43 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | JWT time to live
+    | JWT 存活时间
     |--------------------------------------------------------------------------
     |
-    | Specify the length of time (in minutes) that the token will be valid for.
-    | Defaults to 1 hour.
+    | 指定令牌的有效时间长度（以分钟为单位）。
+    | 默认为 1 小时。
     |
-    | You can also set this to null, to yield a never expiring token.
-    | Some people may want this behaviour for e.g. a mobile app.
-    | This is not particularly recommended, so make sure you have appropriate
-    | systems in place to revoke the token if necessary.
-    | Notice: If you set this to null you should remove 'exp' element from 'required_claims' list.
+    | 您还可以将其设置为 null，以生成永不过期的令牌。
+    | 有些人可能想要这种行为，例如 一个移动应用程序。
+    | 不特别推荐这样做，因此请确保您有适当的系统来在必要时撤销令牌。
+    | 注意：如果将其设置为 null，则应从“required_claims”列表中删除“exp”元素。
     |
     */
 
-    'ttl' => env('JWT_TTL', 60),
+    //'ttl' => env('JWT_TTL', 60),
+    //'ttl' => env('JWT_TTL', 30 * 24 * 60),
+    //'ttl' => env('JWT_TTL', 365 * 24 * 60),
+    'ttl' => null,
 
     /*
     |--------------------------------------------------------------------------
-    | Refresh time to live
+    | Refresh 存活时间
     |--------------------------------------------------------------------------
     |
-    | Specify the length of time (in minutes) that the token can be refreshed
-    | within. I.E. The user can refresh their token within a 2 week window of
-    | the original token being created until they must re-authenticate.
-    | Defaults to 2 weeks.
+    | 指定可以刷新令牌的时间长度（以分钟为单位）。
+    | I.E.
+    | 用户可以在创建原始令牌后 2 周内刷新其令牌，直到必须重新进行身份验证。
+    | 默认为 2 周。
     |
-    | You can also set this to null, to yield an infinite refresh time.
-    | Some may want this instead of never expiring tokens for e.g. a mobile app.
-    | This is not particularly recommended, so make sure you have appropriate
-    | systems in place to revoke the token if necessary.
+    | 您还可以将其设置为 null，以产生无限的刷新时间。
+    | 有些人可能想要这个而不是永不过期的令牌，例如 一个移动应用程序。
+    | 不特别推荐这样做，因此请确保您有适当的系统来在必要时撤销令牌。
     |
     */
 
-    'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
+    //'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
+    //'refresh_ttl' => env('JWT_REFRESH_TTL', 2 * 7 * 24 * 60),
+    'refresh_ttl' => null,
 
     /*
     |--------------------------------------------------------------------------
@@ -147,10 +150,11 @@ return [
     'required_claims' => [
         'iss',
         'iat',
-        'exp',
+        //'exp',
         'nbf',
         'sub',
         'jti',
+        'account_type',
     ],
 
     /*
@@ -158,17 +162,15 @@ return [
     | Persistent Claims
     |--------------------------------------------------------------------------
     |
-    | Specify the claim keys to be persisted when refreshing a token.
-    | `sub` and `iat` will automatically be persisted, in
-    | addition to the these claims.
+    | 指定刷新令牌时要保留的声明密钥。
+    | 除了这些声明之外，还将自动保留 `sub` 和 `iat`。
     |
-    | Note: If a claim does not exist then it will be ignored.
+    | 注意：如果声明不存在，则该声明将被忽略。
     |
     */
 
     'persistent_claims' => [
-        // 'foo',
-        // 'bar',
+         'account_type',
     ],
 
     /*
@@ -209,7 +211,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Blacklist Enabled
+    | 启用黑名单
     |--------------------------------------------------------------------------
     |
     | In order to invalidate tokens, you must have the blacklist enabled.
@@ -221,14 +223,14 @@ return [
 
     /*
     | -------------------------------------------------------------------------
-    | Blacklist Grace Period
+    | 黑名单的宽限期
     | -------------------------------------------------------------------------
     |
     | When multiple concurrent requests are made with the same JWT,
     | it is possible that some of them fail, due to token regeneration
     | on every request.
     |
-    | Set grace period in seconds to prevent parallel request failure.
+    | 以秒为单位设置宽限时间，避免并发请求失败。
     |
     */
 
@@ -236,7 +238,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Cookies encryption
+    | Cookies加密
     |--------------------------------------------------------------------------
     |
     | By default Laravel encrypt cookies for security reason.
@@ -246,7 +248,7 @@ return [
     | see https://laravel.com/docs/master/responses#cookies-and-encryption
     | for details.
     |
-    | Set it to true if you want to decrypt cookies.
+    | 如果您想要解密cookie，请将其设置为true。
     |
     */
 
@@ -254,10 +256,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Providers
+    | 供应商
     |--------------------------------------------------------------------------
     |
-    | Specify the various providers used throughout the package.
+    | 指定整个包中使用的各种提供程序。
     |
     */
 
@@ -265,10 +267,10 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | JWT Provider
+        | JWT提供者
         |--------------------------------------------------------------------------
         |
-        | Specify the provider that is used to create and decode the tokens.
+        | 指定用于创建和解码令牌的提供程序。
         |
         */
 
@@ -276,10 +278,10 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Authentication Provider
+        | 身份验证提供者
         |--------------------------------------------------------------------------
         |
-        | Specify the provider that is used to authenticate users.
+        | 指定用于对用户进行身份验证的提供者。
         |
         */
 
@@ -287,10 +289,10 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Storage Provider
+        | 存储提供商
         |--------------------------------------------------------------------------
         |
-        | Specify the provider that is used to store tokens in the blacklist.
+        | 指定用于在黑名单中存储令牌的提供商。
         |
         */
 

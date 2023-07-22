@@ -2,15 +2,47 @@
 
 namespace App\Utils;
 
+use App\Exceptions\Request\BadRequestException;
+use App\Models\BaseModel;
 use App\Utils\Aliyun\Oss;
-use App\Utils\Aliyun\Sms;
+use Closure;
+use DB;
+use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+use Throwable;
+use function igbinary_serialize;
+use function igbinary_unserialize;
 use function request;
+use function serialize;
+use function unserialize;
 
 class Tools
 {
     //region 自定义方法
+    /**
+     * JSON编码
+     * @param mixed $array
+     * @return false|string
+     */
+    public static function json_encode(mixed $array): false|string
+    {
+        return json_encode($array, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * JSON反编码
+     * @param string $json
+     * @return mixed
+     */
+    public static function json_decode(string $json): mixed
+    {
+        return json_decode($json, true);
+    }
+
     /**
      * 序列化
      * @param $value
@@ -19,9 +51,9 @@ class Tools
     public static function serialize($value)
     {
         if (function_exists('igbinary_serialize')) {
-            return \igbinary_serialize($value);
+            return igbinary_serialize($value);
         } else {
-            return \serialize($value);
+            return serialize($value);
         }
 
     }
@@ -34,9 +66,9 @@ class Tools
     public static function unserialize($value)
     {
         if (function_exists('igbinary_unserialize')) {
-            return \igbinary_unserialize($value);
+            return igbinary_unserialize($value);
         } else {
-            return \unserialize($value);
+            return unserialize($value);
         }
 
     }
@@ -44,8 +76,8 @@ class Tools
     /**
      * 产生随机字串，可用来自动生成密码
      * 默认长度6位 字母和数字混合 支持中文
-     * @param string $len      长度
-     * @param string $type     字串类型
+     * @param string $len 长度
+     * @param string $type 字串类型
      *                         0 字母 1 数字 其它 混合
      * @param string $addChars 额外字符
      * @return string
@@ -99,11 +131,11 @@ class Tools
      * 字符串截取，支持中文和其他编码
      * @static
      * @access public
-     * @param string $str     需要转换的字符串
-     * @param string $start   开始位置
-     * @param string $length  截取长度
+     * @param string $str 需要转换的字符串
+     * @param string $start 开始位置
+     * @param string $length 截取长度
      * @param string $charset 编码格式
-     * @param string $suffix  截断显示字符
+     * @param string $suffix 截断显示字符
      * @return string
      */
     public static function msubstr($str, $start = 0, $length = 0, $charset = "utf-8", $suffix = true)
@@ -226,35 +258,62 @@ class Tools
     }
 
     /**
+     * 判断是否生产环境
+     * @return bool
+     */
+    public static function isProduction(): bool
+    {
+        return config('app.env', 'production') === 'production';
+    }
+
+    /**
+     * 判断是否调试模式
+     * @return bool
+     */
+    public static function isDebug(): bool
+    {
+        return config('app.debug', false);
+    }
+
+    /**
      * 获取队列名
      * @param $num
      * @return string
      */
     public static function getQueueName($num)
     {
-        return 'admissions_queue' . ($num % config('queue.count'));
+        return 'queue' . ($num % config('queue.count'));
     }
 
     /**
-     * 获取当前请求的时间
-     * @access public
-     * @param bool $float 是否使用浮点类型
-     * @return Carbon
-     */
-    public static function now(bool $float = false)
-    {
-        return Carbon::parse(date('Y-m-d H:i:s', Tools::time($float)));
-    }
-
-    /**
-     * 获取当前请求的时间
+     * 获取当前请求的时间戳
      * @access public
      * @param bool $float 是否使用浮点类型
      * @return integer|float
      */
-    public static function time(bool $float = false)
+    public static function time(bool $float = false): float|int
     {
         return $float ? request()->server('REQUEST_TIME_FLOAT') : request()->server('REQUEST_TIME');
+    }
+
+    /**
+     * 获取当前请求的时间
+     * @access public
+     * @return Carbon
+     */
+    public static function now(): Carbon
+    {
+        return Carbon::parse(date('Y-m-d H:i:s', static::time()));
+    }
+
+    /**
+     * 获取当前请求的日期
+     * @access public
+     * @return Carbon
+     */
+    public static function today(): Carbon
+    {
+        return Carbon::parse(date('Y-m-d', static::time()));
     }
 
     /**
@@ -295,6 +354,59 @@ class Tools
             unset($item['pid']);
         }
         return $parent;
+    }
+
+    /**
+     * 事务锁
+     * @desc 用于控制器层
+     * @param Closure $callback
+     * @param int $attempts
+     * @return void
+     * @throws Throwable
+     */
+    public static function transaction(Closure $callback, int $attempts = 1)
+    {
+        DB::transaction(function ($connection) use ($callback) {
+            $callback($connection);
+        }, $attempts);
+    }
+
+    /**
+     * 并发锁
+     * @desc 用于控制器层
+     * @param Closure $callback
+     * @param string $unique
+     * @return void
+     * @throws Throwable
+     */
+    public static function concurrent(Closure $callback, $unique = 'all')
+    {
+        // 锁缓存KEY，最好是使用Redis缓存
+        $cache_key = 'concurrent:' . Route::current()->uri() . ':' . $unique;
+        // 锁存在
+        //if (Cache::has($cache_key)) throw new BadRequestException('服务器繁忙，请重试');
+        // 锁持续半个小时
+        Cache::put($cache_key, 1, 30 * 60);
+        try {
+            $callback();
+        } catch (Exception $exception) {
+            // 解锁
+            Cache::forget($cache_key);
+            throw $exception;
+        }
+        // 解锁
+        Cache::forget($cache_key);
+    }
+
+    /**
+     * 模型别称
+     * @param Model|string $model
+     * @return string
+     */
+    public static function modelAlias(Model|string $model)
+    {
+        $model_name = is_object($model) ? get_class($model) : $model;
+        return implode('', explode('\\', str_replace('App\\Models', '', $model_name)));
     }
     //endregion
 
@@ -399,8 +511,8 @@ class Tools
      */
     public static function storageAsset($path = '')
     {
-        $base_url = config('app.storage_url') ?? static::url('storage');
-        return $base_url . ($path ? '/' . $path : '');
+        $base_url = config('app.storage_url') ?: static::url('storage');
+        return rtrim($base_url, '/') . '/' . ltrim($path, '/');
     }
 
     /**
@@ -413,38 +525,27 @@ class Tools
         return asset($path);
     }
 
-    public static function getHomeUrl($path = '')
-    {
-        $base_url = config('app.home_url') ?? Tools::url('/home');
-        return $base_url . ($path ? '/' . $path : '');
-    }
-
     //endregion
 
     //region 快捷调用方法
-    public static function curl($retryTimes = 1, $timeoutMs = 3000)
+    public static function curl($retryTimes = 1, $timeoutMs = 3000): CUrl
     {
         return new CUrl($retryTimes, $timeoutMs);
     }
 
-    public static function file($file = false)
+    /**
+     * @param $file
+     * @return File
+     * @throws Exception
+     */
+    public static function file($file = false): File
     {
         return new File($file);
     }
 
-    public static function date(): DateHelper
-    {
-        return new DateHelper();
-    }
-
-    public static function excel(): ExcelHelper
-    {
-        return new ExcelHelper();
-    }
-
     public static function aliyun_sms()
     {
-        return new Sms();
+        //return new Sms();
     }
 
     public static function aliyun_oss()

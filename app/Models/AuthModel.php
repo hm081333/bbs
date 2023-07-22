@@ -10,33 +10,48 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+/**
+ * App\Models\AuthModel
+ *
+ * @property-write mixed $sort
+ * @method static \Illuminate\Database\Eloquent\Builder|AuthModel newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|AuthModel newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|AuthModel onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|AuthModel query()
+ * @method static \Illuminate\Database\Eloquent\Builder|AuthModel withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|AuthModel withoutTrashed()
+ * @mixin \Eloquent
+ */
 class AuthModel extends BaseModel implements
     AuthenticatableContract,
-    AuthorizableContract,
-    CanResetPasswordContract,
+    //AuthorizableContract,
+    //CanResetPasswordContract,
     JWTSubject
 {
-    use HasApiTokens, Notifiable;
-    use Authenticatable, Authorizable, CanResetPassword, MustVerifyEmail;
+    use
+        //Authorizable,
+        //CanResetPassword,
+        //MustVerifyEmail,
+        //Notifiable,
+        Authenticatable;
 
-    //region 类属性
-    /**
-     * 应该为序列化隐藏的属性。
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'o_pwd',
-    ];
-    //endregion
+    // region 重写方法
+    public function __construct(array $attributes = [])
+    {
+        // 添加序列化隐藏的属性
+        $this->hidden[] = 'password';
+        $this->hidden[] = 'o_pwd';
+        parent::__construct($attributes);
+    }
+    // endregion
 
     //region JWT相关
+
     /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
+     * 获取将存储在 JWT 主题声明中的标识符。
      *
      * @return mixed
      */
@@ -46,14 +61,14 @@ class AuthModel extends BaseModel implements
     }
 
     /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
+     * 返回一个键值数组，其中包含要添加到 JWT 的任何自定义声明。
      *
      * @return array
      */
     public function getJWTCustomClaims()
     {
         return [
-            'account_type' => static::class,
+            'account_type' => Str::snake(class_basename(static::class)),
         ];
     }
     //endregion

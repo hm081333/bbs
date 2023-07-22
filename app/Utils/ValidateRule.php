@@ -44,8 +44,8 @@ class ValidateRule
     public static function listRule($rule = [])
     {
         return array_merge([
-            'limit' => ['desc' => '数量', 'required' => true, 'min' => 1],
-            'page' => ['desc' => '页码', 'required' => true],
+            'limit' => ['desc' => '数量', 'required', 'min' => 1],
+            'page' => ['desc' => '页码', 'required', 'min' => 1],
             'search_field' => ['desc' => '搜索字段'],
             'search_keyword' => ['desc' => '搜索关键字'],
         ], $rule);
@@ -95,23 +95,58 @@ class ValidateRule
         return true;
     }
 
-    public function __call($name, $arguments)
+    /**
+     * 函数调用
+     * @param string $name 验证规则
+     * @param array $arguments 函数传入参数，验证字段名|规则后续参数
+     * @return $this
+     */
+    public function __call(string $name, array $arguments)
     {
+        [$param_key, $rule] = $arguments;
+        // 过滤常见类型的不同写法
+        $name = [
+            'require' => 'required',
+            'number' => 'numeric',
+            'int' => 'integer',
+        ][$name] ?? $name;
         switch ($name) {
-            case 'require':
-                $name = 'required';
+            case 'messages':
+                //#TODO 自定义错误信息
+                break;
+            case 'mobile':
+                $this->rules[$param_key][] = 'max:11';
+                $this->rules[$param_key][] = 'regex:/^1[0-9]{10}$/';
+                break;
+            case 'file':
+                $this->rules[$param_key][] = new \App\Rules\File;
+                break;
+            case 'files':
+                $this->rules[$param_key][] = new \App\Rules\Files;
+                break;
+            case 'option_item':
+                $this->rules[$param_key][] = new \App\Rules\OptionItem($rule);
+                break;
+            case 'option_items':
+                $this->rules[$param_key][] = new \App\Rules\OptionItems($rule);
+                break;
+            case 'province':
+                $this->rules[$param_key][] = new \App\Rules\Province;
+                break;
+            case 'city':
+                $this->rules[$param_key][] = new \App\Rules\City;
+                break;
+            case 'rules':
+                // 手撸规则
+                if (is_array($rule)) {
+                    $this->rules[$param_key] = array_merge($this->rules[$param_key], $rule);
+                } else {
+                    $this->rules[$param_key] = array_merge($this->rules[$param_key], explode('|', $rule));
+                }
                 break;
             default:
-                [$param_key, $rule] = $arguments;
                 // 需要获取的数据key值
-                if ($name == 'messages') {
-                } else if ($name == 'rules') {
-                    if (is_array($rule)) {
-                        $this->rules[$param_key] = array_merge($this->rules[$param_key], $rule);
-                    } else {
-                        $this->rules[$param_key] = array_merge($this->rules[$param_key], explode('|', $rule));
-                    }
-                } else if (is_bool($rule)) {
+                if (is_bool($rule)) {
                     $rule_key = array_search($name, $this->rules[$param_key]);
                     // 规则为true，且不存在该规则时
                     if ($rule && $rule_key === false) $this->rules[$param_key][] = $name;
@@ -130,10 +165,9 @@ class ValidateRule
                     Log::error($rule);
                     Log::error('--------------------------------------------------');
                 }
-                return $this;
                 break;
         }
-        return call_user_func_array([$this, $name], $arguments);
+        return $this;
     }
 
     /**

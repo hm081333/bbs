@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Exceptions\Request\BadRequestException;
+use App\Models\OptionItem;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Log;
@@ -30,9 +32,9 @@ class ModelServiceProvider extends ServiceProvider
         Builder::macro('getPage', function ($columns = ['*']): array {
             /* @var $this Builder */
             // 每页显示数量
-            $pageSize = request()->input('pageSize', $this->getModel()->getPerPage());
+            $pageSize = request()->input('limit', $this->getModel()->getPerPage());
             // 页码
-            $pageNo = request()->input('pageNo', 1);
+            $pageNo = request()->input('page', 1);
             // 搜索字段
             $search_field = request()->input('search_field');
             if ($search_field) {
@@ -52,13 +54,13 @@ class ModelServiceProvider extends ServiceProvider
                 ? $this->forPage($pageNo, $pageSize)->get($columns)
                 : $this->model->newCollection();
             return [
-                'rows' => $results,
+                'list' => $results,
                 'total' => intval($total),
-                'pageSize' => intval($pageSize),
-                'pageNo' => intval($pageNo),
+                'limit' => intval($pageSize),
+                'page' => intval($pageNo),
             ];
         });
-        /* 替换where，可嵌套查询 */
+        /* 排序函数 */
         Builder::macro('orderByInput', function (): Builder {
             /* @var $this Builder */
             //region 解析前端传递的排序规则
@@ -67,7 +69,7 @@ class ModelServiceProvider extends ServiceProvider
             // 后添加的排序会替换前面添加的排序
             $orders = empty($orders) ? [] : array_combine(array_column($orders, 'column'), array_column($orders, 'direction'));
             // 请求携带 的 排序条件
-            $orderBys = request()->input('orderBy');
+            $orderBys = \request()->input('orderBy');
             if (!empty($orderBys)) {
                 // 解出排序数组
                 if (!is_array($orderBys)) {
@@ -100,7 +102,7 @@ class ModelServiceProvider extends ServiceProvider
             //endregion
             return $this;
         });
-        /* 替换where，可嵌套查询 */
+        /* 嵌套查询函数 */
         Builder::macro('search', function ($search_fields, $operator = null, $value = null, $boolean = 'and'): Builder {
             /* @var $this Builder */
             $args = func_get_args();
@@ -131,7 +133,7 @@ class ModelServiceProvider extends ServiceProvider
             }
             return $this;
         });
-        /* 查询指定字段函数 */
+        /* 根据请求，嵌套查询函数 */
         Builder::macro('searchInput', function (string $search_field, $operator = null, $input_field = null): Builder {
             /* @var $this Builder */
             // 搜索字段 为空 不进行查询
@@ -146,7 +148,7 @@ class ModelServiceProvider extends ServiceProvider
                 $query->search($search_field, $operator, $search_data);
             });
         });
-        /* 查询指定字段函数 */
+        /* 根据请求，查询指定字段函数 */
         Builder::macro('whereInput', function (string $search_field, $operator = null, $input_field = null): Builder {
             /* @var $this Builder */
             // 搜索字段 为空 不进行查询
@@ -171,7 +173,25 @@ class ModelServiceProvider extends ServiceProvider
                 }
             });
         });
-        Builder::macro('whereLike', function (string $search_field, $input_field = null): Builder {
+        /* 根据请求，查询指定字段函数 */
+        Builder::macro('whereInputOptionItem', function (string $search_field, $input_field = null): Builder {
+            /* @var $this Builder */
+            // 搜索字段 为空 不进行查询
+            if (empty($search_field)) return $this;
+            // 获取搜索值
+            $option_item_id = request()->input($input_field ?? $search_field);
+            return $this->when(isset($option_item_id) && !empty($option_item_id), function (Builder $query) use ($search_field, $option_item_id) {
+                $option_item_value = OptionItem::getValue($option_item_id);
+                $arr = explode('-', $option_item_value);
+                if (count($arr) == 2) {
+                    $query->whereIn($search_field, $arr);
+                } else {
+                    $query->where($search_field, $option_item_value);
+                }
+            });
+        });
+        /* 根据请求，模糊查询指定字段函数 */
+        Builder::macro('whereInputLike', function (string $search_field, $input_field = null): Builder {
             /* @var $this Builder */
             // 搜索字段 为空 不进行查询
             if (empty($search_field)) return $this;
@@ -182,6 +202,12 @@ class ModelServiceProvider extends ServiceProvider
             $search_data = request()->input($input_field ?? $search_field);
             return $this->when(isset($search_data) && !empty($search_data), function (Builder $query) use ($search_field, $operator, $search_data) {
                 $query->where($search_field, $operator, "%{$search_data}%");
+            });
+        });
+        Builder::macro('firstOrThrow', function (string $thr_str = '数据异常') {
+            /* @var $this \Illuminate\Database\Eloquent\Builder */
+            return $this->firstOr(function () use ($thr_str) {
+                throw new BadRequestException($thr_str);
             });
         });
     }

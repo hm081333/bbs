@@ -9,12 +9,12 @@ trait JsonResponses
     /**
      * 响应一个错误信息
      * @param string $message
-     * @param int    $code
+     * @param int $code
      * @return JsonResponse
      */
-    public function error($message, $code = 400)
+    public function error(string $message, int $code = 400): JsonResponse
     {
-        return response()->json([
+        return new JsonResponse([
             'code' => $code,
             'msg' => $message,
         ]);
@@ -22,13 +22,13 @@ trait JsonResponses
 
     /**
      * 响应一个成功消息
-     * @param     $data
-     * @param int $code
+     * @param string $message
+     * @param mixed|null $data
      * @return JsonResponse
      */
-    public function success($message = '', $data = [])
+    public function success(string $message = '', mixed $data = null): JsonResponse
     {
-        return response()->json([
+        return new JsonResponse([
             'code' => 200,
             'msg' => $message,
             'data' => $data,

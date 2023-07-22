@@ -1,0 +1,4 @@
+*
+!.gitignore
+!admin_permission.json
+!mysql

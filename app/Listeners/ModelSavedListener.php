@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\ModelSavedEvent;
+use App\Utils\Tools;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -31,7 +32,7 @@ class ModelSavedListener
         if ($relationData = $model->getRelationData()) {
             foreach ($relationData as $relation => $data) {
                 if (empty($data)) continue;
-                if (substr(json_encode($data), 0, 1) == '{') $data = [$data];
+                if (substr(Tools::json_encode($data), 0, 1) === '{') $data = [$data];
                 foreach ($data as $item) {
                     $relation_model = $model->$relation();
                     $wheres = [];

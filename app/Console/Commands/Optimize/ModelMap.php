@@ -27,7 +27,8 @@ class ModelMap extends Command
         ]);
         $BaseControllerFilePath = app_path('Http/Controllers/' . $this->base_controller_name . '.php');
         $BaseControllerContent = file_get_contents($BaseControllerFilePath);
-        file_put_contents($BaseControllerFilePath, preg_replace('/(\/\*\*[^\/]+\/)?\sclass ' . $this->base_controller_name . '/', implode(PHP_EOL, $BaseControllerDoc) . PHP_EOL . 'class ' . $this->base_controller_name, $BaseControllerContent));
+
+        file_put_contents($BaseControllerFilePath, preg_replace('/(\/\*\*[^\/]+\/)?\s*class ' . $this->base_controller_name . '/', implode(PHP_EOL, $BaseControllerDoc) . PHP_EOL . 'class ' . $this->base_controller_name, $BaseControllerContent));
         // 指令输出
         $this->info('生成模型类映射完成！');
         return 0;
@@ -45,9 +46,8 @@ class ModelMap extends Command
                 if (strpos($item, '.php') === false) continue;
                 $modelClassName = str_replace('.php', '', $item);
                 if (strtolower($modelClassName) == 'model') continue;
-                // $modelAlias = "model{$modelClassName}";
-                $modelAlias = 'model' . implode('', explode('\\', str_replace('\\App\\Models', '', $namespace))) . $modelClassName;
                 $modelClass = "{$namespace}\\{$modelClassName}";
+                $modelAlias = 'model' . Tools::modelAlias($modelClass);;
                 $result['alias'][$modelAlias] = $modelClass;
                 $result['doc'][] = " * @property {$modelClass} \${$modelAlias} {$modelClassName}";
             }

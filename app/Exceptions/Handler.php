@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use App\Utils\Bark;
+use App\Utils\Tools;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -60,10 +61,10 @@ class Handler extends ExceptionHandler
             if ($request->isJson() || $request->expectsJson()) {
                 $data = [
                     'code' => $e->getCode(),
-                    'data' => null,
+                    //'data' => null,
                     'msg' => $e->getMessage(),
                 ];
-                if (!($e instanceof \App\Exceptions\Exception) && config('app.env') == 'production') {
+                if (!($e instanceof \App\Exceptions\Exception) && Tools::isProduction()) {
                     Bark::instance()
                         ->setGroup('Exception')
                         ->setTitle('招生平台异常捕获')
@@ -76,11 +77,17 @@ class Handler extends ExceptionHandler
                         ->send();
                     $data['msg'] = '请求错误，请联系管理员。';
                 }
-                if (config('app.debug')) {
+                if ($e instanceof \Tymon\JWTAuth\Exceptions\JWTException) {
+                    $data['code'] = '401';
+                    $data['msg'] = '请登录';
+                }
+                //throw new UnauthorizedException('请登录');
+                if (Tools::isDebug()) {
+                    $data['error'] = $e->getMessage();
                     $data['debug'] = [
                         'file' => $e->getFile(),
                         'line' => $e->getLine(),
-                        'trace' => json_decode(json_encode($e->getTrace()), true),
+                        'trace' => Tools::json_decode(Tools::json_encode($e->getTrace())),
                     ];
                 }
                 return response()->json($data)->setStatusCode(method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 200);

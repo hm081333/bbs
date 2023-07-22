@@ -19,7 +19,7 @@ class AdminPermission extends Command
      *
      * @var string
      */
-    protected $description = '备份后台权限';
+    protected $description = '备份后台权限表';
 
     /**
      * Create a new command instance.
@@ -42,25 +42,25 @@ class AdminPermission extends Command
         $permissions = $modelAdminPermission
             ->where('pid', $params['pid'] ?? 0)
             ->orderBy('sort')
-            ->orderByDesc('id')
+            ->orderBy('id')
             ->with(['children'])
             ->get();
-        $permissions = $this->parsePermissions($permissions->toArray());
-        file_put_contents(Tools::backupPath('admin_permission.json'), json_encode($permissions));
+        $permissions = $this->parse($permissions->toArray());
+        file_put_contents(Tools::backupPath('admin_permission.json'), Tools::json_encode($permissions));
         // 指令输出
-        $this->info('备份后台权限完成！');
+        $this->info('备份后台权限表完成！');
         return 0;
     }
 
-    private function parsePermissions($permissions)
+    private function parse($permissions)
     {
         $return_data = [];
         foreach ($permissions as $permission) {
-            unset($permission['id'], $permission['pid']);
+            unset($permission['id'], $permission['pid'], $permission['sort']);
             if (empty($permission['children'])) {
                 unset($permission['children']);
             } else {
-                $permission['children'] = $this->parsePermissions($permission['children']);
+                $permission['children'] = $this->parse($permission['children']);
             }
             $return_data[] = $permission;
         }

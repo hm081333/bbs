@@ -5,8 +5,12 @@ namespace App\Providers;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Parser;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -52,18 +56,47 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
+
+            // Route::fallback(function (Request $request) {
+            //     return response()->view('errors.404')->setStatusCode(404);
+            // });
+
+            // Route::any('{fallbackPlaceholder}', function (Request $request) {
+            //     if ($request->isJson() || $request->expectsJson()) {
+            //         return response()->json('404 Not Found')->setStatusCode(404);
+            //     } else {
+            //         return response()->view('errors.404')->setStatusCode(404);
+            //     }
+            // })->where('fallbackPlaceholder', '.*')->fallback();
         });
     }
 
     /**
-     * Configure the rate limiters for the application.
+     * 为应用程序配置速率限制器。
      *
      * @return void
      */
     protected function configureRateLimiting()
     {
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            $key = 'ip:' . $request->ip();
+            $token_parser = app()->make('tymon.jwt.parser');
+            $token_str = $token_parser->parseToken();
+            if ($token_str) {
+                try {
+                    $JWTParser = new Parser(new JoseEncoder());
+                    $token = $JWTParser->parse($token_str);
+                    $claims = $token->claims();
+                    $account_type = $claims->get('account_type', '');
+                    $account_id = $claims->get('sub', 0);
+                    if (!empty($account_type) && !empty($account_id)) $key = "{$account_type}:{$account_id}";
+                } catch (\Exception $e) {
+                    Log::error('获取令牌信息失败');
+                    Log::error($token_str);
+                    Log::error($e);
+                }
+            }
+            return Limit::perMinute(60)->by($key);
         });
     }
 }

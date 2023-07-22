@@ -16,6 +16,12 @@ class Oss
      */
     private $config;
 
+    /**
+     * aliyuncs/oss-sdk-php
+     * @var OssClient
+     */
+    private OssClient $ossClient;
+
     public function __construct()
     {
         $this->config = config('oss.configs.aliyun');

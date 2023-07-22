@@ -3,6 +3,7 @@
 namespace App\Utils;
 
 use App\Exceptions\Server\Exception;
+use App\Jobs\ObjectStorageServiceJob;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
@@ -57,7 +58,8 @@ class File
      */
     public function setRemoteFile(string $url)
     {
-        $file_path = Tools::curl()->getFile($url, Tools::runtimePath('remote/') . date('Y/m/d/'), basename($url));
+        $url_info = parse_url($url);
+        $file_path = Tools::curl()->getFile($url, Tools::runtimePath('remote/') . date('Y/m/d/'), basename($url_info['path']));
         $this->file = new \Illuminate\Http\File($file_path);
         return $this;
     }
@@ -98,9 +100,7 @@ class File
         // 对于图片，获取宽高
         $file_data = array_merge($file_data, $this->getImageSize());
         $file_data['path'] = $this->getFilePath($path);
-        $modelFile = new \App\Models\File();
-        $modelFile->saveData($file_data);
-        return $modelFile;
+        return \App\Models\File::create($file_data);
     }
 
     /**
@@ -186,12 +186,10 @@ class File
     {
         $save_path = $path . date('/Y/m/d');
         $file_path = $save_path . '/' . $this->getFileName();
-        /*if ($this->file instanceof UploadedFile) {
-            $this->file->store($save_path, 'public');
-        } else {
-            $this->file->move(storage_path('app/public/') . $save_path, $this->getFileName());
-        }*/
+        // move能同时兼容File与UploadFile
         $this->file->move(storage_path('app/public/') . $save_path, $this->getFileName());
+        // 线上服务，尝试上传到OSS
+        if (Tools::isProduction()) ObjectStorageServiceJob::dispatch($file_path, storage_path("app/public/{$file_path}"))->onQueue('oss');
         return $file_path;
     }
     //endregion

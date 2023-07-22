@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\AccessLog;
+use App\Http\Middleware\Auth\UserAuth;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\DBTransaction;
 use App\Http\Middleware\EncryptCookies;
@@ -24,6 +25,7 @@ use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
 use Illuminate\Http\Middleware\SetCacheHeaders;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Routing\Middleware\ThrottleRequestsWithRedis;
 use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -38,9 +40,10 @@ class Kernel extends HttpKernel
      * @var array<int, class-string|string>
      */
     protected $middleware = [
-        // \App\Http\Middleware\TrustHosts::class,
-        TrustProxies::class,// 信任代理
-        HandleCors::class,// 跨域请求
+        //TrustHosts::class,// 信任主机
+        //TrustProxies::class,// 信任代理
+        //\Illuminate\Http\Middleware\HandleCors::class,// 跨域请求
+        \App\Http\Middleware\HandleCors::class,// 跨域请求
         PreventRequestsDuringMaintenance::class,// 维护模式相关
         ValidatePostSize::class,// 验证 POST 数据大小
         TrimStrings::class,// 清理请求内容前后空白字符
@@ -68,8 +71,8 @@ class Kernel extends HttpKernel
         ],
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            'throttle:api',
-            SubstituteBindings::class,
+            //SubstituteBindings::class,
+            'throttle:api',// API请求频率限制，具体次数限制前往\App\Providers\RouteServiceProvider修改configureRateLimiting
             DBTransaction::class,// 数据库事务
         ],
     ];
@@ -82,6 +85,12 @@ class Kernel extends HttpKernel
      * @var array<string, class-string|string>
      */
     protected $routeMiddleware = [
+        // 用户端
+        'auth.user' => UserAuth::class,
+        // 使用速率限制
+        //'throttle' => ThrottleRequests::class,
+        // 使用 Redis 管理速率限制
+        'throttle' => ThrottleRequestsWithRedis::class,
         //'auth' => Authenticate::class,
         //'auth.basic' => AuthenticateWithBasicAuth::class,
         //'cache.headers' => SetCacheHeaders::class,

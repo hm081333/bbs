@@ -15,15 +15,46 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => [
+        // '*',
+        'common/*',
+        'admin/*',
+        'home/*',
+        'pages/*',
+    ],
 
-    'allowed_methods' => ['*'],
+    'allowed_methods' => [
+        // '*',
+        'get',
+        'post',
+        'options',
+    ],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        // '*',
+        'http://localhost:*',
+        'http://127.0.0.1:*',
+        'http://*.gdsbuild.com',
+        'https://*.gdsbuild.com',
+    ],
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => [
+        // '/http[s]?:\/\/localhost[:\d+]?/',
+        // '/http[s]?:\/\/127.0.0.\d+[:\d+]?/',
+        // '/http[s]?:\/\/172.(1[6-9]|2[1-9]|31).\d+.\d+[:\d+]?/',
+        // '/http[s]?:\/\/192.168.\d+.\d+[:\d+]?/',
+    ],
 
-    'allowed_headers' => ['*'],
+    'allowed_headers' => [
+        //'*',
+        'Accept',
+        'Content-Type',
+        'X-Requested-With',
+        'Appverion',
+        'AppIdCode',
+        'Port',
+        'Authorization',
+    ],
 
     'exposed_headers' => [],
 

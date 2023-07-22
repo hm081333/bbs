@@ -130,7 +130,7 @@ class SqlListener
             $data['headers'] = json_encode((object)array_map(function ($header) {
                 return implode(',', $header);
             }, $request->header()), true);
-            $data['user_agent'] = json_encode((object)$request->userAgent(), true);
+            $data['user_agent'] = $request->userAgent();
         } else {
             $data['url'] = array_shift($_SERVER['argv']);
             $data['path_info'] = implode(' ', $_SERVER['argv']);

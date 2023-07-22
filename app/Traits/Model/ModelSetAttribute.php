@@ -25,20 +25,20 @@ trait ModelSetAttribute
      */
     public function setSnAttribute($prefix)
     {
-        $this->attributes['sn'] = $this->GenerateSN($prefix);
+        $this->attributes['sn'] = $this->generateSerialNumber($prefix);
     }
 
+    //region 自定义方法
     /**
      * 生成编号
-     * @param $prefix
+     * @param string $prefix 编号前缀
+     * @param string $column 编号字段
      * @return string
      */
-    private function GenerateSN($prefix)
+    protected function generateSerialNumber(string $prefix, string $column = 'sn')
     {
         $sn = $prefix . date('YmdHis') . Tools::randString(6, 1);
-        $model = clone $this;
-        $exist = $model->where('sn', $sn)->select('id')->first();
-        return $exist ? $this->GenerateSN($prefix) : $sn;
+        return static::where($column, $sn)->count() ? $this->GenerateSerialNumber($prefix, $column) : $sn;
     }
 
     /**
@@ -61,19 +61,6 @@ trait ModelSetAttribute
             case 'admin':
                 $operator_id = auth('admin')->id();
                 break;
-            case 'school':
-                $operator_id = auth('school_manager')->id();
-                break;
-            case 'enterprise':
-                $operator_id = auth('enterprise_manager')->id();
-                break;
-            case 'agency':
-                $operator_id = auth('agency_manager')->id();
-                break;
-            case 'enroll':
-            case 'recommender':
-                $operator_id = auth('recommender')->id();
-                break;
             case 'home':
             case 'user':
                 $operator_id = auth('user')->id();
@@ -83,4 +70,5 @@ trait ModelSetAttribute
         }
         $this->setAttribute('operator_id', $operator_id);
     }
+    //endregion
 }
