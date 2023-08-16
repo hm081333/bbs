@@ -67,7 +67,7 @@ class Handler extends ExceptionHandler
                 if (!($e instanceof \App\Exceptions\Exception) && Tools::isProduction()) {
                     Bark::instance()
                         ->setGroup('Exception')
-                        ->setTitle('招生平台异常捕获')
+                        ->setTitle(config('app.name','') . '系统异常捕获')
                         ->setBody(implode("\n\n", array_merge([
                             get_class($e) . ':' . $e->getCode(),
                             $e->getMessage(),
