@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Fund;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -34,12 +35,29 @@ class FundUpdateJob implements ShouldQueue
      */
     public function handle()
     {
-        \App\Models\Fund::updateOrCreate([
-            'code' => $this->fundData['code'],
-        ], [
-            'name' => $this->fundData['name'],
-            'pinyin_initial' => $this->fundData['pinyin_initial'],
-            'type' => $this->fundData['type'],
-        ]);
+        // 基金数据更新逻辑
+        /* @var $fund Fund */
+        $fund = Fund::where('code', $this->fundData['code'])->first();
+        if (!$fund) {
+            // 基金数据不存在，插入
+            Fund::create([
+                'code' => $this->fundData['code'],
+                'name' => $this->fundData['name'],
+                'pinyin_initial' => $this->fundData['pinyin_initial'],
+                'type' => $this->fundData['type'],
+            ]);
+        } else if (
+            $fund->name != $this->fundData['name']
+            ||
+            $fund->pinyin_initial != $this->fundData['pinyin_initial']
+            ||
+            $fund->type != $this->fundData['type']
+        ) {
+            // 基金数据存在但数据不一致，更新
+            $fund->name = $this->fundData['name'];
+            $fund->pinyin_initial = $this->fundData['pinyin_initial'];
+            $fund->type = $this->fundData['type'];
+            $fund->save();
+        }
     }
 }

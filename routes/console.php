@@ -41,7 +41,7 @@ Artisan::command('fund', function () {
                     'Referer' => 'https://fund.eastmoney.com/data/fundranking.html',
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
                 ])
-                ->get("https://fund.eastmoney.com/data/rankhandler.aspx?op=ph&dt=kf&ft={$key}&rs=&gs=0&sc=1nzf&st=desc&sd={$today_date}&ed={$today_date}&pi={$page}&pn=200&dx=0");
+                ->get("https://fund.eastmoney.com/data/rankhandler.aspx?op=ph&dt=kf&ft={$key}&rs=&gs=0&sc=dm&st=asc&sd={$today_date}&ed={$today_date}&pi={$page}&pn=200&dx=0");
             //dd($res);
             if ($allPages == 1) {
                 preg_match('/allPages:([^,]+),/', $res, $matches);
@@ -54,21 +54,21 @@ Artisan::command('fund', function () {
                 return explode(',', $str);
             }, $data_arr);
             foreach ($data_arr as $item) {
+                $this->comment("写入基金：{$item[0]}-{$item[1]}");
                 \App\Jobs\FundUpdateJob::dispatch([
                     'code' => $item[0],
                     'name' => $item[1],
                     'pinyin_initial' => $item[2],
                     'type' => $key,
                 ]);
-                $this->comment("写入基金：{$item[0]}-{$item[1]}");
                 if ($item[3]) {
+                    $this->comment("写入基金净值：{$item[0]}-{$item[1]}，单位净值：{$item[4]}，累计净值：{$item[5]}");
                     \App\Jobs\FundNetValueUpdateJob::dispatch([
                         'net_value_time' => $item[3],
                         'code' => $item[0],
                         'unit_net_value' => $item[4],// 单位净值
                         'cumulative_net_value' => $item[5],// 累计净值
                     ]);
-                    $this->comment("写入基金净值：{$item[0]}-{$item[1]}，单位净值：{$item[4]}，累计净值：{$item[5]}");
                 }
                 //dd($fund_net_value);
             }
@@ -124,13 +124,13 @@ Artisan::command('fund_valuation', function () {
             if (count($values) == count($table_headers)) {
                 $funds_value = array_combine($table_headers, $values);
                 //dd($funds_value);
+                $this->comment("写入基金估值：{$funds_value['基金代码']}-{$funds_value['基金名称']}-最新预估净值：{$funds_value['最新预估净值']}");
                 \App\Jobs\FundValuationUpdateJob::dispatch([
                     'code' => $funds_value['基金代码'],
                     'valuation_time' => $funds_value['估值时间'],
                     'valuation_source' => $valuation_source,
                     'estimated_net_value' => $funds_value['最新预估净值'],
                 ]);
-                $this->comment("写入基金估值：{$funds_value['基金代码']}-{$funds_value['基金名称']}-最新预估净值：{$funds_value['最新预估净值']}");
             }
         }
         //endregion

@@ -38,19 +38,36 @@ class FundNetValueUpdateJob implements ShouldQueue
      */
     public function handle()
     {
+        // 基金净值更新逻辑
+        /* @var $fund Fund */
         $fund = Fund::where('code', $this->fundNetValue['code'])->first();
         if ($fund) {
-            \App\Models\FundNetValue::updateOrCreate([
+            /* @var $fund_net_value FundNetValue */
+            $fund_net_value = FundNetValue::where([
                 'fund_id' => $fund->id,
                 'net_value_time' => Carbon::parse($this->fundNetValue['net_value_time']),
-            ], [
-                'code' => $fund->code,
-                'name' => $fund->name,
-                'unit_net_value' => $this->fundNetValue['unit_net_value'],// 单位净值
-                'cumulative_net_value' => $this->fundNetValue['cumulative_net_value'],// 累计净值
-                'created_at' => Carbon::parse($this->fundNetValue['net_value_time'])->setHour(15),
-                //'updated_at' => $net_value_time,
-            ]);
+            ])->first();
+            if (!$fund_net_value) {
+                FundNetValue::create([
+                    'fund_id' => $fund->id,
+                    'code' => $fund->code,
+                    'name' => $fund->name,
+                    'unit_net_value' => $this->fundNetValue['unit_net_value'],// 单位净值
+                    'cumulative_net_value' => $this->fundNetValue['cumulative_net_value'],// 累计净值
+                    'net_value_time' => Carbon::parse($this->fundNetValue['net_value_time']),
+                    'created_at' => Carbon::parse($this->fundNetValue['net_value_time'])->setHour(15),
+                    //'updated_at' => $net_value_time,
+                ]);
+            } else if (
+                $fund_net_value->unit_net_value != $this->fundNetValue['unit_net_value']
+                ||
+                $fund_net_value->cumulative_net_value != $this->fundNetValue['cumulative_net_value']
+            ) {
+                $fund_net_value->unit_net_value = $this->fundNetValue['unit_net_value'];// 单位净值
+                $fund_net_value->cumulative_net_value = $this->fundNetValue['cumulative_net_value'];// 累计净值
+                $fund_net_value->created_at = Carbon::parse($this->fundNetValue['net_value_time'])->setHour(15);
+                $fund_net_value->save();
+            }
         }
     }
 }
