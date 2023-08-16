@@ -19,7 +19,7 @@ return new class extends Migration
             $table->softDeletes();
         });
         // 表注释
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE `zz_baidu_ids` comment '百度ID表'");
+        \Illuminate\Support\Facades\DB::statement("ALTER TABLE `ly_baidu_ids` comment '百度ID表'");
     }
 
     /**

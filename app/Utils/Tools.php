@@ -408,6 +408,44 @@ class Tools
         $model_name = is_object($model) ? get_class($model) : $model;
         return implode('', explode('\\', str_replace('App\\Models', '', $model_name)));
     }
+
+    /**
+     * 建议精度数学函数
+     * @param        $left_operand
+     * @param string $operator
+     * @param        $right_operand
+     * @param int $scale
+     * @return bool|string|null
+     */
+    public static function math($left_operand, string $operator, $right_operand, int $scale = 2)
+    {
+        $left_operand = empty($left_operand) ? '0' : $left_operand;
+        $right_operand = empty($right_operand) ? '0' : $right_operand;
+        switch ($operator) {
+            case '+':
+                return bcadd($left_operand, $right_operand, $scale);
+            case '-':
+                return bcsub($left_operand, $right_operand, $scale);
+            case '*':
+                return bcmul($left_operand, $right_operand, $scale);
+            case '/':
+                if (static::math($left_operand, '=', '0', $scale) || static::math($right_operand, '=', '0', $scale)) return '0';
+                return bcdiv($left_operand, $right_operand, $scale);
+            case '>':
+                return bccomp($left_operand, $right_operand, $scale) === 1;
+            case '>=':
+                $result = bccomp($left_operand, $right_operand, $scale);
+                return $result === 1 || $result === 0;
+            case '<':
+                return bccomp($left_operand, $right_operand, $scale) === -1;
+            case '<=':
+                $result = bccomp($left_operand, $right_operand, $scale);
+                return $result === -1 || $result === 0;
+            case '=':
+                return bccomp($left_operand, $right_operand, $scale) === 0;
+        }
+        return '0';
+    }
     //endregion
 
     //region 目录，文件

@@ -8,5 +8,9 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 
 class Controller extends \App\Http\Controllers\BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    public function test()
+    {
+        return 123;
+    }
 }

@@ -29,7 +29,8 @@ use Illuminate\Support\Str;
 class BaseModel extends \Illuminate\Database\Eloquent\Model
 {
     //use HasFactory;
-    use SoftDeletes, ModelGetAttribute, ModelSetAttribute, ModelBelongsTo, ModelSaveData;
+    //use SoftDeletes;
+    use ModelGetAttribute, ModelSetAttribute, ModelBelongsTo, ModelSaveData;
 
     //region 类属性
     /**
