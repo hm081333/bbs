@@ -1,5 +1,12 @@
 <?php
 
+use App\Jobs\FundNetValueUpdateJob;
+use App\Jobs\FundUpdateJob;
+use App\Jobs\FundValuationUpdateJob;
+use App\Models\Fund;
+use App\Models\FundNetValue;
+use App\Models\FundValuation;
+use App\Utils\Tools;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
@@ -21,8 +28,8 @@ Artisan::command('inspire', function () {
 
 Artisan::command('fund', function () {
     $this->comment('获取基金列表');
-    $today_date = date('Y-m-d', \App\Utils\Tools::time());
-    $curl = \App\Utils\Tools::curl(5);
+    $today_date = date('Y-m-d', Tools::time());
+    $curl = Tools::curl(5);
     $types = [
         'gp' => '股票型',
         'hh' => '混合型',
@@ -49,13 +56,13 @@ Artisan::command('fund', function () {
             }
             preg_match('/datas:(\[[^]]*])/', $res, $matches);
             $data_json = $matches[1];
-            $data_arr = \App\Utils\Tools::json_decode($data_json);
+            $data_arr = Tools::json_decode($data_json);
             $data_arr = array_map(function ($str) {
                 return explode(',', $str);
             }, $data_arr);
             foreach ($data_arr as $item) {
                 $this->comment("写入基金：{$item[0]}-{$item[1]}");
-                \App\Jobs\FundUpdateJob::dispatch([
+                FundUpdateJob::dispatch([
                     'code' => $item[0],
                     'name' => $item[1],
                     'pinyin_initial' => $item[2],
@@ -63,7 +70,7 @@ Artisan::command('fund', function () {
                 ]);
                 if ($item[3]) {
                     $this->comment("写入基金净值：{$item[0]}-{$item[1]}，单位净值：{$item[4]}，累计净值：{$item[5]}");
-                    \App\Jobs\FundNetValueUpdateJob::dispatch([
+                    FundNetValueUpdateJob::dispatch([
                         'net_value_time' => $item[3],
                         'code' => $item[0],
                         'unit_net_value' => $item[4],// 单位净值
@@ -93,7 +100,7 @@ Artisan::command('fund_valuation', function () {
         '链接',
     ];
     //$funds_values = [];
-    $curl = \App\Utils\Tools::curl(5);
+    $curl = Tools::curl(5);
     $max_page = 1;
     for ($current_page = 1; $current_page <= $max_page; $current_page++) {
         $page_content = $curl
@@ -117,20 +124,32 @@ Artisan::command('fund_valuation', function () {
             $values = array_map(function ($value) {
                 return strip_tags($value);
             }, $matches[1]);
-            if ($index == 0 && $current_page == 1) {
+            if ($index == 0) {
                 $table_headers = $values;
                 continue;
             }
             if (count($values) == count($table_headers)) {
                 $funds_value = array_combine($table_headers, $values);
                 //dd($funds_value);
-                $this->comment("写入基金估值：{$funds_value['基金代码']}-{$funds_value['基金名称']}-最新预估净值：{$funds_value['最新预估净值']}");
-                \App\Jobs\FundValuationUpdateJob::dispatch([
-                    'code' => $funds_value['基金代码'],
-                    'valuation_time' => $funds_value['估值时间'],
-                    'valuation_source' => $valuation_source,
-                    'estimated_net_value' => $funds_value['最新预估净值'],
-                ]);
+                $this->comment("写入基金估值：{$funds_value['估值时间']}-{$funds_value['基金代码']}-{$funds_value['基金名称']}-{$funds_value['最新预估净值']}");
+                //$this->comment("写入基金估值：{$funds_value['基金代码']}-{$funds_value['基金名称']}-最新预估净值：{$funds_value['最新预估净值']}");
+                // 只写入当天的估值
+                $modelFund = new Fund;
+                $modelFundNetValue = new FundNetValue;
+                $fund = $modelFund
+                    ->leftJoin($modelFundNetValue->getTable(), $modelFund->getTable() . '.id', '=', $modelFundNetValue->getTable() . '.fund_id')
+                    ->where($modelFund->getTable() . '.code', $funds_value['基金代码'])
+                    ->orderByDesc($modelFundNetValue->getTable() . '.net_value_time')
+                    ->first();
+                dd($fund);
+                if (Carbon::parse($funds_value['估值时间'])->isToday()) {
+                    FundValuationUpdateJob::dispatch([
+                        'code' => $funds_value['基金代码'],
+                        'valuation_time' => $funds_value['估值时间'],
+                        'valuation_source' => $valuation_source,
+                        'estimated_net_value' => $funds_value['最新预估净值'],
+                    ]);
+                }
             }
         }
         //endregion
