@@ -56,7 +56,7 @@ class FundNetValueUpdateJob implements ShouldQueue
                     'cumulative_net_value' => $this->fundNetValue['cumulative_net_value'],// 累计净值
                     'net_value_time' => Carbon::parse($this->fundNetValue['net_value_time']),
                     'created_at' => Carbon::parse($this->fundNetValue['net_value_time'])->setHour(15),
-                    'updated_at' => Tools::now(),
+                    //'updated_at' => Tools::now(),
                 ]);
             } else if (
                 $fund_net_value->unit_net_value != $this->fundNetValue['unit_net_value']
@@ -66,7 +66,7 @@ class FundNetValueUpdateJob implements ShouldQueue
                 $fund_net_value->unit_net_value = $this->fundNetValue['unit_net_value'];// 单位净值
                 $fund_net_value->cumulative_net_value = $this->fundNetValue['cumulative_net_value'];// 累计净值
                 $fund_net_value->created_at = Carbon::parse($this->fundNetValue['net_value_time'])->setHour(15);
-                $fund_net_value->updated_at = Tools::now();
+                //$fund_net_value->updated_at = Tools::now();
                 $fund_net_value->save();
             }
         }
