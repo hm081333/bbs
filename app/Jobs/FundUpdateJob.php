@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Fund;
+use App\Utils\Tools;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -45,6 +46,8 @@ class FundUpdateJob implements ShouldQueue
                 'name' => $this->fundData['name'],
                 'pinyin_initial' => $this->fundData['pinyin_initial'],
                 'type' => $this->fundData['type'],
+                'created_at' => Tools::now(),
+                'updated_at' => Tools::now(),
             ]);
         } else if (
             $fund->name != $this->fundData['name']
@@ -57,6 +60,7 @@ class FundUpdateJob implements ShouldQueue
             $fund->name = $this->fundData['name'];
             $fund->pinyin_initial = $this->fundData['pinyin_initial'];
             $fund->type = $this->fundData['type'];
+            $fund->updated_at = Tools::now();
             $fund->save();
         }
     }

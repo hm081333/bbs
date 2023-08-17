@@ -83,10 +83,14 @@ Artisan::command('fund', function () {
             sleep(1);
         }
     }
-
 })->purpose('Catch Fund List');
 
 Artisan::command('fund_valuation', function () {
+    $now_time = Tools::now();
+    if ($now_time->lt(date('Y-m-d 9:30')) || ($now_time->gt(date('Y-m-d 11:30')) && $now_time->lt(date('Y-m-d 13:00'))) || $now_time->gt(date('Y-m-d 15:00'))) {
+        $this->comment('不在基金开门时间');
+        return;
+    }
     $valuation_source = 'https://www.dayfund.cn/prevalue.html';
     $table_headers = [
         '序号',
@@ -134,14 +138,6 @@ Artisan::command('fund_valuation', function () {
                 $this->comment("写入基金估值：{$funds_value['估值时间']}-{$funds_value['基金代码']}-{$funds_value['基金名称']}-{$funds_value['最新预估净值']}");
                 //$this->comment("写入基金估值：{$funds_value['基金代码']}-{$funds_value['基金名称']}-最新预估净值：{$funds_value['最新预估净值']}");
                 // 只写入当天的估值
-                $modelFund = new Fund;
-                $modelFundNetValue = new FundNetValue;
-                $fund = $modelFund
-                    ->leftJoin($modelFundNetValue->getTable(), $modelFund->getTable() . '.id', '=', $modelFundNetValue->getTable() . '.fund_id')
-                    ->where($modelFund->getTable() . '.code', $funds_value['基金代码'])
-                    ->orderByDesc($modelFundNetValue->getTable() . '.net_value_time')
-                    ->first();
-                dd($fund);
                 if (Carbon::parse($funds_value['估值时间'])->isToday()) {
                     FundValuationUpdateJob::dispatch([
                         'code' => $funds_value['基金代码'],

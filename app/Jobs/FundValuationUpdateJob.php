@@ -75,6 +75,8 @@ class FundValuationUpdateJob implements ShouldQueue
                     'estimated_growth_rate' => $estimated_growth_percent,// 预估增长率
                     'valuation_time' => Carbon::parse($this->fundValuationData['valuation_time']),
                     'valuation_source' => $this->fundValuationData['valuation_source'],
+                    'created_at' => Tools::now(),
+                    'updated_at' => Tools::now(),
                 ]);
             }
 
