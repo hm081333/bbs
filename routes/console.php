@@ -26,6 +26,21 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+Artisan::command('testa', function () {
+    //$now_time = Tools::now();
+    ////var_dump($now_time);
+    //$modelFund = new Fund;
+    ////$modelFundNetValue = new FundNetValue;
+    ////$fund = $modelFund
+    ////    ->leftJoin($modelFundNetValue->getTable(), $modelFund->getTable() . '.id', '=', $modelFundNetValue->getTable() . '.fund_id')
+    ////    ->where($modelFund->getTable() . '.code', '008960')
+    ////    ->orderByDesc($modelFundNetValue->getTable() . '.net_value_time')
+    ////    ->first();
+    //$modelFund->where('code', '008960')->update(['updated_at' => $now_time]);
+    //$fund = $modelFund->where('code', '008960')->first();
+    //dd($fund->toArray());
+})->purpose('cesi');
+
 Artisan::command('fund', function () {
     $this->comment('获取基金列表');
     $today_date = date('Y-m-d', Tools::time());

@@ -40,44 +40,37 @@ class FundValuationUpdateJob implements ShouldQueue
     public function handle()
     {
         // 基金估值更新逻辑
-        $modelFund = new Fund;
-        $modelFundNetValue = new FundNetValue;
-        /* @var $fund Fund */
-        $fund = $modelFund
-            ->leftJoin($modelFundNetValue->getTable(), $modelFund->getTable() . '.id', '=', $modelFundNetValue->getTable() . '.fund_id')
-            ->where($modelFund->getTable() . '.code', $this->fundValuationData['code'])
-            ->orderByDesc($modelFundNetValue->getTable() . '.net_value_time')
+        /* @var $fundNetValue FundNetValue */
+        $fundNetValue = FundNetValue::where('code', $this->fundValuationData['code'])
+            ->orderByDesc('net_value_time')
             ->first();
-        if ($fund) {
+        if ($fundNetValue) {
             /* @var $fund_valuation FundValuation */
             $fund_valuation = FundValuation::where([
-                'fund_id' => $fund->id,
+                'fund_id' => $fundNetValue->fund_id,
                 'valuation_time' => Carbon::parse($this->fundValuationData['valuation_time']),
                 'valuation_source' => $this->fundValuationData['valuation_source'],
             ])->first();
             if (!$fund_valuation) {
-                // 计算增长和增长率
-                if ($fund->unit_net_value) {
-                    $estimated_growth = Tools::math($this->fundValuationData['estimated_net_value'], '-', $fund->unit_net_value, 4);
-                    $estimated_growth_rate = Tools::math($estimated_growth, '/', $fund->unit_net_value, 10);
-                    $estimated_growth_percent = Tools::math($estimated_growth_rate, '*', '100', 4);
-                } else {
-                    $estimated_growth = 0;
-                    $estimated_growth_percent = 0;
-                }
-                FundValuation::create([
-                    'fund_id' => $fund->id,
-                    'code' => $fund->code,
-                    'name' => $fund->name,
-                    'unit_net_value' => $fund->unit_net_value ?: 0,// 单位净值
-                    'estimated_net_value' => $this->fundValuationData['estimated_net_value'],// 预估净值
-                    'estimated_growth' => $estimated_growth,// 预估增长值
-                    'estimated_growth_rate' => $estimated_growth_percent,// 预估增长率
+                $insert_data = [
+                    'fund_id' => $fundNetValue->fund_id,
+                    'code' => $fundNetValue->code,
+                    'name' => $fundNetValue->name,
+                    'unit_net_value' => 0,
+                    'estimated_net_value' => $this->fundValuationData['estimated_net_value'],
+                    'estimated_growth' => 0,
+                    'estimated_growth_rate' => 0,
                     'valuation_time' => Carbon::parse($this->fundValuationData['valuation_time']),
                     'valuation_source' => $this->fundValuationData['valuation_source'],
-                    //'created_at' => Tools::now(),
-                    //'updated_at' => Tools::now(),
-                ]);
+                ];
+                // 计算增长和增长率
+                if (!empty($fundNetValue->unit_net_value)) {
+                    $insert_data['unit_net_value'] = $fundNetValue->unit_net_value;
+                    $insert_data['estimated_growth'] = Tools::math($this->fundValuationData['estimated_net_value'], '-', $insert_data['unit_net_value'], 4);
+                    $estimated_growth_rate = Tools::math($insert_data['estimated_growth'], '/', $insert_data['unit_net_value'], 10);
+                    $insert_data['estimated_growth_rate'] = Tools::math($estimated_growth_rate, '*', '100', 4);
+                }
+                FundValuation::create($insert_data);
             }
 
         }
