@@ -71,8 +71,8 @@ class Kernel extends HttpKernel
         ],
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            //SubstituteBindings::class,
             'throttle:api',// API请求频率限制，具体次数限制前往\App\Providers\RouteServiceProvider修改configureRateLimiting
+            //\Illuminate\Routing\Middleware\SubstituteBindings::class,
             DBTransaction::class,// 数据库事务
         ],
     ];

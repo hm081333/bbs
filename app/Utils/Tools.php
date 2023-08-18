@@ -549,7 +549,7 @@ class Tools
      */
     public static function storageAsset($path = '')
     {
-        $base_url = config('app.storage_url') ?: static::url('storage');
+        $base_url = config('app.asset_url') ?: static::url('storage');
         return rtrim($base_url, '/') . '/' . ltrim($path, '/');
     }
 

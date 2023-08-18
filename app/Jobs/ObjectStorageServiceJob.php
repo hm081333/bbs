@@ -39,7 +39,7 @@ class ObjectStorageServiceJob implements ShouldQueue
      */
     public function handle()
     {
-        if (empty(config('app.storage_url', ''))) return;
+        if (empty(config('app.asset_url', ''))) return;
         switch (config('oss.default')) {
             case 'aliyun':
                 Tools::aliyun_oss()->uploadFile($this->relative_path, $this->file_path);
