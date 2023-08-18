@@ -42,6 +42,10 @@ class FundNetValueUpdateJob implements ShouldQueue
         /* @var $fund Fund */
         $fund = Fund::where('code', $this->fundNetValue['code'])->first();
         if ($fund) {
+
+            $this->fundNetValue['unit_net_value'] = $this->fundNetValue['unit_net_value'] ?: 0;
+            $this->fundNetValue['cumulative_net_value'] = $this->fundNetValue['cumulative_net_value'] ?: 0;
+
             /* @var $fund_net_value FundNetValue */
             $fund_net_value = FundNetValue::where([
                 'fund_id' => $fund->id,
