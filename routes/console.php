@@ -1,14 +1,6 @@
 <?php
 
-use App\Jobs\FundNetValueUpdateJob;
-use App\Jobs\FundUpdateJob;
-use App\Jobs\FundValuationUpdateJob;
-use App\Models\Fund;
-use App\Models\FundNetValue;
-use App\Models\FundValuation;
-use App\Utils\Tools;
 use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 
 /*

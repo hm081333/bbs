@@ -17,9 +17,8 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->softDeletes();
+            $table->comment('百度ID表');
         });
-        // 表注释
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE `ly_baidu_ids` comment '百度ID表'");
     }
 
     /**

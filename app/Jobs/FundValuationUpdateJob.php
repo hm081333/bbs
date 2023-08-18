@@ -2,13 +2,11 @@
 
 namespace App\Jobs;
 
-use App\Models\Fund;
-use App\Models\FundNetValue;
-use App\Models\FundValuation;
+use App\Models\Fund\FundNetValue;
+use App\Models\Fund\FundValuation;
 use App\Utils\Tools;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;

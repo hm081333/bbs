@@ -21,9 +21,8 @@ return new class extends Migration
             $table->string('type')->comment('基金类型');
             $table->timestamps();
             //$table->softDeletes();
+            $table->comment('基金表');
         });
-        // 表注释
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE `ly_funds` comment '基金表'");
     }
 
     /**

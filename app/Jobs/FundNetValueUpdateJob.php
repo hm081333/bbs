@@ -2,12 +2,10 @@
 
 namespace App\Jobs;
 
-use App\Models\Fund;
-use App\Models\FundNetValue;
-use App\Utils\Tools;
+use App\Models\Fund\Fund;
+use App\Models\Fund\FundNetValue;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -29,6 +27,9 @@ class FundNetValueUpdateJob implements ShouldQueue
         $this->onQueue('fund');
         $this->onConnection('redis');
         $this->fundNetValue = $data;
+
+        $this->fundNetValue['unit_net_value'] = $this->fundNetValue['unit_net_value'] ?: 0;
+        $this->fundNetValue['cumulative_net_value'] = $this->fundNetValue['cumulative_net_value'] ?: 0;
     }
 
     /**
@@ -42,10 +43,6 @@ class FundNetValueUpdateJob implements ShouldQueue
         /* @var $fund Fund */
         $fund = Fund::where('code', $this->fundNetValue['code'])->first();
         if ($fund) {
-
-            $this->fundNetValue['unit_net_value'] = $this->fundNetValue['unit_net_value'] ?: 0;
-            $this->fundNetValue['cumulative_net_value'] = $this->fundNetValue['cumulative_net_value'] ?: 0;
-
             /* @var $fund_net_value FundNetValue */
             $fund_net_value = FundNetValue::where([
                 'fund_id' => $fund->id,

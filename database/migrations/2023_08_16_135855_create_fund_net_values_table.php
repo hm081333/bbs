@@ -15,7 +15,7 @@ return new class extends Migration {
         Schema::create('fund_net_values', function (Blueprint $table) {
             $table->id();
             $table->foreignId('fund_id')->comment('基金ID');
-            $table->string('code')->comment('基金代码');
+            $table->string('code')->index()->comment('基金代码');
             $table->string('name')->comment('基金名称');
             $table->decimal('unit_net_value', 10, 4)->comment('单位净值');
             $table->decimal('cumulative_net_value', 10, 4)->comment('累计净值');
@@ -26,9 +26,12 @@ return new class extends Migration {
                 'fund_id',
                 'net_value_time',
             ]);
+            $table->index([
+                'code',
+                'net_value_time',
+            ]);
+            $table->comment('基金净值表');
         });
-        // 表注释
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE `ly_fund_net_values` comment '基金净值表'");
     }
 
     /**
