@@ -32,5 +32,8 @@ window.Echo = new Echo({
 
 window.Echo.channel(`fund.320007`)
     .listen('FundValuationUpdated', (e) => {
-        console.log(e);
+        console.log(e.fundValuation);
+    })
+    .listen('FundNetValueUpdated', (e) => {
+        console.log(e.fundNetValue);
     });
