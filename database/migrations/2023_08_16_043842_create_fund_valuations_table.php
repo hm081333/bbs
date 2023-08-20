@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('fund_valuations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('fund_id')->comment('基金ID');
+            $table->foreignId('fund_id')->index()->comment('基金ID');
             $table->string('code')->index()->comment('基金代码');
             $table->string('name')->comment('基金名称');
             $table->decimal('unit_net_value',10,4)->comment('单位净值');
