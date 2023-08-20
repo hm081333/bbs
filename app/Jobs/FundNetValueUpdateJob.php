@@ -49,7 +49,7 @@ class FundNetValueUpdateJob implements ShouldQueue
                 'net_value_time' => Carbon::parse($this->fundNetValue['net_value_time']),
             ])->first();
             if (!$fund_net_value) {
-                FundNetValue::create([
+                $fundValuation = FundNetValue::create([
                     'fund_id' => $fund->id,
                     'code' => $fund->code,
                     'name' => $fund->name,
@@ -59,6 +59,7 @@ class FundNetValueUpdateJob implements ShouldQueue
                     'created_at' => Carbon::parse($this->fundNetValue['net_value_time'])->setHour(15),
                     //'updated_at' => Tools::now(),
                 ]);
+                \App\Events\FundNetValueUpdated::dispatch($fundValuation);
             } else if (
                 $fund_net_value->unit_net_value != $this->fundNetValue['unit_net_value']
                 ||
@@ -69,6 +70,7 @@ class FundNetValueUpdateJob implements ShouldQueue
                 $fund_net_value->created_at = Carbon::parse($this->fundNetValue['net_value_time'])->setHour(15);
                 //$fund_net_value->updated_at = Tools::now();
                 $fund_net_value->save();
+                \App\Events\FundNetValueUpdated::dispatch($fund_net_value);
             }
         }
     }
