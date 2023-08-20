@@ -68,6 +68,8 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
+            \App\Http\Middleware\HandleInertiaRequests::class,
+            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ],
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
@@ -91,14 +93,14 @@ class Kernel extends HttpKernel
         //'throttle' => ThrottleRequests::class,
         // 使用 Redis 管理速率限制
         'throttle' => ThrottleRequestsWithRedis::class,
-        //'auth' => Authenticate::class,
-        //'auth.basic' => AuthenticateWithBasicAuth::class,
-        //'cache.headers' => SetCacheHeaders::class,
-        //'can' => Authorize::class,
-        //'guest' => RedirectIfAuthenticated::class,
-        //'password.confirm' => RequirePassword::class,
-        //'signed' => ValidateSignature::class,
+        'auth' => Authenticate::class,
+        'auth.basic' => AuthenticateWithBasicAuth::class,
+        'cache.headers' => SetCacheHeaders::class,
+        'can' => Authorize::class,
+        'guest' => RedirectIfAuthenticated::class,
+        'password.confirm' => RequirePassword::class,
+        'signed' => ValidateSignature::class,
         //'throttle' => ThrottleRequests::class,
-        //'verified' => EnsureEmailIsVerified::class,
+        'verified' => EnsureEmailIsVerified::class,
     ];
 }

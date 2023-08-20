@@ -16,7 +16,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'user',
+        'guard' => 'web',
         'passwords' => 'users',
     ],
 
@@ -38,8 +38,8 @@ return [
     */
 
     'guards' => [
-        'user' => [
-            'driver' => 'jwt',//'token',
+        'web' => [
+            'driver' => 'session',//'jwt',
             'provider' => 'user',
         ],
     ],

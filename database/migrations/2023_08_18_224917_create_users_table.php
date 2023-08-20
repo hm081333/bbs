@@ -13,11 +13,13 @@ return new class extends Migration {
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->string('user_name')->comment('用户名');
+            $table->id();
+            $table->string('user_name')->unique()->comment('用户名');
             $table->string('nick_name')->nullable()->comment('昵称');
             $table->string('real_name')->nullable()->comment('真实名称');
-            $table->string('mobile', 15)->nullable()->comment('用户手机');
-            $table->string('email')->nullable()->comment('邮箱');
+            $table->string('mobile', 15)->nullable()->unique()->comment('用户手机');
+            $table->string('email')->nullable()->unique()->comment('邮箱');
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('previous_avatar')->nullable()->comment('上一张头像');
             $table->string('avatar')->nullable()->comment('头像');
             $table->tinyInteger('sex')->default(0)->comment('性别 0保密1男2女');
@@ -28,6 +30,7 @@ return new class extends Migration {
             $table->string('open_id')->nullable()->comment('微信唯一ID');
             $table->string('password')->comment('密码');
             $table->text('o_pwd')->nullable()->comment('原始密码');
+            $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
             $table->comment('用户表');

@@ -12,6 +12,8 @@ class User extends AuthModel
      */
     protected $fillable = [
         'user_name',
+        'email',
+        'o_pwd',
         'password',
     ];
 
