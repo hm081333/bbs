@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\Fund\FundValuation;
+use App\Models\Fund\FundNetValue;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -12,22 +12,22 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * 基金估值更新事件
+ * 基金净值更新事件
  */
-class FundValuationUpdated implements ShouldBroadcast
+class FundNetValueUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public FundValuation $fundValuation;
+    public FundNetValue $fundNetValue;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(FundValuation $fundValuation)
+    public function __construct(FundNetValue $fundNetValue)
     {
-        $this->fundValuation = $fundValuation;
+        $this->fundNetValue = $fundNetValue;
     }
 
     /**
@@ -38,6 +38,6 @@ class FundValuationUpdated implements ShouldBroadcast
     public function broadcastOn()
     {
         // 公有通道，对应基金代码
-        return new Channel('fund.' . $this->fundValuation->code);
+        return new Channel('fund.' . $this->fundNetValue->code);
     }
 }

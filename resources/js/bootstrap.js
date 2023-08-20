@@ -30,7 +30,7 @@ window.Echo = new Echo({
     disableStats: true,
 });
 
-Echo.channel(`fund.320007`)
+window.Echo.channel(`fund.320007`)
     .listen('FundValuationUpdated', (e) => {
         console.log(e);
     });

@@ -19,6 +19,9 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('testa', function () {
+    $fundValuation = \App\Models\Fund\FundValuation::where('code', '320007')->first();
+    dump($fundValuation->toArray());
+    \App\Events\FundValuationUpdated::dispatch($fundValuation);
     //$now_time = Tools::now();
     ////var_dump($now_time);
     //$modelFund = new Fund;
