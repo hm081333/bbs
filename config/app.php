@@ -148,15 +148,16 @@ return [
         /*
          * 套餐服务提供商...
          */
-        //Tymon\JWTAuth\Providers\LaravelServiceProvider::class,// jwt-auth
-        Overtrue\LaravelWeChat\ServiceProvider::class,
+        //\Tymon\JWTAuth\Providers\LaravelServiceProvider::class,// jwt-auth
+        //\Overtrue\LaravelWeChat\ServiceProvider::class,
+        //\BeyondCode\LaravelWebSockets\WebSocketsServiceProvider::class,
 
         /*
          * 应用服务提供商...
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 

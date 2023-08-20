@@ -56,13 +56,12 @@ class ModelSavedListener
                 }
             }
             $model->clearRelationData();
-        }
-        if ($model->isDirty()) {
-            foreach ($model->getTouchedRelations() as $touchedRelation) {
-                $model->$touchedRelation->touch();
+            if ($model->isDirty()) {
+                foreach ($model->getTouchedRelations() as $touchedRelation) {
+                    $model->$touchedRelation->touch();
+                }
             }
         }
-        // $model->refresh();
         //endregion
     }
 }
