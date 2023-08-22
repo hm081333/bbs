@@ -34,7 +34,7 @@ class FundValuationUpdate extends Command
     {
         //$this->comment('获取基金估值列表');
         $now_time = Tools::now();
-        if ($now_time->lt(date('Y-m-d 9:30')) || ($now_time->gt(date('Y-m-d 11:30')) && $now_time->lt(date('Y-m-d 13:00'))) || $now_time->gt(date('Y-m-d 15:00'))) {
+        if ($now_time->lt(date('Y-m-d 9:25')) || ($now_time->gt(date('Y-m-d 11:35')) && $now_time->lt(date('Y-m-d 12:55'))) || $now_time->gt(date('Y-m-d 15:05'))) {
             $this->comment('不在基金开门时间');
             return Command::SUCCESS;
         }
@@ -93,7 +93,7 @@ class FundValuationUpdate extends Command
                 }
             }
             //endregion
-            usleep(500);
+            sleep(1);
         }
         return Command::SUCCESS;
     }

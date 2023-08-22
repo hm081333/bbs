@@ -13,7 +13,7 @@ const props = defineProps({
 const user = usePage().props.auth.user;
 
 const form = useForm({
-    name: user.name,
+    user_name: user.user_name,
     email: user.email,
 });
 </script>
@@ -30,19 +30,19 @@ const form = useForm({
 
         <form @submit.prevent="form.patch(route('profile.update'))" class="mt-6 space-y-6">
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="user_name" value="UserName" />
 
                 <TextInput
-                    id="name"
+                    id="user_name"
                     type="text"
                     class="mt-1 block w-full"
-                    v-model="form.name"
+                    v-model="form.user_name"
                     required
                     autofocus
-                    autocomplete="name"
+                    autocomplete="user_name"
                 />
 
-                <InputError class="mt-2" :message="form.errors.name" />
+                <InputError class="mt-2" :message="form.errors.user_name" />
             </div>
 
             <div>

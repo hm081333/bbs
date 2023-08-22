@@ -26,11 +26,23 @@ const showingNavigationDropdown = ref(false);
                                     />
                                 </Link>
                             </div>
+                            <div class="shrink-0 flex items-center">
+                                <Link :href="route('fund')">
+                                    <ApplicationLogo
+                                        class="block h-9 w-auto fill-current text-gray-800"
+                                    />
+                                </Link>
+                            </div>
 
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
+                                </NavLink>
+                            </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                                <NavLink :href="route('fund')" :active="route().current('fund')">
+                                    Fund
                                 </NavLink>
                             </div>
                         </div>

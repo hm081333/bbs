@@ -81,7 +81,7 @@ class FundNetValueUpdate extends Command
                         ]);
                     }
                 }
-                usleep(500);
+                sleep(1);
             }
         }
         return Command::SUCCESS;
