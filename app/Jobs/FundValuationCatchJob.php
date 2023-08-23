@@ -45,19 +45,17 @@ class FundValuationCatchJob implements ShouldQueue
     {
         if ($this->catchType == 'sync-eastmoney-valuation') {
             try {
-                $url = "https://fundgz.1234567.com.cn/js/{$this->fundCode}.js";
                 $res = \App\Utils\Tools::curl(5)->setHeader([
-                    'Host' => 'fundgz.1234567.com.cn',
                     'User-Agent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
                     'Referer' => 'https://fund.eastmoney.com/',
-                ])->get($url);
+                ])->get("https://fundgz.1234567.com.cn/js/{$this->fundCode}.js");
                 preg_match('/{[^}]*}/', $res, $matches);
                 if (!empty($matches)) {
                     $data = \App\Utils\Tools::json_decode($matches[0]);
                     FundValuationUpdateJob::dispatch([
                         'code' => $data['fundcode'],
                         'valuation_time' => $data['gztime'],
-                        'valuation_source' => $url,
+                        'valuation_source' => 'https://fundgz.1234567.com.cn/js/{fundCode}.js',
                         'estimated_net_value' => $data['gsz'],
                     ]);
                 }

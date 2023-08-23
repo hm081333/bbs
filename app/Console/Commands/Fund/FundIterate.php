@@ -36,6 +36,15 @@ class FundIterate extends Command
      */
     public function handle()
     {
+        if ($this->option('sync-eastmoney-valuation')) {
+            //$this->comment('获取基金估值列表');
+            $now_time = Tools::now();
+            if ($now_time->lt(date('Y-m-d 9:25')) || ($now_time->gt(date('Y-m-d 11:35')) && $now_time->lt(date('Y-m-d 12:55'))) || $now_time->gt(date('Y-m-d 15:05'))) {
+                $this->comment('不在基金开门时间');
+                return Command::SUCCESS;
+            }
+        }
+
         $offset = 0;
         $limit = 100;
         while (true) {
