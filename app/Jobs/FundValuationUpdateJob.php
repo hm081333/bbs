@@ -49,7 +49,7 @@ class FundValuationUpdateJob implements ShouldQueue
             /* @var $fund_valuation FundValuation */
             $fund_valuation = FundValuation::where([
                 'fund_id' => $fundNetValue->fund_id,
-                'valuation_time' => Carbon::parse($this->fundValuationData['valuation_time']),
+                'valuation_time' => Carbon::parse($this->fundValuationData['valuation_time'])->timestamp,
                 'valuation_source' => $this->fundValuationData['valuation_source'],
             ])->first();
             if (!$fund_valuation) {
@@ -61,7 +61,7 @@ class FundValuationUpdateJob implements ShouldQueue
                     'estimated_net_value' => $this->fundValuationData['estimated_net_value'],
                     'estimated_growth' => 0,
                     'estimated_growth_rate' => 0,
-                    'valuation_time' => Carbon::parse($this->fundValuationData['valuation_time']),
+                    'valuation_time' => Carbon::parse($this->fundValuationData['valuation_time'])->timestamp,
                     'valuation_source' => $this->fundValuationData['valuation_source'],
                 ];
                 // 计算增长和增长率

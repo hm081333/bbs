@@ -15,8 +15,10 @@ return new class extends Migration
     {
         Schema::create('baidu_ids', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
-            $table->softDeletes();
+            $table->unsignedInteger('created_at')->nullable()->comment('创建时间');
+            $table->unsignedInteger('updated_at')->nullable()->comment('更新时间');
+            $table->unsignedInteger('deleted_at')->nullable()->comment('删除时间');
+//            $table->softDeletes();
             $table->comment('百度ID表');
         });
     }

@@ -49,7 +49,7 @@ class FundNetValueUpdateJob implements ShouldQueue
             /* @var $fund_net_value FundNetValue */
             $fund_net_value = FundNetValue::where([
                 'fund_id' => $fund->id,
-                'net_value_time' => Carbon::parse($this->fundNetValue['net_value_time']),
+                'net_value_time' => Carbon::parse($this->fundNetValue['net_value_time'])->timestamp,
             ])->first();
             if (!$fund_net_value) {
                 $fundValuation = FundNetValue::create([
@@ -58,8 +58,8 @@ class FundNetValueUpdateJob implements ShouldQueue
                     'name' => $fund->name,
                     'unit_net_value' => $this->fundNetValue['unit_net_value'],// 单位净值
                     'cumulative_net_value' => $this->fundNetValue['cumulative_net_value'],// 累计净值
-                    'net_value_time' => Carbon::parse($this->fundNetValue['net_value_time']),
-                    'created_at' => Carbon::parse($this->fundNetValue['net_value_time'])->setHour(15),
+                    'net_value_time' => Carbon::parse($this->fundNetValue['net_value_time'])->timestamp,
+                    'created_at' => Carbon::parse($this->fundNetValue['net_value_time'])->setHour(15)->timestamp,
                     //'updated_at' => Tools::now(),
                 ]);
                 \App\Events\FundNetValueUpdated::dispatch($fundValuation);
@@ -70,7 +70,7 @@ class FundNetValueUpdateJob implements ShouldQueue
             ) {
                 $fund_net_value->unit_net_value = $this->fundNetValue['unit_net_value'];// 单位净值
                 $fund_net_value->cumulative_net_value = $this->fundNetValue['cumulative_net_value'];// 累计净值
-                $fund_net_value->created_at = Carbon::parse($this->fundNetValue['net_value_time'])->setHour(15);
+                $fund_net_value->created_at = Carbon::parse($this->fundNetValue['net_value_time'])->setHour(15)->timestamp;
                 //$fund_net_value->updated_at = Tools::now();
                 $fund_net_value->save();
                 \App\Events\FundNetValueUpdated::dispatch($fund_net_value);

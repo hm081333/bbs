@@ -20,7 +20,9 @@ return new class extends Migration
             $table->string('token', 64)->unique();
             $table->text('abilities')->nullable();
             $table->timestamp('last_used_at')->nullable();
-            $table->timestamps();
+            $table->unsignedInteger('created_at')->nullable()->comment('创建时间');
+            $table->unsignedInteger('updated_at')->nullable()->comment('更新时间');
+            $table->unsignedInteger('deleted_at')->nullable()->comment('删除时间');
         });
     }
 

@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 /**
  * 基金信息更新任务
@@ -41,6 +42,7 @@ class FundUpdateJob implements ShouldQueue
         /* @var $fund Fund */
         $fund = Fund::where('code', $this->fundData['code'])->first();
         if (!$fund) {
+            Log::channel('fund')->info("create fund|{$this->fundData['code']}|{$this->fundData['name']}|{$this->fundData['pinyin_initial']}|{$this->fundData['type']}");
             // 基金数据不存在，插入
             Fund::create([
                 'code' => $this->fundData['code'],
@@ -57,6 +59,7 @@ class FundUpdateJob implements ShouldQueue
             ||
             $fund->type != $this->fundData['type']
         ) {
+            Log::channel('fund')->info("update fund|{$this->fundData['code']}|{$fund->name}:{$this->fundData['name']}|{$fund->pinyin_initial}:{$this->fundData['pinyin_initial']}|{$fund->type}:{$this->fundData['type']}");
             // 基金数据存在但数据不一致，更新
             $fund->name = $this->fundData['name'];
             $fund->pinyin_initial = $this->fundData['pinyin_initial'];

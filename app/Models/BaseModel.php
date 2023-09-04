@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\Timestamp;
 use App\Events\ModelSavedEvent;
 use App\Traits\Model\ModelBelongsTo;
 use App\Traits\Model\ModelGetAttribute;
@@ -39,6 +40,12 @@ class BaseModel extends \Illuminate\Database\Eloquent\Model
      * @var array
      */
     protected $guarded = [];
+
+    /**
+     * 类型转换
+     * @var array
+     */
+    protected $casts = [];
     //endregion
 
     // region 重写方法
@@ -46,6 +53,11 @@ class BaseModel extends \Illuminate\Database\Eloquent\Model
     {
         // 添加 序列化隐藏的属性
         $this->hidden[] = 'deleted_at';
+        $this->casts = array_merge([
+            'created_at' => Timestamp::class,
+            'updated_at' => Timestamp::class,
+            'deleted_at' => Timestamp::class,
+        ], $this->casts);
         // 添加 模型的事件映射
         $this->dispatchesEvents['saved'] = ModelSavedEvent::class;
         parent::__construct($attributes);

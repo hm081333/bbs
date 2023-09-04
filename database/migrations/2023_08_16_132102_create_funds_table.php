@@ -19,8 +19,9 @@ return new class extends Migration
             $table->string('name')->comment('基金名称');
             $table->string('pinyin_initial')->comment('基金名称拼音首字母');
             $table->string('type')->comment('基金类型');
-            $table->timestamps();
-            //$table->softDeletes();
+            $table->unsignedInteger('created_at')->nullable()->comment('创建时间');
+            $table->unsignedInteger('updated_at')->nullable()->comment('更新时间');
+            $table->unsignedInteger('deleted_at')->nullable()->comment('删除时间');
             $table->comment('基金表');
         });
     }

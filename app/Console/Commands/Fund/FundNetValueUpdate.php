@@ -4,8 +4,12 @@ namespace App\Console\Commands\Fund;
 
 use App\Jobs\FundNetValueUpdateJob;
 use App\Jobs\FundUpdateJob;
+use App\Models\Fund\Fund;
+use App\Models\Fund\FundNetValue;
 use App\Utils\Tools;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class FundNetValueUpdate extends Command
 {
@@ -64,7 +68,7 @@ class FundNetValueUpdate extends Command
                     return explode(',', $str);
                 }, $data_arr);
                 foreach ($data_arr as $item) {
-                    //$this->comment("写入基金：{$item[0]}-{$item[1]}");
+//                    $this->comment("写入基金：{$item[0]}-{$item[1]}");
                     FundUpdateJob::dispatch([
                         'code' => $item[0],
                         'name' => $item[1],

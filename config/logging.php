@@ -74,6 +74,13 @@ return [
             'days' => 14,
         ],
 
+        'fund' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/fund.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 14,
+        ],
+
         'sql' => [
             'driver' => 'daily',
             'path' => storage_path('logs/sql.log'),
