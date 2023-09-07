@@ -18,7 +18,7 @@ class Timestamp implements CastsAttributes
      */
     public function get($model, string $key, $value, array $attributes)
     {
-        return empty($value) ? null : ($value instanceof \Carbon\Carbon ? $value : (filter_var($value, FILTER_VALIDATE_INT) !== false ? Carbon::createFromTimestamp($value) : Carbon::parse($value)));
+        return empty($value) ? null : ($value instanceof \Carbon\Carbon ? $value : (filter_var($value, FILTER_VALIDATE_INT) !== false ? (strlen((string)$value) === 10 ? Carbon::createFromTimestamp($value) : throw new \App\Exceptions\Server\Exception('时间戳格式错误')) : Carbon::parse($value)));
     }
 
     /**
@@ -32,6 +32,6 @@ class Timestamp implements CastsAttributes
      */
     public function set($model, string $key, $value, array $attributes)
     {
-        return empty($value) ? null : (filter_var($value, FILTER_VALIDATE_INT) !== false ? $value : ($value instanceof \Carbon\Carbon ? $value->timestamp : Carbon::parse($value)->timestamp));
+        return empty($value) ? null : (filter_var($value, FILTER_VALIDATE_INT) !== false ? (strlen((string)$value) === 10 ? $value : throw new \App\Exceptions\Server\Exception('时间戳格式错误')) : ($value instanceof \Carbon\Carbon ? $value->timestamp : Carbon::parse($value)->timestamp));
     }
 }

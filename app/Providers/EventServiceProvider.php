@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Events\ModelSavedEvent;
+use App\Events\ModelSavingEvent;
 use App\Listeners\ModelSavedListener;
+use App\Listeners\ModelSavingListener;
 use App\Listeners\SqlListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -24,6 +26,9 @@ class EventServiceProvider extends ServiceProvider
         //],
         ModelSavedEvent::class => [
             ModelSavedListener::class,
+        ],
+        ModelSavingEvent::class => [
+            ModelSavingListener::class,
         ],
         //QueryExecuted::class => [
         //    SqlListener::class,

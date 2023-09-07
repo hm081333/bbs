@@ -27,7 +27,7 @@ class ModelSavedListener
      */
     public function handle(ModelSavedEvent $event)
     {
-        $model = $event->getModel();
+        $model = $event->model;
         //region 保存关联模型
         if ($relationData = $model->getRelationData()) {
             foreach ($relationData as $relation => $data) {

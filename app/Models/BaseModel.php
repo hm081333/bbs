@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Casts\Timestamp;
 use App\Events\ModelSavedEvent;
+use App\Events\ModelSavingEvent;
 use App\Traits\Model\ModelBelongsTo;
 use App\Traits\Model\ModelGetAttribute;
 use App\Traits\Model\ModelSaveData;
@@ -59,6 +60,7 @@ class BaseModel extends \Illuminate\Database\Eloquent\Model
             'deleted_at' => Timestamp::class,
         ], $this->casts);
         // 添加 模型的事件映射
+        $this->dispatchesEvents['saving'] = ModelSavingEvent::class;
         $this->dispatchesEvents['saved'] = ModelSavedEvent::class;
         parent::__construct($attributes);
     }
@@ -213,7 +215,8 @@ class BaseModel extends \Illuminate\Database\Eloquent\Model
     public function getColumnChanges(): array
     {
         $changes = [];
-        $updated_at = $this->getAttribute('updated_at')->format('Y-m-d H:i:s');
+//        $updated_at = $this->getAttribute('updated_at')->format('Y-m-d H:i:s');
+        $updated_at = $this->getAttribute('updated_at');
         foreach ($this->getChanges() as $column => $new_value) {
             if (!in_array($column, [
                 'created_at',
