@@ -21,7 +21,8 @@ class FundIterate extends Command
      * @var string
      */
     protected $signature = 'fund:iterate
-    {--sync-eastmoney-valuation : 同步（天天基金网）估值}';
+    {--sync-eastmoney-valuation : 同步（天天基金网）估值}
+    {--sync-eastmoney-net_value : 同步（天天基金网）历史净值}';
 
     /**
      * The console command description.
