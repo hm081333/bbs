@@ -83,7 +83,7 @@ class FundNetValueCatchJob implements ShouldQueue
                         foreach ($res['Data']['LSJZList'] as $item) {
                             // 该时间净值已存在数据库，跳过
                             if (in_array($item['FSRQ'], $isset_net_value_time_arr)) continue;
-                            $insert_list[] = [
+                            $insert = [
                                 'fund_id' => $fund->id,
                                 'code' => $fund->code,
                                 'name' => $fund->name,
@@ -93,6 +93,20 @@ class FundNetValueCatchJob implements ShouldQueue
                                 'created_at' => Carbon::parse($item['FSRQ'])->setHour(15)->timestamp,
                                 'updated_at' => time(),
                             ];
+                            // 该行数据没有单位净值，跳过
+                            if (empty($item['DWJZ'])) {
+                                file_put_contents(storage_path('logs/non-unit_net_value.log'), Tools::jsonEncode([
+                                        'catch' => $item,
+                                        'insert' => $insert,
+                                    ]) . PHP_EOL, FILE_APPEND);// 追加写入
+                                continue;
+                            }
+                            // 该行数据没有累计净值
+                            if (empty($item['LJJZ'])) file_put_contents(storage_path('logs/non-cumulative_net_value.log'), Tools::jsonEncode([
+                                    'catch' => $item,
+                                    'insert' => $insert,
+                                ]) . PHP_EOL, FILE_APPEND);// 追加写入
+                            $insert_list[] = $insert;
                         }
                         FundNetValue::insert($insert_list);
                     }

@@ -93,7 +93,7 @@ class FundValuationUpdate extends Command
                 }
             }
             //endregion
-            sleep(1);
+            // sleep(1);
         }
         return Command::SUCCESS;
     }
