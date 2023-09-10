@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Fund\Fund;
 use App\Models\Fund\FundNetValue;
 use App\Models\Fund\FundValuation;
 use App\Utils\Tools;
@@ -47,6 +48,7 @@ class FundNetValueCatchJob implements ShouldQueue
     {
         if ($this->catchType == 'sync-eastmoney') {
             try {
+                /* @var $fund Fund */
                 $fund = Fund::where('code', $this->fundCode)->first();
                 $allPages = 1;
                 for ($page = 1; $page <= $allPages; $page++) {
@@ -67,7 +69,7 @@ class FundNetValueCatchJob implements ShouldQueue
                         // region 获取数据库已存在的净值时间
                         $first = $res['Data']['LSJZList'][0];
                         $last = $res['Data']['LSJZList'][count($res['Data']['LSJZList']) - 1];
-                        /* @var $isset_net_value_time_arr Collection */
+                        /* @var $isset_net_value_time_arr array */
                         $isset_net_value_time_arr = FundNetValue::where('code', $this->fundCode)
                             ->where('net_value_time', '>=', Carbon::parse($last['FSRQ'])->timestamp)
                             ->where('net_value_time', '<=', Carbon::parse($first['FSRQ'])->timestamp)
