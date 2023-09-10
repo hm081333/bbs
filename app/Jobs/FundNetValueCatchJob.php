@@ -60,7 +60,7 @@ class FundNetValueCatchJob implements ShouldQueue
                         ->json_get('https://api.fund.eastmoney.com/f10/lsjz?fundCode=320007&pageIndex=1&pageSize=20', [
                             'fundCode' => $this->fundCode,
                             'pageIndex' => $page,
-                            'pageSize' => 100,
+                            'pageSize' => 500,
                         ]);
                     // 根据返回数据，刷新分页总数
                     if ($allPages == 1) $allPages = ceil($res['TotalCount'] / $res['PageSize']);
@@ -88,7 +88,7 @@ class FundNetValueCatchJob implements ShouldQueue
                                 'code' => $fund->code,
                                 'name' => $fund->name,
                                 'unit_net_value' => $item['DWJZ'],// 单位净值
-                                'cumulative_net_value' => $item['LJJZ'],// 累计净值
+                                'cumulative_net_value' => empty($item['LJJZ']) ? null : $item['LJJZ'],// 累计净值
                                 'net_value_time' => Carbon::parse($item['FSRQ'])->timestamp,
                                 'created_at' => Carbon::parse($item['FSRQ'])->setHour(15)->timestamp,
                                 'updated_at' => time(),

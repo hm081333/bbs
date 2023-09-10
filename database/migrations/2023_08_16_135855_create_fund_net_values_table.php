@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->string('code')->index()->comment('基金代码');
             $table->string('name')->comment('基金名称');
             $table->decimal('unit_net_value', 10, 4)->comment('单位净值');
-            $table->decimal('cumulative_net_value', 10, 4)->comment('累计净值');
+            $table->decimal('cumulative_net_value', 10, 4)->nullable()->comment('累计净值');
             $table->unsignedInteger('net_value_time')->comment('基金净值时间');
             $table->unsignedInteger('created_at')->nullable()->comment('创建时间');
             $table->unsignedInteger('updated_at')->nullable()->comment('更新时间');
