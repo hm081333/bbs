@@ -54,12 +54,12 @@ class FundIterate extends Command
             $offset += $limit;
             foreach ($fund_codes as $fund_code) {
                 // 同步（天天基金网）估值
-                if ($this->option('sync-eastmoney')) {
-                    FundValuationCatchJob::dispatch($fund_code, 'sync-eastmoney-valuation');
+                if ($this->option('sync-eastmoney-valuation')) {
+                    FundValuationCatchJob::dispatch($fund_code, 'sync-eastmoney');
                 }
                 // 同步（天天基金网）历史净值
-                if ($this->option('sync-eastmoney')) {
-                    FundNetValueCatchJob::dispatch($fund_code, 'sync-eastmoney-net_value');
+                if ($this->option('sync-eastmoney-net_value')) {
+                    FundNetValueCatchJob::dispatch($fund_code, 'sync-eastmoney');
                 }
             }
         }
