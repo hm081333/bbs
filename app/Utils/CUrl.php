@@ -41,7 +41,7 @@ class CUrl
     /**
      * CUrl constructor.
      * @param int $retryTimes 超时重试次数，默认为1
-     * @param int $timeoutMs  超时时间，单位：毫秒，默认为3000
+     * @param int $timeoutMs 超时时间，单位：毫秒，默认为3000
      * @throws Exception
      */
     public function __construct($retryTimes = 1, $timeoutMs = 5000)
@@ -55,23 +55,29 @@ class CUrl
 
     /** ------------------ 核心使用方法 ------------------ **/
 
+    public function json_get($url, $params = [], $timeoutMs = 5000)
+    {
+        return Tools::jsonDecode($this->get($url, $params, $timeoutMs));
+    }
+
     /**
      * GET方式的请求
-     * @param string $url       请求的链接
-     * @param int    $timeoutMs 超时设置，单位：毫秒
+     * @param string $url 请求的链接
+     * @param int $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
      * @throws Exception
      */
-    public function get($url, $timeoutMs = 5000)
+    public function get($url, $params = [], $timeoutMs = 5000)
     {
+        if (!empty($params)) $url = Tools::urlRebuild($url, $params);
         return $this->request($url, [], $timeoutMs);
     }
 
     /**
      * 统一接口请求
-     * @param string $url       请求的链接
-     * @param array  $data      POST的数据
-     * @param int    $timeoutMs 超时设置，单位：毫秒
+     * @param string $url 请求的链接
+     * @param array $data POST的数据
+     * @param int $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
      * @throws Exception
      */
@@ -97,7 +103,7 @@ class CUrl
         if (!empty($data)) {
             $options[CURLOPT_POST] = 1;
             if (is_array($data)) {
-                $options[CURLOPT_POSTFIELDS] = http_build_query($data);//使用给出的关联（或下标）数组生成一个经过 URL-encode 的请求字符串
+                $options[CURLOPT_POSTFIELDS] = http_build_query($data);// 使用给出的关联（或下标）数组生成一个经过 URL-encode 的请求字符串
             } else {
                 $options[CURLOPT_POSTFIELDS] = $data; // 字符串
             }
@@ -121,7 +127,7 @@ class CUrl
             throw new Exception(sprintf("%s::%s(%d)\n", $url, curl_error($ch), $errno));
         }
 
-        //update cookie
+        // update cookie
         if ($this->hascookie) {
             $cookie = $this->getRetCookie(curl_getinfo($ch, CURLINFO_COOKIELIST));
             !empty($cookie) && $this->cookie = $cookie + $this->cookie;
@@ -157,6 +163,8 @@ class CUrl
         return $arrHeaders;
     }
 
+    /** ------------------ 前置方法 ------------------ **/
+
     protected function getCookies()
     {
         $cookies = '';
@@ -183,18 +191,16 @@ class CUrl
         return $ret;
     }
 
-    /** ------------------ 前置方法 ------------------ **/
-
-    public function json_get($url, $timeoutMs = 5000)
+    public function json_post($url, $data, $timeoutMs = 5000)
     {
-        return Tools::json_decode($this->request($url, [], $timeoutMs));
+        return Tools::jsonDecode($this->post($url, $data, $timeoutMs));
     }
 
     /**
      * POST方式的请求
-     * @param string $url       请求的链接
-     * @param array  $data      POST的数据
-     * @param int    $timeoutMs 超时设置，单位：毫秒
+     * @param string $url 请求的链接
+     * @param array $data POST的数据
+     * @param int $timeoutMs 超时设置，单位：毫秒
      * @return string 接口返回的内容，超时返回false
      * @throws Exception
      */
@@ -203,17 +209,12 @@ class CUrl
         return $this->request($url, $data, $timeoutMs);
     }
 
-    public function json_post($url, $data, $timeoutMs = 5000)
-    {
-        return Tools::json_decode($this->request($url, $data, $timeoutMs));
-    }
-
     /**
      * 获取文件
      * @param string $url
      * @param string $path
      * @param string $file_name
-     * @param int    $timeoutMs
+     * @param int $timeoutMs
      * @return string
      * @throws Exception
      */

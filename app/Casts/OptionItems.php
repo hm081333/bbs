@@ -23,7 +23,7 @@ class OptionItems implements CastsAttributes
         $append_key = "{$key}_texts";
         $model->accept($append_key);
         $texts = [];
-        $value = Tools::json_decode($value) ?? [];
+        $value = Tools::jsonDecode($value) ?? [];
         foreach ($value as $item) {
             $texts[] = empty($item) ? '' : OptionItem::getValue($item);
         }
@@ -53,6 +53,6 @@ class OptionItems implements CastsAttributes
         } else {
             $save_value[] = $value;
         }
-        return Tools::json_encode($save_value);
+        return Tools::jsonEncode($save_value);
     }
 }

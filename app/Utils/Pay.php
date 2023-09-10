@@ -19,7 +19,7 @@ class Pay
      */
     public static function wechatMiniApp(string $out_trade_no, string $description, string $attach, float $total_amount, string $openid)
     {
-        Log::driver('wechat')->debug('wechatMiniApp: ' . Tools::json_encode([
+        Log::driver('wechat')->debug('wechatMiniApp: ' . Tools::jsonEncode([
                 'out_trade_no' => $out_trade_no,
                 'description' => $description,
                 'attach' => $attach,
@@ -45,7 +45,7 @@ class Pay
             ],
         ];
 
-        Log::driver('wechat')->debug('v3/pay/transactions/jsapi: ' . Tools::json_encode($payParams));
+        Log::driver('wechat')->debug('v3/pay/transactions/jsapi: ' . Tools::jsonEncode($payParams));
         // JSAPI下单
         $response = $pay->getClient()->postJson('v3/pay/transactions/jsapi', $payParams);
         Log::driver('wechat')->debug('JSAPI: ' . $response->toJson());
@@ -55,7 +55,7 @@ class Pay
         $appId = $payConfig->get('app_id');
         $signType = 'RSA'; // 默认RSA，v2要传MD5
         $config = $pay->getUtils()->buildMiniAppConfig($prepayId, $appId, $signType); // 返回wx.requestPayment参数数组
-        Log::driver('wechat')->debug('JSAPI-OBJECT: ' . Tools::json_encode($config));
+        Log::driver('wechat')->debug('JSAPI-OBJECT: ' . Tools::jsonEncode($config));
         return $config;
     }
 }

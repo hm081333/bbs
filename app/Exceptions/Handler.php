@@ -87,7 +87,7 @@ class Handler extends ExceptionHandler
                     $data['debug'] = [
                         'file' => $e->getFile(),
                         'line' => $e->getLine(),
-                        'trace' => Tools::json_decode(Tools::json_encode($e->getTrace())),
+                        'trace' => Tools::jsonDecode(Tools::jsonEncode($e->getTrace())),
                     ];
                 }
                 return response()->json($data)->setStatusCode(method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 200);

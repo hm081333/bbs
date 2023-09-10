@@ -56,7 +56,7 @@ class Area extends Command
             ->toArray();
         $areas = array_merge(Tools::translateDataToTree($areas));
         $areas = $this->parse($areas);
-        file_put_contents(Tools::backupPath('area.json'), Tools::json_encode($areas));
+        file_put_contents(Tools::backupPath('area.json'), Tools::jsonEncode($areas));
         // 指令输出
         $this->info('备份区域表完成！');
         return 0;

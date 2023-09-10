@@ -1,13 +1,7 @@
 <?php
 
-use App\Jobs\FundValuationUpdateJob;
-use App\Models\Fund\FundNetValue;
-use App\Models\Fund\FundValuation;
-use App\Utils\Tools;
-use Carbon\Carbon;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------

@@ -46,7 +46,7 @@ class AdminPermission extends Command
             ->with(['children'])
             ->get();
         $permissions = $this->parse($permissions->toArray());
-        file_put_contents(Tools::backupPath('admin_permission.json'), Tools::json_encode($permissions));
+        file_put_contents(Tools::backupPath('admin_permission.json'), Tools::jsonEncode($permissions));
         // 指令输出
         $this->info('备份后台权限表完成！');
         return 0;

@@ -19,7 +19,7 @@ class Files implements CastsAttributes
      */
     public function get($model, string $key, $value, array $attributes)
     {
-        $value = Tools::json_decode($value) ?? [];
+        $value = Tools::jsonDecode($value) ?? [];
         return array_map(function ($path) {
             return [
                 'path' => $path,
@@ -43,6 +43,6 @@ class Files implements CastsAttributes
         foreach ($value as $item) {
             if (!empty($item) && isset($item['path']) && !empty($item['path'])) $save_value[] = $item['path'];
         }
-        return Tools::json_encode($save_value);
+        return Tools::jsonEncode($save_value);
     }
 }

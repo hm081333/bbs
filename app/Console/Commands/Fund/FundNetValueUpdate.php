@@ -64,7 +64,7 @@ class FundNetValueUpdate extends Command
                 }
                 preg_match('/datas:(\[[^]]*])/', $res, $matches);
                 $data_json = $matches[1];
-                $data_arr = Tools::json_decode($data_json);
+                $data_arr = Tools::jsonDecode($data_json);
                 $data_arr = array_map(function ($str) {
                     return explode(',', $str);
                 }, $data_arr);

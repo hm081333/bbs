@@ -22,13 +22,13 @@ use function unserialize;
 
 class Tools
 {
-    //region 自定义方法
+    // region 自定义方法
     /**
      * JSON编码
      * @param mixed $array
      * @return false|string
      */
-    public static function json_encode(mixed $array): false|string
+    public static function jsonEncode(mixed $array): false|string
     {
         return json_encode($array, JSON_UNESCAPED_UNICODE);
     }
@@ -38,7 +38,7 @@ class Tools
      * @param string $json
      * @return mixed
      */
-    public static function json_decode(string $json): mixed
+    public static function jsonDecode(string $json): mixed
     {
         return json_decode($json, true);
     }
@@ -112,7 +112,7 @@ class Tools
                 $chars = 'ABCDEFGHIJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789' . $addChars;
                 break;
         }
-        if ($len > 10) {//位数过长重复字符串一定次数
+        if ($len > 10) {// 位数过长重复字符串一定次数
             $chars = $type == 1 ? str_repeat($chars, $len) : str_repeat($chars, 5);
         }
         if ($type != 4) {
@@ -163,9 +163,9 @@ class Tools
     {
         $is_mobile = static::isMobile();
         $type = !$is_mobile ? 0 : 1;
-        //全部变成小写字母
+        // 全部变成小写字母
         $agent = strtolower(request()->server('HTTP_USER_AGENT'));
-        //分别进行判断
+        // 分别进行判断
         if (strpos($agent, 'iphone') !== false || strpos($agent, 'ipad') !== false) {
             $type = 2;
         }
@@ -384,7 +384,7 @@ class Tools
         // 锁缓存KEY，最好是使用Redis缓存
         $cache_key = 'concurrent:' . Route::current()->uri() . ':' . $unique;
         // 锁存在
-        //if (Cache::has($cache_key)) throw new BadRequestException('服务器繁忙，请重试');
+        // if (Cache::has($cache_key)) throw new BadRequestException('服务器繁忙，请重试');
         // 锁持续半个小时
         Cache::put($cache_key, 1, 30 * 60);
         try {
@@ -446,9 +446,64 @@ class Tools
         }
         return '0';
     }
-    //endregion
 
-    //region 目录，文件
+    /**
+     * 数组转请求参数
+     * @param array $query_arr 请求参数数组
+     * @return string
+     */
+    public static function urlQueryEncode(array $query_arr = []): string
+    {
+        $tmp = [];
+        foreach ($query_arr as $key => $value) {
+            $tmp[] = $key . '=' . $value;
+        }
+        return implode('&', $tmp);
+    }
+
+    /**
+     * 请求参数转数组
+     * @param string $query_str 请求参数字符串
+     * @return array
+     */
+    public static function urlQueryDecode(string $query_str = ''): array
+    {
+        $query_pairs = explode('&', $query_str);
+        $params = [];
+        foreach ($query_pairs as $query_pair) {
+            $item = explode('=', $query_pair);
+            $params[$item[0]] = $item[1];
+        }
+        return $params;
+    }
+
+    /**
+     * 重建url，追加参数
+     * @param string $url
+     * @param array $extra_query
+     * @return string
+     */
+    public static function urlRebuild(string $url, array $extra_query = [])
+    {
+        $url_info = parse_url($url);
+        $url = '';
+        if (!empty($url_info['host'])) {
+            if (!empty($url_info['scheme'])) $url .= $url_info['scheme'] . ':';
+            if (!empty($url_info['user']) && !empty($url_info['pass'])) $url .= $url_info['user'] . ':' . $url_info['pass'] . '@';
+            $url .= '//' . trim($url_info['host'], '/');
+            if (!empty($url_info['port'])) $url .= ':' . $url_info['port'];
+        }
+        $url .= '/' . ltrim($url_info['path'], '/');
+        $query = [];
+        if (!empty($url_info['query'])) $query = static::urlQueryDecode($url_info['query']);
+        $query = array_merge($query, $extra_query);
+        if (!empty($query)) $url .= '?' . static::urlQueryEncode($query);
+        if (!empty($url_info['fragment'])) $url .= '#' . $url_info['fragment'];
+        return $url;
+    }
+    // endregion
+
+    // region 目录，文件
 
     /**
      * 扫描目录文件
@@ -563,9 +618,9 @@ class Tools
         return asset($path);
     }
 
-    //endregion
+    // endregion
 
-    //region 快捷调用方法
+    // region 快捷调用方法
     public static function curl($retryTimes = 1, $timeoutMs = 3000): CUrl
     {
         return new CUrl($retryTimes, $timeoutMs);
@@ -583,22 +638,22 @@ class Tools
 
     public static function aliyun_sms()
     {
-        //return new Sms();
+        // return new Sms();
     }
 
     public static function aliyun_oss()
     {
         return new Oss();
     }
-    //endregion
+    // endregion
 
-    //region 压缩解压缩二进制
+    // region 压缩解压缩二进制
     /**
      * 解密gzip二进制字符串
      * @param $str
      * @return string
      */
-    public static function compress_string_decode($str)
+    public static function compressStringDecode($str)
     {
         return static::compress_binary_decode(mb_convert_encoding($str, 'ISO-8859-1', 'utf-8'));
     }
@@ -608,7 +663,7 @@ class Tools
      * @param $data
      * @return string
      */
-    public static function compress_binary_decode($data)
+    public static function compressBinaryDecode($data)
     {
         return zlib_decode($data);
     }
@@ -619,7 +674,7 @@ class Tools
      * @param int $encoding ZLIB_ENCODING_RAW|ZLIB_ENCODING_DEFLATE|ZLIB_ENCODING_GZIP
      * @return false|string|string[]|null
      */
-    public static function compress_string_encode($str, $encoding = ZLIB_ENCODING_RAW)
+    public static function compressStringEncode($str, $encoding = ZLIB_ENCODING_RAW)
     {
         return mb_convert_encoding(static::compress_binary_encode($str, $encoding), 'utf-8', 'ISO-8859-1');
     }
@@ -630,10 +685,10 @@ class Tools
      * @param int $encoding ZLIB_ENCODING_RAW|ZLIB_ENCODING_DEFLATE|ZLIB_ENCODING_GZIP
      * @return string
      */
-    public static function compress_binary_encode($data, $encoding = ZLIB_ENCODING_RAW)
+    public static function compressBinaryEncode($data, $encoding = ZLIB_ENCODING_RAW)
     {
         return zlib_encode($data, $encoding);
     }
 
-    //endregion
+    // endregion
 }
