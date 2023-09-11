@@ -95,8 +95,8 @@ class FundValuationUpdate extends Command
                 }
             }
             //endregion
-            usleep(500);
             // sleep(1);
+            usleep(500);
         }
         return Command::SUCCESS;
     }
