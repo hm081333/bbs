@@ -56,8 +56,6 @@ class FundUpdateJob implements ShouldQueue
             $fund->name != $this->fundData['name']
             ||
             $fund->pinyin_initial != $this->fundData['pinyin_initial']
-            ||
-            $fund->type != $this->fundData['type']
         ) {
             Log::channel('fund')->info("update fund|{$this->fundData['code']}|{$fund->name}:{$this->fundData['name']}|{$fund->pinyin_initial}:{$this->fundData['pinyin_initial']}|{$fund->type}:{$this->fundData['type']}");
             // 基金数据存在但数据不一致，更新
