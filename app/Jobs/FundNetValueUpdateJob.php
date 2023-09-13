@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Fund\Fund;
 use App\Models\Fund\FundNetValue;
+use App\Utils\Tools;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -64,9 +65,9 @@ class FundNetValueUpdateJob implements ShouldQueue
                 ]);
                 \App\Events\FundNetValueUpdated::dispatch($fundValuation);
             } else if (
-                $fund_net_value->unit_net_value != $this->fundNetValue['unit_net_value']
+                Tools::math($fund_net_value->unit_net_value, '<>', $this->fundNetValue['unit_net_value'], 4)
                 ||
-                $fund_net_value->cumulative_net_value != $this->fundNetValue['cumulative_net_value']
+                Tools::math($fund_net_value->cumulative_net_value, '<>', $this->fundNetValue['cumulative_net_value'], 4)
             ) {
                 $fund_net_value->unit_net_value = $this->fundNetValue['unit_net_value'];// 单位净值
                 $fund_net_value->cumulative_net_value = $this->fundNetValue['cumulative_net_value'];// 累计净值

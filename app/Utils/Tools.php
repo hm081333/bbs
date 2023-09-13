@@ -443,6 +443,9 @@ class Tools
                 return $result === -1 || $result === 0;
             case '=':
                 return bccomp($left_operand, $right_operand, $scale) === 0;
+            case '!=':
+            case '<>':
+                return bccomp($left_operand, $right_operand, $scale) !== 0;
         }
         return '0';
     }
