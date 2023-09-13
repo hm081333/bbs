@@ -58,7 +58,7 @@ class FundValuationUpdateJob implements ShouldQueue
                     'code' => $fundNetValue->code,
                     'name' => $fundNetValue->name,
                     'unit_net_value' => 0,
-                    'estimated_net_value' => $this->fundValuationData['estimated_net_value'],
+                    'estimated_net_value' => empty($this->fundValuationData['estimated_net_value']) ? null : $this->fundValuationData['estimated_net_value'],
                     'estimated_growth' => 0,
                     'estimated_growth_rate' => 0,
                     'valuation_time' => Carbon::parse($this->fundValuationData['valuation_time'])->timestamp,
