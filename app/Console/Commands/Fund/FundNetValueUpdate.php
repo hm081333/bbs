@@ -75,14 +75,17 @@ class FundNetValueUpdate extends Command
                         'name' => $item[1],
                         'pinyin_initial' => $item[2],
                         'type' => $key,
+                        'net_value_time' => $item[3],// 净值更新时间
+                        'unit_net_value' => $item[4],// 单位净值
+                        'cumulative_net_value' => $item[5],// 累计净值
                     ]);
                     if ($item[3]) {
                         //$this->comment("写入基金净值：{$item[0]}-{$item[1]}，单位净值：{$item[4]}，累计净值：{$item[5]}");
                         FundNetValueUpdateJob::dispatch([
-                            'net_value_time' => $item[3],
                             'code' => $item[0],
                             'unit_net_value' => $item[4],// 单位净值
                             'cumulative_net_value' => $item[5],// 累计净值
+                            'net_value_time' => $item[3],// 净值更新时间
                         ]);
                     }
                 }
