@@ -69,10 +69,12 @@ class FundValuationUpdateJob implements ShouldQueue
                     $fundNetValue = FundNetValue::where('code', $this->fundValuationData['code'])
                         ->orderByDesc('net_value_time')
                         ->first();
-                    $fund->net_value_time = $fundNetValue->net_value_time;// 净值更新时间
-                    $fund->unit_net_value = $fundNetValue->unit_net_value;// 单位净值
-                    $fund->cumulative_net_value = $fundNetValue->cumulative_net_value;// 累计净值
-                    $fund->save();
+                    if ($fundNetValue) {
+                        $fund->net_value_time = $fundNetValue->net_value_time;// 净值更新时间
+                        $fund->unit_net_value = $fundNetValue->unit_net_value;// 单位净值
+                        $fund->cumulative_net_value = $fundNetValue->cumulative_net_value;// 累计净值
+                        $fund->save();
+                    }
                 }
                 if (!empty($fund->unit_net_value)) {
                     $insert_data['unit_net_value'] = $fund->unit_net_value;
