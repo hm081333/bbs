@@ -45,7 +45,7 @@ class FundUpdateJob implements ShouldQueue
         if (!$fund) {
             Log::channel('fund')->info("create fund|{$this->fundData['code']}|{$this->fundData['name']}|{$this->fundData['pinyin_initial']}|{$this->fundData['type']}");
             // 基金数据不存在，插入
-            $insert = [
+            $insert_data = [
                 'code' => $this->fundData['code'],
                 'name' => $this->fundData['name'],
                 'pinyin_initial' => $this->fundData['pinyin_initial'],
@@ -53,10 +53,10 @@ class FundUpdateJob implements ShouldQueue
                 //'created_at' => Tools::now(),
                 //'updated_at' => Tools::now(),
             ];
-            if (!empty($this->fundData['net_value_time'])) $insert['net_value_time'] = $this->fundData['net_value_time'];// 净值更新时间
-            if (!empty($this->fundData['unit_net_value'])) $insert['unit_net_value'] = $this->fundData['unit_net_value'];// 单位净值
-            if (!empty($this->fundData['cumulative_net_value'])) $insert['cumulative_net_value'] = $this->fundData['cumulative_net_value'];// 累计净值
-            Fund::create($insert);
+            if (!empty($this->fundData['net_value_time'])) $insert_data['net_value_time'] = $this->fundData['net_value_time'];// 净值更新时间
+            if (!empty($this->fundData['unit_net_value'])) $insert_data['unit_net_value'] = $this->fundData['unit_net_value'];// 单位净值
+            if (!empty($this->fundData['cumulative_net_value'])) $insert_data['cumulative_net_value'] = $this->fundData['cumulative_net_value'];// 累计净值
+            Fund::create($insert_data);
         } else if (
             $fund->name != $this->fundData['name']
             ||
