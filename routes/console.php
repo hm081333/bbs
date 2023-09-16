@@ -33,6 +33,22 @@ Artisan::command('queue:size', function () {
 })->purpose('Display queue size');
 
 Artisan::command('testa', function () {
+    $list = Fund::where('net_value_time', 0)->get()
+        ->each(function ($fund) {
+            dump($fund->code);
+            /* @var $fundNetValue FundNetValue */
+            $fundNetValue = FundNetValue::where('code', $fund->code)
+                ->orderByDesc('net_value_time')
+                ->first();
+            if ($fundNetValue) {
+                $fund->net_value_time = $fundNetValue->net_value_time;// 净值更新时间
+                $fund->unit_net_value = $fundNetValue->unit_net_value;// 单位净值
+                $fund->cumulative_net_value = $fundNetValue->cumulative_net_value;// 累计净值
+                $fund->save();
+            }
+        });
+    dd('end');
+
     $res = \App\Utils\Tools::curl(5)
         ->setHeader([
             'Referer' => 'https://fund.eastmoney.com/data/fundranking.html',
