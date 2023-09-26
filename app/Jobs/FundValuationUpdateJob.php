@@ -52,6 +52,7 @@ class FundValuationUpdateJob implements ShouldQueue
                 'valuation_source' => $this->fundValuationData['valuation_source'],
             ])->first();
             if (!$fund_valuation) {
+                dump(Carbon::parse($this->fundValuationData['valuation_time'])->timestamp);
                 $insert_data = [
                     'fund_id' => $fund->id,
                     'code' => $fund->code,
