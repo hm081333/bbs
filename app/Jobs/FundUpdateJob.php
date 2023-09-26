@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Fund\Fund;
 use App\Utils\Tools;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -30,6 +31,7 @@ class FundUpdateJob implements ShouldQueue
         $this->onQueue('fund');
         $this->onConnection('redis');
         $this->fundData = $data;
+        if (!empty($this->fundData['net_value_time']) && !($this->fundData['net_value_time'] instanceof Carbon)) $this->fundData['net_value_time'] = Carbon::parse($this->fundData['net_value_time']);
     }
 
     /**
@@ -62,14 +64,14 @@ class FundUpdateJob implements ShouldQueue
             ||
             $fund->pinyin_initial != $this->fundData['pinyin_initial']
             ||
-            (!empty($this->fundData['net_value_time']) && $fund->net_value_time != $this->fundData['net_value_time'])
+            (!empty($this->fundData['net_value_time']) && $this->fundData['net_value_time']->ne($fund->net_value_time))
 //            ||
 //            Tools::math($fund->unit_net_value, '<>', $this->fundData['unit_net_value'], 4)
 //            ||
 //            Tools::math($fund->cumulative_net_value, '<>', $this->fundData['cumulative_net_value'], 4)
         ) {
-            Log::channel('fund')->info("update fund|{$this->fundData['code']}|{$fund->name}:{$this->fundData['name']}|{$fund->pinyin_initial}:{$this->fundData['pinyin_initial']}|{$fund->type}:{$this->fundData['type']}|{$fund->net_value_time}:{$this->fundData['net_value_time']}|{$fund->unit_net_value}:{$this->fundData['unit_net_value']}|{$fund->cumulative_net_value}:{$this->fundData['cumulative_net_value']}");
-            // 基金数据存在但数据不一致，更新
+            Log::channel('fund')->info("update fund|{$this->fundData['code']}|{$fund->name}:{$this->fundData['name']}|{$fund->pinyin_initial}:{$this->fundData['pinyin_initial']}|{$fund->type}:{$this->fundData['type']}|{$fund->net_value_time->format('Y-m-d')}:{$this->fundData['net_value_time']->format('Y-m-d')}|{$fund->unit_net_value}:{$this->fundData['unit_net_value']}|{$fund->cumulative_net_value}:{$this->fundData['cumulative_net_value']}");
+            // 基金数据存在但数据不一致，更新s
             $fund->name = $this->fundData['name'];
             $fund->pinyin_initial = $this->fundData['pinyin_initial'];
             $fund->type = $this->fundData['type'];
