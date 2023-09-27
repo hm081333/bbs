@@ -19,7 +19,11 @@ use Tymon\JWTAuth\JWTGuard;
  * @property \App\Models\AuthModel $modelAuthModel AuthModel
  * @property \App\Models\BaiduId $modelBaiduId BaiduId
  * @property \App\Models\BaseModel $modelBaseModel BaseModel
+ * @property \App\Models\Fund\Fund $modelFundFund Fund
+ * @property \App\Models\Fund\FundNetValue $modelFundFundNetValue FundNetValue
+ * @property \App\Models\Fund\FundValuation $modelFundFundValuation FundValuation
  * @property \App\Models\User $modelUser User
+ * @property \App\Models\UserFund $modelUserFund UserFund
  * Class Controller
  */
 class BaseController extends \Illuminate\Routing\Controller

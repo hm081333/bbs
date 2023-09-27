@@ -20,7 +20,15 @@ class FundValuationUpdateJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * @var array 估值数据
+     */
     private array $fundValuationData;
+
+    /**
+     * @var Carbon 估值时间
+     */
+    private Carbon $valuation_time;
 
     /**
      * Create a new job instance.
@@ -32,6 +40,8 @@ class FundValuationUpdateJob implements ShouldQueue
         $this->onQueue('fund');
         $this->onConnection('redis');
         $this->fundValuationData = $data;
+
+        if (!empty($this->fundValuationData['valuation_time'])) $this->valuation_time = $this->fundValuationData['valuation_time'] instanceof Carbon ? $this->fundValuationData['valuation_time'] : Carbon::parse($this->fundValuationData['valuation_time']);
     }
 
     /**
@@ -41,6 +51,7 @@ class FundValuationUpdateJob implements ShouldQueue
      */
     public function handle()
     {
+        if (empty($this->valuation_time)) return;
         // 基金估值更新逻辑
         /* @var $fund Fund */
         $fund = Fund::where('code', $this->fundValuationData['code'])->first();
@@ -48,11 +59,10 @@ class FundValuationUpdateJob implements ShouldQueue
             /* @var $fund_valuation FundValuation */
             $fund_valuation = FundValuation::where([
                 'fund_id' => $fund->id,
-                'valuation_time' => Carbon::parse($this->fundValuationData['valuation_time'])->timestamp,
+                'valuation_time' => $this->valuation_time->timestamp,
                 'valuation_source' => $this->fundValuationData['valuation_source'],
             ])->first();
             if (!$fund_valuation) {
-                dump(Carbon::parse($this->fundValuationData['valuation_time'])->timestamp);
                 $insert_data = [
                     'fund_id' => $fund->id,
                     'code' => $fund->code,
@@ -61,7 +71,7 @@ class FundValuationUpdateJob implements ShouldQueue
                     'estimated_net_value' => empty($this->fundValuationData['estimated_net_value']) ? null : $this->fundValuationData['estimated_net_value'],
                     'estimated_growth' => 0,
                     'estimated_growth_rate' => 0,
-                    'valuation_time' => Carbon::parse($this->fundValuationData['valuation_time'])->timestamp,
+                    'valuation_time' => $this->valuation_time->timestamp,
                     'valuation_source' => $this->fundValuationData['valuation_source'],
                 ];
                 // 计算增长和增长率

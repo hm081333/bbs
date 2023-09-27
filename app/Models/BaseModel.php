@@ -19,13 +19,15 @@ use Illuminate\Support\Str;
 /**
  * App\Models\BaseModel
  *
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ * @property \Illuminate\Support\Carbon $deleted_at
+ * @property-read string $sex_name
+ * @property-write mixed $sn
  * @property-write mixed $sort
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withoutTrashed()
  * @mixin Eloquent
  */
 class BaseModel extends \Illuminate\Database\Eloquent\Model

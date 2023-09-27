@@ -16,13 +16,15 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 /**
  * App\Models\AuthModel
  *
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ * @property \Illuminate\Support\Carbon $deleted_at
+ * @property-read string $sex_name
+ * @property-write mixed $sn
  * @property-write mixed $sort
  * @method static \Illuminate\Database\Eloquent\Builder|AuthModel newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AuthModel newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AuthModel onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|AuthModel query()
- * @method static \Illuminate\Database\Eloquent\Builder|AuthModel withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|AuthModel withoutTrashed()
  * @mixin \Eloquent
  */
 class AuthModel extends BaseModel implements

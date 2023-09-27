@@ -19,7 +19,15 @@ class FundUpdateJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * @var array 基金数据
+     */
     private array $fundData;
+
+    /**
+     * @var Carbon 基金净值时间
+     */
+    private Carbon $net_value_time;
 
     /**
      * Create a new job instance.
@@ -31,7 +39,7 @@ class FundUpdateJob implements ShouldQueue
         $this->onQueue('fund');
         $this->onConnection('redis');
         $this->fundData = $data;
-        if (!empty($this->fundData['net_value_time']) && !($this->fundData['net_value_time'] instanceof Carbon)) $this->fundData['net_value_time'] = Carbon::parse($this->fundData['net_value_time']);
+        if (!empty($this->fundData['net_value_time'])) $this->net_value_time = $this->fundData['net_value_time'] instanceof Carbon ? $this->fundData['net_value_time'] : Carbon::parse($this->fundData['net_value_time']);
     }
 
     /**
@@ -55,29 +63,34 @@ class FundUpdateJob implements ShouldQueue
                 //'created_at' => Tools::now(),
                 //'updated_at' => Tools::now(),
             ];
-            if (!empty($this->fundData['net_value_time'])) $insert_data['net_value_time'] = $this->fundData['net_value_time'];// 净值更新时间
-            if (!empty($this->fundData['unit_net_value'])) $insert_data['unit_net_value'] = $this->fundData['unit_net_value'];// 单位净值
-            if (!empty($this->fundData['cumulative_net_value'])) $insert_data['cumulative_net_value'] = $this->fundData['cumulative_net_value'];// 累计净值
+            if (!empty($this->net_value_time)) {
+                $insert_data['net_value_time'] = $this->net_value_time;// 净值更新时间
+                if (!empty($this->fundData['unit_net_value'])) $insert_data['unit_net_value'] = $this->fundData['unit_net_value'];// 单位净值
+                if (!empty($this->fundData['cumulative_net_value'])) $insert_data['cumulative_net_value'] = $this->fundData['cumulative_net_value'];// 累计净值
+            }
             Fund::create($insert_data);
         } else if (
             $fund->name != $this->fundData['name']
             ||
             $fund->pinyin_initial != $this->fundData['pinyin_initial']
             ||
-            (!empty($this->fundData['net_value_time']) && $this->fundData['net_value_time']->ne($fund->net_value_time))
+            (!empty($this->net_value_time) && $this->net_value_time->ne($fund->net_value_time))
 //            ||
 //            Tools::math($fund->unit_net_value, '<>', $this->fundData['unit_net_value'], 4)
 //            ||
 //            Tools::math($fund->cumulative_net_value, '<>', $this->fundData['cumulative_net_value'], 4)
         ) {
-            Log::channel('fund')->info("update fund|{$this->fundData['code']}|{$fund->name}:{$this->fundData['name']}|{$fund->pinyin_initial}:{$this->fundData['pinyin_initial']}|{$fund->type}:{$this->fundData['type']}|{$fund->net_value_time->format('Y-m-d')}:{$this->fundData['net_value_time']->format('Y-m-d')}|{$fund->unit_net_value}:{$this->fundData['unit_net_value']}|{$fund->cumulative_net_value}:{$this->fundData['cumulative_net_value']}");
-            // 基金数据存在但数据不一致，更新s
+            Log::channel('fund')->info("update fund|{$this->fundData['code']}|{$fund->name}:{$this->fundData['name']}|{$fund->pinyin_initial}:{$this->fundData['pinyin_initial']}|{$fund->type}:{$this->fundData['type']}|{$fund->net_value_time->format('Y-m-d')}:{$this->net_value_time->format('Y-m-d')}|{$fund->unit_net_value}:{$this->fundData['unit_net_value']}|{$fund->cumulative_net_value}:{$this->fundData['cumulative_net_value']}");
+            // 基金数据存在但数据不一致，更新
             $fund->name = $this->fundData['name'];
             $fund->pinyin_initial = $this->fundData['pinyin_initial'];
             $fund->type = $this->fundData['type'];
-            if (!empty($this->fundData['net_value_time'])) $fund->net_value_time = $this->fundData['net_value_time'];// 净值更新时间
-            if (!empty($this->fundData['unit_net_value'])) $fund->unit_net_value = $this->fundData['unit_net_value'];// 单位净值
-            if (!empty($this->fundData['cumulative_net_value'])) $fund->cumulative_net_value = $this->fundData['cumulative_net_value'];// 累计净值
+            // 基金数据存在但净值时间不一致，更新
+            if (!empty($this->net_value_time)) {
+                $fund->net_value_time = $this->net_value_time;// 净值更新时间
+                if (!empty($this->fundData['unit_net_value'])) $fund->unit_net_value = $this->fundData['unit_net_value'];// 单位净值
+                if (!empty($this->fundData['cumulative_net_value'])) $fund->cumulative_net_value = $this->fundData['cumulative_net_value'];// 累计净值
+            }
             //$fund->updated_at = Tools::now();
             $fund->save();
         }
