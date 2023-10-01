@@ -5,6 +5,7 @@ namespace App\Console\Commands\Fund;
 use App\Jobs\FundNetValueUpdateJob;
 use App\Jobs\FundUpdateJob;
 use App\Jobs\FundValuationUpdateJob;
+use App\Utils\Juhe\Calendar;
 use App\Utils\Tools;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -34,7 +35,21 @@ class FundValuationUpdate extends Command
     {
         //$this->comment('获取基金估值列表');
         $now_time = Tools::now();
-        if ($now_time->lt(date('Y-m-d 9:25')) || ($now_time->gt(date('Y-m-d 11:35')) && $now_time->lt(date('Y-m-d 12:55'))) || $now_time->gt(date('Y-m-d 15:05'))) {
+        if (
+            $now_time->lt(date('Y-m-d 9:25'))
+            ||
+            (
+                $now_time->gt(date('Y-m-d 11:35'))
+                &&
+                $now_time->lt(date('Y-m-d 12:55'))
+            )
+            ||
+            $now_time->gt(date('Y-m-d 15:05'))
+            ||
+            $now_time->isWeekend()
+            ||
+            Calendar::isHoliday($now_time)
+        ) {
             $this->comment('不在基金开门时间');
             return Command::SUCCESS;
         }

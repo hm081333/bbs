@@ -33,6 +33,9 @@ Artisan::command('queue:size', function () {
 })->purpose('Display queue size');
 
 Artisan::command('testa', function () {
+    $data = \App\Utils\Juhe\Calendar::isHoliday('2023-10-01');
+    dd($data);
+
     $list = Fund::where('net_value_time', 0)->get()
         ->each(function ($fund) {
             dump($fund->code);

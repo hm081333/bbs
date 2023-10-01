@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Exceptions\Request;
+namespace App\Exceptions\Redirect;
 
-
-class BadRequestException extends Exception
+class RedirectException extends Exception
 {
     /**
-     * 请求错误 异常抛出
+     * 重定向，需要进一步的操作以完成请求
      * @param $message
      */
     public function __construct($message)

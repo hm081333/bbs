@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Exceptions\Request;
+namespace App\Exceptions\Server;
 
-
-class BadRequestException extends Exception
+class InternalServerErrorException extends Exception
 {
     /**
-     * 请求错误 异常抛出
+     * 服务器运行异常错误
      * @param $message
      */
     public function __construct($message)
