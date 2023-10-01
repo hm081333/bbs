@@ -94,7 +94,7 @@ class FundValuationUpdateJob implements ShouldQueue
                     $insert_data['estimated_growth_rate'] = Tools::math($estimated_growth_rate, '*', '100', 4);
                 }
                 $fundValuation = FundValuation::create($insert_data);
-                \App\Events\FundValuationUpdated::dispatch($fundValuation);
+//                \App\Events\FundValuationUpdated::dispatch($fundValuation);
             }
 
         }
