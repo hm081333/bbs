@@ -4,6 +4,7 @@ namespace App\Utils\Juhe;
 
 use App\Exceptions\Server\Exception;
 use App\Exceptions\Server\InternalServerErrorException;
+use App\Utils\Tools;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Psr\SimpleCache\InvalidArgumentException;
@@ -28,44 +29,56 @@ class Calendar
 
     /**
      * 获取当年的假期列表
-     * @param string $year 指定年份,格式为YYYY,如:2015
+     * @param string|Carbon $year 指定年份,格式为YYYY,如:2015
      * @return array
      * @throws InternalServerErrorException
      */
-    public static function year(string $year): array
+    public static function year(string|Carbon $year): array
     {
         return Utils::instance()->request('http://v.juhe.cn/calendar/year', ['year' => $year]);
     }
 
     /**
      * 判断时间是否假期
-     * @param $time
+     * @param Carbon|int|float|string $time 待判断的时间
      * @return false
-     * @throws Exception
      * @throws InternalServerErrorException
      * @throws InvalidArgumentException
      */
-    public static function isHoliday($time): bool
+    public static function isHoliday(Carbon|int|float|string $time): bool
     {
-        $time = empty($time) ? false : ($time instanceof \Carbon\Carbon ? $time : (filter_var($time, FILTER_VALIDATE_INT) !== false ? (strlen((string)$time) === 10 ? Carbon::createFromTimestamp($time) : throw new Exception('时间戳格式错误')) : Carbon::parse($time)));
+        $time = Tools::timeToCarbon($time);
         if (!$time) return false;
         $holiday_year_month = $time->format('Y-n');
-        $holiday_year_month_list = Cache::get("holiday:{$holiday_year_month}", null);
+        $holiday_year_month_list = static::getYearMonthHolidayList($holiday_year_month);
+        return isset($holiday_year_month_list[$time->timestamp]) && $holiday_year_month_list[$time->timestamp];
+    }
+
+    /**
+     * 根据年月获取最近假期日期列表
+     * @param string $year_month 指定月份,格式为YYYY-MM,如月份和日期小于10,则取个位,如:2012-1
+     * @return array
+     * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
+     */
+    public static function getYearMonthHolidayList(string $year_month): array
+    {
+        $holiday_year_month_list = Cache::get("holiday:{$year_month}", null);
         if ($holiday_year_month_list === null) {
             $holiday_year_month_list = [];
-            $year_month_holiday = static::month($holiday_year_month);
+            $year_month_holiday = static::month($year_month);
             $year_month_holiday_data = $year_month_holiday['data'];
             $holiday_array = $year_month_holiday_data['holiday_array'];
             foreach ($holiday_array as $holidays) {
                 foreach ($holidays['list'] as $item) {
-                    $holiday_year_month_list[Carbon::parse($item['date'])->timestamp] = ($item['status'] == 1);
+                    $holiday_year_month_list[Tools::timeToCarbon($item['date'])->timestamp] = ($item['status'] == 1);
                 }
                 unset($item);
             }
             unset($holidays);
-            Cache::set("holiday:{$holiday_year_month}", $holiday_year_month_list);
+            Cache::set("holiday:{$year_month}", $holiday_year_month_list);
         }
-        return isset($holiday_year_month_list[$time->timestamp]) && $holiday_year_month_list[$time->timestamp];
+        return $holiday_year_month_list;
     }
 
     /**
@@ -77,5 +90,21 @@ class Calendar
     public static function month(string $year_month): array
     {
         return Utils::instance()->request('http://v.juhe.cn/calendar/month', ['year-month' => $year_month]);
+    }
+
+    /**
+     * 判断时间是否休息日
+     * @param Carbon|int|float|string $time 待判断的时间
+     * @return bool
+     * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
+     */
+    public static function isRestDay(Carbon|int|float|string $time): bool
+    {
+        $time = Tools::timeToCarbon($time);
+        if (!$time) return false;
+        $holiday_year_month = $time->format('Y-n');
+        $holiday_year_month_list = static::getYearMonthHolidayList($holiday_year_month);
+        return isset($holiday_year_month_list[$time->timestamp]) ? $holiday_year_month_list[$time->timestamp] : $time->isWeekend();
     }
 }

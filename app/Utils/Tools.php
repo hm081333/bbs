@@ -286,6 +286,16 @@ class Tools
     }
 
     /**
+     * 获取当前请求的时间
+     * @access public
+     * @return \Carbon\Carbon
+     */
+    public static function now(): \Carbon\Carbon
+    {
+        return Carbon::parse(date('Y-m-d H:i:s', static::time()));
+    }
+
+    /**
      * 获取当前请求的时间戳
      * @access public
      * @param bool $float 是否使用浮点类型
@@ -297,23 +307,33 @@ class Tools
     }
 
     /**
-     * 获取当前请求的时间
+     * 获取当前请求的日期
      * @access public
-     * @return Carbon
+     * @return \Carbon\Carbon
      */
-    public static function now(): Carbon
+    public static function today(): \Carbon\Carbon
     {
-        return Carbon::parse(date('Y-m-d H:i:s', static::time()));
+        return Carbon::parse(date('Y-m-d', static::time()));
     }
 
     /**
-     * 获取当前请求的日期
-     * @access public
-     * @return Carbon
+     * 任意时间转Carbon
+     * @param \Carbon\Carbon|int|float|string $time
+     * @return \Carbon\Carbon|null
      */
-    public static function today(): Carbon
+    public static function timeToCarbon(\Carbon\Carbon|int|float|string $time): \Carbon\Carbon|null
     {
-        return Carbon::parse(date('Y-m-d', static::time()));
+        if (empty($time)) return null;
+        if ($time instanceof \Carbon\Carbon) return $time;
+        try {
+            return (filter_var($time, FILTER_VALIDATE_INT) !== false || filter_var($time, FILTER_VALIDATE_FLOAT) !== false) && strlen((string)$time) >= 10
+                ?
+                Carbon::createFromTimestamp($time)
+                :
+                Carbon::parse($time);
+        } catch (Exception $exception) {
+        }
+        return null;
     }
 
     /**
@@ -451,36 +471,6 @@ class Tools
     }
 
     /**
-     * 数组转请求参数
-     * @param array $query_arr 请求参数数组
-     * @return string
-     */
-    public static function urlQueryEncode(array $query_arr = []): string
-    {
-        $tmp = [];
-        foreach ($query_arr as $key => $value) {
-            $tmp[] = $key . '=' . $value;
-        }
-        return implode('&', $tmp);
-    }
-
-    /**
-     * 请求参数转数组
-     * @param string $query_str 请求参数字符串
-     * @return array
-     */
-    public static function urlQueryDecode(string $query_str = ''): array
-    {
-        $query_pairs = explode('&', $query_str);
-        $params = [];
-        foreach ($query_pairs as $query_pair) {
-            $item = explode('=', $query_pair);
-            $params[$item[0]] = $item[1];
-        }
-        return $params;
-    }
-
-    /**
      * 重建url，追加参数
      * @param string $url
      * @param array $extra_query
@@ -503,6 +493,36 @@ class Tools
         if (!empty($query)) $url .= '?' . static::urlQueryEncode($query);
         if (!empty($url_info['fragment'])) $url .= '#' . $url_info['fragment'];
         return $url;
+    }
+
+    /**
+     * 请求参数转数组
+     * @param string $query_str 请求参数字符串
+     * @return array
+     */
+    public static function urlQueryDecode(string $query_str = ''): array
+    {
+        $query_pairs = explode('&', $query_str);
+        $params = [];
+        foreach ($query_pairs as $query_pair) {
+            $item = explode('=', $query_pair);
+            $params[$item[0]] = $item[1];
+        }
+        return $params;
+    }
+
+    /**
+     * 数组转请求参数
+     * @param array $query_arr 请求参数数组
+     * @return string
+     */
+    public static function urlQueryEncode(array $query_arr = []): string
+    {
+        $tmp = [];
+        foreach ($query_arr as $key => $value) {
+            $tmp[] = $key . '=' . $value;
+        }
+        return implode('&', $tmp);
     }
     // endregion
 
