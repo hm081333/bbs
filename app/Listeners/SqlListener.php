@@ -26,6 +26,61 @@ class SqlListener
     }
 
     /**
+     * Handle the event.
+     *
+     * @param QueryExecuted $event
+     * @return void
+     */
+    public function handle(QueryExecuted $event)
+    {
+        // 只统计mysql语句
+        if ($event->connectionName != 'mysql') return;
+        if (config('app.no_sql_log', false)) return;
+        $log = $this->interpolateQuery($event->sql, $event->bindings);
+        if ($event->time >= 1000) Log::channel('sql')->info("{$event->time}|{$log}");
+        return;
+        $request = request();
+        $data = [
+            'sql' => $log,
+            'type' => strtolower(substr(ltrim($log), 0, 6)),
+            'log_time' => date('Y-m-d H:i:s', $this->time),
+            'exec_consumed' => $event->time,
+            'connection_name' => $event->connectionName,
+            'method' => 'cli',
+            'url' => rtrim(Tools::url(), '/'),
+            'path_info' => $request->getPathInfo(),
+            'client_ip' => $request->ip(),
+            'request_time' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME'] ?? $this->time),
+            // 'admin_id' => $this->getAuthId('admin'),
+            // 'user_id' => $this->getAuthId('user'),
+            // 'recommender_id' => $this->getAuthId('recommender'),
+            // 'school_manager_id' => $this->getAuthId('school_manager'),
+            // 'agency_manager_id' => $this->getAuthId('agency_manager'),
+        ];
+        $data = $this->getAuthId($data);
+        if (strtolower(substr(php_sapi_name(), 0, 3)) !== 'cli') {
+            $data['method'] = strtolower($request->method());
+            $data['params'] = json_encode((object)$request->input(), true);
+            $data['get'] = json_encode((object)$request->query(), true);
+            $data['post'] = json_encode((object)$request->post(), true);
+            $data['headers'] = json_encode((object)array_map(function ($header) {
+                return implode(',', $header);
+            }, $request->header()), true);
+            $data['user_agent'] = $request->userAgent();
+        } else {
+            $data['url'] = array_shift($_SERVER['argv']);
+            $data['path_info'] = implode(' ', $_SERVER['argv']);
+        }
+        try {
+            SqlLog::create($data);
+        } catch (Exception $e) {
+            Log::error('sql语句写入MongoDB失败');
+            Log::error($e);
+            // throw $e;
+        }
+    }
+
+    /**
      * 拼接SQL
      * @param $query    string sql字符串（带？号）
      * @param $params   array sql参数
@@ -89,59 +144,6 @@ class SqlListener
             Log::error($e);
         }
         return $data;
-    }
-
-    /**
-     * Handle the event.
-     *
-     * @param QueryExecuted $event
-     * @return void
-     */
-    public function handle(QueryExecuted $event)
-    {
-        // 只统计mysql语句
-        if ($event->connectionName != 'mysql') return;
-        if (config('app.no_sql_log', false)) return;
-        $log = $this->interpolateQuery($event->sql, $event->bindings);
-        $request = request();
-        $data = [
-            'sql' => $log,
-            'type' => strtolower(substr(ltrim($log), 0, 6)),
-            'log_time' => date('Y-m-d H:i:s', $this->time),
-            'exec_consumed' => $event->time,
-            'connection_name' => $event->connectionName,
-            'method' => 'cli',
-            'url' => rtrim(Tools::url(), '/'),
-            'path_info' => $request->getPathInfo(),
-            'client_ip' => $request->ip(),
-            'request_time' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME'] ?? $this->time),
-            // 'admin_id' => $this->getAuthId('admin'),
-            // 'user_id' => $this->getAuthId('user'),
-            // 'recommender_id' => $this->getAuthId('recommender'),
-            // 'school_manager_id' => $this->getAuthId('school_manager'),
-            // 'agency_manager_id' => $this->getAuthId('agency_manager'),
-        ];
-        $data = $this->getAuthId($data);
-        if (strtolower(substr(php_sapi_name(), 0, 3)) !== 'cli') {
-            $data['method'] = strtolower($request->method());
-            $data['params'] = json_encode((object)$request->input(), true);
-            $data['get'] = json_encode((object)$request->query(), true);
-            $data['post'] = json_encode((object)$request->post(), true);
-            $data['headers'] = json_encode((object)array_map(function ($header) {
-                return implode(',', $header);
-            }, $request->header()), true);
-            $data['user_agent'] = $request->userAgent();
-        } else {
-            $data['url'] = array_shift($_SERVER['argv']);
-            $data['path_info'] = implode(' ', $_SERVER['argv']);
-        }
-        try {
-            SqlLog::create($data);
-        } catch (Exception $e) {
-            Log::error('sql语句写入MongoDB失败');
-            Log::error($e);
-            // throw $e;
-        }
     }
 
 }

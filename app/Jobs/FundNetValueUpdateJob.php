@@ -19,7 +19,15 @@ class FundNetValueUpdateJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * @var array 净值数据
+     */
     private array $fundNetValue;
+
+    /**
+     * @var string 基金代码
+     */
+    private string $fundCode;
 
     /**
      * Create a new job instance.
@@ -32,6 +40,7 @@ class FundNetValueUpdateJob implements ShouldQueue
         $this->onConnection('redis');
         $this->fundNetValue = $data;
 
+        $this->fundCode = (string)$this->fundNetValue['code'];
         $this->fundNetValue['unit_net_value'] = $this->fundNetValue['unit_net_value'] ?: 0;
         $this->fundNetValue['cumulative_net_value'] = $this->fundNetValue['cumulative_net_value'] ?: 0;
     }
@@ -43,9 +52,10 @@ class FundNetValueUpdateJob implements ShouldQueue
      */
     public function handle()
     {
+        if (empty($this->fundCode)) $this->fundCode = (string)$this->fundNetValue['code'];
         // 基金净值更新逻辑
         /* @var $fund Fund */
-        $fund = Fund::where('code', $this->fundNetValue['code'])->first();
+        $fund = Fund::getByCode($this->fundCode);
         if ($fund) {
             /* @var $fund_net_value FundNetValue */
             $fund_net_value = FundNetValue::where([

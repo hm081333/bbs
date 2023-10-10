@@ -31,6 +31,11 @@ class FundValuationUpdateJob implements ShouldQueue
     private Carbon $valuation_time;
 
     /**
+     * @var string 基金代码
+     */
+    private string $fundCode;
+
+    /**
      * Create a new job instance.
      *
      * @return void
@@ -41,6 +46,7 @@ class FundValuationUpdateJob implements ShouldQueue
         $this->onConnection('redis');
         $this->fundValuationData = $data;
 
+        $this->fundCode = (string)$this->fundValuationData['code'];
         if (!empty($this->fundValuationData['valuation_time'])) $this->valuation_time = $this->fundValuationData['valuation_time'] instanceof Carbon ? $this->fundValuationData['valuation_time'] : Carbon::parse($this->fundValuationData['valuation_time']);
     }
 
@@ -51,33 +57,37 @@ class FundValuationUpdateJob implements ShouldQueue
      */
     public function handle()
     {
-        if (empty($this->valuation_time)) return;
+        if (empty($this->fundCode)) $this->fundCode = (string)$this->fundValuationData['code'];
+        if (empty($this->fundCode) || empty($this->valuation_time)) return;
         // 基金估值更新逻辑
         /* @var $fund Fund */
-        $fund = Fund::where('code', $this->fundValuationData['code'])->first();
+        $fund = Fund::getByCode($this->fundCode);
         if ($fund) {
             /* @var $fund_valuation FundValuation */
             $fund_valuation = FundValuation::where([
                 'fund_id' => $fund->id,
                 'valuation_time' => $this->valuation_time->timestamp,
                 'valuation_source' => $this->fundValuationData['valuation_source'],
-            ])->first();
+            ])->count('fund_id');
             if (!$fund_valuation) {
                 $insert_data = [
                     'fund_id' => $fund->id,
                     'code' => $fund->code,
                     'name' => $fund->name,
                     'unit_net_value' => 0,
+                    // 最新预估净值
                     'estimated_net_value' => empty($this->fundValuationData['estimated_net_value']) ? null : $this->fundValuationData['estimated_net_value'],
                     'estimated_growth' => 0,
                     'estimated_growth_rate' => 0,
+                    // 估值时间
                     'valuation_time' => $this->valuation_time->timestamp,
+                    // 估值来源
                     'valuation_source' => $this->fundValuationData['valuation_source'],
                 ];
                 // 计算增长和增长率
                 if (empty($fund->unit_net_value)) {
                     /* @var $fundNetValue FundNetValue */
-                    $fundNetValue = FundNetValue::where('code', $this->fundValuationData['code'])
+                    $fundNetValue = FundNetValue::where('code', $this->fundCode)
                         ->orderByDesc('net_value_time')
                         ->first();
                     if ($fundNetValue) {
