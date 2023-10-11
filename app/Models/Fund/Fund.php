@@ -54,6 +54,6 @@ class Fund extends BaseModel
     {
         return static::getCacheOrSet($code, function () use ($code) {
             return static::where('code', (string)$code)->first();
-        }, 3600);
+        }, null);
     }
 }
