@@ -117,7 +117,7 @@ class FundValuationUpdateJob implements ShouldQueue
                 $fundValuation = FundValuation::create($insert_data);
                 // \App\Events\FundValuationUpdated::dispatch($fundValuation);
             }
-            FundValuation::setCache($fund_valuation_cache_key, 1);
+            FundValuation::setCache($fund_valuation_cache_key, 1, 1200);
         }
     }
 }

@@ -270,10 +270,10 @@ class BaseModel extends Model
      * 设置缓存
      * @param string $key
      * @param mixed|\Closure $value
-     * @param int $ttl
+     * @param int|null|\Carbon\Carbon $ttl
      * @return bool
      */
-    public static function setCache(string $key, mixed $value, int $ttl = 3600): bool
+    public static function setCache(string $key, mixed $value, int|\Carbon\Carbon|null $ttl = 3600): bool
     {
         return Cache::put(static::getCacheKey($key), $value, $ttl);
     }

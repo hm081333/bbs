@@ -74,7 +74,9 @@ class FundUpdateJob implements ShouldQueue
                 if (!empty($this->fundData['unit_net_value'])) $insert_data['unit_net_value'] = $this->fundData['unit_net_value'];// 单位净值
                 if (!empty($this->fundData['cumulative_net_value'])) $insert_data['cumulative_net_value'] = $this->fundData['cumulative_net_value'];// 累计净值
             }
-            Fund::create($insert_data);
+            $fund = Fund::create($insert_data);
+            // 基金信息写入缓存，方便后续使用
+            Fund::setCache($this->fundData['code'], $fund, null);
         } else if (
             $fund->name != $this->fundData['name']
             ||
@@ -99,6 +101,8 @@ class FundUpdateJob implements ShouldQueue
             }
             //$fund->updated_at = Tools::now();
             $fund->save();
+            // 基金信息写入缓存，方便后续使用
+            Fund::setCache($this->fundData['code'], $fund, null);
         }
     }
 }
