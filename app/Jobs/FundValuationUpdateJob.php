@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * 基金估值更新任务
@@ -63,13 +64,15 @@ class FundValuationUpdateJob implements ShouldQueue
         /* @var $fund Fund */
         $fund = Fund::getByCode($this->fundCode);
         if ($fund) {
-            /* @var $fund_valuation FundValuation */
-            $fund_valuation = FundValuation::where([
+            $fund_valuation_filter = [
                 'fund_id' => $fund->id,
                 'valuation_time' => $this->valuation_time->timestamp,
                 'valuation_source' => $this->fundValuationData['valuation_source'],
-            ])->count('fund_id');
-            if (!$fund_valuation) {
+            ];
+            $fund_valuation_cache_key = base64_encode(Tools::jsonEncode($fund_valuation_filter));
+            if (!FundValuation::getCacheOrSet($fund_valuation_cache_key, function () use ($fund_valuation_filter) {
+                return FundValuation::where($fund_valuation_filter)->count('id');
+            }, 3600)) {
                 $insert_data = [
                     'fund_id' => $fund->id,
                     'code' => $fund->code,
@@ -84,6 +87,7 @@ class FundValuationUpdateJob implements ShouldQueue
                     // 估值来源
                     'valuation_source' => $this->fundValuationData['valuation_source'],
                 ];
+                $insert_data['created_at'] = $insert_data['updated_at'] = time();
                 // 计算增长和增长率
                 if (empty($fund->unit_net_value)) {
                     /* @var $fundNetValue FundNetValue */
@@ -104,9 +108,9 @@ class FundValuationUpdateJob implements ShouldQueue
                     $insert_data['estimated_growth_rate'] = Tools::math($estimated_growth_rate, '*', '100', 4);
                 }
                 $fundValuation = FundValuation::create($insert_data);
-//                \App\Events\FundValuationUpdated::dispatch($fundValuation);
+                // \App\Events\FundValuationUpdated::dispatch($fundValuation);
             }
-
+            FundValuation::setCache($fund_valuation_cache_key, 1);
         }
     }
 }

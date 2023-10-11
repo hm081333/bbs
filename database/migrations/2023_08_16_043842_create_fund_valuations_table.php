@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('fund_valuations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('fund_id')->index()->comment('基金ID');
-            $table->string('code')->index()->comment('基金代码');
+            $table->string('code')->comment('基金代码');
             $table->string('name')->comment('基金名称');
             $table->decimal('unit_net_value',10,4)->comment('单位净值');
             $table->decimal('estimated_net_value',10,4)->comment('预估净值');
@@ -27,16 +27,16 @@ return new class extends Migration
             $table->unsignedInteger('created_at')->nullable()->comment('创建时间');
             $table->unsignedInteger('updated_at')->nullable()->comment('更新时间');
             $table->unsignedInteger('deleted_at')->nullable()->comment('删除时间');
-            $table->index([
+            $table->unique([
                 'fund_id',
                 'valuation_time',
                 'valuation_source',
             ]);
-            $table->index([
-                'code',
-                'valuation_time',
-                'valuation_source',
-            ]);
+            // $table->index([
+            //     'code',
+            //     'valuation_time',
+            //     'valuation_source',
+            // ]);
             $table->comment('基金估值表');
         });
     }

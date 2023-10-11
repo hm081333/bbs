@@ -12,16 +12,19 @@ use App\Traits\Model\ModelSetAttribute;
 use DateTimeInterface;
 use Eloquent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
  * App\Models\BaseModel
  *
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
- * @property \Illuminate\Support\Carbon $deleted_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon $deleted_at
  * @property-read string $sex_name
  * @property-write mixed $sn
  * @property-write mixed $sort
@@ -30,7 +33,7 @@ use Illuminate\Support\Str;
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
  * @mixin Eloquent
  */
-class BaseModel extends \Illuminate\Database\Eloquent\Model
+class BaseModel extends Model
 {
     //use HasFactory;
     //use SoftDeletes;
@@ -201,16 +204,6 @@ class BaseModel extends \Illuminate\Database\Eloquent\Model
     }
 
     /**
-     * 缓存键
-     * @param string $key
-     * @return string
-     */
-    public static function getCacheKey(string $key = ''): string
-    {
-        return Str::snake(Str::pluralStudly(class_basename(static::class))) . (empty($key) ? '' : (':' . $key));
-    }
-
-    /**
      * 获取值变动数组
      * @return array
      */
@@ -236,6 +229,63 @@ class BaseModel extends \Illuminate\Database\Eloquent\Model
             }
         }
         return $changes;
+    }
+    //endregion
+
+    //region 缓存相关方法
+    /**
+     * 缓存键
+     * @param string $key
+     * @return string
+     */
+    public static function getCacheKey(string $key = ''): string
+    {
+        return Str::snake(Str::pluralStudly(class_basename(static::class))) . (empty($key) ? '' : (':' . $key));
+    }
+
+    /**
+     * 获取缓存
+     * @param string $key
+     * @param mixed|\Closure $default
+     * @return mixed
+     */
+    public static function getCache(string $key = '', mixed $default = null): mixed
+    {
+        return Cache::get(static::getCacheKey($key), $default);
+    }
+
+    /**
+     * 获取或设置缓存
+     * @param string $key
+     * @param \Closure $callback
+     * @param int $ttl
+     * @return mixed
+     */
+    public static function getCacheOrSet(string $key, \Closure $callback, int $ttl = 0): mixed
+    {
+        return $ttl > 0 ? Cache::remember(static::getCacheKey($key), $ttl, $callback) : Cache::rememberForever(static::getCacheKey($key), $callback);
+    }
+
+    /**
+     * 设置缓存
+     * @param string $key
+     * @param mixed|\Closure $value
+     * @param int $ttl
+     * @return bool
+     */
+    public static function setCache(string $key, mixed $value, int $ttl = 3600): bool
+    {
+        return Cache::put(static::getCacheKey($key), $value, $ttl);
+    }
+
+    /**
+     * 检查缓存是否存在
+     * @param string $key
+     * @return bool
+     */
+    public static function hasCache(string $key): bool
+    {
+        return Cache::has(static::getCacheKey($key));
     }
     //endregion
 

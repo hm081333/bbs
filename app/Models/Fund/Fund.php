@@ -52,8 +52,8 @@ class Fund extends BaseModel
      */
     public static function getByCode(string $code): ?Fund
     {
-        return Cache::remember(static::getCacheKey($code), 3600, function () use ($code) {
+        return static::getCacheOrSet($code, function () use ($code) {
             return static::where('code', (string)$code)->first();
-        });
+        }, 3600);
     }
 }
