@@ -30,6 +30,11 @@ class FundUpdateJob implements ShouldQueue
     private array $fundData;
 
     /**
+     * @var string 基金代码
+     */
+    private string $fundCode;
+
+    /**
      * @var Carbon 基金净值时间
      */
     private Carbon $net_value_time;
@@ -43,7 +48,9 @@ class FundUpdateJob implements ShouldQueue
     {
         $this->dispatchTime = time();
         $this->fundData = $data;
-        if (!empty($this->fundData['net_value_time'])) $this->net_value_time = $this->fundData['net_value_time'] instanceof Carbon ? $this->fundData['net_value_time'] : Carbon::parse($this->fundData['net_value_time']);
+
+        $this->fundCode = (string)$this->fundData['code'];
+        if (!empty($this->fundData['net_value_time'])) $this->net_value_time = Tools::timeToCarbon($this->fundData['net_value_time']);
         $this->onQueue('fund');
         $this->onConnection('redis');
     }
@@ -57,12 +64,12 @@ class FundUpdateJob implements ShouldQueue
     {
         // 基金数据更新逻辑
         /* @var $fund Fund */
-        $fund = Fund::where('code', $this->fundData['code'])->first();
+        $fund = Fund::getByCode($this->fundCode);
         if (!$fund) {
-            Log::channel('fund')->info("create fund|{$this->fundData['code']}|{$this->fundData['name']}|{$this->fundData['pinyin_initial']}|{$this->fundData['type']}");
+            Log::channel('fund')->info("create fund|{$this->fundCode}|{$this->fundData['name']}|{$this->fundData['pinyin_initial']}|{$this->fundData['type']}");
             // 基金数据不存在，插入
             $insert_data = [
-                'code' => $this->fundData['code'],
+                'code' => $this->fundCode,
                 'name' => $this->fundData['name'],
                 'pinyin_initial' => $this->fundData['pinyin_initial'],
                 'type' => $this->fundData['type'],
@@ -76,7 +83,7 @@ class FundUpdateJob implements ShouldQueue
             }
             $fund = Fund::create($insert_data);
             // 基金信息写入缓存，方便后续使用
-            Fund::setCache($this->fundData['code'], $fund, null);
+            Fund::setCache($this->fundCode, $fund, null);
         } else if (
             $fund->name != $this->fundData['name']
             ||
@@ -88,7 +95,7 @@ class FundUpdateJob implements ShouldQueue
 //            ||
 //            Tools::math($fund->cumulative_net_value, '<>', $this->fundData['cumulative_net_value'], 4)
         ) {
-            Log::channel('fund')->info("update fund|{$this->fundData['code']}|{$fund->name}:{$this->fundData['name']}|{$fund->pinyin_initial}:{$this->fundData['pinyin_initial']}|{$fund->type}:{$this->fundData['type']}|{$fund->net_value_time->format('Y-m-d')}:{$this->net_value_time->format('Y-m-d')}|{$fund->unit_net_value}:{$this->fundData['unit_net_value']}|{$fund->cumulative_net_value}:{$this->fundData['cumulative_net_value']}");
+            Log::channel('fund')->info("update fund|{$this->fundCode}|{$fund->name}:{$this->fundData['name']}|{$fund->pinyin_initial}:{$this->fundData['pinyin_initial']}|{$fund->type}:{$this->fundData['type']}|{$fund->net_value_time->format('Y-m-d')}:{$this->net_value_time->format('Y-m-d')}|{$fund->unit_net_value}:{$this->fundData['unit_net_value']}|{$fund->cumulative_net_value}:{$this->fundData['cumulative_net_value']}");
             // 基金数据存在但数据不一致，更新
             $fund->name = $this->fundData['name'];
             $fund->pinyin_initial = $this->fundData['pinyin_initial'];
@@ -102,7 +109,7 @@ class FundUpdateJob implements ShouldQueue
             //$fund->updated_at = Tools::now();
             $fund->save();
             // 基金信息写入缓存，方便后续使用
-            Fund::setCache($this->fundData['code'], $fund, null);
+            Fund::setCache($this->fundCode, $fund, null);
         }
     }
 }

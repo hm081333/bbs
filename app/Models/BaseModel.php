@@ -258,19 +258,19 @@ class BaseModel extends Model
      * 获取或设置缓存
      * @param string $key
      * @param \Closure $callback
-     * @param int $ttl
+     * @param int|\Carbon\Carbon|null $ttl
      * @return mixed
      */
-    public static function getCacheOrSet(string $key, \Closure $callback, int $ttl = 0): mixed
+    public static function getCacheOrSet(string $key, \Closure $callback, int|\Carbon\Carbon|null $ttl = null): mixed
     {
-        return $ttl > 0 ? Cache::remember(static::getCacheKey($key), $ttl, $callback) : Cache::rememberForever(static::getCacheKey($key), $callback);
+        return $ttl ? Cache::remember(static::getCacheKey($key), $ttl, $callback) : Cache::rememberForever(static::getCacheKey($key), $callback);
     }
 
     /**
      * 设置缓存
      * @param string $key
      * @param mixed|\Closure $value
-     * @param int|null|\Carbon\Carbon $ttl
+     * @param int|\Carbon\Carbon|null $ttl
      * @return bool
      */
     public static function setCache(string $key, mixed $value, int|\Carbon\Carbon|null $ttl = 3600): bool

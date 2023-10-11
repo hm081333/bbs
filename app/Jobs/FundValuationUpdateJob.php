@@ -52,7 +52,7 @@ class FundValuationUpdateJob implements ShouldQueue
         $this->fundValuationData = $data;
 
         $this->fundCode = (string)$this->fundValuationData['code'];
-        if (!empty($this->fundValuationData['valuation_time'])) $this->valuation_time = $this->fundValuationData['valuation_time'] instanceof Carbon ? $this->fundValuationData['valuation_time'] : Carbon::parse($this->fundValuationData['valuation_time']);
+        if (!empty($this->fundValuationData['valuation_time'])) $this->valuation_time = Tools::timeToCarbon($this->fundValuationData['valuation_time']);
 
         $this->onQueue('fund');
         $this->onConnection('redis');
