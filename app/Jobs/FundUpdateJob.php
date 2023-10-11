@@ -20,6 +20,11 @@ class FundUpdateJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
+     * @var int 任务推送时间
+     */
+    private int $dispatchTime;
+
+    /**
      * @var array 基金数据
      */
     private array $fundData;
@@ -36,10 +41,11 @@ class FundUpdateJob implements ShouldQueue
      */
     public function __construct(array $data)
     {
-        $this->onQueue('fund');
-        $this->onConnection('redis');
+        $this->dispatchTime = time();
         $this->fundData = $data;
         if (!empty($this->fundData['net_value_time'])) $this->net_value_time = $this->fundData['net_value_time'] instanceof Carbon ? $this->fundData['net_value_time'] : Carbon::parse($this->fundData['net_value_time']);
+        $this->onQueue('fund');
+        $this->onConnection('redis');
     }
 
     /**

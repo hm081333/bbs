@@ -23,7 +23,19 @@ class FundNetValueCatchJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * @var int 任务推送时间
+     */
+    private int $dispatchTime;
+
+    /**
+     * @var string 基金代码
+     */
     private string $fundCode;
+
+    /**
+     * @var string 抓取方式
+     */
     private string $catchType;
 
     /**
@@ -33,10 +45,11 @@ class FundNetValueCatchJob implements ShouldQueue
      */
     public function __construct(string $fundCode, string $catchType)
     {
-        $this->onQueue('fund');
-        $this->onConnection('redis');
+        $this->dispatchTime = time();
         $this->fundCode = $fundCode;
         $this->catchType = $catchType;
+        $this->onQueue('fund');
+        $this->onConnection('redis');
     }
 
     /**

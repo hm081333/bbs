@@ -22,6 +22,11 @@ class FundValuationUpdateJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
+     * @var int 任务推送时间
+     */
+    private int $dispatchTime;
+
+    /**
      * @var array 估值数据
      */
     private array $fundValuationData;
@@ -43,12 +48,14 @@ class FundValuationUpdateJob implements ShouldQueue
      */
     public function __construct(array $data)
     {
-        $this->onQueue('fund');
-        $this->onConnection('redis');
+        $this->dispatchTime = time();
         $this->fundValuationData = $data;
 
         $this->fundCode = (string)$this->fundValuationData['code'];
         if (!empty($this->fundValuationData['valuation_time'])) $this->valuation_time = $this->fundValuationData['valuation_time'] instanceof Carbon ? $this->fundValuationData['valuation_time'] : Carbon::parse($this->fundValuationData['valuation_time']);
+
+        $this->onQueue('fund');
+        $this->onConnection('redis');
     }
 
     /**
@@ -72,7 +79,7 @@ class FundValuationUpdateJob implements ShouldQueue
             $fund_valuation_cache_key = base64_encode(Tools::jsonEncode($fund_valuation_filter));
             if (!FundValuation::getCacheOrSet($fund_valuation_cache_key, function () use ($fund_valuation_filter) {
                 return FundValuation::where($fund_valuation_filter)->count('id');
-            }, 3600)) {
+            }, 1200)) {
                 $insert_data = [
                     'fund_id' => $fund->id,
                     'code' => $fund->code,

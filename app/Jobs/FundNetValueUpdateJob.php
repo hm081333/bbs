@@ -20,6 +20,11 @@ class FundNetValueUpdateJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
+     * @var int 任务推送时间
+     */
+    private int $dispatchTime;
+
+    /**
      * @var array 净值数据
      */
     private array $fundNetValue;
@@ -36,13 +41,15 @@ class FundNetValueUpdateJob implements ShouldQueue
      */
     public function __construct(array $data)
     {
-        $this->onQueue('fund');
-        $this->onConnection('redis');
+        $this->dispatchTime = time();
         $this->fundNetValue = $data;
 
         $this->fundCode = (string)$this->fundNetValue['code'];
         $this->fundNetValue['unit_net_value'] = $this->fundNetValue['unit_net_value'] ?: 0;
         $this->fundNetValue['cumulative_net_value'] = $this->fundNetValue['cumulative_net_value'] ?: 0;
+
+        $this->onQueue('fund');
+        $this->onConnection('redis');
     }
 
     /**
