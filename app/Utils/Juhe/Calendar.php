@@ -16,6 +16,7 @@ use Psr\SimpleCache\InvalidArgumentException;
  */
 class Calendar
 {
+    //region 接口调用
     /**
      * 获取当天的详细信息
      * @param string $date 指定日期,格式为YYYY-MM-DD,如月份和日期小于10,则取个位,如:2012-1-1
@@ -28,6 +29,17 @@ class Calendar
     }
 
     /**
+     * 获取近期假期
+     * @param string $year_month 指定月份,格式为YYYY-MM,如月份和日期小于10,则取个位,如:2012-1
+     * @return array
+     * @throws InternalServerErrorException
+     */
+    public static function month(string $year_month): array
+    {
+        return Utils::instance()->request('http://v.juhe.cn/calendar/month', ['year-month' => $year_month]);
+    }
+
+    /**
      * 获取当年的假期列表
      * @param string|Carbon $year 指定年份,格式为YYYY,如:2015
      * @return array
@@ -36,6 +48,32 @@ class Calendar
     public static function year(string|Carbon $year): array
     {
         return Utils::instance()->request('http://v.juhe.cn/calendar/year', ['year' => $year]);
+    }
+    //endregion
+
+    /**
+     * 根据年月获取最近假期日期列表
+     * @param string $year_month 指定月份,格式为YYYY-MM,如月份和日期小于10,则取个位,如:2012-1
+     * @return array
+     * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
+     */
+    public static function getYearMonthHolidayList(string $year_month): array
+    {
+        return Cache::remember("holiday:{$year_month}", Tools::timeToCarbon($year_month)->startOfMonth()->addMonth(), function () use ($year_month) {
+            $holiday_year_month_list = [];
+            $year_month_holiday = static::month($year_month);
+            $year_month_holiday_data = $year_month_holiday['data'];
+            $holiday_array = $year_month_holiday_data['holiday_array'];
+            foreach ($holiday_array as $holidays) {
+                foreach ($holidays['list'] as $item) {
+                    $holiday_year_month_list[Tools::timeToCarbon($item['date'])->timestamp] = ($item['status'] == 1);
+                }
+                unset($item);
+            }
+            unset($holidays);
+            return $holiday_year_month_list;
+        });
     }
 
     /**
@@ -52,44 +90,6 @@ class Calendar
         $holiday_year_month = $time->format('Y-n');
         $holiday_year_month_list = static::getYearMonthHolidayList($holiday_year_month);
         return isset($holiday_year_month_list[$time->timestamp]) && $holiday_year_month_list[$time->timestamp];
-    }
-
-    /**
-     * 根据年月获取最近假期日期列表
-     * @param string $year_month 指定月份,格式为YYYY-MM,如月份和日期小于10,则取个位,如:2012-1
-     * @return array
-     * @throws InternalServerErrorException
-     * @throws InvalidArgumentException
-     */
-    public static function getYearMonthHolidayList(string $year_month): array
-    {
-        $holiday_year_month_list = Cache::get("holiday:{$year_month}", null);
-        if ($holiday_year_month_list === null) {
-            $holiday_year_month_list = [];
-            $year_month_holiday = static::month($year_month);
-            $year_month_holiday_data = $year_month_holiday['data'];
-            $holiday_array = $year_month_holiday_data['holiday_array'];
-            foreach ($holiday_array as $holidays) {
-                foreach ($holidays['list'] as $item) {
-                    $holiday_year_month_list[Tools::timeToCarbon($item['date'])->timestamp] = ($item['status'] == 1);
-                }
-                unset($item);
-            }
-            unset($holidays);
-            Cache::set("holiday:{$year_month}", $holiday_year_month_list);
-        }
-        return $holiday_year_month_list;
-    }
-
-    /**
-     * 获取近期假期
-     * @param string $year_month 指定月份,格式为YYYY-MM,如月份和日期小于10,则取个位,如:2012-1
-     * @return array
-     * @throws InternalServerErrorException
-     */
-    public static function month(string $year_month): array
-    {
-        return Utils::instance()->request('http://v.juhe.cn/calendar/month', ['year-month' => $year_month]);
     }
 
     /**

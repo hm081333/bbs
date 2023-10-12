@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 
 /**
  * 基金估值更新任务
@@ -77,9 +78,11 @@ class FundValuationUpdateJob implements ShouldQueue
                 'valuation_source' => $this->fundValuationData['valuation_source'],
             ];
             $fund_valuation_cache_key = base64_encode(Tools::jsonEncode($fund_valuation_filter));
-            if (!FundValuation::getCacheOrSet($fund_valuation_cache_key, function () use ($fund_valuation_filter) {
+            $fund_valuation_status = FundValuation::getCacheOrSet($fund_valuation_cache_key, function () use ($fund_valuation_filter) {
+                return 0;
                 return FundValuation::where($fund_valuation_filter)->count('id');
-            }, 1200)) {
+            }, 3600);
+            if (!$fund_valuation_status) {
                 $insert_data = [
                     'fund_id' => $fund->id,
                     'code' => $fund->code,
@@ -114,10 +117,11 @@ class FundValuationUpdateJob implements ShouldQueue
                     $estimated_growth_rate = Tools::math($insert_data['estimated_growth'], '/', $insert_data['unit_net_value'], 10);
                     $insert_data['estimated_growth_rate'] = Tools::math($estimated_growth_rate, '*', '100', 4);
                 }
-                $fundValuation = FundValuation::create($insert_data);
+                // $fundValuation = FundValuation::create($insert_data);
                 // \App\Events\FundValuationUpdated::dispatch($fundValuation);
+                Redis::sadd('fund:valuation:wait-write', Tools::jsonEncode($insert_data));
             }
-            FundValuation::setCache($fund_valuation_cache_key, 1, 1200);
+            FundValuation::setCache($fund_valuation_cache_key, 1, 3600);
         }
     }
 }
