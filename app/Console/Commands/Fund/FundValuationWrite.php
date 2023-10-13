@@ -43,16 +43,16 @@ class FundValuationWrite extends Command
         while (true) {
             $start_time = microtime(true);
             $inserts = Redis::spop('fund:valuation:wait-write', $this->once_write_count);
-            $this->info('成功|集合中获取|' . $this->once_write_count . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
+            $this->info('成功|集合中获取|' . count($inserts) . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
             if (empty($inserts)) break;
             $start_time = microtime(true);
             try {
                 FundValuation::insert(array_map(function ($value) {
                     return Tools::jsonDecode($value);
                 }, $inserts));
-                $this->info('成功|写入|' . $this->once_write_count . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
+                $this->info('成功|写入|' . count($inserts) . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
             } catch (\Exception $e) {
-                $this->info('失败|写入|' . $this->once_write_count . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
+                $this->info('失败|写入|' . count($inserts) . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
                 $this->error($e->getMessage());
             }
         }

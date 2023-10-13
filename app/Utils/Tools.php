@@ -324,7 +324,7 @@ class Tools
     public static function timeToCarbon(\Carbon\Carbon|int|float|string $time): \Carbon\Carbon|null
     {
         if (empty($time)) return null;
-        if ($time instanceof \Carbon\Carbon) return $time;
+        if ($time instanceof \Carbon\Carbon) return $time->copy();
         try {
             return (filter_var($time, FILTER_VALIDATE_INT) !== false || filter_var($time, FILTER_VALIDATE_FLOAT) !== false) && strlen((string)$time) >= 10
                 ?
