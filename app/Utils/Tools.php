@@ -2,9 +2,8 @@
 
 namespace App\Utils;
 
-use App\Exceptions\Request\BadRequestException;
-use App\Models\BaseModel;
 use App\Utils\Aliyun\Oss;
+use App\Utils\Aliyun\Sms;
 use Closure;
 use DB;
 use Exception;
@@ -28,7 +27,7 @@ class Tools
      * @param mixed $array
      * @return false|string
      */
-    public static function jsonEncode(mixed $array): false|string
+    public static function jsonEncode(mixed $array)
     {
         return json_encode($array, JSON_UNESCAPED_UNICODE);
     }
@@ -77,8 +76,7 @@ class Tools
      * 产生随机字串，可用来自动生成密码
      * 默认长度6位 字母和数字混合 支持中文
      * @param string $len 长度
-     * @param string $type 字串类型
-     *                         0 字母 1 数字 其它 混合
+     * @param string $type 字串类型 0 字母 1 数字 其它 混合
      * @param string $addChars 额外字符
      * @return string
      */
@@ -286,54 +284,34 @@ class Tools
     }
 
     /**
-     * 获取当前请求的时间
-     * @access public
-     * @return \Carbon\Carbon
-     */
-    public static function now(): \Carbon\Carbon
-    {
-        return Carbon::parse(date('Y-m-d H:i:s', static::time()));
-    }
-
-    /**
      * 获取当前请求的时间戳
      * @access public
      * @param bool $float 是否使用浮点类型
      * @return integer|float
      */
-    public static function time(bool $float = false): float|int
+    public static function time(bool $float = false)
     {
         return $float ? request()->server('REQUEST_TIME_FLOAT') : request()->server('REQUEST_TIME');
     }
 
     /**
-     * 获取当前请求的日期
+     * 获取当前请求的时间
      * @access public
-     * @return \Carbon\Carbon
+     * @return Carbon
      */
-    public static function today(): \Carbon\Carbon
+    public static function now(): Carbon
     {
-        return Carbon::parse(date('Y-m-d', static::time()));
+        return Carbon::parse(date('Y-m-d H:i:s', static::time()));
     }
 
     /**
-     * 任意时间转Carbon
-     * @param \Carbon\Carbon|int|float|string $time
-     * @return \Carbon\Carbon|null
+     * 获取当前请求的日期
+     * @access public
+     * @return Carbon
      */
-    public static function timeToCarbon(\Carbon\Carbon|int|float|string $time): \Carbon\Carbon|null
+    public static function today(): Carbon
     {
-        if (empty($time)) return null;
-        if ($time instanceof \Carbon\Carbon) return $time->copy();
-        try {
-            return (filter_var($time, FILTER_VALIDATE_INT) !== false || filter_var($time, FILTER_VALIDATE_FLOAT) !== false) && strlen((string)$time) >= 10
-                ?
-                Carbon::createFromTimestamp($time)
-                :
-                Carbon::parse($time);
-        } catch (Exception $exception) {
-        }
-        return null;
+        return Carbon::parse(date('Y-m-d', static::time()));
     }
 
     /**
@@ -423,7 +401,7 @@ class Tools
      * @param Model|string $model
      * @return string
      */
-    public static function modelAlias(Model|string $model)
+    public static function modelAlias($model)
     {
         $model_name = is_object($model) ? get_class($model) : $model;
         return implode('', explode('\\', str_replace('App\\Models', '', $model_name)));
@@ -471,6 +449,36 @@ class Tools
     }
 
     /**
+     * 数组转请求参数
+     * @param array $query_arr 请求参数数组
+     * @return string
+     */
+    public static function urlQueryEncode(array $query_arr = []): string
+    {
+        $tmp = [];
+        foreach ($query_arr as $key => $value) {
+            $tmp[] = $key . '=' . $value;
+        }
+        return implode('&', $tmp);
+    }
+
+    /**
+     * 请求参数转数组
+     * @param string $query_str 请求参数字符串
+     * @return array
+     */
+    public static function urlQueryDecode(string $query_str = ''): array
+    {
+        $query_pairs = explode('&', $query_str);
+        $params = [];
+        foreach ($query_pairs as $query_pair) {
+            $item = explode('=', $query_pair);
+            $params[$item[0]] = $item[1];
+        }
+        return $params;
+    }
+
+    /**
      * 重建url，追加参数
      * @param string $url
      * @param array $extra_query
@@ -496,35 +504,347 @@ class Tools
     }
 
     /**
-     * 请求参数转数组
-     * @param string $query_str 请求参数字符串
-     * @return array
+     * 保存积分配置
+     * @param array $data
+     * @return bool
      */
-    public static function urlQueryDecode(string $query_str = ''): array
+    public static function setPoint(array $data)
     {
-        $query_pairs = explode('&', $query_str);
-        $params = [];
-        foreach ($query_pairs as $query_pair) {
-            $item = explode('=', $query_pair);
-            $params[$item[0]] = $item[1];
-        }
-        return $params;
+        $str = var_export($data, true);
+        file_put_contents(base_path() . '/config/point.php', "<?php \r\n return " . $str . ";");
+        return Cache::store('file')->forever('point', igbinary_serialize($data));
     }
 
     /**
-     * 数组转请求参数
-     * @param array $query_arr 请求参数数组
-     * @return string
+     * 获取积分配置
+     * @return array
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
-    public static function urlQueryEncode(array $query_arr = []): string
+    public static function getPoint()
     {
-        $tmp = [];
-        foreach ($query_arr as $key => $value) {
-            $tmp[] = $key . '=' . $value;
+        return igbinary_unserialize(Cache::store('file')->get('point')) ?: config('point', []);
+    }
+
+    /**
+     * 生成全局id
+     * @return string 返回
+     **/
+    public static function guid($opt = false): string
+    {
+        if (function_exists('com_create_guid')) {
+            if ($opt) {
+                return com_create_guid();
+            } else {
+                return trim(com_create_guid(), '{}');
+            }
+        } else {
+            mt_srand((double)microtime() * 10000);
+            $charid = strtoupper(md5(uniqid(rand(), true)));
+            $hyphen = chr(45);    // "-"
+            $left_curly = $opt ? chr(123) : "";     //  "{"
+            $right_curly = $opt ? chr(125) : "";    //  "}"
+            $uuid = $left_curly
+                . substr($charid, 0, 8) . $hyphen
+                . substr($charid, 8, 4) . $hyphen
+                . substr($charid, 12, 4) . $hyphen
+                . substr($charid, 16, 4) . $hyphen
+                . substr($charid, 20, 12)
+                . $right_curly;
+            return $uuid;
         }
-        return implode('&', $tmp);
+    }
+
+    /**
+     * 二维数组根据首字母分组排序
+     * @param array $data 二维数组
+     * @param string $targetKey 首字母的键名
+     * @return array             根据首字母关联的二维数组
+     */
+    public static function groupByInitials(array $data, $targetKey = 'brand'): array
+    {
+        $data = array_map(function ($item) use ($targetKey) {
+            return array_merge($item, [
+                'initials' => static::getInitials($item[$targetKey]),
+            ]);
+        }, $data);
+        $data = static::sortInitials($data);
+        return $data;
+    }
+
+    /**
+     * 获取首字母
+     * @param string $str 汉字字符串
+     * @return string 首字母
+     */
+    public static function getInitials($str): ?string
+    {
+        if (empty($str)) {
+            return '';
+        }
+        $fchar = ord($str[0]);
+        if ($fchar >= ord('A') && $fchar <= ord('z')) {
+            return strtoupper($str[0]);
+        }
+
+        $s1 = iconv('UTF-8', 'gb2312', $str);
+        $s2 = iconv('gb2312', 'UTF-8', $s1);
+        $s = $s2 == $str ? $s1 : $str;
+        $asc = ord($s[0]) * 256 + ord($s[1]) - 65536;
+        if ($asc >= -20319 && $asc <= -20284) {
+            return 'A';
+        }
+
+        if ($asc >= -20283 && $asc <= -19776) {
+            return 'B';
+        }
+
+        if ($asc >= -19775 && $asc <= -19219) {
+            return 'C';
+        }
+
+        if ($asc >= -19218 && $asc <= -18711) {
+            return 'D';
+        }
+
+        if ($asc >= -18710 && $asc <= -18527) {
+            return 'E';
+        }
+
+        if ($asc >= -18526 && $asc <= -18240) {
+            return 'F';
+        }
+
+        if ($asc >= -18239 && $asc <= -17923) {
+            return 'G';
+        }
+
+        if ($asc >= -17922 && $asc <= -17418) {
+            return 'H';
+        }
+
+        if ($asc >= -17417 && $asc <= -16475) {
+            return 'J';
+        }
+
+        if ($asc >= -16474 && $asc <= -16213) {
+            return 'K';
+        }
+
+        if ($asc >= -16212 && $asc <= -15641) {
+            return 'L';
+        }
+
+        if ($asc >= -15640 && $asc <= -15166) {
+            return 'M';
+        }
+
+        if ($asc >= -15165 && $asc <= -14923) {
+            return 'N';
+        }
+
+        if ($asc >= -14922 && $asc <= -14915) {
+            return 'O';
+        }
+
+        if ($asc >= -14914 && $asc <= -14631) {
+            return 'P';
+        }
+
+        if ($asc >= -14630 && $asc <= -14150) {
+            return 'Q';
+        }
+
+        if ($asc >= -14149 && $asc <= -14091) {
+            return 'R';
+        }
+
+        if ($asc >= -14090 && $asc <= -13319) {
+            return 'S';
+        }
+
+        if ($asc >= -13318 && $asc <= -12839) {
+            return 'T';
+        }
+
+        if ($asc >= -12838 && $asc <= -12557) {
+            return 'W';
+        }
+
+        if ($asc >= -12556 && $asc <= -11848) {
+            return 'X';
+        }
+
+        if ($asc >= -11847 && $asc <= -11056) {
+            return 'Y';
+        }
+
+        if ($asc >= -11055 && $asc <= -10247) {
+            return 'Z';
+        }
+        return null;
+    }
+
+    /**
+     * 按字母排序
+     * @param array $data
+     * @return array
+     */
+    public static function sortInitials(array $data): array
+    {
+        $sortData = [];
+        foreach ($data as $key => $value) {
+            $sortData[$value['initials']][] = $value;
+        }
+        ksort($sortData);
+        return $sortData;
+    }
+
+    /**
+     * 用*号替代姓名除第一个字之外的字符
+     * @param $name
+     * @param $num
+     * @return mixed|string
+     */
+    public static function starNameReplace($name, $num = 0)
+    {
+        if ($num && mb_strlen($name, 'UTF-8') > $num) {
+            return mb_substr($name, 0, 4) . '*';
+        }
+
+        if ($num && mb_strlen($name, 'UTF-8') <= $num) {
+            return $name;
+        }
+
+        $doubleSurname = [
+            '欧阳', '太史', '端木', '上官', '司马', '东方', '独孤', '南宫',
+            '万俟', '闻人', '夏侯', '诸葛', '尉迟', '公羊', '赫连', '澹台', '皇甫', '宗政', '濮阳',
+            '公冶', '太叔', '申屠', '公孙', '慕容', '仲孙', '钟离', '长孙', '宇文', '司徒', '鲜于',
+            '司空', '闾丘', '子车', '亓官', '司寇', '巫马', '公西', '颛孙', '壤驷', '公良', '漆雕', '乐正',
+            '宰父', '谷梁', '拓跋', '夹谷', '轩辕', '令狐', '段干', '百里', '呼延', '东郭', '南门', '羊舌',
+            '微生', '公户', '公玉', '公仪', '梁丘', '公仲', '公上', '公门', '公山', '公坚', '左丘', '公伯',
+            '西门', '公祖', '第五', '公乘', '贯丘', '公皙', '南荣', '东里', '东宫', '仲长', '子书', '子桑',
+            '即墨', '达奚', '褚师', '吴铭',
+        ];
+
+        $surname = mb_substr($name, 0, 2);
+
+        if (mb_strlen($name, 'UTF-8') <= 0) {
+            return $name;
+        }
+
+        if (in_array($surname, $doubleSurname)) {
+            $name = mb_substr($name, 0, 2) . str_repeat('*', (mb_strlen($name, 'UTF-8') - 2));
+        } else {
+            $name = mb_substr($name, 0, 1) . str_repeat('*', (mb_strlen($name, 'UTF-8') - 1));
+        }
+
+
+        return $name;
+    }
+
+    /**
+     * 二进制流生成文件
+     * $_POST 无法解释二进制流，需要用到 $GLOBALS['HTTP_RAW_POST_DATA'] 或 php://input
+     * $GLOBALS['HTTP_RAW_POST_DATA'] 和 php://input 都不能用于 enctype=multipart/form-data
+     * @param string $file_path 要生成的文件路径
+     * @return   boolean
+     */
+    public static function binary_to_file(string $file_path): bool
+    {
+        $content = $GLOBALS['HTTP_RAW_POST_DATA'];  // 需要php.ini设置
+        if (empty($content)) {
+            $content = file_get_contents('php://input');    // 不需要php.ini设置，内存压力小
+        }
+        return file_put_contents($file_path, $content, true);
+    }
+
+    /**
+     * 获取客户端真实ip
+     * @return mixed
+     */
+    public static function getRealIpAddr()
+    {
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { //to check ip is pass from proxy
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+        return $ip;
     }
     // endregion
+
+    //region 时间格式相关
+    /**
+     * 将秒数转换为时间（年、天、小时、分、秒）数组
+     * @param $second_time
+     * @return bool|array
+     */
+    public static function secondToTime($second_time)
+    {
+        if (is_numeric($second_time)) {
+            $value = [
+                "years" => 0,
+                "days" => 0,
+                "hours" => 0,
+                "minutes" => 0,
+                "seconds" => 0,
+            ];
+            if ($second_time >= 31556926) {
+                $value["years"] = floor($second_time / 31556926);
+                $second_time = ($second_time % 31556926);
+            }
+            if ($second_time >= 86400) {
+                $value["days"] = floor($second_time / 86400);
+                $second_time = ($second_time % 86400);
+            }
+            if ($second_time >= 3600) {
+                $value["hours"] = floor($second_time / 3600);
+                $second_time = ($second_time % 3600);
+            }
+            if ($second_time >= 60) {
+                $value["minutes"] = floor($second_time / 60);
+                $second_time = ($second_time % 60);
+            }
+            $value["seconds"] = floor($second_time);
+            return (array)$value;
+        } else {
+            return (bool)false;
+        }
+    }
+
+    /**
+     * 将秒数转换为时间（年、天、小时、分、秒）
+     * @param $second_time
+     * @return false|string
+     */
+    public static function secondToTimeText($second_time)
+    {
+        $times = static::secondToTime($second_time);
+        if ($times) return $times["years"] . "年" . $times["days"] . "天" . " " . $times["hours"] . "小时" . $times["minutes"] . "分" . $times["seconds"] . "秒";
+        return false;
+    }
+
+    /**
+     * 将秒转换为 分:秒
+     * @param $second_time
+     * @return string
+     */
+    public static function secondToMinuteSecond($second_time = 0)
+    {
+        //计算分钟
+        //算法：将秒数除以60，然后下舍入，既得到分钟数
+        $hour_time = floor($second_time / 60);
+        //计算秒
+        //算法：取得秒%60的余数，既得到秒数
+        $second_time = $second_time % 60;
+        //如果只有一位数，前面增加一个0
+        $hour_time = (strlen($hour_time) == 1) ? '0' . $hour_time : $hour_time;
+        $second_time = (strlen($second_time) == 1) ? '0' . $second_time : $second_time;
+        return $hour_time . ':' . $second_time;
+    }
+    //endregion
 
     // region 目录，文件
 
@@ -659,9 +979,13 @@ class Tools
         return new File($file);
     }
 
+    /**
+     * 阿里云短信
+     * @return Sms
+     */
     public static function aliyun_sms()
     {
-        // return new Sms();
+        return new Sms();
     }
 
     public static function aliyun_oss()
@@ -678,7 +1002,7 @@ class Tools
      */
     public static function compressStringDecode($str)
     {
-        return static::compress_binary_decode(mb_convert_encoding($str, 'ISO-8859-1', 'utf-8'));
+        return static::compressBinaryDecode(mb_convert_encoding($str, 'ISO-8859-1', 'utf-8'));
     }
 
     /**
@@ -699,7 +1023,7 @@ class Tools
      */
     public static function compressStringEncode($str, $encoding = ZLIB_ENCODING_RAW)
     {
-        return mb_convert_encoding(static::compress_binary_encode($str, $encoding), 'utf-8', 'ISO-8859-1');
+        return mb_convert_encoding(static::compressBinaryEncode($str, $encoding), 'utf-8', 'ISO-8859-1');
     }
 
     /**
