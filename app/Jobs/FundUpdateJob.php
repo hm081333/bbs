@@ -95,7 +95,7 @@ class FundUpdateJob implements ShouldQueue
 //            ||
 //            Tools::math($fund->cumulative_net_value, '<>', $this->fundData['cumulative_net_value'], 4)
         ) {
-            Log::channel('fund')->info("update fund|{$this->fundCode}|{$fund->name}:{$this->fundData['name']}|{$fund->pinyin_initial}:{$this->fundData['pinyin_initial']}|{$fund->type}:{$this->fundData['type']}|{$fund->net_value_time->copy()->format('Y-m-d')}:{$this->fundData['net_value_time']}|{$fund->unit_net_value}:{$this->fundData['unit_net_value']}|{$fund->cumulative_net_value}:{$this->fundData['cumulative_net_value']}");
+            Log::channel('fund')->info("update fund|{$this->fundCode}|{$fund->name}:{$this->fundData['name']}|{$fund->pinyin_initial}:{$this->fundData['pinyin_initial']}|{$fund->type}:{$this->fundData['type']}|{$fund->net_value_time}:{$this->fundData['net_value_time']}|{$fund->unit_net_value}:{$this->fundData['unit_net_value']}|{$fund->cumulative_net_value}:{$this->fundData['cumulative_net_value']}");
             // 基金数据存在但数据不一致，更新
             $fund->name = $this->fundData['name'];
             $fund->pinyin_initial = $this->fundData['pinyin_initial'];
