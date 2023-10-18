@@ -2,6 +2,8 @@
 
 namespace App\Utils;
 
+use App\Exceptions\Request\BadRequestException;
+use App\Models\BaseModel;
 use App\Utils\Aliyun\Oss;
 use App\Utils\Aliyun\Sms;
 use Closure;
@@ -27,7 +29,7 @@ class Tools
      * @param mixed $array
      * @return false|string
      */
-    public static function jsonEncode(mixed $array)
+    public static function jsonEncode(mixed $array): false|string
     {
         return json_encode($array, JSON_UNESCAPED_UNICODE);
     }
@@ -284,34 +286,54 @@ class Tools
     }
 
     /**
-     * 获取当前请求的时间戳
-     * @access public
-     * @param bool $float 是否使用浮点类型
-     * @return integer|float
-     */
-    public static function time(bool $float = false)
-    {
-        return $float ? request()->server('REQUEST_TIME_FLOAT') : request()->server('REQUEST_TIME');
-    }
-
-    /**
      * 获取当前请求的时间
      * @access public
-     * @return Carbon
+     * @return \Carbon\Carbon
      */
-    public static function now(): Carbon
+    public static function now(): \Carbon\Carbon
     {
         return Carbon::parse(date('Y-m-d H:i:s', static::time()));
     }
 
     /**
+     * 获取当前请求的时间戳
+     * @access public
+     * @param bool $float 是否使用浮点类型
+     * @return integer|float
+     */
+    public static function time(bool $float = false): float|int
+    {
+        return $float ? request()->server('REQUEST_TIME_FLOAT') : request()->server('REQUEST_TIME');
+    }
+
+    /**
      * 获取当前请求的日期
      * @access public
-     * @return Carbon
+     * @return \Carbon\Carbon
      */
-    public static function today(): Carbon
+    public static function today(): \Carbon\Carbon
     {
         return Carbon::parse(date('Y-m-d', static::time()));
+    }
+
+    /**
+     * 任意时间转Carbon
+     * @param \Carbon\Carbon|int|float|string $time
+     * @return \Carbon\Carbon|null
+     */
+    public static function timeToCarbon(\Carbon\Carbon|int|float|string $time): \Carbon\Carbon|null
+    {
+        if (empty($time)) return null;
+        if ($time instanceof \Carbon\Carbon) return $time->copy();
+        try {
+            return (filter_var($time, FILTER_VALIDATE_INT) !== false || filter_var($time, FILTER_VALIDATE_FLOAT) !== false) && strlen((string)$time) >= 10
+                ?
+                Carbon::createFromTimestamp($time)
+                :
+                Carbon::parse($time);
+        } catch (Exception $exception) {
+        }
+        return null;
     }
 
     /**
@@ -401,7 +423,7 @@ class Tools
      * @param Model|string $model
      * @return string
      */
-    public static function modelAlias($model)
+    public static function modelAlias(Model|string $model)
     {
         $model_name = is_object($model) ? get_class($model) : $model;
         return implode('', explode('\\', str_replace('App\\Models', '', $model_name)));
