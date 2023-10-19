@@ -62,7 +62,7 @@ class FundNetValueCatchJob implements ShouldQueue
         if ($this->catchType == 'sync-eastmoney') {
             try {
                 /* @var $fund Fund */
-                $fund = Fund::where('code', $this->fundCode)->first();
+                $fund = Fund::getByCode($this->fundCode);
                 $allPages = 1;
                 for ($page = 1; $page <= $allPages; $page++) {
                     $res = Tools::curl(5)
@@ -71,7 +71,7 @@ class FundNetValueCatchJob implements ShouldQueue
                             'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
                         ])
                         ->json_get('https://api.fund.eastmoney.com/f10/lsjz?fundCode=320007&pageIndex=1&pageSize=20', [
-                            'fundCode' => $this->fundCode,
+                            'fundCode' => $fund->code,
                             'pageIndex' => $page,
                             'pageSize' => 500,
                         ]);
@@ -83,7 +83,7 @@ class FundNetValueCatchJob implements ShouldQueue
                         $first = $res['Data']['LSJZList'][0];
                         $last = $res['Data']['LSJZList'][count($res['Data']['LSJZList']) - 1];
                         /* @var $isset_net_value_time_arr array */
-                        $isset_net_value_time_arr = FundNetValue::where('code', $this->fundCode)
+                        $isset_net_value_time_arr = FundNetValue::where('fund_id', $fund->id)
                             ->where('net_value_time', '>=', Carbon::parse($last['FSRQ'])->timestamp)
                             ->where('net_value_time', '<=', Carbon::parse($first['FSRQ'])->timestamp)
                             ->pluck('net_value_time')

@@ -80,7 +80,7 @@ class FundValuationUpdateJob implements ShouldQueue
             $fund_valuation_cache_key = base64_encode(Tools::jsonEncode($fund_valuation_filter));
             $fund_valuation_status = FundValuation::getCacheOrSet($fund_valuation_cache_key, function () use ($fund_valuation_filter) {
                 return 0;
-                return FundValuation::where($fund_valuation_filter)->count('id');
+                // return FundValuation::where($fund_valuation_filter)->count('id');
             }, 3600);
             if (!$fund_valuation_status) {
                 $insert_data = [
