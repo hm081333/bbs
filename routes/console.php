@@ -26,12 +26,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('queue:size', function () {
-    $queue = App::make('queue.connection');
-    $size = $queue->size('fund');
-    $this->comment($size);
-})->purpose('Display queue size');
-
 Artisan::command('testa', function () {
     dd(...['123',456,'789']);
     die;
