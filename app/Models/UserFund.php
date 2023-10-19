@@ -35,7 +35,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|UserFund whereUserId($value)
  * @mixin \Eloquent
  */
-class UserFund extends Model
+class UserFund extends BaseModel
 {
-    use HasFactory;
 }

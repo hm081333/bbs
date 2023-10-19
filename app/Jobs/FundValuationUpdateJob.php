@@ -97,7 +97,7 @@ class FundValuationUpdateJob implements ShouldQueue
                     // 估值来源
                     'valuation_source' => $this->fundValuationData['valuation_source'],
                 ];
-                $insert_data['created_at'] = $insert_data['updated_at'] = time();
+                $insert_data['created_at'] = $insert_data['updated_at'] = $this->dispatchTime;
                 // 计算增长和增长率
                 if (empty($fund->unit_net_value)) {
                     /* @var $fundNetValue FundNetValue */

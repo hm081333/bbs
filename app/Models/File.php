@@ -49,7 +49,8 @@ use Illuminate\Support\Carbon;
  */
 class File extends BaseModel
 {
-    use HasFactory, SoftDeletes;
+    //use HasFactory;
+    use SoftDeletes;
 
     protected $hidden = [
         'path',
@@ -60,10 +61,9 @@ class File extends BaseModel
 
     /**
      * 获取文件URL
-     * @param string $value
      * @return string
      */
-    public function getUrlAttribute()
+    public function getUrlAttribute(): string
     {
         return Tools::storageAsset($this->getAttribute('path'));
     }
