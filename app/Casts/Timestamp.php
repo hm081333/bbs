@@ -3,6 +3,7 @@
 namespace App\Casts;
 
 use App\Exceptions\Server\Exception;
+use App\Utils\Tools;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -16,11 +17,11 @@ class Timestamp implements CastsAttributes
      * @param string $key
      * @param mixed $value
      * @param array $attributes
-     * @return Carbon
+     * @return \Carbon\Carbon
      */
-    public function get($model, string $key, $value, array $attributes)
+    public function get($model, string $key, mixed $value, array $attributes)
     {
-        return empty($value) ? null : ($value instanceof \Carbon\Carbon ? $value : (filter_var($value, FILTER_VALIDATE_INT) !== false ? (strlen((string)$value) === 10 ? Carbon::createFromTimestamp($value) : throw new Exception('时间戳格式错误')) : Carbon::parse($value)));
+        return Tools::timeToCarbon($value);
     }
 
     /**
@@ -32,8 +33,10 @@ class Timestamp implements CastsAttributes
      * @param array $attributes
      * @return string
      */
-    public function set($model, string $key, $value, array $attributes)
+    public function set($model, string $key, mixed $value, array $attributes)
     {
-        return empty($value) ? null : (filter_var($value, FILTER_VALIDATE_INT) !== false ? (strlen((string)$value) === 10 ? $value : throw new Exception('时间戳格式错误')) : ($value instanceof \Carbon\Carbon ? $value->timestamp : Carbon::parse($value)->timestamp));
+        $value = Tools::timeToCarbon($value);
+        if ($value) return $value->timestamp;
+        return null;
     }
 }

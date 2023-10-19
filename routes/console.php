@@ -33,7 +33,7 @@ Artisan::command('queue:size', function () {
 })->purpose('Display queue size');
 
 Artisan::command('testa', function () {
-    echo Tools::now();
+    dd(...['123',456,'789']);
     die;
     $data = \App\Utils\Juhe\Calendar::isHoliday('2023-10-01');
     dd($data);

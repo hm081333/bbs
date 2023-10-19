@@ -54,6 +54,7 @@ class FundValuationWrite extends Command
             } catch (\Exception $e) {
                 $this->info('失败|写入|' . count($inserts) . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
                 $this->error($e->getMessage());
+                Redis::sadd('fund:valuation:wait-write', ...$inserts);
             }
         }
         $this->info('完成|写入基金估值|耗时：' . (microtime(true) - $global_start_time) . ' 秒');
