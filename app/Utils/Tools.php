@@ -242,6 +242,15 @@ class Tools
     }
 
     /**
+     * 是否处于微信环境
+     * @return bool
+     */
+    public static function isWeChat(): bool
+    {
+        return strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false;
+    }
+
+    /**
      * 获取设备类型名称
      * @param false $type
      * @return string|string[]
@@ -894,14 +903,16 @@ class Tools
     /**
      * 根据路径创建目录或文件
      * @param string $path 需要创建目录路径
+     * @return string
      */
-    public static function createDir($path)
+    public static function createDir($path): string
     {
         if (!is_dir($path) && !mkdir($path, 0777, true)) {
             Log::debug($path);
             static::createDir(dirname($path));
             mkdir($path, 0777, true);
         }
+        return $path;
     }
 
     /**

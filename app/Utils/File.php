@@ -3,6 +3,7 @@
 namespace App\Utils;
 
 use App\Exceptions\Server\Exception;
+use App\Exceptions\Server\InternalServerErrorException;
 use App\Jobs\ObjectStorageServiceJob;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
@@ -54,13 +55,35 @@ class File
      * 设置远程文件
      * @param string $url
      * @return $this
-     * @throws \Exception
+     * @throws InternalServerErrorException
      */
     public function setRemoteFile(string $url)
     {
         $url_info = parse_url($url);
         $file_path = Tools::curl()->getFile($url, Tools::runtimePath('remote/') . date('Y/m/d/'), basename($url_info['path']));
         $this->file = new \Illuminate\Http\File($file_path);
+        return $this;
+    }
+
+    /**
+     * 设置base64
+     * @param string $base64
+     * @return $this
+     * @throws InternalServerErrorException
+     */
+    public function setBase64(string $base64)
+    {
+        // 正则匹配base64头
+        preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64, $res);
+        // 去除base64头并base64解码出文件内容
+        $image_resource = base64_decode(str_replace($res[1], '', $base64));
+        $temp_file_path = Tools::createDir(Tools::runtimePath('temporary/') . date('Y/m/d/'));
+        $temp_file = $temp_file_path . uniqid() . '_' . (microtime(true) * 10000);
+        $fp = fopen($temp_file, 'wb');
+        if ($fp === false) throw new InternalServerErrorException('保存文件初始化失败');
+        fwrite($fp, $image_resource);
+        fclose($fp);
+        $this->file = new \Illuminate\Http\File($temp_file);
         return $this;
     }
 

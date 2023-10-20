@@ -3,6 +3,7 @@
 namespace App\Utils;
 
 
+use App\Exceptions\Server\InternalServerErrorException;
 use Exception;
 
 /**
@@ -216,21 +217,15 @@ class CUrl
      * @param string $file_name
      * @param int $timeoutMs
      * @return string
-     * @throws Exception
+     * @throws InternalServerErrorException
      */
-    public function getFile(string $url, string $path, string $file_name, int $timeoutMs = 30000)
+    public function getFile(string $url, string $path, string $file_name, int $timeoutMs = 30000): string
     {
-        if (empty($path) || empty($file_name)) {
-            throw new Exception('路径或文件名为空');
-        }
+        if (empty($path) || empty($file_name)) throw new Exception('路径或文件名为空');
         if (substr($path, -1, 1) != '/' || substr($path, -1, 1) != '\\') $path .= '/';
-        if (!is_dir($path)) {
-            mkdir($path, 0777, true);
-        }
+        if (!is_dir($path)) Tools::createDir($path);
         $fp = fopen($path . $file_name, 'wb');
-        if ($fp === false) {
-            throw new Exception('保存文件初始化失败');
-        }
+        if ($fp === false) throw new InternalServerErrorException('保存文件初始化失败');
         $this->setOption([CURLOPT_URL => $url, CURLOPT_FILE => $fp, CURLOPT_HEADER => false, CURLOPT_FOLLOWLOCATION => true, CURLOPT_CONNECTTIMEOUT_MS => $timeoutMs]);
         $this->request($url);
         fclose($fp);

@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\Server\InternalServerErrorException;
 use App\Jobs\FundValuationUpdateJob;
 use App\Models\Fund\Fund;
 use App\Models\Fund\FundNetValue;

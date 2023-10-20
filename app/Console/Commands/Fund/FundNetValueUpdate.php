@@ -43,7 +43,7 @@ class FundNetValueUpdate extends Command
             'zq' => '债券型',
             'zs' => '指数型',
             'qdii' => 'QDII',
-//            'etf' => 'ETF',
+            // 'etf' => 'ETF',
             'lof' => 'LOF',
             'fof' => 'FOF',
         ];
