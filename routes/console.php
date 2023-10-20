@@ -10,6 +10,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,9 +28,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('testa', function () {
-    dd(...['123',456,'789']);
-    die;
-    $data = \App\Utils\Juhe\Calendar::isHoliday('2023-10-01');
+    $data = \App\Utils\Juhe\Calendar::getYearMonthHolidayList('2024-10');
     dd($data);
 
     $list = Fund::where('net_value_time', 0)->get()

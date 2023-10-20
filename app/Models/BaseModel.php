@@ -287,6 +287,16 @@ class BaseModel extends Model
     {
         return Cache::has(static::getCacheKey($key));
     }
+
+    /**
+     * 删除缓存
+     * @param string $key
+     * @return mixed
+     */
+    public static function delCache(string $key = ''): mixed
+    {
+        return Cache::forget(static::getCacheKey($key));
+    }
     //endregion
 
 }

@@ -70,19 +70,23 @@ class FundValuationUpdateJob implements ShouldQueue
         if (empty($this->fundCode) || empty($this->valuation_time)) return;
         // 基金估值更新逻辑
         /* @var $fund Fund */
-        $fund = Fund::getByCode($this->fundCode);
-        if ($fund) {
+        if ($fund = Fund::getByCode($this->fundCode)) {
             $fund_valuation_filter = [
                 'fund_id' => $fund->id,
                 'valuation_time' => $this->valuation_time->timestamp,
                 'valuation_source' => $this->fundValuationData['valuation_source'],
             ];
             $fund_valuation_cache_key = base64_encode(Tools::jsonEncode($fund_valuation_filter));
-            $fund_valuation_status = FundValuation::getCacheOrSet($fund_valuation_cache_key, function () use ($fund_valuation_filter) {
-                return 0;
-                // return FundValuation::where($fund_valuation_filter)->count('id');
-            }, 3600);
+            $fund_valuation_set_key = 'fund:valuation:' . $this->valuation_time->copy()->format('Ymd');
+            // 判断估值数据的唯一条件，是否存在于今天估值集合中
+            $fund_valuation_status = Redis::sismember($fund_valuation_set_key, $fund_valuation_cache_key);
+            // if (!$fund_valuation_status) $fund_valuation_status = FundValuation::getCacheOrSet($fund_valuation_cache_key, function () use ($fund_valuation_filter) {
+            //     return 0;
+            //     // return FundValuation::where($fund_valuation_filter)->count('id');
+            // }, 3600);
             if (!$fund_valuation_status) {
+                // 估值数据的唯一条件，添加到今天估值集合中
+                Redis::sadd($fund_valuation_set_key, $fund_valuation_cache_key);
                 $insert_data = [
                     'fund_id' => $fund->id,
                     'code' => $fund->code,
@@ -121,7 +125,11 @@ class FundValuationUpdateJob implements ShouldQueue
                 // \App\Events\FundValuationUpdated::dispatch($fundValuation);
                 Redis::sadd('fund:valuation:wait-write', Tools::jsonEncode($insert_data));
             }
-            FundValuation::setCache($fund_valuation_cache_key, 1, 3600);
+            // 估值数据的唯一条件，添加到今天估值集合中
+            Redis::sadd($fund_valuation_set_key, $fund_valuation_cache_key);
+            // 如果集合未设置过期时间，设置过期时间为明天
+            if (Redis::ttl($fund_valuation_set_key) < 0) Redis::expireat($fund_valuation_set_key, Tools::today()->addDay()->timestamp);
+            // FundValuation::setCache($fund_valuation_cache_key, 1, 3600);
         }
     }
 }

@@ -2,17 +2,13 @@
 
 namespace App\Console\Commands\Fund;
 
-use App\Jobs\FundActionJob;
 use App\Jobs\FundNetValueCatchJob;
-use App\Jobs\FundNetValueUpdateJob;
-use App\Jobs\FundUpdateJob;
 use App\Jobs\FundValuationCatchJob;
-use App\Jobs\FundValuationUpdateJob;
 use App\Models\Fund\Fund;
 use App\Utils\Juhe\Calendar;
 use App\Utils\Tools;
 use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 
 class FundIterate extends Command
 {
@@ -22,6 +18,7 @@ class FundIterate extends Command
      * @var string
      */
     protected $signature = 'fund:iterate
+    {--cache : 缓存所有基金}
     {--sync-eastmoney-valuation : 同步（天天基金网）估值}
     {--sync-eastmoney-net_value : 同步（天天基金网）历史净值}';
 
@@ -62,23 +59,24 @@ class FundIterate extends Command
             }
         }
 
-        $offset = 0;
-        $limit = 500;
-        while (true) {
-            $fund_codes = Fund::offset($offset)->limit($limit)->select(['id', 'code'])->pluck('code');
-            if ($fund_codes->isEmpty()) break;
-            $offset += $limit;
-            foreach ($fund_codes as $fund_code) {
+        Fund::chunk(500, function (Collection $fund_list) {
+            $fund_list->each(function (Fund $fund) {
+                // 缓存所有基金
+                if ($this->option('cache')) {
+                    $this->info("刷新缓存｜{$fund->code}");
+                    Fund::setCache($fund->code, $fund, null);
+                    $this->info("缓存完成｜{$fund->code}");
+                }
                 // 同步（天天基金网）估值
                 if ($this->option('sync-eastmoney-valuation')) {
-                    FundValuationCatchJob::dispatch($fund_code, 'sync-eastmoney');
+                    FundValuationCatchJob::dispatch($fund->code, 'sync-eastmoney');
                 }
                 // 同步（天天基金网）历史净值
                 if ($this->option('sync-eastmoney-net_value')) {
-                    FundNetValueCatchJob::dispatch($fund_code, 'sync-eastmoney');
+                    FundNetValueCatchJob::dispatch($fund->code, 'sync-eastmoney');
                 }
-            }
-        }
+            });
+        });
         return Command::SUCCESS;
     }
 }
