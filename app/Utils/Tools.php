@@ -276,6 +276,15 @@ class Tools
     }
 
     /**
+     * 判断是否命令行模式
+     * @return bool
+     */
+    public static function isCli(): bool
+    {
+        return php_sapi_name() === 'cli';
+    }
+
+    /**
      * 判断是否调试模式
      * @return bool
      */
@@ -312,7 +321,7 @@ class Tools
      */
     public static function time(bool $float = false): float|int
     {
-        return $float ? request()->server('REQUEST_TIME_FLOAT') : request()->server('REQUEST_TIME');
+        return static::isCli() ? ($float ? microtime(true) : time()) : ($float ? request()->server('REQUEST_TIME_FLOAT') : request()->server('REQUEST_TIME'));
     }
 
     /**
@@ -322,15 +331,15 @@ class Tools
      */
     public static function today(): \Carbon\Carbon
     {
-        return Carbon::parse(date('Y-m-d', static::time()));
+        return static::now()->startOfDay();
     }
 
     /**
      * 任意时间转Carbon
-     * @param \Carbon\Carbon|int|float|string $time
+     * @param \Carbon\Carbon|int|float|string|null $time
      * @return \Carbon\Carbon|null
      */
-    public static function timeToCarbon(\Carbon\Carbon|int|float|string $time): \Carbon\Carbon|null
+    public static function timeToCarbon(\Carbon\Carbon|int|float|string|null $time): \Carbon\Carbon|null
     {
         if (empty($time)) return null;
         if ($time instanceof \Carbon\Carbon) return $time->copy();
