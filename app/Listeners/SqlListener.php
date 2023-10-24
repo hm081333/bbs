@@ -35,7 +35,7 @@ class SqlListener
     {
         // 只统计mysql语句
         if ($event->connectionName != 'mysql') return;
-        if (config('app.no_sql_log', false)) return;
+        if (!config('app.slow_query_log', false)) return;
         $log = $this->interpolateQuery($event->sql, $event->bindings);
         if ($event->time >= 1000) Log::channel('sql')->info("{$event->time}|{$log}");
         return;

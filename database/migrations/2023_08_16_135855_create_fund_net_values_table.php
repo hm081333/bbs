@@ -26,7 +26,7 @@ return new class extends Migration {
             $table->unique([
                 'fund_id',
                 'net_value_time',
-            ]);
+            ], 'unique_key');
             $table->comment('基金净值表');
         });
     }
