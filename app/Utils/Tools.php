@@ -310,7 +310,7 @@ class Tools
      */
     public static function now(): \Carbon\Carbon
     {
-        return Carbon::parse(date('Y-m-d H:i:s', static::time()));
+        return static::timeToCarbon(date('Y-m-d H:i:s', static::time()));
     }
 
     /**
@@ -344,7 +344,7 @@ class Tools
         if (empty($time)) return null;
         if ($time instanceof \Carbon\Carbon) return $time->copy();
         try {
-            return (filter_var($time, FILTER_VALIDATE_INT) !== false || filter_var($time, FILTER_VALIDATE_FLOAT) !== false) && strlen((string)$time) >= 10
+            return (filter_var($time, FILTER_VALIDATE_INT) !== false || filter_var($time, FILTER_VALIDATE_FLOAT) !== false) && strlen((int)$time) == 10
                 ?
                 Carbon::createFromTimestamp($time)
                 :
