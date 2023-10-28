@@ -5,9 +5,13 @@ namespace App\Providers;
 use App\Exceptions\Request\BadRequestException;
 use App\Models\OptionItem;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use function request;
 
 class ModelServiceProvider extends ServiceProvider
 {
@@ -37,15 +41,8 @@ class ModelServiceProvider extends ServiceProvider
             $pageNo = request()->input('page', 1);
             // 搜索字段
             $search_field = request()->input('search_field');
-            if ($search_field) {
-                // 搜索关键字
-                $this->searchInput($search_field, 'like', 'search_keyword');
-            }
-            /*// 搜索关键字
-            $search_keyword = request()->input('search_keyword');
-            $this->when(!empty($search_field) && !empty($search_keyword), function (Builder $query) use ($search_field, $search_keyword) {
-                $query->search($search_field, 'like', "%{$search_keyword}%");
-            });*/
+            // 搜索关键字
+            $this->searchInput($search_field, 'like', 'search_keyword');
             //region 解析前端传递的排序规则
             $this->orderByInput();
             //endregion
@@ -69,7 +66,7 @@ class ModelServiceProvider extends ServiceProvider
             // 后添加的排序会替换前面添加的排序
             $orders = empty($orders) ? [] : array_combine(array_column($orders, 'column'), array_column($orders, 'direction'));
             // 请求携带 的 排序条件
-            $orderBys = \request()->input('orderBy');
+            $orderBys = request()->input('orderBy');
             if (!empty($orderBys)) {
                 // 解出排序数组
                 if (!is_array($orderBys)) {
@@ -102,36 +99,37 @@ class ModelServiceProvider extends ServiceProvider
             //endregion
             return $this;
         });
-        /* 嵌套查询函数 */
+        /* 根据参数，嵌套查询函数 */
         Builder::macro('search', function ($search_fields, $operator = null, $value = null, $boolean = 'and'): Builder {
             /* @var $this Builder */
+            // 搜索字段 为空 不进行查询
+            if (empty($search_fields)) return $this;
             $args = func_get_args();
             $value = $args[2] ?? $args[1];
-            $operator = isset($args[2]) ? $args[1] : '=';
+            $operator = trim(strtolower(isset($args[2]) ? $args[1] : '='));
             unset($args[0]);
             if (is_string($search_fields)) $search_fields = explode('.', $search_fields);
+            // 取出查询字段数组中首个字段
             $search_field = array_shift($search_fields);
-            if (empty($search_fields)) {
-                // if (strtolower($operator) == 'like') $value = "%{$value}%";
-                $this->where($search_field, $operator, $value, $boolean);
-            } else {
-                /* @var $RelationModel \Illuminate\Database\Eloquent\Relations\BelongsTo */
-                /* @var $RelationModel \Illuminate\Database\Eloquent\Relations\HasMany */
-                /* @var $RelationModel \Illuminate\Database\Eloquent\Relations\HasOne */
+            if (!empty($search_fields)) {// 查询字段数组中仍然有值，表示本次为关联查询
+                /* @var $RelationModel BelongsTo|HasMany|HasOne */
                 $RelationModel = $this->getModel()->$search_field();
-                if ($RelationModel instanceof \Illuminate\Database\Eloquent\Relations\BelongsTo) {
+                if ($RelationModel instanceof BelongsTo) {
                     $where_key = $RelationModel->getForeignKeyName();
                     $select_key = $RelationModel->getOwnerKeyName();
                 } else {
                     $where_key = $RelationModel->getLocalKeyName();
                     $select_key = $RelationModel->getForeignKeyName();
                 }
-                $this->whereIn($where_key, $RelationModel->getModel()->select($select_key)->search($search_fields, ...$args));
+                // 重复查询下一个字段或表名
+                return $this->whereIn($where_key, $RelationModel->getModel()->select($select_key)->search($search_fields, ...$args));
                 // $this->whereHas($search_field, function (Builder $query) use ($search_fields, $args) {
                 //     $query->search($search_fields, ...$args);
                 // });
             }
-            return $this;
+            // 单一字段，非关联，最后一次查询
+            if ($operator == 'like') return $this->whereLike($search_field, $value, $boolean);
+            return $this->where($search_field, $operator, $value, $boolean);
         });
         /* 根据请求，嵌套查询函数 */
         Builder::macro('searchInput', function (string $search_field, $operator = null, $input_field = null): Builder {
@@ -140,13 +138,10 @@ class ModelServiceProvider extends ServiceProvider
             if (empty($search_field)) return $this;
             $args = func_get_args();
             $input_field = $args[2] ?? $args[1] ?? $args[0];
-            $operator = isset($args[2]) ? $args[1] : '=';
+            $operator = trim(strtolower(isset($args[2]) ? $args[1] : '='));
             // 获取搜索值
             $search_data = request()->input($input_field ?? $search_field);
-            return $this->when(isset($search_data), function (Builder $query) use ($search_field, $operator, $search_data) {
-                if (strtolower($operator) == 'like') $search_data = "%{$search_data}%";
-                $query->search($search_field, $operator, $search_data);
-            });
+            return $this->when(isset($search_data), fn(Builder $query) => $query->search($search_field, $operator, $search_data));
         });
         /* 根据请求，查询指定字段函数 */
         Builder::macro('whereInput', function (string $search_field, $operator = null, $input_field = null): Builder {
@@ -159,18 +154,10 @@ class ModelServiceProvider extends ServiceProvider
 
             // 获取搜索值
             $search_data = request()->input($input_field ?? $search_field);
-            return $this->when(isset($search_data) && !empty($search_data), function (Builder $query) use ($search_field, $operator, $search_data) {
-                switch ($operator) {
-                    case 'like':
-                        $query->where($search_field, $operator, "%{$search_data}%");
-                        break;
-                    case 'in':
-                        $query->whereIn($search_field, $search_data);
-                        break;
-                    default:
-                        $query->where($search_field, $operator, $search_data);
-                        break;
-                }
+            return $this->when(isset($search_data), fn(Builder $query) => match ($operator) {
+                'like' => $query->whereLike($search_field, $operator, $search_data),
+                'in' => $query->whereIn($search_field, $search_data),
+                default => $query->where($search_field, $operator, $search_data),
             });
         });
         /* 根据请求，查询指定字段函数 */
@@ -183,11 +170,8 @@ class ModelServiceProvider extends ServiceProvider
             return $this->when(isset($option_item_id) && !empty($option_item_id), function (Builder $query) use ($search_field, $option_item_id) {
                 $option_item_value = OptionItem::getValue($option_item_id);
                 $arr = explode('-', $option_item_value);
-                if (count($arr) == 2) {
-                    $query->whereIn($search_field, $arr);
-                } else {
-                    $query->where($search_field, $option_item_value);
-                }
+                if (count($arr) > 1) return $query->whereIn($search_field, $arr);
+                return $query->where($search_field, $option_item_value);
             });
         });
         /* 根据请求，模糊查询指定字段函数 */
@@ -195,20 +179,20 @@ class ModelServiceProvider extends ServiceProvider
             /* @var $this Builder */
             // 搜索字段 为空 不进行查询
             if (empty($search_field)) return $this;
-            $args = func_get_args();
-            $input_field = $args[1] ?? $args[0];
-            $operator = 'like';
             // 获取搜索值
             $search_data = request()->input($input_field ?? $search_field);
-            return $this->when(isset($search_data) && !empty($search_data), function (Builder $query) use ($search_field, $operator, $search_data) {
-                $query->where($search_field, $operator, "%{$search_data}%");
-            });
+            return $this->when(!empty($search_data), fn(Builder $query) => $query->whereLike($search_field, $search_data));
+        });
+        /* 根据参数，模糊查询指定字段函数 */
+        Builder::macro('whereLike', function (string $search_field, string $value, $boolean = 'and'): Builder {
+            /* @var $this Builder */
+            // 搜索字段为空 或者 模糊查询值为空 不进行查询
+            if (empty($search_field) || empty($value)) return $this;
+            return $this->where($search_field, 'like', $value, $boolean);
         });
         Builder::macro('firstOrThrow', function (string $thr_str = '数据异常') {
-            /* @var $this \Illuminate\Database\Eloquent\Builder */
-            return $this->firstOr(function () use ($thr_str) {
-                throw new BadRequestException($thr_str);
-            });
+            /* @var $this Builder */
+            return $this->firstOr(fn() => throw new BadRequestException($thr_str));
         });
     }
 }
