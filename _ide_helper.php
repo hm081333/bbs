@@ -4,7 +4,7 @@
 
 /**
  * A helper file for Laravel, to provide autocomplete information to your IDE
- * Generated for Laravel 9.52.15.
+ * Generated for Laravel 9.52.16.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -20765,6 +20765,132 @@ namespace  {
             {
                                 /** @var \Illuminate\Database\Eloquent\Builder $instance */
                                 return $instance->mergeConstraintsFrom($from);
+            }
+             
+                /**
+             * 
+             *
+             * @see \App\Providers\ModelServiceProvider::boot()
+             * @param mixed $columns
+             * @return array 
+             * @static 
+             */ 
+            public static function getPage($columns = [])
+            {
+                                return \Illuminate\Database\Eloquent\Builder::getPage($columns);
+            }
+             
+                /**
+             * 
+             *
+             * @see \App\Providers\ModelServiceProvider::boot()
+             * @return \Illuminate\Database\Eloquent\Builder|static 
+             * @static 
+             */ 
+            public static function orderByInput()
+            {
+                                return \Illuminate\Database\Eloquent\Builder::orderByInput();
+            }
+             
+                /**
+             * 
+             *
+             * @see \App\Providers\ModelServiceProvider::boot()
+             * @param mixed $search_fields
+             * @param mixed $operator
+             * @param mixed $value
+             * @param mixed $boolean
+             * @return \Illuminate\Database\Eloquent\Builder|static 
+             * @static 
+             */ 
+            public static function search($search_fields, $operator = null, $value = null, $boolean = 'and')
+            {
+                                return \Illuminate\Database\Eloquent\Builder::search($search_fields, $operator, $value, $boolean);
+            }
+             
+                /**
+             * 
+             *
+             * @see \App\Providers\ModelServiceProvider::boot()
+             * @param string $search_field
+             * @param mixed $operator
+             * @param mixed $input_field
+             * @return \Illuminate\Database\Eloquent\Builder|static 
+             * @static 
+             */ 
+            public static function searchInput($search_field, $operator = null, $input_field = null)
+            {
+                                return \Illuminate\Database\Eloquent\Builder::searchInput($search_field, $operator, $input_field);
+            }
+             
+                /**
+             * 
+             *
+             * @see \App\Providers\ModelServiceProvider::boot()
+             * @param string $search_field
+             * @param mixed $operator
+             * @param mixed $input_field
+             * @return \Illuminate\Database\Eloquent\Builder|static 
+             * @static 
+             */ 
+            public static function whereInput($search_field, $operator = null, $input_field = null)
+            {
+                                return \Illuminate\Database\Eloquent\Builder::whereInput($search_field, $operator, $input_field);
+            }
+             
+                /**
+             * 
+             *
+             * @see \App\Providers\ModelServiceProvider::boot()
+             * @param string $search_field
+             * @param mixed $input_field
+             * @return \Illuminate\Database\Eloquent\Builder|static 
+             * @static 
+             */ 
+            public static function whereInputOptionItem($search_field, $input_field = null)
+            {
+                                return \Illuminate\Database\Eloquent\Builder::whereInputOptionItem($search_field, $input_field);
+            }
+             
+                /**
+             * 
+             *
+             * @see \App\Providers\ModelServiceProvider::boot()
+             * @param string $search_field
+             * @param mixed $input_field
+             * @return \Illuminate\Database\Eloquent\Builder|static 
+             * @static 
+             */ 
+            public static function whereInputLike($search_field, $input_field = null)
+            {
+                                return \Illuminate\Database\Eloquent\Builder::whereInputLike($search_field, $input_field);
+            }
+             
+                /**
+             * 
+             *
+             * @see \App\Providers\ModelServiceProvider::boot()
+             * @param string $search_field
+             * @param string $value
+             * @param mixed $boolean
+             * @return \Illuminate\Database\Eloquent\Builder|static 
+             * @static 
+             */ 
+            public static function whereLike($search_field, $value, $boolean = 'and')
+            {
+                                return \Illuminate\Database\Eloquent\Builder::whereLike($search_field, $value, $boolean);
+            }
+             
+                /**
+             * 
+             *
+             * @see \App\Providers\ModelServiceProvider::boot()
+             * @param string $thr_str
+             * @static 
+             */ 
+            public static function firstOrThrow($thr_str = '数据异常')
+            {
+                                return \Illuminate\Database\Eloquent\Builder::firstOrThrow($thr_str);
             }
              
                 /**

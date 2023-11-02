@@ -33,6 +33,9 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|UserFund whereShare($value)
  * @method static \Illuminate\Database\Eloquent\Builder|UserFund whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|UserFund whereUserId($value)
+ * @property-read string $sex_name
+ * @property-write mixed $sn
+ * @property-write mixed $sort
  * @mixin \Eloquent
  */
 class UserFund extends BaseModel

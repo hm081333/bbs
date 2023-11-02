@@ -45,6 +45,8 @@ use Illuminate\Support\Carbon;
  * @method static Builder|File whereWidth($value)
  * @method static Builder|File withTrashed()
  * @method static Builder|File withoutTrashed()
+ * @property-read string $sex_name
+ * @property-write mixed $sn
  * @mixin Eloquent
  */
 class File extends BaseModel

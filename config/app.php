@@ -151,7 +151,7 @@ return [
          * 套餐服务提供商...
          */
         //\Tymon\JWTAuth\Providers\LaravelServiceProvider::class,// jwt-auth
-        //\Overtrue\LaravelWeChat\ServiceProvider::class,
+        //\Overtrue\LaravelWeChat\ServiceProvider::class,// 微信
         //\BeyondCode\LaravelWebSockets\WebSocketsServiceProvider::class,
 
         /*
