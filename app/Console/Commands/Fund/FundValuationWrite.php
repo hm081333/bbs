@@ -113,8 +113,6 @@ class FundValuationWrite extends Command
             $this->comment('写入基金估值');
             if (Redis::exists($this->redis_key)) {
                 while (!empty($inserts = Redis::spop($this->redis_key, $this->once_write_count))) {
-                    $start_time = microtime(true);
-                    $this->info('成功|集合中获取|' . count($inserts) . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
                     if (empty($inserts)) break;
                     $start_time = microtime(true);
                     try {
