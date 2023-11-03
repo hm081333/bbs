@@ -397,43 +397,46 @@ class Tools
     /**
      * 事务锁
      * @desc 用于控制器层
-     * @param Closure $callback
-     * @param int $attempts
-     * @return void
+     * @param Closure $callback 回调函数
+     * @param int $attempts 重试次数
+     * @return mixed
      * @throws Throwable
      */
-    public static function transaction(Closure $callback, int $attempts = 1)
+    public static function transaction(Closure $callback, int $attempts = 1): mixed
     {
-        DB::transaction(function ($connection) use ($callback) {
-            $callback($connection);
-        }, $attempts);
+        return DB::transaction(
+            $callback,
+            $attempts
+        );
     }
 
     /**
      * 并发锁
      * @desc 用于控制器层
-     * @param Closure $callback
-     * @param string $unique
-     * @return void
+     * @param Closure $callback 回调函数
+     * @param string $unique 唯一标识
+     * @return mixed
+     * @throws BadRequestException
      * @throws Throwable
      */
-    public static function concurrent(Closure $callback, $unique = 'all')
+    public static function concurrent(Closure $callback, string $unique = 'all'): mixed
     {
         // 锁缓存KEY，最好是使用Redis缓存
         $cache_key = 'concurrent:' . Route::current()->uri() . ':' . $unique;
         // 锁存在
-        // if (Cache::has($cache_key)) throw new BadRequestException('服务器繁忙，请重试');
+        if (Cache::has($cache_key)) throw new BadRequestException('服务器繁忙，请重试');
         // 锁持续半个小时
         Cache::put($cache_key, 1, 30 * 60);
         try {
-            $callback();
-        } catch (Exception $exception) {
+            $callbackResult = $callback();
+        } catch (Throwable $e) {
             // 解锁
             Cache::forget($cache_key);
-            throw $exception;
+            throw $e;
         }
         // 解锁
         Cache::forget($cache_key);
+        return $callbackResult;
     }
 
     /**
@@ -989,7 +992,7 @@ class Tools
      */
     public static function storageAsset($path = '')
     {
-        $base_url = config('app.asset_url') ?: static::url('storage');
+        $base_url = config('app.storage_url') ?: static::url('storage');
         return rtrim($base_url, '/') . '/' . ltrim($path, '/');
     }
 
@@ -1033,6 +1036,11 @@ class Tools
     public static function aliyun_oss()
     {
         return new Oss();
+    }
+
+    public static function qiniu()
+    {
+        return new Qiniu();
     }
     // endregion
 
