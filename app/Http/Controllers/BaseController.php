@@ -16,15 +16,16 @@ use Tymon\JWTAuth\JWTGuard;
 
 /**
  * 控制器类
- * @property \App\Models\AuthModel $modelAuthModel AuthModel
  * @property \App\Models\BaiduId $modelBaiduId BaiduId
- * @property \App\Models\BaseModel $modelBaseModel BaseModel
+ * @property \App\Models\File $modelFile File
  * @property \App\Models\Fund\Fund $modelFundFund Fund
  * @property \App\Models\Fund\FundNetValue $modelFundFundNetValue FundNetValue
  * @property \App\Models\Fund\FundValuation $modelFundFundValuation FundValuation
+ * @property \App\Models\Option $modelOption Option
+ * @property \App\Models\OptionItem $modelOptionItem OptionItem
  * @property \App\Models\User $modelUser User
  * @property \App\Models\UserFund $modelUserFund UserFund
- * Class Controller
+ * Class BaseController
  */
 class BaseController extends \Illuminate\Routing\Controller
 {
@@ -34,7 +35,7 @@ class BaseController extends \Illuminate\Routing\Controller
 
     public function __get($name)
     {
-        if (strpos($name, 'model') !== false) {
+        if (str_contains($name, 'model')) {
             $model_class = config("model_map.{$name}");
             if (class_exists($model_class)) {
                 $this->$name = new $model_class;
@@ -45,17 +46,20 @@ class BaseController extends \Illuminate\Routing\Controller
     }
 
     /**
-     * 获取在身份验证期间要使用的守卫。
-     * @return JWTGuard|Guard
+     * 接口参数规则定义
+     *
+     * @return array
      */
-    public function guard($name = null)
+    protected function getRules()
     {
-        return auth($name);
+        return [];
     }
 
     /**
      * 获取参数函数
+     *
      * @param bool|array $rule
+     *
      * @return array
      * @throws BadRequestException
      */
@@ -70,12 +74,13 @@ class BaseController extends \Illuminate\Routing\Controller
     }
 
     /**
-     * 接口参数规则定义
-     * @return array
+     * 获取在身份验证期间要使用的守卫。
+     *
+     * @return JWTGuard|Guard
      */
-    protected function getRules()
+    public function guard($name = null)
     {
-        return [];
+        return auth($name);
     }
 
 }

@@ -15,7 +15,9 @@ class Sms
      * @var Repository|Application|mixed
      */
     private $config;
+
     /**
+     * alibabacloud/dysmsapi-20170525
      * @var Dysmsapi
      */
     private $client;

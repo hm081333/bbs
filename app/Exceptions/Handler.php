@@ -67,13 +67,11 @@ class Handler extends ExceptionHandler
                 if (!($e instanceof \App\Exceptions\Exception) && Tools::isProduction()) {
                     Bark::instance()
                         ->setGroup('Exception')
-                        ->setTitle(config('app.name','') . '系统异常捕获')
+                        ->setTitle(config('app.name', '') . '系统异常捕获')
                         ->setBody(implode("\n\n", array_merge([
                             get_class($e) . ':' . $e->getCode(),
                             $e->getMessage(),
-                        ], array_filter(array_map(function ($trace) {
-                            return isset($trace['file']) ? str_replace(base_path(), '', $trace['file']) . ':' . $trace['line'] : false;
-                        }, $e->getTrace())))))
+                        ], array_filter(array_map(fn($trace) => isset($trace['file']) ? str_replace(base_path(), '', $trace['file']) . ':' . $trace['line'] : false, $e->getTrace())))))
                         ->send();
                     $data['msg'] = '请求错误，请联系管理员。';
                 }

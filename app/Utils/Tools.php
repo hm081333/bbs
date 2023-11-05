@@ -26,7 +26,9 @@ class Tools
     // region 自定义方法
     /**
      * JSON编码
+     *
      * @param mixed $array
+     *
      * @return false|string
      */
     public static function jsonEncode(mixed $array): false|string
@@ -36,7 +38,9 @@ class Tools
 
     /**
      * JSON反编码
+     *
      * @param string $json
+     *
      * @return mixed
      */
     public static function jsonDecode(string $json): mixed
@@ -46,7 +50,9 @@ class Tools
 
     /**
      * 序列化
+     *
      * @param $value
+     *
      * @return string|null
      */
     public static function serialize($value)
@@ -61,7 +67,9 @@ class Tools
 
     /**
      * 反序列化
+     *
      * @param $value
+     *
      * @return string|null
      */
     public static function unserialize($value)
@@ -77,9 +85,11 @@ class Tools
     /**
      * 产生随机字串，可用来自动生成密码
      * 默认长度6位 字母和数字混合 支持中文
-     * @param string $len 长度
-     * @param string $type 字串类型 0 字母 1 数字 其它 混合
+     *
+     * @param string $len      长度
+     * @param string $type     字串类型 0 字母 1 数字 其它 混合
      * @param string $addChars 额外字符
+     *
      * @return string
      */
     public static function randString($len = 6, $type = '', $addChars = '')
@@ -129,13 +139,16 @@ class Tools
 
     /**
      * 字符串截取，支持中文和其他编码
+     *
      * @static
      * @access public
-     * @param string $str 需要转换的字符串
-     * @param string $start 开始位置
-     * @param string $length 截取长度
+     *
+     * @param string $str     需要转换的字符串
+     * @param string $start   开始位置
+     * @param string $length  截取长度
      * @param string $charset 编码格式
-     * @param string $suffix 截断显示字符
+     * @param string $suffix  截断显示字符
+     *
      * @return string
      */
     public static function msubstr($str, $start = 0, $length = 0, $charset = "utf-8", $suffix = true)
@@ -157,6 +170,7 @@ class Tools
 
     /**
      * 获取设备类型
+     *
      * @return int
      */
     public static function getDeviceType()
@@ -177,6 +191,7 @@ class Tools
 
     /**
      * 判断是否移动设备
+     *
      * @return bool
      */
     public static function isMobile()
@@ -243,6 +258,7 @@ class Tools
 
     /**
      * 是否处于微信环境
+     *
      * @return bool
      */
     public static function isWeChat(): bool
@@ -252,7 +268,9 @@ class Tools
 
     /**
      * 获取设备类型名称
+     *
      * @param false $type
+     *
      * @return string|string[]
      */
     public static function getDeviceTypeName($type = false)
@@ -268,6 +286,7 @@ class Tools
 
     /**
      * 判断是否生产环境
+     *
      * @return bool
      */
     public static function isProduction(): bool
@@ -277,6 +296,7 @@ class Tools
 
     /**
      * 判断是否命令行模式
+     *
      * @return bool
      */
     public static function isCli(): bool
@@ -286,6 +306,7 @@ class Tools
 
     /**
      * 判断是否调试模式
+     *
      * @return bool
      */
     public static function isDebug(): bool
@@ -295,7 +316,9 @@ class Tools
 
     /**
      * 获取队列名
+     *
      * @param $num
+     *
      * @return string
      */
     public static function getQueueName($num)
@@ -305,6 +328,7 @@ class Tools
 
     /**
      * 获取当前请求的时间
+     *
      * @access public
      * @return \Carbon\Carbon
      */
@@ -315,8 +339,11 @@ class Tools
 
     /**
      * 获取当前请求的时间戳
+     *
      * @access public
+     *
      * @param bool $float 是否使用浮点类型
+     *
      * @return integer|float
      */
     public static function time(bool $float = false): float|int
@@ -326,6 +353,7 @@ class Tools
 
     /**
      * 获取当前请求的日期
+     *
      * @access public
      * @return \Carbon\Carbon
      */
@@ -336,7 +364,9 @@ class Tools
 
     /**
      * 任意时间转Carbon
+     *
      * @param \Carbon\Carbon|int|float|string|null $time
+     *
      * @return \Carbon\Carbon|null
      */
     public static function timeToCarbon(\Carbon\Carbon|int|float|string|null $time): \Carbon\Carbon|null
@@ -356,7 +386,9 @@ class Tools
 
     /**
      * 父子关系的数组转换成树形结构数据
+     *
      * @param $data
+     *
      * @return mixed
      */
     public static function translateDataToTree($data)
@@ -372,8 +404,10 @@ class Tools
 
     /**
      * 父子关系的数组转换成树形结构数据（递归）
+     *
      * @param $parent
      * @param $children
+     *
      * @return mixed
      */
     public static function _translateDataToTree($parent, $children)
@@ -396,9 +430,12 @@ class Tools
 
     /**
      * 事务锁
+     *
      * @desc 用于控制器层
+     *
      * @param Closure $callback 回调函数
-     * @param int $attempts 重试次数
+     * @param int     $attempts 重试次数
+     *
      * @return mixed
      * @throws Throwable
      */
@@ -412,9 +449,12 @@ class Tools
 
     /**
      * 并发锁
+     *
      * @desc 用于控制器层
+     *
      * @param Closure $callback 回调函数
-     * @param string $unique 唯一标识
+     * @param string  $unique   唯一标识
+     *
      * @return mixed
      * @throws BadRequestException
      * @throws Throwable
@@ -441,21 +481,26 @@ class Tools
 
     /**
      * 模型别称
-     * @param Model|string $model
+     *
+     * @param Model|string $model  模型
+     * @param string       $prefix 别称前缀
+     *
      * @return string
      */
-    public static function modelAlias(Model|string $model)
+    public static function modelAlias(Model|string $model, string $prefix = '')
     {
         $model_name = is_object($model) ? get_class($model) : $model;
-        return implode('', explode('\\', str_replace('App\\Models', '', $model_name)));
+        return $prefix . str_replace('\\', '', str_replace('App\\Models\\', '', $model_name));
     }
 
     /**
      * 建议精度数学函数
+     *
      * @param        $left_operand
      * @param string $operator
      * @param        $right_operand
-     * @param int $scale
+     * @param int    $scale
+     *
      * @return bool|string|null
      */
     public static function math($left_operand, string $operator, $right_operand, int $scale = 2)
@@ -493,7 +538,9 @@ class Tools
 
     /**
      * 数组转请求参数
+     *
      * @param array $query_arr 请求参数数组
+     *
      * @return string
      */
     public static function urlQueryEncode(array $query_arr = []): string
@@ -507,7 +554,9 @@ class Tools
 
     /**
      * 请求参数转数组
+     *
      * @param string $query_str 请求参数字符串
+     *
      * @return array
      */
     public static function urlQueryDecode(string $query_str = ''): array
@@ -523,8 +572,10 @@ class Tools
 
     /**
      * 重建url，追加参数
+     *
      * @param string $url
-     * @param array $extra_query
+     * @param array  $extra_query
+     *
      * @return string
      */
     public static function urlRebuild(string $url, array $extra_query = [])
@@ -548,7 +599,9 @@ class Tools
 
     /**
      * 保存积分配置
+     *
      * @param array $data
+     *
      * @return bool
      */
     public static function setPoint(array $data)
@@ -560,6 +613,7 @@ class Tools
 
     /**
      * 获取积分配置
+     *
      * @return array
      * @throws \Psr\SimpleCache\InvalidArgumentException
      */
@@ -570,6 +624,7 @@ class Tools
 
     /**
      * 生成全局id
+     *
      * @return string 返回
      **/
     public static function guid($opt = false): string
@@ -599,8 +654,10 @@ class Tools
 
     /**
      * 二维数组根据首字母分组排序
-     * @param array $data 二维数组
+     *
+     * @param array  $data      二维数组
      * @param string $targetKey 首字母的键名
+     *
      * @return array             根据首字母关联的二维数组
      */
     public static function groupByInitials(array $data, $targetKey = 'brand'): array
@@ -616,7 +673,9 @@ class Tools
 
     /**
      * 获取首字母
+     *
      * @param string $str 汉字字符串
+     *
      * @return string 首字母
      */
     public static function getInitials($str): ?string
@@ -729,7 +788,9 @@ class Tools
 
     /**
      * 按字母排序
+     *
      * @param array $data
+     *
      * @return array
      */
     public static function sortInitials(array $data): array
@@ -744,8 +805,10 @@ class Tools
 
     /**
      * 用*号替代姓名除第一个字之外的字符
+     *
      * @param $name
      * @param $num
+     *
      * @return mixed|string
      */
     public static function starNameReplace($name, $num = 0)
@@ -789,7 +852,9 @@ class Tools
      * 二进制流生成文件
      * $_POST 无法解释二进制流，需要用到 $GLOBALS['HTTP_RAW_POST_DATA'] 或 php://input
      * $GLOBALS['HTTP_RAW_POST_DATA'] 和 php://input 都不能用于 enctype=multipart/form-data
+     *
      * @param string $file_path 要生成的文件路径
+     *
      * @return   boolean
      */
     public static function binary_to_file(string $file_path): bool
@@ -803,6 +868,7 @@ class Tools
 
     /**
      * 获取客户端真实ip
+     *
      * @return mixed
      */
     public static function getRealIpAddr()
@@ -821,7 +887,9 @@ class Tools
     //region 时间格式相关
     /**
      * 将秒数转换为时间（年、天、小时、分、秒）数组
+     *
      * @param $second_time
+     *
      * @return bool|array
      */
     public static function secondToTime($second_time)
@@ -859,7 +927,9 @@ class Tools
 
     /**
      * 将秒数转换为时间（年、天、小时、分、秒）
+     *
      * @param $second_time
+     *
      * @return false|string
      */
     public static function secondToTimeText($second_time)
@@ -871,7 +941,9 @@ class Tools
 
     /**
      * 将秒转换为 分:秒
+     *
      * @param $second_time
+     *
      * @return string
      */
     public static function secondToMinuteSecond($second_time = 0)
@@ -893,7 +965,9 @@ class Tools
 
     /**
      * 扫描目录文件
+     *
      * @param string $dir 需要扫描的目录
+     *
      * @return array
      */
     public static function scanFile(string $dir)
@@ -914,7 +988,9 @@ class Tools
 
     /**
      * 根据路径创建目录或文件
+     *
      * @param string $path 需要创建目录路径
+     *
      * @return string
      */
     public static function createDir($path): string
@@ -929,7 +1005,9 @@ class Tools
 
     /**
      * 清空目录以及子目录等所有文件--不删除目录
+     *
      * @param $path
+     *
      * @return bool
      */
     public static function emptyDir($path)
@@ -955,7 +1033,9 @@ class Tools
     /**
      * 删除目录以及子目录等所有文件
      * - 请注意不要删除重要目录！
+     *
      * @param string $path 需要删除目录路径
+     *
      * @return bool
      */
     public static function deleteDir($path)
@@ -967,7 +1047,9 @@ class Tools
 
     /**
      * 临时目录路径
+     *
      * @param $path
+     *
      * @return string
      */
     public static function runtimePath($path = '')
@@ -977,7 +1059,9 @@ class Tools
 
     /**
      * 备份目录路径
+     *
      * @param $path
+     *
      * @return string
      */
     public static function backupPath($path = '')
@@ -987,7 +1071,9 @@ class Tools
 
     /**
      * 资源路径
+     *
      * @param string $path
+     *
      * @return string
      */
     public static function storageAsset($path = '')
@@ -998,7 +1084,9 @@ class Tools
 
     /**
      * url根目录
+     *
      * @param string $path
+     *
      * @return string
      */
     public static function url($path = '')
@@ -1016,6 +1104,7 @@ class Tools
 
     /**
      * @param $file
+     *
      * @return File
      * @throws Exception
      */
@@ -1026,6 +1115,7 @@ class Tools
 
     /**
      * 阿里云短信
+     *
      * @return Sms
      */
     public static function aliyun_sms()
@@ -1047,7 +1137,9 @@ class Tools
     // region 压缩解压缩二进制
     /**
      * 解密gzip二进制字符串
+     *
      * @param $str
+     *
      * @return string
      */
     public static function compressStringDecode($str)
@@ -1057,7 +1149,9 @@ class Tools
 
     /**
      * 解密gzip二进制
+     *
      * @param $data
+     *
      * @return string
      */
     public static function compressBinaryDecode($data)
@@ -1067,8 +1161,10 @@ class Tools
 
     /**
      * 生成gzip二进制字符串
+     *
      * @param     $str
      * @param int $encoding ZLIB_ENCODING_RAW|ZLIB_ENCODING_DEFLATE|ZLIB_ENCODING_GZIP
+     *
      * @return false|string|string[]|null
      */
     public static function compressStringEncode($str, $encoding = ZLIB_ENCODING_RAW)
@@ -1078,8 +1174,10 @@ class Tools
 
     /**
      * 生成gzip二进制
+     *
      * @param     $data
      * @param int $encoding ZLIB_ENCODING_RAW|ZLIB_ENCODING_DEFLATE|ZLIB_ENCODING_GZIP
+     *
      * @return string
      */
     public static function compressBinaryEncode($data, $encoding = ZLIB_ENCODING_RAW)

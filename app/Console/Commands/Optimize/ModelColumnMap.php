@@ -6,32 +6,32 @@ use App\Models\AuthModel;
 use App\Models\BaseModel;
 use App\Utils\Tools;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Schema;
 use function app_path;
 
-class ModelMap extends Command
+class ModelColumnMap extends Command
 {
-    protected $signature = 'optimize:model-map';
+    protected $signature = 'optimize:model-column-map';
 
-    protected $description = '生成模型类映射';
-    protected $base_controller_name = 'BaseController';
+    protected $description = '生成模型类字段映射';
 
     public function handle()
     {
         $model_map = $this->getModelMapList(Tools::scanFile(app_path('Models')), '\\App\\Models');
-        file_put_contents(config_path('model_map.php'), "<?php   \nreturn " . var_export($model_map, true) . ';');
-
-        $BaseControllerDoc = '/**' . PHP_EOL . ' * 控制器类' . PHP_EOL;
-        array_walk($model_map, function ($modelClass, $modelAlias) use (&$BaseControllerDoc) {
-            $BaseControllerDoc .= " * @property {$modelClass} \${$modelAlias} " . basename($modelClass) . PHP_EOL;
-        });
-        $BaseControllerDoc .= ' * Class ' . $this->base_controller_name . PHP_EOL . ' */';
-
-        $BaseControllerFilePath = app_path('Http/Controllers/' . $this->base_controller_name . '.php');
-        $BaseControllerContent = file_get_contents($BaseControllerFilePath);
-
-        file_put_contents($BaseControllerFilePath, preg_replace('/(\/\*\*[^\/]+\/)?\s*class ' . $this->base_controller_name . '/', $BaseControllerDoc . PHP_EOL . 'class ' . $this->base_controller_name, $BaseControllerContent));
+        $model_column_map = [];
+        foreach ($model_map as $modelAlias => $modelClass) {
+            /* @var $modelInstance \Illuminate\Database\Eloquent\Model */
+            $modelInstance = new $modelClass;
+            $table_name_without_prefix = $modelInstance->getTable();
+            $table_columns = [];
+            foreach (Schema::getColumnListing($table_name_without_prefix) as $column_name) {
+                $table_columns[$column_name] = $this->identifyColumnType($column_name, Schema::getColumnType($table_name_without_prefix, $column_name));
+            }
+            $model_column_map[$modelAlias] = $table_columns;
+        }
+        file_put_contents(config_path('model_column_map.php'), "<?php   \nreturn " . var_export($model_column_map, true) . ';');
         // 指令输出
-        $this->info('生成模型类映射完成！');
+        $this->info('生成模型类字段映射完成！');
         return 0;
     }
 
@@ -64,6 +64,17 @@ class ModelMap extends Command
             }
         }
         return $model_list;
+    }
+
+    private function identifyColumnType($column_name, $column_type)
+    {
+        // if ($column_type == 'bigint') return 'integer';
+        return $column_type;
+        //region 时间类型
+        if (str_ends_with($column_name, '_at') || str_ends_with($column_name, '_time')) {
+            dd($column_name, $column_type);
+        }
+        //endregion
     }
 
 }

@@ -29,6 +29,8 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('testa', function () {
+    dd(123);
+
     $data = \App\Utils\Juhe\Calendar::getYearMonthHolidayList('2024-10');
     dd($data);
 
