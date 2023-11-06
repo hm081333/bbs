@@ -42,6 +42,15 @@ return [
             'after_commit' => false,
         ],
 
+        'mongodb' => [
+            'driver' => 'mongodb',
+            // You can also specify your jobs specific database created on config/database.php
+            'connection' => 'mongodb',
+            'table' => 'jobs',
+            'queue' => 'default',
+            'expire' => 60,
+        ],
+
         'beanstalkd' => [
             'driver' => 'beanstalkd',
             'host' => 'localhost',

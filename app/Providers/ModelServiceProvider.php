@@ -16,16 +16,6 @@ use function request;
 class ModelServiceProvider extends ServiceProvider
 {
     /**
-     * Register services.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        //
-    }
-
-    /**
      * Bootstrap services.
      *
      * @return void
