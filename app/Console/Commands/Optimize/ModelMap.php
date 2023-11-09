@@ -13,23 +13,24 @@ class ModelMap extends Command
     protected $signature = 'optimize:model-map';
 
     protected $description = '生成模型类映射';
-    protected $base_controller_name = 'BaseController';
 
     public function handle()
     {
         $model_map = $this->getModelMapList(Tools::scanFile(app_path('Models')), '\\App\\Models');
         file_put_contents(config_path('model_map.php'), "<?php   \nreturn " . var_export($model_map, true) . ';');
 
-        $BaseControllerDoc = '/**' . PHP_EOL . ' * 控制器类' . PHP_EOL;
+        $BaseControllerDoc = '/**' . PHP_EOL . ' * 模型映射类' . PHP_EOL . ' *' . PHP_EOL;
         array_walk($model_map, function ($modelClass, $modelAlias) use (&$BaseControllerDoc) {
-            $BaseControllerDoc .= " * @property {$modelClass} \${$modelAlias} " . basename($modelClass) . PHP_EOL;
+            $BaseControllerDoc .= " * @property {$modelClass} \${$modelAlias} " . class_basename($modelClass) . PHP_EOL;
         });
-        $BaseControllerDoc .= ' * Class ' . $this->base_controller_name . PHP_EOL . ' */';
+        $BaseControllerDoc .= ' * Class ModelMap' . PHP_EOL . ' */';
 
-        $BaseControllerFilePath = app_path('Http/Controllers/' . $this->base_controller_name . '.php');
+        $BaseControllerFilePath = app_path('Utils/Register/ModelMap.php');
         $BaseControllerContent = file_get_contents($BaseControllerFilePath);
 
-        file_put_contents($BaseControllerFilePath, preg_replace('/(\/\*\*[^\/]+\/)?\s*class ' . $this->base_controller_name . '/', $BaseControllerDoc . PHP_EOL . 'class ' . $this->base_controller_name, $BaseControllerContent));
+        file_put_contents($BaseControllerFilePath, preg_replace('/(\/\*\*[^\/]+\/)?\s*class ModelMap/', $BaseControllerDoc . PHP_EOL . 'class ModelMap', $BaseControllerContent));
+
+
         // 指令输出
         $this->info('生成模型类映射完成！');
         return 0;
@@ -55,10 +56,10 @@ class ModelMap extends Command
                 $modelClassName = str_replace('.php', '', $item);
                 $modelClass = "{$namespace}\\{$modelClassName}";
                 if (!class_exists($modelClass)) continue;
-                if (in_array(ltrim($modelClass, '\\'), [
-                    BaseModel::class,
-                    AuthModel::class,
-                ])) continue;
+                // if (in_array(ltrim($modelClass, '\\'), [
+                //     BaseModel::class,
+                //     AuthModel::class,
+                // ])) continue;
                 $modelAlias = Tools::modelAlias($modelClass, 'model');
                 $model_list[$modelAlias] = $modelClass;
             }

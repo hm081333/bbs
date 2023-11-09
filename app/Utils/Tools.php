@@ -1132,6 +1132,16 @@ class Tools
     {
         return new Qiniu();
     }
+
+    /**
+     * 模型映射器
+     * @return \App\Utils\Register\ModelMap
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public static function model()
+    {
+        return app()->make(\App\Utils\Register\ModelMap::class);
+    }
     // endregion
 
     // region 压缩解压缩二进制

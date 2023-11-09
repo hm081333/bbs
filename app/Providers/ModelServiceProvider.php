@@ -16,6 +16,28 @@ use function request;
 class ModelServiceProvider extends ServiceProvider
 {
     /**
+     * 注册所有的应用服务
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->app->singleton(\App\Utils\Register\ModelMap::class, function ($app) {
+            return new \App\Utils\Register\ModelMap();
+        });
+    }
+
+    /**
+     * 获取服务提供者的服务
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return [\App\Utils\Register\ModelMap::class];
+    }
+
+    /**
      * Bootstrap services.
      *
      * @return void
