@@ -8,17 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * 模型映射类
  *
- * @property \App\Models\AuthModel $modelAuthModel AuthModel
- * @property \App\Models\BaiduId $modelBaiduId BaiduId
- * @property \App\Models\BaseModel $modelBaseModel BaseModel
- * @property \App\Models\File $modelFile File
- * @property \App\Models\Fund\Fund $modelFundFund Fund
- * @property \App\Models\Fund\FundNetValue $modelFundFundNetValue FundNetValue
- * @property \App\Models\Fund\FundValuation $modelFundFundValuation FundValuation
- * @property \App\Models\Option $modelOption Option
- * @property \App\Models\OptionItem $modelOptionItem OptionItem
- * @property \App\Models\User $modelUser User
- * @property \App\Models\UserFund $modelUserFund UserFund
+ * @property \App\Models\AuthModel $AuthModel AuthModel
+ * @property \App\Models\BaiduId $BaiduId BaiduId
+ * @property \App\Models\BaseModel $BaseModel BaseModel
+ * @property \App\Models\File $File File
+ * @property \App\Models\Fund\Fund $FundFund Fund
+ * @property \App\Models\Fund\FundNetValue $FundFundNetValue FundNetValue
+ * @property \App\Models\Fund\FundValuation $FundFundValuation FundValuation
+ * @property \App\Models\Option $Option Option
+ * @property \App\Models\OptionItem $OptionItem OptionItem
+ * @property \App\Models\User $User User
+ * @property \App\Models\UserFund $UserFund UserFund
  * Class ModelMap
  */
 class ModelMap
@@ -31,48 +31,29 @@ class ModelMap
 
     public function __construct()
     {
-        $this->model_map = config('model_map', []);
-        $this->model_column_map = config('model_column_map', []);
+        $this->config = config('model_map', []);
     }
 
     public function __get($name)
     {
         $names = explode('_', $name);
-        $model_name = $names[0] ?? '';
-        if (!empty($names[1])) {
-            if ($names[1] == 'columns' || $names[1] == 'column') {
-                if (isset($this->model_column_map[$model_name])) {
-                    $model_columns = $this->model_column_map[$model_name];
-                    if (!empty($names[2]) && ($names[2] == 'key' || $names[2] == 'name')) return array_keys($model_columns);
-                    return $model_columns;
+        $model_alias = $names[0] ?? '';
+        if (isset($this->config[$model_alias])) {
+            $model_info = $this->config[$model_alias];
+            if (!empty($names[1])) {
+                if ($names[1] == 'columns' || $names[1] == 'column') {
+                    if (isset($model_info['column'])) {
+                        if (!empty($names[2]) && ($names[2] == 'key' || $names[2] == 'name')) return array_keys($model_info['column']);
+                        return $model_info['column'];
+                    }
+                } else if ($names[1] == 'table') {
+                    return empty($names[2]) ? $model_info['table'] : $model_info['table_full_name'];
                 }
-            } else if ($names[1] == 'table') {
-                $model = $this->getModel($model_name, false);
-                return (!empty($names[2]) ? $model->getConnection()->getTablePrefix() : '') . $model->getTable();
             }
-        }
-        return $this->getModel($model_name);
-    }
-
-    /**
-     * 获取模型实例
-     *
-     * @param string $model_name 模型别名
-     * @param bool   $new_model  是否克隆返回新实例
-     *
-     * @return Model
-     * @throws InternalServerErrorException
-     */
-    private function getModel(string $model_name, bool $new_model = true): Model
-    {
-        if (isset($this->model_map[$model_name])) {
-            $model_class = $this->model_map[$model_name];
-            if (class_exists($model_class)) {
-                $this->$model_name = new $model_class;
-                return $new_model ? clone $this->$model_name : $this->$model_name;
-            }
+            if (class_exists($model_info['model'])) return new $model_info['model'];
         }
         throw new InternalServerErrorException('非法调用不存在函数');
     }
+
 
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\Request\BadRequestException;
 use App\Traits\Auth\UserAuth;
 use App\Traits\JsonResponses;
+use App\Utils\Tools;
 use App\Utils\ValidateRule;
 use Exception;
 use Illuminate\Contracts\Auth\Guard;
@@ -36,11 +37,8 @@ class BaseController extends \Illuminate\Routing\Controller
     public function __get($name)
     {
         if (str_contains($name, 'model')) {
-            $model_class = config("model_map.{$name}");
-            if (class_exists($model_class)) {
-                $this->$name = new $model_class;
-                return $this->$name;
-            }
+            $name = str_replace('model', '', $name);
+            return Tools::model()->$name;
         }
         throw new Exception('非法调用不存在函数');
     }

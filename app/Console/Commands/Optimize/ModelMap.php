@@ -6,6 +6,7 @@ use App\Models\AuthModel;
 use App\Models\BaseModel;
 use App\Utils\Tools;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Schema;
 use function app_path;
 
 class ModelMap extends Command
@@ -17,12 +18,13 @@ class ModelMap extends Command
     public function handle()
     {
         $model_map = $this->getModelMapList(Tools::scanFile(app_path('Models')), '\\App\\Models');
-        file_put_contents(config_path('model_map.php'), "<?php   \nreturn " . var_export($model_map, true) . ';');
+        $this->saveModelMap($model_map);
 
         $BaseControllerDoc = '/**' . PHP_EOL . ' * 模型映射类' . PHP_EOL . ' *' . PHP_EOL;
-        array_walk($model_map, function ($modelClass, $modelAlias) use (&$BaseControllerDoc) {
-            $BaseControllerDoc .= " * @property {$modelClass} \${$modelAlias} " . class_basename($modelClass) . PHP_EOL;
-        });
+        foreach ($model_map as $modelAlias => $modelInfo) {
+            $BaseControllerDoc .= " * @property {$modelInfo['model']} \${$modelAlias} " . class_basename($modelInfo['model']) . PHP_EOL;
+
+        }
         $BaseControllerDoc .= ' * Class ModelMap' . PHP_EOL . ' */';
 
         $BaseControllerFilePath = app_path('Utils/Register/ModelMap.php');
@@ -56,15 +58,60 @@ class ModelMap extends Command
                 $modelClassName = str_replace('.php', '', $item);
                 $modelClass = "{$namespace}\\{$modelClassName}";
                 if (!class_exists($modelClass)) continue;
-                // if (in_array(ltrim($modelClass, '\\'), [
-                //     BaseModel::class,
-                //     AuthModel::class,
-                // ])) continue;
-                $modelAlias = Tools::modelAlias($modelClass, 'model');
-                $model_list[$modelAlias] = $modelClass;
+                /* @var $modelInstance \Illuminate\Database\Eloquent\Model */
+                $modelInstance = new $modelClass([], false);
+                /*if (in_array($modelInstance::class, [
+                    BaseModel::class,
+                    AuthModel::class,
+                ])) continue;*/
+                // $modelAlias = Tools::modelAlias($modelClass, 'model');
+                $modelAlias = Tools::modelAlias($modelInstance);
+                $table_prefix = $modelInstance->getConnection()->getTablePrefix();
+                $table_name_without_prefix = $modelInstance->getTable();
+                $table_columns = [];
+                foreach (Schema::getColumnListing($table_name_without_prefix) as $column_name) {
+                    $table_columns[$column_name] = $this->identifyColumnType($column_name, Schema::getColumnType($table_name_without_prefix, $column_name));
+                }
+                $model_list[$modelAlias] = [
+                    'model' => $modelClass,
+                    'table' => $table_name_without_prefix,
+                    'table_full_name' => $table_prefix . $table_name_without_prefix,
+                    'column' => $table_columns,
+                ];
             }
         }
         return $model_list;
+    }
+
+    /**
+     * 保存模型映射
+     *
+     * @param array $model_map
+     *
+     * @return false|int
+     */
+    private function saveModelMap(array $model_map): bool|int
+    {
+        return file_put_contents(config_path('model_map.php'), "<?php   \nreturn " . var_export($model_map, true) . ';');
+    }
+
+    /**
+     * 重定义字段类型
+     *
+     * @param string $column_name 字段名
+     * @param string $column_type 字段类型
+     *
+     * @return string
+     */
+    private function identifyColumnType(string $column_name, string $column_type): string
+    {
+        // if ($column_type == 'bigint') return 'integer';
+        return $column_type;
+        //region 时间类型
+        if (str_ends_with($column_name, '_at') || str_ends_with($column_name, '_time')) {
+            dd($column_name, $column_type);
+        }
+        //endregion
     }
 
 }
