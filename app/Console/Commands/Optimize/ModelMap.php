@@ -17,13 +17,14 @@ class ModelMap extends Command
 
     public function handle()
     {
+        $this->info($this->description . '...');
+
         $model_map = $this->getModelMapList(Tools::scanFile(app_path('Models')), '\\App\\Models');
         $this->saveModelMap($model_map);
 
         $BaseControllerDoc = '/**' . PHP_EOL . ' * 模型映射类' . PHP_EOL . ' *' . PHP_EOL;
         foreach ($model_map as $modelAlias => $modelInfo) {
-            $BaseControllerDoc .= " * @property {$modelInfo['model']} \${$modelAlias} " . class_basename($modelInfo['model']) . PHP_EOL;
-
+            $BaseControllerDoc .= " * @property {$modelInfo['model']} \${$modelAlias} " . ltrim($modelInfo['model'], '\\') . PHP_EOL;
         }
         $BaseControllerDoc .= ' * Class ModelMap' . PHP_EOL . ' */';
 
@@ -32,9 +33,8 @@ class ModelMap extends Command
 
         file_put_contents($BaseControllerFilePath, preg_replace('/(\/\*\*[^\/]+\/)?\s*class ModelMap/', $BaseControllerDoc . PHP_EOL . 'class ModelMap', $BaseControllerContent));
 
-
         // 指令输出
-        $this->info('生成模型类映射完成！');
+        $this->info($this->description . '完成！');
         return 0;
     }
 
@@ -60,10 +60,11 @@ class ModelMap extends Command
                 if (!class_exists($modelClass)) continue;
                 /* @var $modelInstance \Illuminate\Database\Eloquent\Model */
                 $modelInstance = new $modelClass([], false);
-                /*if (in_array($modelInstance::class, [
+                if (in_array($modelInstance::class, [
                     BaseModel::class,
                     AuthModel::class,
-                ])) continue;*/
+                ])) continue;
+                $this->info($modelClass);// 打印当前处理模型类名
                 // $modelAlias = Tools::modelAlias($modelClass, 'model');
                 $modelAlias = Tools::modelAlias($modelInstance);
                 $table_prefix = $modelInstance->getConnection()->getTablePrefix();

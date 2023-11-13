@@ -1,14 +1,5 @@
 <?php   
 return array (
-  'AuthModel' => 
-  array (
-    'model' => '\\App\\Models\\AuthModel',
-    'table' => 'auth_models',
-    'table_full_name' => 'ly_auth_models',
-    'column' => 
-    array (
-    ),
-  ),
   'BaiduId' => 
   array (
     'model' => '\\App\\Models\\BaiduId',
@@ -20,15 +11,6 @@ return array (
       'created_at' => 'integer',
       'updated_at' => 'integer',
       'deleted_at' => 'integer',
-    ),
-  ),
-  'BaseModel' => 
-  array (
-    'model' => '\\App\\Models\\BaseModel',
-    'table' => 'base_models',
-    'table_full_name' => 'ly_base_models',
-    'column' => 
-    array (
     ),
   ),
   'File' => 

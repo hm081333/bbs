@@ -3,22 +3,19 @@
 namespace App\Utils\Register;
 
 use App\Exceptions\Server\InternalServerErrorException;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * 模型映射类
  *
- * @property \App\Models\AuthModel $AuthModel AuthModel
- * @property \App\Models\BaiduId $BaiduId BaiduId
- * @property \App\Models\BaseModel $BaseModel BaseModel
- * @property \App\Models\File $File File
- * @property \App\Models\Fund\Fund $FundFund Fund
- * @property \App\Models\Fund\FundNetValue $FundFundNetValue FundNetValue
- * @property \App\Models\Fund\FundValuation $FundFundValuation FundValuation
- * @property \App\Models\Option $Option Option
- * @property \App\Models\OptionItem $OptionItem OptionItem
- * @property \App\Models\User $User User
- * @property \App\Models\UserFund $UserFund UserFund
+ * @property \App\Models\BaiduId $BaiduId App\Models\BaiduId
+ * @property \App\Models\File $File App\Models\File
+ * @property \App\Models\Fund\Fund $FundFund App\Models\Fund\Fund
+ * @property \App\Models\Fund\FundNetValue $FundFundNetValue App\Models\Fund\FundNetValue
+ * @property \App\Models\Fund\FundValuation $FundFundValuation App\Models\Fund\FundValuation
+ * @property \App\Models\Option $Option App\Models\Option
+ * @property \App\Models\OptionItem $OptionItem App\Models\OptionItem
+ * @property \App\Models\User $User App\Models\User
+ * @property \App\Models\UserFund $UserFund App\Models\UserFund
  * Class ModelMap
  */
 class ModelMap
