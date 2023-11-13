@@ -23,8 +23,7 @@ class ModelMap
     /**
      * @var \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|array
      */
-    private array $model_map;
-    private array $model_column_map;
+    private array $config;
 
     public function __construct()
     {
