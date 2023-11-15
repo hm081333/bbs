@@ -9,6 +9,7 @@ use App\Utils\Juhe\Calendar;
 use App\Utils\Tools;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class FundValuationUpdate extends Command
 {
@@ -82,11 +83,20 @@ class FundValuationUpdate extends Command
             //endregion
             //region 匹配表格内容
             preg_match('/<table>.*?<\/table>/', $page_content, $matches);
+            if (empty($matches[0])){
+                Log::debug($current_page);
+                Log::debug($page_content);
+                continue;
+            }
             //dd($matches);
             $table = $matches[0];
             preg_match_all('/<tr[^>]*>(.*?)<\/tr>/', $table, $matches);
-            $tds = $matches[1];
-            foreach ($tds as $index => $td) {
+            if (empty($matches[1])){
+                Log::debug($current_page);
+                Log::debug($page_content);
+                continue;
+            }
+            foreach ($matches[1] as $index => $td) {
                 preg_match_all('/<td[^>]*>(.*?)<\/td>/', $td, $matches);
                 $values = array_map(function ($value) {
                     return strip_tags($value);
