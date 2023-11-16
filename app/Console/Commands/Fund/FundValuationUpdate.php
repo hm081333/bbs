@@ -5,9 +5,11 @@ namespace App\Console\Commands\Fund;
 use App\Jobs\FundNetValueUpdateJob;
 use App\Jobs\FundUpdateJob;
 use App\Jobs\FundValuationUpdateJob;
+use App\Models\Fund\Fund;
 use App\Utils\Juhe\Calendar;
 use App\Utils\Tools;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -54,6 +56,18 @@ class FundValuationUpdate extends Command
             $this->comment('不在基金开门时间');
             return Command::SUCCESS;
         }
+        $this->_dayfund();
+        // $this->_eastmoney();
+        return Command::SUCCESS;
+    }
+
+    /**
+     * 基金速查网
+     * @return void
+     * @throws \Exception
+     */
+    private function _dayfund()
+    {
         $valuation_source = 'https://www.dayfund.cn/prevalue.html';
         $table_headers = [
             '序号',
@@ -75,23 +89,23 @@ class FundValuationUpdate extends Command
                 ])
                 ->get("https://www.dayfund.cn/prevalue_{$current_page}.html");
             $page_content = str_replace(["\r", "\n", "\r\n", "<br/>"], '', $page_content);
-            //region 匹配页码
+            // region 匹配页码
             if ($max_page == 1) {
                 preg_match_all('/prevalue_(\d+).html/', $page_content, $matches);
                 if (!empty($matches[1])) $max_page = (int)max($matches[1]);
             }
-            //endregion
-            //region 匹配表格内容
+            // endregion
+            // region 匹配表格内容
             preg_match('/<table>.*?<\/table>/', $page_content, $matches);
-            if (empty($matches[0])){
+            if (empty($matches[0])) {
                 Log::debug($current_page);
                 Log::debug($page_content);
                 continue;
             }
-            //dd($matches);
+            // dd($matches);
             $table = $matches[0];
             preg_match_all('/<tr[^>]*>(.*?)<\/tr>/', $table, $matches);
-            if (empty($matches[1])){
+            if (empty($matches[1])) {
                 Log::debug($current_page);
                 Log::debug($page_content);
                 continue;
@@ -119,10 +133,63 @@ class FundValuationUpdate extends Command
                     }
                 }
             }
-            //endregion
+            // endregion
             // sleep(1);
             usleep(500);
         }
-        return Command::SUCCESS;
     }
+
+    private function _eastmoney()
+    {
+        $client = new \GuzzleHttp\Client([
+            'base_uri' => 'https://fundgz.1234567.com.cn/js/',
+            'timeout' => 10,
+            'verify' => false,
+        ]);
+        $options = [
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
+                'Referer' => 'https://fund.eastmoney.com/',
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ],
+        ];
+        $responses = [];
+        Fund::chunk(500, function (Collection $fund_list) use ($client, $options, &$responses) {
+            $promises = [];
+            $fund_list->each(function (Fund $fund) use ($client, $options, &$promises, &$responses) {
+                $this->info($fund->code);
+                $promises[$fund->code] = $client->getAsync($fund->code . '.js', $options);
+            });
+            $path_responses = \GuzzleHttp\Promise\Utils::settle($promises)->wait();
+            $responses = array_merge($responses, $path_responses);
+        });
+        // $this->info('并发请求数量：' . count($promises));
+        // 等待全部请求返回,如果其中一个请求失败会抛出异常
+        // $responses = \GuzzleHttp\Promise\Utils::unwrap($promises);
+        // 等待全部请求返回,允许某些请求失败
+        // $responses = \GuzzleHttp\Promise\Utils::settle($promises)->wait();
+        $this->info('并发请求响应数量：' . count($responses));
+        $this->info('并发请求成功响应数量：' . count(array_filter($responses, fn($response) => $response['state'] == 'fulfilled')));
+        // 处理响应
+        // $responses->each(function ($response, $fund_code) {
+        //     $this->info($fund_code);
+        //     if ($response['state'] != 'fulfilled') $this->info($response['state']);
+        //     /* @var $response_value \GuzzleHttp\Psr7\Response */
+        //     /*$response_value = $response['value'];
+        //     $result = $response_value->getBody()->getContents();
+        //     preg_match('/{[^}]*}/', $result, $matches);
+        //     if (!empty($matches)) {
+        //         $data = \App\Utils\Tools::jsonDecode($matches[0]);
+        //         FundValuationUpdateJob::dispatch([
+        //             'code' => $data['fundcode'],
+        //             'valuation_time' => $data['gztime'],
+        //             'valuation_source' => 'https://fundgz.1234567.com.cn/js/{fundCode}.js',
+        //             'estimated_net_value' => $data['gsz'],
+        //         ]);
+        //     }*/
+        // });
+
+    }
+
 }

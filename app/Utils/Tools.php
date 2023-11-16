@@ -334,7 +334,7 @@ class Tools
      */
     public static function now(): \Carbon\Carbon
     {
-        return static::timeToCarbon(date('Y-m-d H:i:s', static::time()));
+        return static::timeToCarbon(static::time());
     }
 
     /**
