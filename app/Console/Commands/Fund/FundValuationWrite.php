@@ -66,7 +66,7 @@ class FundValuationWrite extends Command
                 FundValuation::where('valuation_time', '>=', Tools::now()->startOfDay()->timestamp)
                     ->where('valuation_time', '<=', Tools::now()->endOfDay()->timestamp)
                     ->select(['id', 'fund_id', 'valuation_time', 'valuation_source'])
-                    ->chunk(5000, function (Collection $fund_valuation_list) use ($fund_valuation_set_key) {
+                    ->chunk($this->once_write_count, function (Collection $fund_valuation_list) use ($fund_valuation_set_key) {
                         $fund_valuation_list->each(function (FundValuation $fund_valuation) use ($fund_valuation_set_key) {
                             $fund_valuation_cache_key = $this->getFundValuationCacheKey($fund_valuation);
                             $this->info($fund_valuation->id);
@@ -85,9 +85,10 @@ class FundValuationWrite extends Command
                             Redis::sadd($fund_valuation_set_key, $fund_valuation_cache_key);
                             return !$exists;
                         });
+                        $count = count($inserts);
                         // 数据库不存在的估值写入到待写入集合
                         Redis::sadd($this->redis_key, ...$inserts);
-                        $this->info('成功|写入|' . count($inserts) . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
+                        $this->info('成功|写入|' . $count . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
                     } catch (\Exception $e) {
                         $this->info('失败|写入|' . count($failed_list) . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
                         $this->error($e->getMessage());
