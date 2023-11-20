@@ -62,27 +62,20 @@ class FundValuationWrite extends Command
         } else if ($this->option('delete-exists')) {
             $this->comment('删除集合中重复估值');
             if (Redis::exists($this->failed_redis_key)) {
-                $fund_valuation_set_key = 'fund:valuation:' . Tools::now()->format('Ymd');
-                FundValuation::where('valuation_time', '>=', Tools::now()->startOfDay()->timestamp)
-                    ->where('valuation_time', '<=', Tools::now()->endOfDay()->timestamp)
-                    ->select(['id', 'fund_id', 'valuation_time', 'valuation_source'])
-                    ->chunk($this->once_write_count, function (Collection $fund_valuation_list) use ($fund_valuation_set_key) {
-                        $fund_valuation_list->each(function (FundValuation $fund_valuation) use ($fund_valuation_set_key) {
-                            $fund_valuation_cache_key = $this->getFundValuationCacheKey($fund_valuation);
-                            $this->info($fund_valuation->id);
-                            Redis::sadd($fund_valuation_set_key, $fund_valuation_cache_key);
-                            if (Redis::ttl($fund_valuation_set_key) < 0) Redis::expireat($fund_valuation_set_key, Tools::today()->addDay()->timestamp);
-                        });
-                    });
                 while (!empty($failed_list = Redis::spop($this->failed_redis_key, $this->once_write_count))) {
                     $start_time = microtime(true);
                     try {
-                        $inserts = array_filter($failed_list, function ($value) use ($fund_valuation_set_key) {
-                            $fund_valuation_cache_key = $this->getFundValuationCacheKey(Tools::jsonDecode($value));
-                            // 获取今天是否写入
-                            $exists = Redis::sismember($fund_valuation_set_key, $fund_valuation_cache_key);
+                        $inserts = array_filter($failed_list, function ($value) {
+                            $value = Tools::jsonDecode($value);
+                            $fund_valuation_set_key = 'fund:valuation:' . Tools::timeToCarbon($value['valuation_time'])->format('Ymd');
+                            // 获取估值是否写入
+                            $exists = FundValuation::where('fund_id', $value['fund_id'])
+                                    ->where('valuation_time', $value['valuation_time'])
+                                    ->where('valuation_source', $value['valuation_source'])
+                                    ->count() > 0;
                             // 插入集合，标记为已写入
-                            Redis::sadd($fund_valuation_set_key, $fund_valuation_cache_key);
+                            Redis::sadd($fund_valuation_set_key, $this->getFundValuationCacheKey($value));
+                            if (Redis::ttl($fund_valuation_set_key) < 0) Redis::expireat($fund_valuation_set_key, Tools::today()->addDay()->timestamp);
                             return !$exists;
                         });
                         $count = count($inserts);

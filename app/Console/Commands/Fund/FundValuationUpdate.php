@@ -8,11 +8,17 @@ use App\Jobs\FundValuationUpdateJob;
 use App\Models\Fund\Fund;
 use App\Utils\Juhe\Calendar;
 use App\Utils\Tools;
+use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Promise\Utils;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Psr\Http\Message\ResponseInterface;
 
 class FundValuationUpdate extends Command
 {
@@ -58,7 +64,7 @@ class FundValuationUpdate extends Command
             Calendar::isHoliday($now_time)
         ) {
             $this->comment('不在基金开门时间');
-            // return Command::SUCCESS;
+            return Command::SUCCESS;
         }
         if ($this->option('eastmoney')) {
             $this->_eastmoney();
@@ -74,7 +80,7 @@ class FundValuationUpdate extends Command
     /**
      * 基金速查网
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     private function _dayfund()
     {
@@ -92,8 +98,8 @@ class FundValuationUpdate extends Command
         ];
         $max_page = 1;
         for ($current_page = 1; $current_page <= $max_page; $current_page++) {
-            $response = $this->single_http_get('https://www.dayfund.cn/', "prevalue_{$current_page}.html", [], [
-                'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+            $response = $this->single_http_get('https://www.dayfund.cn/', "prevalue_{$current_page}.html", [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
             ], 6);
             $page_content = str_replace(["\r", "\n", "\r\n", "<br/>"], '', $response->getBody()->getContents());
             // region 匹配页码
@@ -151,15 +157,10 @@ class FundValuationUpdate extends Command
      */
     private function _eastmoney()
     {
-        $client = new \GuzzleHttp\Client([
-            'base_uri' => 'https://fundgz.1234567.com.cn/js/',
-            'timeout' => 5,
-            'verify' => false,
-        ]);
         $try_list = Fund::select(['code'])
             ->pluck('code');
         while ($try_list->isNotEmpty()) {
-            $try_list = $this->_eastmoney_request($client, $try_list);
+            $try_list = $this->_eastmoney_request($try_list);
             $this->info('并发请求失败数量：' . $try_list->count());
         }
         // $this->info('并发请求数量：' . count($promises));
@@ -169,45 +170,30 @@ class FundValuationUpdate extends Command
         // $responses = \GuzzleHttp\Promise\Utils::settle($promises)->wait();
     }
 
-    private function _eastmoney_request(\GuzzleHttp\Client $client, \Illuminate\Support\Collection $codes)
+    private function _eastmoney_request(Collection $codes)
     {
         $retry_list = collect();
         $codes->chunk(500)
-            ->each(function (\Illuminate\Support\Collection $fund_codes) use ($client, &$retry_list) {
-                $promises = [];
-                $fund_codes->each(function (string $fund_code) use ($client, &$promises, &$retry_list) {
-                    // $this->info($fund_code);
-                    $promises[$fund_code] = $client->getAsync($fund_code . '.js', [
-                        'headers' => [
-                            'User-Agent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
-                            'Referer' => 'https://fund.eastmoney.com/',
-                        ],
-                    ]);
-                });
-                // $this->info('本次并发请求数量：' . count($promises));
-                $path_responses = \GuzzleHttp\Promise\Utils::settle($promises)->wait();
-
-                // $this->info('本次并发请求成功响应数量：' . count(array_filter($path_responses, fn($response) => $response['state'] == 'fulfilled')));
-                $this->info('本次并发请求失败响应数量：' . count(array_filter($path_responses, fn($response) => $response['state'] != 'fulfilled')));
-
-                $retry_list = $retry_list->merge(array_keys(array_filter($path_responses, fn($response) => $response['state'] != 'fulfilled')));
+            ->each(function (Collection $fund_codes) use (&$retry_list) {
+                $responses = $this->multi_http_get('https://fundgz.1234567.com.cn/js/', $fund_codes->combine($fund_codes->map(fn(string $fund_code) => $fund_code . '.js')), [
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
+                    'Referer' => 'https://fund.eastmoney.com/',
+                ], 6);
                 // 处理响应
-                $this->_eastmoney_handle(array_filter($path_responses, fn($response) => $response['state'] == 'fulfilled'));
+                $this->_eastmoney_handle($responses['fulfilled']);
             });
         return $retry_list;
     }
 
-    private function _eastmoney_handle(array $responses)
+    private function _eastmoney_handle(array|Collection $responses)
     {
-        collect($responses)->each(function ($response, $fund_code) {
+        if (is_array($responses)) $responses = collect($responses);
+        $responses->each(function (\GuzzleHttp\Psr7\Response $response, $fund_code) {
             // $this->info($fund_code);
-            if ($response['state'] != 'fulfilled') $this->info($response['state']);
-            /* @var $response_value \GuzzleHttp\Psr7\Response */
-            $response_value = $response['value'];
-            $result = $response_value->getBody()->getContents();
+            $result = $response->getBody()->getContents();
             preg_match('/{[^}]*}/', $result, $matches);
             if (!empty($matches)) {
-                $data = \App\Utils\Tools::jsonDecode($matches[0]);
+                $data = Tools::jsonDecode($matches[0]);
                 FundValuationUpdateJob::dispatch([
                     'code' => $data['fundcode'],
                     'valuation_time' => $data['gztime'],
@@ -219,40 +205,96 @@ class FundValuationUpdate extends Command
     }
 
     /**
+     * 构建GuzzleHttp客户端
+     * @param string $base_uri
+     * @return Client
+     */
+    private function build_http_client(string $base_uri, array $headers = [])
+    {
+        $base_uri = rtrim($base_uri, '/');
+        $base_uri_key = urlencode($base_uri);
+        if (!isset($this->client[$base_uri_key])) $this->client[$base_uri_key] = new Client([
+            'base_uri' => $base_uri . '/',
+            'connect_timeout' => 2,
+            'timeout' => 5,
+            'verify' => false,
+            'headers' => $headers,
+        ]);
+        return $this->client[$base_uri_key];
+    }
+
+    /**
      * 单个http get请求
      * @param string $base_uri 接口url
      * @param string $path 接口
      * @param array $params 请求参数
      * @param array $headers 请求头
      * @param int $retryTimes 重试次数
-     * @return \GuzzleHttp\Psr7\Response
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @return Response|ResponseInterface
+     * @throws GuzzleException
      */
-    private function single_http_get(string $base_uri, string $path, array $params = [], array $headers = [], int $retryTimes = 5): \GuzzleHttp\Psr7\Response
+    private function single_http_get(string $base_uri, string $path, array $headers = [], int $retryTimes = 5): Response|ResponseInterface
     {
-        if ($retryTimes <= 0) $retryTimes = 1;
-        $base_uri = rtrim($base_uri, '/');
-        $base_uri_key = urlencode($base_uri);
-        if (!isset($this->client[$base_uri_key])) {
-            $this->client[$base_uri_key] = new Client([
-                'base_uri' => $base_uri . '/',
-                'timeout' => 10,
-                'verify' => false,
-            ]);
-        }
-        $url = Tools::urlRebuild($base_uri . '/' . ltrim($path, '/'), $params);
-        $path = ltrim(str_replace($base_uri, '', $url), '/');
-        for ($i = 0; $i < $retryTimes; $i++) {
+        $retryTimes = max($retryTimes, 0);
+        // $url = Tools::urlRebuild($base_uri . '/' . ltrim($path, '/'), $params);
+        // $path = ltrim(str_replace($base_uri, '', $url), '/');
+        do {
             try {
-                $response = $this->client[$base_uri_key]->get($path, [
-                    'headers' => $headers,
-                ]);
-                if ($response->getStatusCode() == 200) break;
-            } catch (\Exception $e) {
+                $response = $this->build_http_client($base_uri, $headers)->get($path);
+                if ($response->getStatusCode() == 200) return $response;
+            } catch (Exception $e) {
                 $this->error($e->getMessage());
             }
+        } while ($retryTimes >= 0);
+        return new Response;
+    }
+
+    /**
+     * 多个http并发 get请求
+     * @param string $base_uri 接口url
+     * @param array|Collection $paths 接口
+     * @param array $params 请求参数
+     * @param array $headers 请求头
+     * @param int $retryTimes 重试次数
+     * @return array
+     */
+    private function multi_http_get(string $base_uri, array|\Illuminate\Support\Collection $paths, array $headers = [], int $retryTimes = 5): array
+    {
+        $successfully = collect();
+        $retryTimes = max($retryTimes, 0);
+        if (is_array($paths)) $paths = collect($paths);
+        if ($paths->isNotEmpty()) {
+            do {
+                $promises = $paths->map(fn($path) => $this->build_http_client($base_uri, $headers)->getAsync($path));
+                $this->info('本次并发请求数量：' . $promises->count());
+                // 等待全部请求返回,如果其中一个请求失败会抛出异常
+                // $responses = \GuzzleHttp\Promise\Utils::unwrap($promises);
+                // 等待全部请求返回,允许某些请求失败
+                $responses = Utils::settle($promises->toArray())->wait();
+                $responses = collect($responses);
+                unset($promises);
+                // 成功列表
+                $fulfilled = $responses->where('state', 'fulfilled');
+                // 失败列表
+                $rejected = $responses->where('state', 'rejected');
+                unset($responses);
+                $this->info('本次并发请求成功响应数量：' . $fulfilled->count());
+                $this->info('本次并发请求失败响应数量：' . $rejected->count());
+                unset($rejected);
+                // 追加成功列表
+                $successfully = $successfully->merge($fulfilled->mapWithKeys(fn($item, $key) => [$key => $item['value']]));
+                // 匹配成功列表不存在的合集，返回未成功请求的path
+                $paths = $paths->diffKeys($fulfilled);
+                // 重试次数减一
+                $retryTimes--;
+            } while ($paths->isNotEmpty() && $retryTimes >= 0);
         }
-        return $response ?? new \GuzzleHttp\Psr7\Response;
+        return [
+            // 成功响应集合
+            'fulfilled' => $successfully,
+            // 失败请求集合
+            'rejected' => $paths,
+        ];
     }
 
 }

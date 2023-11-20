@@ -74,7 +74,7 @@ class FundValuationUpdateJob implements ShouldQueue
             $fund_valuation_filter = [
                 'fund_id' => $fund->id,
                 'valuation_time' => $this->valuation_time->timestamp,
-                'valuation_source' => $this->fundValuationData['valuation_source'],
+                'valuation_source' => urlencode($this->fundValuationData['valuation_source']),
             ];
             $fund_valuation_cache_key = base64_encode(Tools::jsonEncode($fund_valuation_filter));
             $fund_valuation_set_key = 'fund:valuation:' . $this->valuation_time->copy()->format('Ymd');
@@ -99,7 +99,7 @@ class FundValuationUpdateJob implements ShouldQueue
                     // 估值时间
                     'valuation_time' => $this->valuation_time->timestamp,
                     // 估值来源
-                    'valuation_source' => $this->fundValuationData['valuation_source'],
+                    'valuation_source' => urlencode($this->fundValuationData['valuation_source']),
                 ];
                 $insert_data['created_at'] = $insert_data['updated_at'] = $this->dispatchTime;
                 // 计算增长和增长率
