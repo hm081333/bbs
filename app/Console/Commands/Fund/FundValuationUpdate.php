@@ -163,11 +163,6 @@ class FundValuationUpdate extends Command
             $try_list = $this->_eastmoney_request($try_list);
             $this->info('并发请求失败数量：' . $try_list->count());
         }
-        // $this->info('并发请求数量：' . count($promises));
-        // 等待全部请求返回,如果其中一个请求失败会抛出异常
-        // $responses = \GuzzleHttp\Promise\Utils::unwrap($promises);
-        // 等待全部请求返回,允许某些请求失败
-        // $responses = \GuzzleHttp\Promise\Utils::settle($promises)->wait();
     }
 
     private function _eastmoney_request(Collection $codes)
@@ -179,6 +174,9 @@ class FundValuationUpdate extends Command
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
                     'Referer' => 'https://fund.eastmoney.com/',
                 ], 6);
+                $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
+                // 追加失败重试集合
+                $retry_list->merge($responses['rejected']->keys());
                 // 处理响应
                 $this->_eastmoney_handle($responses['fulfilled']);
             });
