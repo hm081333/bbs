@@ -86,8 +86,8 @@ class Tools
      * 产生随机字串，可用来自动生成密码
      * 默认长度6位 字母和数字混合 支持中文
      *
-     * @param string $len      长度
-     * @param string $type     字串类型 0 字母 1 数字 其它 混合
+     * @param string $len 长度
+     * @param string $type 字串类型 0 字母 1 数字 其它 混合
      * @param string $addChars 额外字符
      *
      * @return string
@@ -143,11 +143,11 @@ class Tools
      * @static
      * @access public
      *
-     * @param string $str     需要转换的字符串
-     * @param string $start   开始位置
-     * @param string $length  截取长度
+     * @param string $str 需要转换的字符串
+     * @param string $start 开始位置
+     * @param string $length 截取长度
      * @param string $charset 编码格式
-     * @param string $suffix  截断显示字符
+     * @param string $suffix 截断显示字符
      *
      * @return string
      */
@@ -434,7 +434,7 @@ class Tools
      * @desc 用于控制器层
      *
      * @param Closure $callback 回调函数
-     * @param int     $attempts 重试次数
+     * @param int $attempts 重试次数
      *
      * @return mixed
      * @throws Throwable
@@ -453,7 +453,7 @@ class Tools
      * @desc 用于控制器层
      *
      * @param Closure $callback 回调函数
-     * @param string  $unique   唯一标识
+     * @param string $unique 唯一标识
      *
      * @return mixed
      * @throws BadRequestException
@@ -482,8 +482,8 @@ class Tools
     /**
      * 模型别称
      *
-     * @param Model|string $model  模型
-     * @param string       $prefix 别称前缀
+     * @param Model|string $model 模型
+     * @param string $prefix 别称前缀
      *
      * @return string
      */
@@ -499,7 +499,7 @@ class Tools
      * @param        $left_operand
      * @param string $operator
      * @param        $right_operand
-     * @param int    $scale
+     * @param int $scale
      *
      * @return bool|string|null
      */
@@ -574,7 +574,7 @@ class Tools
      * 重建url，追加参数
      *
      * @param string $url
-     * @param array  $extra_query
+     * @param array $extra_query
      *
      * @return string
      */
@@ -655,7 +655,7 @@ class Tools
     /**
      * 二维数组根据首字母分组排序
      *
-     * @param array  $data      二维数组
+     * @param array $data 二维数组
      * @param string $targetKey 首字母的键名
      *
      * @return array             根据首字母关联的二维数组
@@ -890,39 +890,49 @@ class Tools
      *
      * @param $second_time
      *
-     * @return bool|array
+     * @return array
      */
-    public static function secondToTime($second_time)
+    public static function secondToTime($second_time): array
     {
+        $value = [
+            'years' => 0,
+            'weeks' => 0,
+            'days' => 0,
+            'hours' => 0,
+            'minutes' => 0,
+            'seconds' => 0,
+            'microseconds' => 0,
+        ];
         if (is_numeric($second_time)) {
-            $value = [
-                "years" => 0,
-                "days" => 0,
-                "hours" => 0,
-                "minutes" => 0,
-                "seconds" => 0,
-            ];
-            if ($second_time >= 31556926) {
-                $value["years"] = floor($second_time / 31556926);
-                $second_time = ($second_time % 31556926);
+            //region 设置毫秒，重设秒数
+            $micro = explode('.', $second_time);
+            $second_time = $micro[0];
+            $value['microseconds'] = (int)substr($micro[1] ?? 0, 0, 3);
+            unset($micro);
+            //endregion
+            if ($second_time >= 31536000) {
+                $value['years'] = floor($second_time / 31536000);
+                $second_time = ($second_time % 31536000);
+            }
+            if ($second_time >= 604800) {
+                $value['weeks'] = floor($second_time / 604800);
+                $second_time = ($second_time % 604800);
             }
             if ($second_time >= 86400) {
-                $value["days"] = floor($second_time / 86400);
+                $value['days'] = floor($second_time / 86400);
                 $second_time = ($second_time % 86400);
             }
             if ($second_time >= 3600) {
-                $value["hours"] = floor($second_time / 3600);
+                $value['hours'] = floor($second_time / 3600);
                 $second_time = ($second_time % 3600);
             }
             if ($second_time >= 60) {
-                $value["minutes"] = floor($second_time / 60);
+                $value['minutes'] = floor($second_time / 60);
                 $second_time = ($second_time % 60);
             }
-            $value["seconds"] = floor($second_time);
-            return (array)$value;
-        } else {
-            return (bool)false;
+            $value['seconds'] = floor($second_time);
         }
+        return $value;
     }
 
     /**
@@ -932,10 +942,13 @@ class Tools
      *
      * @return false|string
      */
-    public static function secondToTimeText($second_time)
+    public static function secondToTimeText($second_time, $full_text = false)
     {
         $times = static::secondToTime($second_time);
-        if ($times) return $times["years"] . "年" . $times["days"] . "天" . " " . $times["hours"] . "小时" . $times["minutes"] . "分" . $times["seconds"] . "秒";
+        if ($times) {
+            if ($full_text) return "{$times['years']}年" . "{$times['weeks']}周" . "{$times['days']}天" . "{$times['hours']}时" . "{$times['minutes']}分" . "{$times['seconds']}秒" . ($times['microseconds'] ? "{$times['microseconds']}毫秒" : '');
+            return ($times['years'] ? "{$times['years']}年" : '') . ($times['weeks'] ? "{$times['weeks']}周" : '') . ($times['days'] ? "{$times['days']}天" : '') . ($times['hours'] ? "{$times['hours']}时" : '') . ($times['minutes'] ? "{$times['minutes']}分" : '') . ($times['seconds'] ? "{$times['seconds']}秒" : '') . ($times['microseconds'] ? "{$times['microseconds']}毫秒" : '');
+        }
         return false;
     }
 

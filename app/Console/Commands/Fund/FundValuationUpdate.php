@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Fund;
 
+use App\Exceptions\Server\InternalServerErrorException;
 use App\Jobs\FundNetValueUpdateJob;
 use App\Jobs\FundUpdateJob;
 use App\Jobs\FundValuationUpdateJob;
@@ -19,6 +20,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface;
+use Psr\SimpleCache\InvalidArgumentException;
 
 class FundValuationUpdate extends Command
 {
@@ -37,16 +39,19 @@ class FundValuationUpdate extends Command
      */
     protected $description = '基金：估值更新';
     private array $client = [];
+    private $job_start_time;
 
     /**
      * Execute the console command.
      *
      * @return int
+     * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
      */
     public function handle()
     {
-        $start_time = microtime(true);
-        //$this->comment('获取基金估值列表');
+        $this->job_start_time = microtime(true);
+        $this->comment('获取基金估值');
         $now_time = Tools::now();
         if (
             $now_time->lt(date('Y-m-d 9:25'))
@@ -67,11 +72,13 @@ class FundValuationUpdate extends Command
             return Command::SUCCESS;
         }
         if ($this->option('eastmoney')) {
+            // 天天基金网
             $this->_eastmoney();
         } else {
+            // 基金速查网
             $this->_dayfund();
         }
-        $this->info('执行|' . $this->description . '|耗时：' . ((microtime(true) - $start_time) * 1000) . ' 毫秒');
+        $this->info('完成|' . $this->description . '|耗时：' . Tools::secondToTimeText(microtime(true) - $this->job_start_time));
         // 调起写入命令行
         $this->call('fund:valuation-write');
         return Command::SUCCESS;
@@ -80,74 +87,103 @@ class FundValuationUpdate extends Command
     /**
      * 基金速查网
      * @return void
-     * @throws Exception
+     * @throws GuzzleException
      */
     private function _dayfund()
     {
         $valuation_source = 'https://www.dayfund.cn/prevalue.html';
-        $table_headers = [
-            '序号',
-            '基金代码',
-            '基金名称',
-            '上期单位净值',
-            '最新预估净值',
-            '预估增长值',
-            '预估增长率',
-            '估值时间',
-            '链接',
-        ];
-        $max_page = 1;
-        for ($current_page = 1; $current_page <= $max_page; $current_page++) {
-            $response = $this->single_http_get('https://www.dayfund.cn/', "prevalue_{$current_page}.html", [
+        $table_headers = [];
+        //region 获取页码与表头
+        $retryTimes = 5;
+        $max_page = 0;
+        while ($max_page <= 0 && $retryTimes > 0) {
+            $response = $this->single_http_get('https://www.dayfund.cn/', "prevalue_10000.html", [
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
-            ], 6);
-            $page_content = str_replace(["\r", "\n", "\r\n", "<br/>"], '', $response->getBody()->getContents());
-            // region 匹配页码
-            if ($max_page == 1) {
-                preg_match_all('/prevalue_(\d+).html/', $page_content, $matches);
-                if (!empty($matches[1])) $max_page = (int)max($matches[1]);
-            }
-            // endregion
-            // region 匹配表格内容
-            preg_match('/<table>.*?<\/table>/', $page_content, $matches);
-            if (empty($matches[0])) {
-                Log::debug($current_page);
-                Log::debug($page_content);
-                continue;
-            }
-            $table = $matches[0];
-            preg_match_all('/<tr[^>]*>(.*?)<\/tr>/', $table, $matches);
-            if (empty($matches[1])) {
-                Log::debug($current_page);
-                Log::debug($page_content);
-                continue;
-            }
-            foreach ($matches[1] as $index => $td) {
-                preg_match_all('/<td[^>]*>(.*?)<\/td>/', $td, $matches);
-                $values = array_map(function ($value) {
-                    return strip_tags($value);
-                }, $matches[1]);
-                if ($index == 0) {
-                    $table_headers = $values;
-                    continue;
-                }
-                if (count($values) == count($table_headers)) {
-                    $funds_value = array_combine($table_headers, $values);
-                    //$this->comment("写入基金估值：{$funds_value['估值时间']}-{$funds_value['基金代码']}-{$funds_value['基金名称']}-{$funds_value['最新预估净值']}");
-                    // 只写入当天的估值
-                    if (Carbon::parse($funds_value['估值时间'])->isToday()) {
-                        FundValuationUpdateJob::dispatch([
-                            'code' => $funds_value['基金代码'],
-                            'valuation_time' => $funds_value['估值时间'],
-                            'valuation_source' => $valuation_source,
-                            'estimated_net_value' => $funds_value['最新预估净值'],
-                        ]);
+            ]);
+            // 获取html中body
+            preg_match('/<body>.*?<\/body>/', str_replace(["\r", "\n", "\r\n", "<br/>"], '', $response->getBody()->getContents()), $matches);
+            if (!empty($body = $matches[0] ?? '')) {
+                // region 匹配页码
+                preg_match_all('/prevalue_(\d+).html/', $body, $matches);
+                if (!empty($matches[1])) $max_page = (int)max($matches[1]) + 1;
+                // endregion
+                // region 匹配表格内容
+                preg_match('/<table>.*?<\/table>/', $body, $matches);
+                if (!empty($table = $matches[0])) {
+                    preg_match_all('/<tr[^>]*>(.*?)<\/tr>/', $table, $matches);
+                    if (!empty($matches[1]) && !empty($tr = $matches[1][0])) {
+                        preg_match_all('/<td[^>]*>(.*?)<\/td>/', $tr, $matches);
+                        $table_headers = array_map(function ($value) {
+                            return strip_tags($value);
+                        }, $matches[1]);
                     }
                 }
+                //endregion
             }
-            // endregion
-            // sleep(1);
-            usleep(500);
+            $retryTimes--;
+        }
+        //endregion
+
+        $retryTimes = 5;
+        $all_pages = collect(range(1, $max_page));
+        $all_pages = $all_pages->combine($all_pages->map(fn(string $page) => "prevalue_{$page}.html"));
+        while ($all_pages->isNotEmpty() && $retryTimes > 0) {
+            $all_pages
+                ->chunk(10)
+                ->each(function (Collection $pages) use (&$all_pages, $valuation_source, $table_headers) {
+                    $responses = $this->multi_http_get('https://www.dayfund.cn/', $pages, [
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
+                    ], 6);
+                    $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
+                    // 追加失败重试集合
+                    $all_pages = $all_pages->diffKeys($responses['fulfilled']);
+                    dump($all_pages->toArray());
+                    // 处理响应
+                    $responses['fulfilled']->each(function (\GuzzleHttp\Psr7\Response $response, $current_page) use ($valuation_source, $table_headers) {
+                        $page_content = str_replace(["\r", "\n", "\r\n", "<br/>"], '', $response->getBody()->getContents());
+                        // 获取html中body
+                        preg_match('/<body>.*?<\/body>/', $page_content, $matches);
+                        if (!empty($body = $matches[0] ?? '')) {
+                            // region 匹配表格内容
+                            preg_match('/<table>.*?<\/table>/', $body, $matches);
+                            if (empty($matches[0])) {
+                                Log::debug($current_page);
+                                Log::debug($page_content);
+                                return;
+                            }
+                            $table = $matches[0];
+                            preg_match_all('/<tr[^>]*>(.*?)<\/tr>/', $table, $matches);
+                            if (empty($matches[1])) {
+                                Log::debug($current_page);
+                                Log::debug($page_content);
+                                return;
+                            }
+                            foreach ($matches[1] as $index => $tr) {
+                                preg_match_all('/<td[^>]*>(.*?)<\/td>/', $tr, $matches);
+                                $values = array_map(function ($value) {
+                                    return strip_tags($value);
+                                }, $matches[1]);
+                                if ($index == 0) continue;
+                                if (count($values) == count($table_headers)) {
+                                    $funds_value = array_combine($table_headers, $values);
+                                    //$this->comment("写入基金估值：{$funds_value['估值时间']}-{$funds_value['基金代码']}-{$funds_value['基金名称']}-{$funds_value['最新预估净值']}");
+                                    // 只写入当天的估值
+                                    if (Carbon::parse($funds_value['估值时间'])->isToday()) {
+                                        FundValuationUpdateJob::dispatch([
+                                            'code' => $funds_value['基金代码'],
+                                            'valuation_time' => $funds_value['估值时间'],
+                                            'valuation_source' => $valuation_source,
+                                            'estimated_net_value' => $funds_value['最新预估净值'],
+                                        ]);
+                                    }
+                                }
+                            }
+                            // endregion
+                        }
+                    });
+                });
+            $retryTimes--;
+            sleep(1);
         }
     }
 
@@ -176,30 +212,25 @@ class FundValuationUpdate extends Command
                 ], 6);
                 $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
                 // 追加失败重试集合
-                $retry_list->merge($responses['rejected']->keys());
+                $retry_list = $retry_list->merge($responses['rejected']->keys());
                 // 处理响应
-                $this->_eastmoney_handle($responses['fulfilled']);
+                $responses['fulfilled']->each(fn(\GuzzleHttp\Psr7\Response $response, $fund_code) => $this->_eastmoney_handle($response->getBody()->getContents()));
             });
         return $retry_list;
     }
 
-    private function _eastmoney_handle(array|Collection $responses)
+    private function _eastmoney_handle(string $content)
     {
-        if (is_array($responses)) $responses = collect($responses);
-        $responses->each(function (\GuzzleHttp\Psr7\Response $response, $fund_code) {
-            // $this->info($fund_code);
-            $result = $response->getBody()->getContents();
-            preg_match('/{[^}]*}/', $result, $matches);
-            if (!empty($matches)) {
-                $data = Tools::jsonDecode($matches[0]);
-                FundValuationUpdateJob::dispatch([
-                    'code' => $data['fundcode'],
-                    'valuation_time' => $data['gztime'],
-                    'valuation_source' => 'https://fundgz.1234567.com.cn/js/{fundCode}.js',
-                    'estimated_net_value' => $data['gsz'],
-                ]);
-            }
-        });
+        preg_match('/{[^}]*}/', $content, $matches);
+        if (!empty($matches)) {
+            $data = Tools::jsonDecode($matches[0]);
+            FundValuationUpdateJob::dispatch([
+                'code' => $data['fundcode'],
+                'valuation_time' => $data['gztime'],
+                'valuation_source' => 'https://fundgz.1234567.com.cn/js/{fundCode}.js',
+                'estimated_net_value' => $data['gsz'],
+            ]);
+        }
     }
 
     /**
@@ -278,6 +309,9 @@ class FundValuationUpdate extends Command
                 unset($responses);
                 $this->info('本次并发请求成功响应数量：' . $fulfilled->count());
                 $this->info('本次并发请求失败响应数量：' . $rejected->count());
+                $rejected->each(function ($value) {
+                    $this->error($value['reason']->getMessage());
+                });
                 unset($rejected);
                 // 追加成功列表
                 $successfully = $successfully->merge($fulfilled->mapWithKeys(fn($item, $key) => [$key => $item['value']]));

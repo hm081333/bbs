@@ -47,6 +47,7 @@ class FundValuationWrite extends Command
      */
     private $redis_key = 'fund:valuation:wait-write';
     private $failed_redis_key = 'fund:valuation:wait-write:failed';
+    private $job_start_time;
 
     /**
      * Execute the console command.
@@ -55,7 +56,7 @@ class FundValuationWrite extends Command
      */
     public function handle()
     {
-        $global_start_time = microtime(true);
+        $this->job_start_time = microtime(true);
         if ($this->option('size')) {
             $this->comment('获取估值集合元素数量');
             $this->info(Redis::scard($this->redis_key));
@@ -81,16 +82,16 @@ class FundValuationWrite extends Command
                         $count = count($inserts);
                         // 数据库不存在的估值写入到待写入集合
                         Redis::sadd($this->redis_key, ...$inserts);
-                        $this->info('成功|写入|' . $count . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
+                        $this->info('成功|回填|' . $count . '|条基金估值|耗时：' . Tools::secondToTimeText(microtime(true) - $start_time));
                     } catch (\Exception $e) {
-                        $this->info('失败|写入|' . count($failed_list) . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
+                        $this->info('失败|回填|' . count($failed_list) . '|条基金估值|耗时：' . Tools::secondToTimeText(microtime(true) - $start_time));
                         $this->error($e->getMessage());
                         Redis::sadd($this->failed_redis_key, ...$failed_list);
                     }
                 }
                 // Redis::del($this->failed_redis_key);
             }
-            $this->info('完成|写入基金估值|耗时：' . (microtime(true) - $global_start_time) . ' 秒');
+            $this->info('完成|写入基金估值|耗时：' . Tools::secondToTimeText(microtime(true) - $this->job_start_time));
         } else {
             $this->comment('写入基金估值');
             if (Redis::exists($this->redis_key)) {
@@ -98,19 +99,19 @@ class FundValuationWrite extends Command
                     $start_time = microtime(true);
                     try {
                         FundValuation::insert(array_map(fn($value) => Tools::jsonDecode($value), $inserts));
-                        $this->info('成功|写入|' . count($inserts) . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
+                        $this->info('成功|写入|' . count($inserts) . '|条基金估值|耗时：' . Tools::secondToTimeText(microtime(true) - $start_time));
                     } catch (\Exception $e) {
-                        $this->info('失败|写入|' . count($inserts) . '|条基金估值|耗时：' . (microtime(true) - $start_time) . ' 秒');
+                        $this->info('失败|写入|' . count($inserts) . '|条基金估值|耗时：' . Tools::secondToTimeText(microtime(true) - $start_time));
                         // $this->error($e->getMessage());
                         Redis::sadd($this->failed_redis_key, ...$inserts);
                     }
-                    if ((microtime(true) - $global_start_time) >= $this->timeout) {
+                    if ((microtime(true) - $this->job_start_time) >= $this->timeout) {
                         $this->info('进程运行超过' . $this->timeout . ' 秒，准备退出。');
                         break;
                     }
                 }
             }
-            $this->info('完成|写入基金估值|耗时：' . (microtime(true) - $global_start_time) . ' 秒');
+            $this->info('完成|' . $this->description . '|耗时：' . Tools::secondToTimeText(microtime(true) - $this->job_start_time));
         }
         return Command::SUCCESS;
     }
