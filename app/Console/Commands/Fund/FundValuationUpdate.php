@@ -30,7 +30,8 @@ class FundValuationUpdate extends Command
      * @var string
      */
     protected $signature = 'fund:valuation-update
-    {--eastmoney : 同步（天天基金网）估值}';
+    {--eastmoney : 同步（天天基金网）估值}
+    {--test : 测试}';
 
     /**
      * The console command description.
@@ -69,7 +70,7 @@ class FundValuationUpdate extends Command
             Calendar::isHoliday($now_time)
         ) {
             $this->comment('不在基金开门时间');
-            return Command::SUCCESS;
+            if (!$this->option('test')) return Command::SUCCESS;
         }
         if ($this->option('eastmoney')) {
             // 天天基金网
@@ -125,19 +126,21 @@ class FundValuationUpdate extends Command
         //endregion
 
         $retryTimes = 5;
-        $all_pages = collect(range(1, $max_page));
-        $all_pages = $all_pages->combine($all_pages->map(fn(string $page) => "prevalue_{$page}.html"));
+        $all_pages = collect();
+        for ($i = 1; $i <= $max_page; $i++) {
+            $all_pages["prevalue_{$i}"] = "prevalue_{$i}.html";
+        }
         while ($all_pages->isNotEmpty() && $retryTimes > 0) {
-            $all_pages
-                ->chunk(10)
-                ->each(function (Collection $pages) use (&$all_pages, $valuation_source, $table_headers) {
-                    $responses = $this->multi_http_get('https://www.dayfund.cn/', $pages, [
+            $chunks = $all_pages->chunk(10);
+            $chunks
+                ->each(function (Collection $paths) use (&$all_pages, $valuation_source, $table_headers) {
+                    $responses = $this->multi_http_get('https://www.dayfund.cn/', $paths, [
                         'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
-                    ], 6);
+                    ]);
                     $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
                     // 追加失败重试集合
                     $all_pages = $all_pages->diffKeys($responses['fulfilled']);
-                    dump($all_pages->toArray());
+                    // dump($all_pages);
                     // 处理响应
                     $responses['fulfilled']->each(function (\GuzzleHttp\Psr7\Response $response, $current_page) use ($valuation_source, $table_headers) {
                         $page_content = str_replace(["\r", "\n", "\r\n", "<br/>"], '', $response->getBody()->getContents());
