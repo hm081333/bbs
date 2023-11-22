@@ -171,14 +171,12 @@ class FundValuationUpdate extends Command
                                     $funds_value = array_combine($table_headers, $values);
                                     //$this->comment("写入基金估值：{$funds_value['估值时间']}-{$funds_value['基金代码']}-{$funds_value['基金名称']}-{$funds_value['最新预估净值']}");
                                     // 只写入当天的估值
-                                    if (Carbon::parse($funds_value['估值时间'])->isToday()) {
-                                        FundValuationUpdateJob::dispatch([
-                                            'code' => $funds_value['基金代码'],
-                                            'valuation_time' => $funds_value['估值时间'],
-                                            'valuation_source' => $valuation_source,
-                                            'estimated_net_value' => $funds_value['最新预估净值'],
-                                        ]);
-                                    }
+                                    $this->dispatchFundValuationUpdateJob([
+                                        'code' => $funds_value['基金代码'],
+                                        'valuation_time' => $funds_value['估值时间'],
+                                        'valuation_source' => $valuation_source,
+                                        'estimated_net_value' => $funds_value['最新预估净值'],
+                                    ]);
                                 }
                             }
                             // endregion
@@ -227,7 +225,7 @@ class FundValuationUpdate extends Command
         preg_match('/{[^}]*}/', $content, $matches);
         if (!empty($matches)) {
             $data = Tools::jsonDecode($matches[0]);
-            FundValuationUpdateJob::dispatch([
+            $this->dispatchFundValuationUpdateJob([
                 'code' => $data['fundcode'],
                 'valuation_time' => $data['gztime'],
                 'valuation_source' => 'https://fundgz.1234567.com.cn/js/{fundCode}.js',
@@ -330,6 +328,17 @@ class FundValuationUpdate extends Command
             // 失败请求集合
             'rejected' => $paths,
         ];
+    }
+
+    /**
+     * 调度队列任务
+     * @param array $data
+     * @return false|\Illuminate\Foundation\Bus\PendingDispatch
+     */
+    private function dispatchFundValuationUpdateJob(array $data): \Illuminate\Foundation\Bus\PendingDispatch|bool
+    {
+        if (!Carbon::parse($data['valuation_time'])->isToday()) return false;
+        return FundValuationUpdateJob::dispatch($data);
     }
 
 }
