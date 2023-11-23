@@ -257,7 +257,6 @@ class FundValuationUpdate extends Command
      * 单个http get请求
      * @param string $base_uri 接口url
      * @param string $path 接口
-     * @param array $params 请求参数
      * @param array $headers 请求头
      * @param int $retryTimes 重试次数
      * @return Response|ResponseInterface
@@ -283,7 +282,6 @@ class FundValuationUpdate extends Command
      * 多个http并发 get请求
      * @param string $base_uri 接口url
      * @param array|Collection $paths 接口
-     * @param array $params 请求参数
      * @param array $headers 请求头
      * @param int $retryTimes 重试次数
      * @return array
@@ -338,7 +336,7 @@ class FundValuationUpdate extends Command
     private function dispatchFundValuationUpdateJob(array $data): \Illuminate\Foundation\Bus\PendingDispatch|bool
     {
         if (!Carbon::parse($data['valuation_time'])->isToday()) return false;
-        return FundValuationUpdateJob::dispatch($data);
+        return FundValuationUpdateJob::dispatchSync($data);
     }
 
 }
