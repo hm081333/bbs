@@ -58,12 +58,12 @@ class FundValuationUpdate extends Command
             $now_time->lt(date('Y-m-d 9:25'))
             ||
             (
-                $now_time->gt(date('Y-m-d 11:35'))
+                $now_time->gt(date('Y-m-d 11:40'))
                 &&
                 $now_time->lt(date('Y-m-d 12:55'))
             )
             ||
-            $now_time->gt(date('Y-m-d 15:05'))
+            $now_time->gt(date('Y-m-d 15:10'))
             ||
             $now_time->isWeekend()
             ||
