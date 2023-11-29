@@ -3,9 +3,11 @@
 namespace App\Utils;
 
 use App\Exceptions\Request\BadRequestException;
+use App\Exceptions\Server\InternalServerErrorException;
 use App\Models\BaseModel;
 use App\Utils\Aliyun\Oss;
 use App\Utils\Aliyun\Sms;
+use App\Utils\Juhe\Calendar;
 use Closure;
 use DB;
 use Exception;
@@ -14,6 +16,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Psr\SimpleCache\InvalidArgumentException;
 use Throwable;
 use function igbinary_serialize;
 use function igbinary_unserialize;
@@ -875,7 +878,7 @@ class Tools
     {
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
             $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { //to check ip is pass from proxy
+        } else if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) { // to check ip is pass from proxy
             $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
         } else {
             $ip = $_SERVER['REMOTE_ADDR'];
@@ -884,7 +887,7 @@ class Tools
     }
     // endregion
 
-    //region 时间格式相关
+    // region 时间格式相关
     /**
      * 将秒数转换为时间（年、天、小时、分、秒）数组
      *
@@ -904,12 +907,12 @@ class Tools
             'microseconds' => 0,
         ];
         if (is_numeric($second_time)) {
-            //region 设置毫秒，重设秒数
+            // region 设置毫秒，重设秒数
             $micro = explode('.', $second_time);
             $second_time = $micro[0];
             $value['microseconds'] = (int)substr($micro[1] ?? 0, 0, 3);
             unset($micro);
-            //endregion
+            // endregion
             if ($second_time >= 31536000) {
                 $value['years'] = floor($second_time / 31536000);
                 $second_time = ($second_time % 31536000);
@@ -961,18 +964,18 @@ class Tools
      */
     public static function secondToMinuteSecond($second_time = 0)
     {
-        //计算分钟
-        //算法：将秒数除以60，然后下舍入，既得到分钟数
+        // 计算分钟
+        // 算法：将秒数除以60，然后下舍入，既得到分钟数
         $hour_time = floor($second_time / 60);
-        //计算秒
-        //算法：取得秒%60的余数，既得到秒数
+        // 计算秒
+        // 算法：取得秒%60的余数，既得到秒数
         $second_time = $second_time % 60;
-        //如果只有一位数，前面增加一个0
+        // 如果只有一位数，前面增加一个0
         $hour_time = (strlen($hour_time) == 1) ? '0' . $hour_time : $hour_time;
         $second_time = (strlen($second_time) == 1) ? '0' . $second_time : $second_time;
         return $hour_time . ':' . $second_time;
     }
-    //endregion
+    // endregion
 
     // region 目录，文件
 
@@ -1208,5 +1211,47 @@ class Tools
         return zlib_encode($data, $encoding);
     }
 
+    // endregion
+
+    // region 基金股市相关
+    /**
+     * 是否大A开门日期
+     * @param $time
+     * @return bool
+     * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
+     */
+    public static function isOpenDoorDay($time = null)
+    {
+        $time = $time ? static::timeToCarbon($time) : static::now();
+        return !(
+            $time->isWeekend()
+            ||
+            Calendar::isHoliday($time)
+        );
+    }
+
+    /**
+     * 是否大A开门时间
+     * @param $time
+     * @return bool
+     * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
+     */
+    public static function isOpenDoorTime($time = null)
+    {
+        $time = $time ? static::timeToCarbon($time) : static::now();
+        return static::isOpenDoorDay($time) && !(
+                $time->lt(date('Y-m-d 9:20'))
+                ||
+                (
+                    $time->gt(date('Y-m-d 11:40'))
+                    &&
+                    $time->lt(date('Y-m-d 12:50'))
+                )
+                ||
+                $time->gt(date('Y-m-d 15:10'))
+            );
+    }
     // endregion
 }

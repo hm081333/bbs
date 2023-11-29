@@ -137,7 +137,7 @@ class FundValuationUpdate extends Command
                     $responses = $this->multi_http_get('https://www.dayfund.cn/', $paths, [
                         'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
                     ]);
-                    $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
+                    // $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
                     // 追加失败重试集合
                     $all_pages = $all_pages->diffKeys($responses['fulfilled']);
                     // dump($all_pages);
@@ -211,7 +211,7 @@ class FundValuationUpdate extends Command
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
                     'Referer' => 'https://fund.eastmoney.com/',
                 ], 6);
-                $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
+                // $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
                 // 追加失败重试集合
                 $retry_list = $retry_list->merge($responses['rejected']->keys());
                 // 处理响应
@@ -306,7 +306,7 @@ class FundValuationUpdate extends Command
                 // 失败列表
                 $rejected = $responses->where('state', 'rejected');
                 unset($responses);
-                $this->info('本次并发请求成功响应数量：' . $fulfilled->count());
+                // $this->info('本次并发请求成功响应数量：' . $fulfilled->count());
                 $this->info('本次并发请求失败响应数量：' . $rejected->count());
                 $rejected->each(function ($value) {
                     $this->error($value['reason']->getMessage());

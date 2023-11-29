@@ -66,13 +66,12 @@ class FundUpdateJob implements ShouldQueue
         /* @var $fund Fund */
         $fund = Fund::getByCode($this->fundCode);
         if (!$fund) {
-            Log::channel('fund')->info("create fund|{$this->fundCode}|{$this->fundData['name']}|{$this->fundData['pinyin_initial']}|{$this->fundData['type']}");
+            Log::channel('fund')->info("create fund|{$this->fundCode}|{$this->fundData['name']}|{$this->fundData['pinyin_initial']}");
             // 基金数据不存在，插入
             $insert_data = [
                 'code' => $this->fundCode,
                 'name' => $this->fundData['name'],
                 'pinyin_initial' => $this->fundData['pinyin_initial'],
-                'type' => $this->fundData['type'],
                 //'created_at' => Tools::now(),
                 //'updated_at' => Tools::now(),
             ];
@@ -95,11 +94,10 @@ class FundUpdateJob implements ShouldQueue
 //            ||
 //            Tools::math($fund->cumulative_net_value, '<>', $this->fundData['cumulative_net_value'], 4)
         ) {
-            Log::channel('fund')->info("update fund|{$this->fundCode}|{$fund->name}:{$this->fundData['name']}|{$fund->pinyin_initial}:{$this->fundData['pinyin_initial']}|{$fund->type}:{$this->fundData['type']}|{$fund->net_value_time}:{$this->fundData['net_value_time']}|{$fund->unit_net_value}:{$this->fundData['unit_net_value']}|{$fund->cumulative_net_value}:{$this->fundData['cumulative_net_value']}");
+            Log::channel('fund')->info("update fund|{$this->fundCode}|{$fund->name}:{$this->fundData['name']}|{$fund->pinyin_initial}:{$this->fundData['pinyin_initial']}|{$fund->net_value_time}:{$this->fundData['net_value_time']}|{$fund->unit_net_value}:{$this->fundData['unit_net_value']}|{$fund->cumulative_net_value}:{$this->fundData['cumulative_net_value']}");
             // 基金数据存在但数据不一致，更新
             $fund->name = $this->fundData['name'];
             $fund->pinyin_initial = $this->fundData['pinyin_initial'];
-            $fund->type = $this->fundData['type'];
             // 基金数据存在但净值时间不一致，更新
             if (!empty($this->net_value_time)) {
                 $fund->net_value_time = $this->net_value_time;// 净值更新时间

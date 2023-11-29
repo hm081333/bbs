@@ -29,7 +29,19 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('testa', function () {
-    dd(123);
+    // $res = Tools::curl(5)
+    //     ->setHeader([
+    //         'Referer' => 'https://fund.eastmoney.com/data/fundranking.html',
+    //         'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+    //     ])
+    //     ->get("https://fund.eastmoney.com/data/rankhandler.aspx?op=ph&dt=kf&ft=all&rs=&gs=0&sc=1nzf&st=desc&sd=2022-11-27&ed=2023-11-27&qdii=&tabSubtype=,,,,,&pi=1&pn=50&dx=1&v=0.04333807973294035");
+    $res = Tools::curl(5)
+        ->setHeader([
+            'Referer' => 'https://fund.eastmoney.com/data/fundranking.html',
+            'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+        ])
+        ->get("https://fund.eastmoney.com/data/rankhandler.aspx?op=ph&dt=kf&ft=all&rs=&gs=0&sc=dm&st=asc&sd=2023-11-28&ed=2023-11-29&pi=100&pn=500&dx=0");
+    dd($res);
 
     $data = \App\Utils\Juhe\Calendar::getYearMonthHolidayList('2024-10');
     dd($data);

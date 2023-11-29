@@ -2,8 +2,15 @@
 
 namespace App\Console;
 
+use App\Console\Commands\Fund\FundNetValueUpdate;
+use App\Console\Commands\Fund\FundValuationUpdate;
+use App\Console\Commands\Fund\FundValuationWrite;
+use App\Utils\Juhe\Calendar;
+use App\Utils\Tools;
+use Illuminate\Console\Command;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
@@ -16,6 +23,65 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        $schedule->command(FundNetValueUpdate::class)
+            ->when(fn() => Tools::isOpenDoorDay())
+            ->between('18:00', '24:00')
+            ->everyThirtyMinutes()
+            ->onOneServer()
+            // 后台运行
+            ->runInBackground()
+            ->before(function () {
+                // 任务即将执行。。。
+                Log::debug('FundNetValueUpdate run before');
+            })
+            ->after(function () {
+                // 任务已经执行。。。
+                Log::debug('FundNetValueUpdate run after');
+            });
+        $schedule->command(FundValuationUpdate::class)
+            ->when(fn() => Tools::isOpenDoorTime())
+            ->everyFiveMinutes()
+            ->onOneServer()
+            // 后台运行
+            ->runInBackground()
+            ->before(function () {
+                // 任务即将执行。。。
+                Log::debug('FundValuationUpdate run before');
+            })
+            ->after(function () {
+                // 任务已经执行。。。
+                Log::debug('FundValuationUpdate run after');
+            });
+        $schedule->command(FundValuationUpdate::class, ['--eastmoney'])
+            ->when(fn() => Tools::isOpenDoorTime())
+            ->everyFiveMinutes()
+            ->onOneServer()
+            // 后台运行
+            ->runInBackground()
+            ->before(function () {
+                // 任务即将执行。。。
+                Log::debug('FundValuationUpdate --eastmoney run before');
+            })
+            ->after(function () {
+                // 任务已经执行。。。
+                Log::debug('FundValuationUpdate --eastmoney run after');
+            });
+        $schedule->command(FundValuationWrite::class)
+            ->when(fn() => Tools::isOpenDoorTime())
+            ->everyMinute()
+            ->onOneServer()
+            // 避免重复运行
+            ->withoutOverlapping()
+            // 后台运行
+            ->runInBackground()
+            ->before(function () {
+                // 任务即将执行。。。
+                Log::debug('FundValuationWrite run before');
+            })
+            ->after(function () {
+                // 任务已经执行。。。
+                Log::debug('FundValuationWrite run after');
+            });
     }
 
     /**
@@ -29,4 +95,15 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+
+    /**
+     * 获取计划事件默认使用的时区。
+     *
+     * @return \DateTimeZone|string|null
+     */
+    protected function scheduleTimezone()
+    {
+        return 'Asia/Shanghai';
+    }
+
 }
