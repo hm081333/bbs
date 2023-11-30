@@ -32,11 +32,11 @@ class Kernel extends ConsoleKernel
             ->runInBackground()
             ->before(function () {
                 // 任务即将执行。。。
-                Log::debug('FundNetValueUpdate run before');
+                // Log::debug('FundNetValueUpdate run before');
             })
             ->after(function () {
                 // 任务已经执行。。。
-                Log::debug('FundNetValueUpdate run after');
+                // Log::debug('FundNetValueUpdate run after');
             });
         $schedule->command(FundValuationUpdate::class)
             ->when(fn() => Tools::isOpenDoorTime())
@@ -46,11 +46,11 @@ class Kernel extends ConsoleKernel
             ->runInBackground()
             ->before(function () {
                 // 任务即将执行。。。
-                Log::debug('FundValuationUpdate run before');
+                // Log::debug('FundValuationUpdate run before');
             })
             ->after(function () {
                 // 任务已经执行。。。
-                Log::debug('FundValuationUpdate run after');
+                // Log::debug('FundValuationUpdate run after');
             });
         $schedule->command(FundValuationUpdate::class, ['--eastmoney'])
             ->when(fn() => Tools::isOpenDoorTime())
@@ -60,11 +60,11 @@ class Kernel extends ConsoleKernel
             ->runInBackground()
             ->before(function () {
                 // 任务即将执行。。。
-                Log::debug('FundValuationUpdate --eastmoney run before');
+                // Log::debug('FundValuationUpdate --eastmoney run before');
             })
             ->after(function () {
                 // 任务已经执行。。。
-                Log::debug('FundValuationUpdate --eastmoney run after');
+                // Log::debug('FundValuationUpdate --eastmoney run after');
             });
         $schedule->command(FundValuationWrite::class)
             ->when(fn() => Tools::isOpenDoorTime())
@@ -76,11 +76,11 @@ class Kernel extends ConsoleKernel
             ->runInBackground()
             ->before(function () {
                 // 任务即将执行。。。
-                Log::debug('FundValuationWrite run before');
+                // Log::debug('FundValuationWrite run before');
             })
             ->after(function () {
                 // 任务已经执行。。。
-                Log::debug('FundValuationWrite run after');
+                // Log::debug('FundValuationWrite run after');
             });
     }
 
