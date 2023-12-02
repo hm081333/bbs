@@ -46,7 +46,9 @@ class FundNetValueUpdate extends Command
     {
         $this->job_start_time = microtime(true);
         $this->comment('获取基金列表');
-        $today_date = date('Y-m-d', Tools::time());
+        $week_begin=Tools::now()->startOfWeek();
+        $week_end=Tools::now()->endOfWeek();
+        // $today_date = date('Y-m-d', Tools::time());
         $curl = Tools::curl(5);
         //$this->comment("获取{$name}基金列表");
         $allPages = 1;
@@ -56,8 +58,12 @@ class FundNetValueUpdate extends Command
                     'Referer' => 'https://fund.eastmoney.com/data/fundranking.html',
                     'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
                 ])
-                ->get("https://fund.eastmoney.com/data/rankhandler.aspx?op=ph&dt=kf&ft=all&rs=&gs=0&sc=dm&st=asc&sd={$today_date}&ed={$today_date}&pi={$page}&pn=200&dx=0");
-            if (empty($res)) break;
+                ->get("https://fund.eastmoney.com/data/rankhandler.aspx?op=ph&dt=kf&ft=all&rs=&gs=0&sc=dm&st=asc&sd={$week_begin->format('Y-m-d')}&ed={$week_end->format('Y-m-d')}&pi={$page}&pn=200&dx=0");
+            if (empty($res)) {
+                $this->error('返回数据为空');
+                $this->error($res);
+                break;
+            }
             // dd($res);
             if ($allPages == 1) {
                 preg_match('/allPages:([^,]+),/', $res, $matches);
