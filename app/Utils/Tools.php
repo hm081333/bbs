@@ -1172,7 +1172,7 @@ class Tools
      * @return \App\Utils\Register\ModelMap
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public static function model()
+    public static function model(): Register\ModelMap
     {
         return app()->make(\App\Utils\Register\ModelMap::class);
     }
