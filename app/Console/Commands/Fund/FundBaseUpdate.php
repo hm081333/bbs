@@ -17,21 +17,21 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface;
 
-class FundNetValueUpdate extends Command
+class FundBaseUpdate extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'fund:net-value-update';
+    protected $signature = 'fund:base-update';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = '基金：净值更新';
+    protected $description = '基金：基本信息更新';
 
     private array $client = [];
 
@@ -107,7 +107,7 @@ class FundNetValueUpdate extends Command
                             unset($data_json);
                             foreach ($data_arr as $item) {
                                 $item = explode(',', $item);
-                                $this->comment("写入基金：{$item[0]}-{$item[1]}");
+                                // $this->comment("写入基金：{$item[0]}-{$item[1]}");
                                 FundUpdateJob::dispatch([
                                     'code' => $item[0],
                                     'name' => $item[1],
@@ -116,15 +116,6 @@ class FundNetValueUpdate extends Command
                                     'unit_net_value' => $item[4],// 单位净值
                                     'cumulative_net_value' => $item[5],// 累计净值
                                 ]);
-                                if ($item[3]) {
-                                    // $this->comment("写入基金净值：{$item[0]}-{$item[1]}，单位净值：{$item[4]}，累计净值：{$item[5]}");
-                                    FundNetValueUpdateJob::dispatch([
-                                        'code' => $item[0],
-                                        'unit_net_value' => $item[4],// 单位净值
-                                        'cumulative_net_value' => $item[5],// 累计净值
-                                        'net_value_time' => $item[3],// 净值更新时间
-                                    ]);
-                                }
                             }
                         }
                     });

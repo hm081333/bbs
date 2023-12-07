@@ -31,6 +31,7 @@ class FundValuationUpdate extends Command
      */
     protected $signature = 'fund:valuation-update
     {--eastmoney : 同步（天天基金网）估值}
+    {--dayfund : 同步（基金速查网）估值}
     {--test : 测试}';
 
     /**
@@ -54,28 +55,14 @@ class FundValuationUpdate extends Command
         $this->job_start_time = microtime(true);
         $this->comment('获取基金估值');
         $now_time = Tools::now();
-        if (
-            $now_time->lt(date('Y-m-d 9:25'))
-            ||
-            (
-                $now_time->gt(date('Y-m-d 11:40'))
-                &&
-                $now_time->lt(date('Y-m-d 12:55'))
-            )
-            ||
-            $now_time->gt(date('Y-m-d 15:10'))
-            ||
-            $now_time->isWeekend()
-            ||
-            Calendar::isHoliday($now_time)
-        ) {
+        if (!Tools::isOpenDoorDay($now_time) || !Tools::isOpenDoorTime($now_time)) {
             $this->comment('不在基金开门时间');
             if (!$this->option('test')) return Command::SUCCESS;
         }
         if ($this->option('eastmoney')) {
             // 天天基金网
             $this->_eastmoney();
-        } else {
+        } else if ($this->option('dayfund')) {
             // 基金速查网
             $this->_dayfund();
         }

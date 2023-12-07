@@ -39,21 +39,7 @@ class FundIterate extends Command
         if ($this->option('sync-eastmoney-valuation')) {
             //$this->comment('获取基金估值列表');
             $now_time = Tools::now();
-            if (
-                $now_time->lt(date('Y-m-d 9:25'))
-                ||
-                (
-                    $now_time->gt(date('Y-m-d 11:35'))
-                    &&
-                    $now_time->lt(date('Y-m-d 12:55'))
-                )
-                ||
-                $now_time->gt(date('Y-m-d 15:05'))
-                ||
-                $now_time->isWeekend()
-                ||
-                Calendar::isHoliday($now_time)
-            ) {
+            if (!Tools::isOpenDoorDay($now_time) || !Tools::isOpenDoorTime($now_time)) {
                 $this->comment('不在基金开门时间');
                 return Command::SUCCESS;
             }

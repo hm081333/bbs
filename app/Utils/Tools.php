@@ -1009,12 +1009,12 @@ class Tools
      *
      * @return string
      */
-    public static function createDir($path): string
+    public static function createDir(string $path): string
     {
         if (!is_dir($path) && !mkdir($path, 0777, true)) {
             Log::debug($path);
-            static::createDir(dirname($path));
             mkdir($path, 0777, true);
+            static::createDir(dirname($path));
         }
         return $path;
     }
@@ -1064,25 +1064,43 @@ class Tools
     /**
      * 临时目录路径
      *
-     * @param $path
+     * @param string $path 相对路径
+     * @param bool $create 是否创建目录
      *
      * @return string
      */
-    public static function runtimePath($path = '')
+    public static function runtimePath(string $path = '', bool $create = false): string
     {
-        return storage_path('app/runtime') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        $path = storage_path('app/runtime') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return $create ? static::createDir($path) : $path;
+    }
+
+    /**
+     * 日志目录路径
+     *
+     * @param string $path 相对路径
+     * @param bool $create 是否创建目录
+     *
+     * @return string
+     */
+    public static function logsPath(string $path = '', bool $create = false): string
+    {
+        $path = storage_path('logs') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return $create ? static::createDir($path) : $path;
     }
 
     /**
      * 备份目录路径
      *
-     * @param $path
+     * @param string $path 相对路径
+     * @param bool $create 是否创建目录
      *
      * @return string
      */
-    public static function backupPath($path = '')
+    public static function backupPath(string $path = '', bool $create = false): string
     {
-        return storage_path('backup') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        $path = storage_path('backup') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return $create ? static::createDir($path) : $path;
     }
 
     /**
@@ -1092,7 +1110,7 @@ class Tools
      *
      * @return string
      */
-    public static function storageAsset($path = '')
+    public static function storageAsset(string $path = ''): string
     {
         $base_url = config('app.storage_url') ?: static::url('storage');
         return rtrim($base_url, '/') . '/' . ltrim($path, '/');
@@ -1221,14 +1239,10 @@ class Tools
      * @throws InternalServerErrorException
      * @throws InvalidArgumentException
      */
-    public static function isOpenDoorDay($time = null)
+    public static function isOpenDoorDay($time = null): bool
     {
         $time = $time ? static::timeToCarbon($time) : static::now();
-        return !(
-            $time->isWeekend()
-            ||
-            Calendar::isHoliday($time)
-        );
+        return $time->isWeekday() && !Calendar::isHoliday($time);
     }
 
     /**
@@ -1238,19 +1252,19 @@ class Tools
      * @throws InternalServerErrorException
      * @throws InvalidArgumentException
      */
-    public static function isOpenDoorTime($time = null)
+    public static function isOpenDoorTime($time = null): bool
     {
         $time = $time ? static::timeToCarbon($time) : static::now();
-        return static::isOpenDoorDay($time) && !(
-                $time->lt(date('Y-m-d 9:20'))
-                ||
-                (
-                    $time->gt(date('Y-m-d 11:40'))
-                    &&
-                    $time->lt(date('Y-m-d 12:50'))
-                )
-                ||
-                $time->gt(date('Y-m-d 15:10'))
+        return (
+                $time->gte(date('Y-m-d 9:20'))
+                &&
+                $time->lte(date('Y-m-d 11:40'))
+            )
+            ||
+            (
+                $time->gte(date('Y-m-d 12:50'))
+                &&
+                $time->lte(date('Y-m-d 15:10'))
             );
     }
     // endregion

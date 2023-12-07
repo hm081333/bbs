@@ -60,7 +60,7 @@ class File
     public function setRemoteFile(string $url)
     {
         $url_info = parse_url($url);
-        $file_path = Tools::curl()->getFile($url, Tools::runtimePath('remote/') . date('Y/m/d/'), basename($url_info['path']));
+        $file_path = Tools::curl()->getFile($url, Tools::runtimePath('remote/' . date('Y/m/d/'), true), basename($url_info['path']));
         $this->file = new \Illuminate\Http\File($file_path);
         return $this;
     }
@@ -77,7 +77,7 @@ class File
         preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64, $res);
         // 去除base64头并base64解码出文件内容
         $image_resource = base64_decode(str_replace($res[1], '', $base64));
-        $temp_file_path = Tools::createDir(Tools::runtimePath('temporary/') . date('Y/m/d/'));
+        $temp_file_path = Tools::createDir(Tools::runtimePath('temporary/') . date('Y/m/d/'), true);
         $temp_file = $temp_file_path . uniqid() . '_' . (microtime(true) * 10000);
         $fp = fopen($temp_file, 'wb');
         if ($fp === false) throw new InternalServerErrorException('保存文件初始化失败');
