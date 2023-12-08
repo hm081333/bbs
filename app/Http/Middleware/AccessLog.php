@@ -76,7 +76,7 @@ class AccessLog
                 }, $request->header()), true),
                 'user_agent' => $request->userAgent(),
                 'response' => $responseData,
-                'request_time' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']),
+                'request_time' => Tools::timeToCarbon($_SERVER['REQUEST_TIME'])->timestamp,
             ];
             // 从index.php到返回响应耗时
             // $data['api_consumed'] = (float)bcmul(bcsub($end_time, LARAVEL_START, 5), 1000, 2);

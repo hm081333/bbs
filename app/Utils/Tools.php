@@ -304,7 +304,7 @@ class Tools
      */
     public static function isCli(): bool
     {
-        return php_sapi_name() === 'cli';
+        return strtolower(substr(php_sapi_name(), 0, 3)) === 'cli';
     }
 
     /**

@@ -38,7 +38,6 @@ class SqlListener
         if (!config('app.slow_query_log', false)) return;
         $log = $this->interpolateQuery($event->sql, $event->bindings);
         if ($event->time >= 1000) Log::channel('sql')->info("{$event->time}|{$log}");
-        return;
         $request = request();
         $data = [
             'sql' => $log,
@@ -50,7 +49,7 @@ class SqlListener
             'url' => rtrim(Tools::url(), '/'),
             'path_info' => $request->getPathInfo(),
             'client_ip' => $request->ip(),
-            'request_time' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME'] ?? $this->time),
+            'request_time' => Tools::timeToCarbon($_SERVER['REQUEST_TIME'] ?? $this->time)->timestamp,
             // 'admin_id' => $this->getAuthId('admin'),
             // 'user_id' => $this->getAuthId('user'),
             // 'recommender_id' => $this->getAuthId('recommender'),
@@ -58,7 +57,12 @@ class SqlListener
             // 'agency_manager_id' => $this->getAuthId('agency_manager'),
         ];
         $data = $this->getAuthId($data);
-        if (strtolower(substr(php_sapi_name(), 0, 3)) !== 'cli') {
+        if (Tools::isCli()) {
+            $argv = $_SERVER['argv'];
+            $data['url'] = array_shift($argv);
+            $data['path_info'] = implode(' ', $argv);
+            unset($argv);
+        } else {
             $data['method'] = strtolower($request->method());
             $data['params'] = json_encode((object)$request->input(), true);
             $data['get'] = json_encode((object)$request->query(), true);
@@ -67,9 +71,6 @@ class SqlListener
                 return implode(',', $header);
             }, $request->header()), true);
             $data['user_agent'] = $request->userAgent();
-        } else {
-            $data['url'] = array_shift($_SERVER['argv']);
-            $data['path_info'] = implode(' ', $_SERVER['argv']);
         }
         try {
             SqlLog::create($data);
