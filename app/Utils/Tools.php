@@ -383,6 +383,7 @@ class Tools
                 :
                 Carbon::parse($time);
         } catch (Exception $exception) {
+            Log::error('Tools::timeToCarbon:Exception', $exception);
         }
         return null;
     }

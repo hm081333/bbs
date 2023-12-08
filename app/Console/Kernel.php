@@ -22,15 +22,16 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $now_time = Tools::now();
         // $schedule->command('inspire')->hourly();
         $schedule->command(FundNetValueUpdate::class)
-            ->when(fn() => Tools::isOpenDoorDay())
+            ->when(fn() => Tools::isOpenDoorDay($now_time))
             ->between('18:00', '24:00')
             ->everyThirtyMinutes()
             ->onOneServer()
             // 后台运行
             ->runInBackground()
-            ->sendOutputTo(Tools::logsPath('FundNetValueUpdate/eastmoney/' . date('Y-m-d')) . date('H-i-s.log'))
+            ->sendOutputTo(Tools::logsPath('FundNetValueUpdate/eastmoney/' . $now_time->format('Y-m-d'), true) . '/' . $now_time->format('H-i-s') . '.log')
             ->before(function () {
                 // 任务即将执行。。。
                 // Log::debug('FundNetValueUpdate run before');
@@ -40,27 +41,27 @@ class Kernel extends ConsoleKernel
                 // Log::debug('FundNetValueUpdate run after');
             });
         $schedule->command(FundValuationUpdate::class, ['--dayfund'])
-            ->when(fn() => Tools::isOpenDoorDay() && Tools::isOpenDoorTime())
+            ->when(fn() => Tools::isOpenDoorDay($now_time) && Tools::isOpenDoorTime($now_time))
             ->everyFiveMinutes()
             ->onOneServer()
             // 后台运行
             ->runInBackground()
-            ->sendOutputTo(Tools::logsPath('FundValuationUpdate/dayfund/' . date('Y-m-d')) . date('H-i-s.log'))
+            ->sendOutputTo(Tools::logsPath('FundValuationUpdate/dayfund/' . $now_time->format('Y-m-d'), true) . '/' . $now_time->format('H-i-s') . '.log')
             ->before(function () {
                 // 任务即将执行。。。
-                Log::debug('FundValuationUpdate run before');
+                Log::debug('FundValuationUpdate --dayfund run before');
             })
             ->after(function () {
                 // 任务已经执行。。。
-                Log::debug('FundValuationUpdate run after');
+                Log::debug('FundValuationUpdate --dayfund run after');
             });
         $schedule->command(FundValuationUpdate::class, ['--eastmoney'])
-            ->when(fn() => Tools::isOpenDoorDay() && Tools::isOpenDoorTime())
+            ->when(fn() => Tools::isOpenDoorDay($now_time) && Tools::isOpenDoorTime($now_time))
             ->everyFiveMinutes()
             ->onOneServer()
             // 后台运行
             ->runInBackground()
-            ->sendOutputTo(Tools::logsPath('FundValuationUpdate/eastmoney/' . date('Y-m-d')) . date('H-i-s.log'))
+            ->sendOutputTo(Tools::logsPath('FundValuationUpdate/eastmoney/' . $now_time->format('Y-m-d'), true) . '/' . $now_time->format('H-i-s') . '.log')
             ->before(function () {
                 // 任务即将执行。。。
                 Log::debug('FundValuationUpdate --eastmoney run before');
@@ -70,7 +71,7 @@ class Kernel extends ConsoleKernel
                 Log::debug('FundValuationUpdate --eastmoney run after');
             });
         $schedule->command(FundValuationWrite::class)
-            ->when(fn() => Tools::isOpenDoorDay() && Tools::isOpenDoorTime())
+            ->when(fn() => Tools::isOpenDoorDay($now_time) && Tools::isOpenDoorTime($now_time))
             ->everyMinute()
             ->onOneServer()
             // 避免重复运行

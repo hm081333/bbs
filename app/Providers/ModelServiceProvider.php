@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Exceptions\Request\BadRequestException;
 use App\Models\OptionItem;
+use App\Utils\Tools;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -202,6 +203,19 @@ class ModelServiceProvider extends ServiceProvider
             if (empty($search_field) || empty($value)) return $this;
             return $this->where($search_field, 'like', $value, $boolean);
         });
+        /* 根据参数，查询时间戳 */
+        Builder::macro('whereTimestamp', function ($search_field, $operator = null, $value = null, $boolean = 'and'): Builder {
+            /* @var $this Builder */
+            // 搜索字段 为空 不进行查询
+            if (empty($search_field)) return $this;
+            $args = func_get_args();
+            $value = $args[2] ?? $args[1];
+            if (!empty($value)) $value = Tools::timeToCarbon($value);
+            $operator = trim(strtolower(isset($args[2]) ? $args[1] : '='));
+            if ($operator == 'like') return $this->whereLike($search_field, $value, $boolean);
+            return $this->where($search_field, $operator, $value, $boolean);
+        });
+        /* 根据参数，查询第一条数据或抛出 */
         Builder::macro('firstOrThrow', function (string $thr_str = '数据异常') {
             /* @var $this Builder */
             return $this->firstOr(fn() => throw new BadRequestException($thr_str));
