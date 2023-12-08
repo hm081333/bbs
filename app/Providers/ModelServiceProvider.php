@@ -210,7 +210,7 @@ class ModelServiceProvider extends ServiceProvider
             if (empty($search_field)) return $this;
             $args = func_get_args();
             $value = $args[2] ?? $args[1];
-            if (!empty($value)) $value = Tools::timeToCarbon($value);
+            if (!empty($value)) $value = Tools::timeToCarbon($value)->timestamp;
             $operator = trim(strtolower(isset($args[2]) ? $args[1] : '='));
             if ($operator == 'like') return $this->whereLike($search_field, $value, $boolean);
             return $this->where($search_field, $operator, $value, $boolean);
