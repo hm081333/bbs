@@ -31,8 +31,9 @@ class Kernel extends ConsoleKernel
             ->onOneServer()
             // 后台运行
             ->runInBackground()
-            ->sendOutputTo(Tools::logsPath('FundNetValueUpdate/eastmoney/' . $now_time->format('Y-m-d'), true) . '/' . $now_time->format('H-i-s') . '.log')
-            ->before(function () {
+            ->sendOutputTo(Tools::logsPath('FundNetValueUpdate/eastmoney/' . $now_time->format('Y-m-d')) . '/' . $now_time->format('H-i-s') . '.log')
+            ->before(function () use ($now_time) {
+                Tools::logsPath('FundNetValueUpdate/eastmoney/' . $now_time->format('Y-m-d'), true);
                 // 任务即将执行。。。
                 // Log::debug('FundNetValueUpdate run before');
             })
@@ -46,14 +47,15 @@ class Kernel extends ConsoleKernel
             ->onOneServer()
             // 后台运行
             ->runInBackground()
-            ->sendOutputTo(Tools::logsPath('FundValuationUpdate/dayfund/' . $now_time->format('Y-m-d'), true) . '/' . $now_time->format('H-i-s') . '.log')
-            ->before(function () {
+            ->sendOutputTo(Tools::logsPath('FundValuationUpdate/dayfund/' . $now_time->format('Y-m-d')) . '/' . $now_time->format('H-i-s') . '.log')
+            ->before(function () use ($now_time) {
+                Tools::logsPath('FundValuationUpdate/dayfund/' . $now_time->format('Y-m-d'), true);
                 // 任务即将执行。。。
-                Log::debug('FundValuationUpdate --dayfund run before');
+                // Log::debug('FundValuationUpdate --dayfund run before');
             })
             ->after(function () {
                 // 任务已经执行。。。
-                Log::debug('FundValuationUpdate --dayfund run after');
+                // Log::debug('FundValuationUpdate --dayfund run after');
             });
         $schedule->command(FundValuationUpdate::class, ['--eastmoney'])
             ->when(fn() => Tools::isOpenDoorDay($now_time) && Tools::isOpenDoorTime($now_time))
@@ -61,14 +63,15 @@ class Kernel extends ConsoleKernel
             ->onOneServer()
             // 后台运行
             ->runInBackground()
-            ->sendOutputTo(Tools::logsPath('FundValuationUpdate/eastmoney/' . $now_time->format('Y-m-d'), true) . '/' . $now_time->format('H-i-s') . '.log')
-            ->before(function () {
+            ->sendOutputTo(Tools::logsPath('FundValuationUpdate/eastmoney/' . $now_time->format('Y-m-d')) . '/' . $now_time->format('H-i-s') . '.log')
+            ->before(function () use ($now_time) {
+                Tools::logsPath('FundValuationUpdate/eastmoney/' . $now_time->format('Y-m-d'), true);
                 // 任务即将执行。。。
-                Log::debug('FundValuationUpdate --eastmoney run before');
+                // Log::debug('FundValuationUpdate --eastmoney run before');
             })
             ->after(function () {
                 // 任务已经执行。。。
-                Log::debug('FundValuationUpdate --eastmoney run after');
+                // Log::debug('FundValuationUpdate --eastmoney run after');
             });
         $schedule->command(FundValuationWrite::class)
             ->when(fn() => Tools::isOpenDoorDay($now_time) && Tools::isOpenDoorTime($now_time))
