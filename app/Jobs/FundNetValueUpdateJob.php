@@ -77,7 +77,7 @@ class FundNetValueUpdateJob implements ShouldQueue
                 ->whereTimestamp('net_value_time', $this->net_value_time)
                 ->first();
             if (!$fund_net_value) {
-                $fundValuation = FundNetValue::create([
+                $fund_net_value = FundNetValue::create([
                     'fund_id' => $fund->id,
                     'code' => $fund->code,
                     'name' => $fund->name,
