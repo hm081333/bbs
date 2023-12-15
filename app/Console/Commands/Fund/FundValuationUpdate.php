@@ -74,7 +74,7 @@ class FundValuationUpdate extends Command
 
     /**
      * 基金速查网
-     * @return void
+     * @return false|void
      * @throws GuzzleException
      */
     private function _dayfund()
@@ -82,34 +82,35 @@ class FundValuationUpdate extends Command
         $valuation_source = 'https://www.dayfund.cn/prevalue.html';
         $table_headers = [];
         //region 获取页码与表头
-        $retryTimes = 5;
         $max_page = 0;
-        while ($max_page <= 0 && $retryTimes > 0) {
-            $response = $this->single_http_get('https://www.dayfund.cn/', "prevalue_10000.html", [
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
-            ]);
-            // 获取html中body
-            preg_match('/<body>.*?<\/body>/', str_replace(["\r", "\n", "\r\n", "<br/>"], '', $response->getBody()->getContents()), $matches);
-            if (!empty($body = $matches[0] ?? '')) {
-                // region 匹配页码
-                preg_match_all('/prevalue_(\d+).html/', $body, $matches);
-                if (!empty($matches[1])) $max_page = (int)max($matches[1]) + 1;
-                // endregion
-                // region 匹配表格内容
-                preg_match('/<table>.*?<\/table>/', $body, $matches);
-                if (!empty($table = $matches[0])) {
-                    preg_match_all('/<tr[^>]*>(.*?)<\/tr>/', $table, $matches);
-                    if (!empty($matches[1]) && !empty($tr = $matches[1][0])) {
-                        preg_match_all('/<td[^>]*>(.*?)<\/td>/', $tr, $matches);
-                        $table_headers = array_map(function ($value) {
-                            return strip_tags($value);
-                        }, $matches[1]);
-                    }
-                }
-                //endregion
+        $response = $this->single_http_get('https://www.dayfund.cn/', "prevalue_10000.html", [
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
+        ]);
+        // 获取html中body
+        preg_match('/<body>.*?<\/body>/', str_replace(["\r", "\n", "\r\n", "<br/>"], '', $response->getBody()->getContents()), $matches);
+        if (!empty($body = $matches[0] ?? '')) {
+            // region 匹配页码
+            preg_match_all('/prevalue_(\d+).html/', $body, $matches);
+            if (!empty($matches[1])) $max_page = (int)max($matches[1]) + 1;
+            if ($max_page <= 0) {
+                Log::error('_dayfund获取页码失败');
+                return false;
             }
-            $retryTimes--;
+            // endregion
+            // region 匹配表格内容
+            preg_match('/<table>.*?<\/table>/', $body, $matches);
+            if (!empty($table = $matches[0])) {
+                preg_match_all('/<tr[^>]*>(.*?)<\/tr>/', $table, $matches);
+                if (!empty($matches[1]) && !empty($tr = $matches[1][0])) {
+                    preg_match_all('/<td[^>]*>(.*?)<\/td>/', $tr, $matches);
+                    $table_headers = array_map(function ($value) {
+                        return strip_tags($value);
+                    }, $matches[1]);
+                }
+            }
+            //endregion
         }
+        unset($matches);
         //endregion
 
         $retryTimes = 5;
@@ -261,6 +262,7 @@ class FundValuationUpdate extends Command
             } catch (Exception $e) {
                 $this->error($e->getMessage());
             }
+            $retryTimes--;
         } while ($retryTimes >= 0);
         return new Response;
     }

@@ -166,6 +166,7 @@ class FundBaseUpdate extends Command
             } catch (\Throwable $e) {
                 $this->error($e->getMessage());
             }
+            $retryTimes--;
         } while ($retryTimes >= 0);
         return new Response;
     }
