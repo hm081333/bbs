@@ -23,10 +23,12 @@ use function Common\DI;
 use function Common\getGreeting;
 use function Common\isWeChat;
 use function PhalApi\T;
+use function Sign\sqlAdds;
 
 /**
  * 微信公众平台 领域层
  * Class WeChatMediaPlatform
+ *
  * @package Common\Domain
  * @author  LYi-Ho 2018-11-26 11:14:57
  */
@@ -55,6 +57,7 @@ class WeChatPublicPlatform
 
     /**
      * 拉取身份信息的唯一code
+     *
      * @param string $redirect
      * @param string $scope
      */
@@ -72,8 +75,10 @@ class WeChatPublicPlatform
 
     /**
      * 拉取身份信息的唯一code的链接
+     *
      * @param string $redirect
      * @param string $scope
+     *
      * @return string
      */
     public function getOpenIdCodeUrl(string $redirect, $scope = 'snsapi_base')
@@ -89,7 +94,9 @@ class WeChatPublicPlatform
 
     /**
      * 通过code拉取openid和access_token
+     *
      * @param $code
+     *
      * @return mixed
      * @throws InternalServerErrorException
      * @throws \Library\Exception\Exception
@@ -111,7 +118,9 @@ class WeChatPublicPlatform
 
     /**
      * $scope = 'snsapi_userinfo'的后续
+     *
      * @param $code
+     *
      * @return mixed
      * @throws InternalServerErrorException
      * @throws \Library\Exception\Exception
@@ -143,7 +152,9 @@ class WeChatPublicPlatform
 
     /**
      * 通过获取的openid达到自动登陆的效果
+     *
      * @param $code
+     *
      * @throws BadRequestException
      * @throws InternalServerErrorException
      * @throws \Library\Exception\Exception
@@ -181,6 +192,80 @@ class WeChatPublicPlatform
     }
 
     /**
+     * 公众号发送贴吧账号失效状态
+     */
+    public function sendTieBaCheckByCron()
+    {
+        $baidu_ids = $this->Model_User()->queryRows("SELECT
+            `baiduid`.`id` AS `baiduid_id`,
+            `baiduid`.`user_id`,
+            `baiduid`.`bduss`,
+            `baiduid`.`name`,
+            `user`.`id`,
+            `user`.`open_id`,
+            `user`.`user_name`
+        FROM
+            `ly_baiduid` AS `baiduid`
+        LEFT JOIN `ly_user` AS `user` ON `baiduid`.`user_id` = `user`.`id`
+        WHERE
+            `user`.`open_id` IS NOT NULL
+            AND `user`.`open_id` != ''");
+        foreach ($baidu_ids as $user) {
+            try {
+                $baidu_name = $this->Domain_TieBa()->getBaiduId($user['bduss']);
+                if (empty($baidu_name)) {
+                    $this->sendTieBaCheckExpired($user);
+                } else if ($baidu_name != $user['name']) {
+                    $this->Domain_TieBa()::doUpdate([
+                        'id' => $user['baiduid_id'],
+                        'name' => $baidu_name,
+                    ]);
+                }
+            } catch (Exception $e) {
+                DI()->logger->error($e->getMessage());
+                $this->sendTieBaCheckExpired($user);
+            }
+        }
+    }
+
+    /**
+     * 推送百度账号过期信息
+     *
+     * @param $user
+     *
+     * @return mixed
+     * @throws BadRequestException
+     */
+    private function sendTieBaCheckExpired($user)
+    {
+        if (empty($user) || empty($user['open_id']) || empty($user['id'])) throw new BadRequestException(T('非法参数'));
+
+        $result = DI()->wechat->template_message->send([
+            'touser' => $user['open_id'],
+            'template_id' => '_8NSk_IvQiL--mbTKXvEOn02XFGf1ppUXzTCgMZVRQo',
+            'url' => 'http://bbs2.lyiho.tk/sign',
+            'data' => [
+                'user_name' => [
+                    'value' => $user['user_name'],
+                    'color' => '#173177',
+                ],
+                'greeting' => [
+                    'value' => \Common\getGreeting(),
+                    'color' => '#173177',
+                ],
+                'tieba_user_name' => [
+                    'value' => $user['name'],
+                    'color' => '#173177',
+                ],
+            ],
+        ]);
+
+        DI()->logger->debug('微信推送结果', $result);
+
+        return $result;
+    }
+
+    /**
      * 公众号发送贴吧签到日志
      */
     public function sendTieBaSignDetailByCron()
@@ -208,7 +293,9 @@ class WeChatPublicPlatform
 
     /**
      * 发送贴吧签到详情
+     *
      * @param array $user
+     *
      * @return array|Collection|object|ResponseInterface|string
      * @throws BadRequestException
      * @throws InternalServerErrorException
@@ -232,11 +319,11 @@ class WeChatPublicPlatform
             // ],
             'data' => [
                 'user_name' => [
-                    'value' => $info['user_name'],
+                    'value' => $user['user_name'],
                     'color' => '#173177',
                 ],
                 'greeting' => [
-                    'value' => $info['greeting'],
+                    'value' => \Common\getGreeting(),
                     'color' => '#173177',
                 ],
                 'tieba_count' => [
@@ -265,6 +352,7 @@ class WeChatPublicPlatform
 
     /**
      * 贴吧 领域层
+     *
      * @return TieBa
      * @throws BadRequestException
      */
@@ -275,7 +363,9 @@ class WeChatPublicPlatform
 
     /**
      * 发送京东登录状态过期警告
+     *
      * @param array $jd_user_info
+     *
      * @return array|Collection|object|ResponseInterface|string
      * @throws BadRequestException
      * @throws GuzzleException
@@ -350,7 +440,9 @@ class WeChatPublicPlatform
 
     /**
      * 发送贴吧签到详情
+     *
      * @param array $user
+     *
      * @return array|Collection|object|ResponseInterface|string
      * @throws BadRequestException
      * @throws GuzzleException

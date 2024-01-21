@@ -36,6 +36,11 @@ try {
                     $wechat_domain = new \Common\Domain\TieBa();
                     $wechat_domain->scanTiebaAll();
                     break;
+                case 'check':
+                    \Common\DI()->logger->info('校验贴吧账号信息');
+                    $wechat_domain = new \Common\Domain\WeChatPublicPlatform();
+                    $wechat_domain->sendTieBaCheckByCron();
+                    break;
                 default:
                     die('非法参数！');
                     break;

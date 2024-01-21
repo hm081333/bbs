@@ -24,6 +24,7 @@ use function Sign\textMiddle;
 /**
  * 贴吧 领域层
  * TieBa
+ *
  * @package Common\Domain
  * @author  LYi-Ho 2018-11-26 11:14:57
  */
@@ -48,8 +49,10 @@ class TieBa
 
     /**
      * 忽略签到
+     *
      * @param $tieba_id
      * @param $no
+     *
      * @return bool
      * @throws InternalServerErrorException
      */
@@ -62,6 +65,7 @@ class TieBa
 
     /**
      * 贴吧 数据层
+     *
      * @return \Common\Model\TieBa|Model|NotORMModel
      */
     protected function Model_TieBa()
@@ -71,7 +75,9 @@ class TieBa
 
     /**
      * 添加BDUSS
+     *
      * @param $bduss
+     *
      * @throws BadRequestException
      * @throws InternalServerErrorException
      * @throws \PhalApi\Exception\InternalServerErrorException
@@ -90,22 +96,65 @@ class TieBa
 
     /**
      * 获取一个bduss对应的百度用户名
+     *
      * @param string $bduss BDUSS
+     *
      * @return string|bool 百度用户名，失败返回FALSE
      * @throws \PhalApi\Exception\InternalServerErrorException
      * @throws InternalServerErrorException
      */
     public function getBaiduId($bduss)
     {
-        $this->cookie = ['BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(time()))];
-        $data = $this->curl('http://wapp.baidu.com/');
-        return urldecode(textMiddle($data, 'i?un=', '">'));
+        // $this->cookie = ['BDUSS' => $bduss, 'BAIDUID' => strtoupper(md5(time()))];
+        // $data = $this->curl('https://tieba.baidu.com/mg/o/profile?format=json');
+        // return urldecode(textMiddle($data, 'i?un=', '">'));
+        $userData = $this->getBaiduUserInfo($bduss);
+        return isset($userData["name"]) ? $userData["name"] : "";
+    }
+
+    /**
+     * 获取一个bduss对应的百度用户信息
+     *
+     * @param string $bduss BDUSS
+     *
+     * @return array|bool 百度用户信息，失败返回FALSE
+     */
+    public function getBaiduUserInfo($bduss)
+    {
+        $this->cookie = ['BDUSS' => $bduss];
+        $temp = ['bdusstoken' => $bduss];
+        static::addTiebaSign($temp);
+        $data = $this->curl('http://c.tieba.baidu.com/c/s/login', $temp);
+        $data = json_decode($data, true);
+        $data = isset($data["user"]) ? $data["user"] : false;
+        return $data;
+    }
+
+    /**
+     * 对输入的数组添加客户端验证代码（tiebaclient!!!）
+     *
+     * @param array $data 数组
+     */
+    public static function addTiebaSign(&$data, $withClientType = true)
+    {
+        $data["_client_version"] = "12.22.1.0";
+        if ($withClientType) {
+            $data["_client_type"] = "4";
+        }
+        ksort($data);
+        $x = '';
+        foreach ($data as $k => $v) {
+            $x .= $k . '=' . $v;
+        }
+        $data['sign'] = strtoupper(md5($x . 'tiebaclient!!!'));
     }
 
     /**
      * CURL整合--返回数组
-     * @param string $url
+     *
+     * @param string     $url
      * @param bool|array $post
+     *
      * @return mixed
      * @throws InternalServerErrorException
      * @throws \PhalApi\Exception\InternalServerErrorException
@@ -142,6 +191,7 @@ class TieBa
 
     /**
      * 百度ID 领域层
+     *
      * @return BaiDuId
      */
     protected function Domain_BaiDuId()
@@ -151,7 +201,9 @@ class TieBa
 
     /**
      * 扫描指定用户的所有贴吧并储存--用于一键刷新
+     *
      * @param string $user_id UserID，如果留空，表示当前用户的UID
+     *
      * @throws BadRequestException
      * @throws InternalServerErrorException
      * @throws \PhalApi\Exception\InternalServerErrorException
@@ -173,6 +225,7 @@ class TieBa
 
     /**
      * 扫描所有用户的所有贴吧并储存--用于一键刷新
+     *
      * @throws BadRequestException
      * @throws InternalServerErrorException
      * @throws \PhalApi\Exception\InternalServerErrorException
@@ -188,6 +241,7 @@ class TieBa
 
     /**
      * 百度ID 数据层
+     *
      * @return \Common\Model\BaiDuId|Model|NotORMModel
      */
     protected function Model_BaiDuId()
@@ -197,7 +251,9 @@ class TieBa
 
     /**
      * 扫描指定PID的所有贴吧
+     *
      * @param int $pid PID
+     *
      * @throws InternalServerErrorException
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
@@ -227,6 +283,7 @@ class TieBa
 
     /**
      * 获取指定pid
+     *
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function getTieba($userid, $bduss, $pn)
@@ -266,6 +323,7 @@ class TieBa
 
     /**
      * 执行全部贴吧用户的签到任务
+     *
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function doRetryAll()
@@ -313,10 +371,12 @@ class TieBa
 
     /**
      * 对一个贴吧执行完整的签到任务
+     *
      * @param $kw
      * @param $id
      * @param $bduss
      * @param $fid
+     *
      * @return array|mixed
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
@@ -387,7 +447,9 @@ class TieBa
 
     /**
      * 得到贴吧 FID
+     *
      * @param string $kw 贴吧名
+     *
      * @return string FID
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
@@ -403,7 +465,9 @@ class TieBa
 
     /**
      * 得到TBS
+     *
      * @param $bduss
+     *
      * @return
      */
     public function getTbs($bduss)
@@ -417,10 +481,12 @@ class TieBa
 
     /**
      * 客户端签到
+     *
      * @param $kw
      * @param $fid
      * @param $ck
      * @param $tbs
+     *
      * @return string
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
@@ -450,14 +516,15 @@ class TieBa
 
     /**
      * 获取签到状态
+     *
      * @param array $user
+     *
      * @return array
      * @throws BadRequestException
      */
     public function getSignStatus($user = [])
     {
         if (empty($user)) throw new BadRequestException(T('非法参数'));
-        $greeting = \Common\getGreeting();
         $day_time = DateHelper::getDayTime();
         $tieba_model = $this->Model_TieBa();
         $total = $tieba_model->getCount(['user_id=?' => $user['user_id']]);
@@ -479,6 +546,7 @@ class TieBa
 
     /**
      * 执行全部贴吧用户的签到任务
+     *
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function doSignAll()
@@ -518,7 +586,9 @@ class TieBa
 
     /**
      * 执行一个贴吧用户的签到
+     *
      * @param $baidu_id
+     *
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function doSignByBaiDuId($baidu_id)
@@ -560,7 +630,9 @@ class TieBa
 
     /**
      * 执行一个会员的签到
+     *
      * @param $user_id
+     *
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
     public function doSignByUserId($user_id)
@@ -602,6 +674,7 @@ class TieBa
 
     /**
      * 得到BDUSS
+     *
      * @param int|string $baidu_id 贴吧用户PID
      */
     /*public static function getCookie($baidu_id)
@@ -616,7 +689,9 @@ class TieBa
 
     /**
      * 执行一个贴吧的签到
+     *
      * @param $tieba_id
+     *
      * @return array|mixed
      * @throws BadRequestException
      * @throws \PhalApi\Exception\InternalServerErrorException
@@ -647,10 +722,12 @@ class TieBa
 
     /**
      * 手机网页签到
+     *
      * @param $kw
      * @param $fid
      * @param $ck
      * @param $tbs
+     *
      * @return string
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
@@ -664,9 +741,11 @@ class TieBa
 
     /**
      * 网页签到
+     *
      * @param $kw
      * @param $fid
      * @param $ck
+     *
      * @return bool
      * @throws \PhalApi\Exception\InternalServerErrorException
      */
@@ -699,6 +778,7 @@ class TieBa
 
     /**
      * 获取ServerTime
+     *
      * @return array
      * @throws InternalServerErrorException
      * @throws \PhalApi\Exception\InternalServerErrorException
@@ -714,7 +794,9 @@ class TieBa
 
     /**
      * 获取验证码图片
+     *
      * @param $vCodeStr
+     *
      * @return mixed
      * @throws InternalServerErrorException
      * @throws \PhalApi\Exception\InternalServerErrorException
@@ -727,12 +809,14 @@ class TieBa
 
     /**
      * 普通登录操作
+     *
      * @param string $time
      * @param string $user
      * @param string $pwd
      * @param string $p
      * @param string $vcode
      * @param string $vcodestr
+     *
      * @return array
      * @throws InternalServerErrorException
      * @throws \PhalApi\Exception\InternalServerErrorException
@@ -771,9 +855,11 @@ class TieBa
 
     /**
      * 登录异常时发送手机/邮件验证码
+     *
      * @param $type
      * @param $lstr
      * @param $ltoken
+     *
      * @return array
      * @throws InternalServerErrorException
      * @throws \PhalApi\Exception\InternalServerErrorException
@@ -794,10 +880,12 @@ class TieBa
 
     /**
      * 登录异常时登录操作
+     *
      * @param string $type
      * @param string $lstr
      * @param string $ltoken
      * @param string $vcode
+     *
      * @return array
      * @throws BadRequestException
      * @throws InternalServerErrorException
@@ -862,7 +950,9 @@ class TieBa
 
     /**
      * 检测是否需要验证码
+     *
      * @param $user
+     *
      * @return array
      * @throws BadRequestException
      * @throws InternalServerErrorException
@@ -887,7 +977,9 @@ class TieBa
 
     /**
      * 手机验证码登录，获取手机号是否存在
+     *
      * @param $phone
+     *
      * @return array
      * @throws BadRequestException
      * @throws InternalServerErrorException
@@ -949,10 +1041,12 @@ class TieBa
 
     /**
      * 手机验证码登录，发送验证码
+     *
      * @param        $phone
      * @param string $vcode
      * @param string $vcodestr
      * @param string $vcodesign
+     *
      * @return array
      * @throws BadRequestException
      * @throws InternalServerErrorException
@@ -987,8 +1081,10 @@ class TieBa
 
     /**
      * 手机验证码登录操作
+     *
      * @param $phone
      * @param $smsvc
+     *
      * @return array
      * @throws BadRequestException
      * @throws InternalServerErrorException
@@ -1064,6 +1160,7 @@ class TieBa
 
     /**
      * 获取扫码登录二维码
+     *
      * @return array
      * @throws InternalServerErrorException
      * @throws \PhalApi\Exception\InternalServerErrorException
@@ -1084,7 +1181,9 @@ class TieBa
 
     /**
      * 扫码登录操作
+     *
      * @param $sign
+     *
      * @throws BadRequestException
      * @throws InternalServerErrorException
      * @throws \PhalApi\Exception\InternalServerErrorException
@@ -1129,6 +1228,7 @@ class TieBa
 
     /**
      * 用户 数据层
+     *
      * @return \Common\Model\User|Model|NotORMModel
      */
     protected function Model_User()
