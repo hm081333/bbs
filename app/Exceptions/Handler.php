@@ -39,9 +39,8 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
-        });
+        // $this->reportable(function (Throwable $e) {
+        // });
         $this->renderable(function (Throwable $e, Request $request) {
             //region 抛出的Http异常，404等
             if ($e instanceof HttpException) {
