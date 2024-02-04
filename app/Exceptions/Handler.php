@@ -64,7 +64,10 @@ class Handler extends ExceptionHandler
                     //'data' => null,
                     'msg' => $e->getMessage(),
                 ];
-                if (!($e instanceof \App\Exceptions\Exception) && Tools::isProduction()) {
+                if ($e instanceof \Tymon\JWTAuth\Exceptions\JWTException) {
+                    $data['code'] = '401';
+                    $data['msg'] = '请登录';
+                } else if (!($e instanceof \App\Exceptions\Exception) && Tools::isProduction()) {
                     Bark::instance()
                         ->setGroup('Exception')
                         ->setTitle(config('app.name', '') . '系统异常捕获')
@@ -74,10 +77,6 @@ class Handler extends ExceptionHandler
                         ], array_filter(array_map(fn($trace) => isset($trace['file']) ? str_replace(base_path(), '', $trace['file']) . ':' . $trace['line'] : false, $e->getTrace())))))
                         ->send();
                     $data['msg'] = '请求错误，请联系管理员。';
-                }
-                if ($e instanceof \Tymon\JWTAuth\Exceptions\JWTException) {
-                    $data['code'] = '401';
-                    $data['msg'] = '请登录';
                 }
                 //throw new UnauthorizedException('请登录');
                 if (Tools::isDebug()) {
