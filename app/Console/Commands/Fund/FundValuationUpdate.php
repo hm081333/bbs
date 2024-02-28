@@ -74,20 +74,34 @@ class FundValuationUpdate extends Command
 
     /**
      * 基金速查网
+     *
      * @return false|void
      * @throws GuzzleException
      */
     private function _dayfund()
     {
         $valuation_source = 'https://www.dayfund.cn/prevalue.html';
-        $table_headers = [];
+        $table_headers = [
+            '序号',
+            '基金代码',
+            '基金名称',
+            '上期单位净值',
+            '最新预估净值',
+            '预估增长值',
+            '预估增长率',
+            '估值时间',
+            '链接',
+        ];
+        // 重试次数
+        $retryTimes = 5;
+        // 页码url集合
+        $all_pages = collect();
         //region 获取页码与表头
         $max_page = 0;
-        $response = $this->single_http_get('https://www.dayfund.cn/', "prevalue_10000.html", [
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
-        ]);
         // 获取html中body
-        preg_match('/<body>.*?<\/body>/', str_replace(["\r", "\n", "\r\n", "<br/>"], '', $response->getBody()->getContents()), $matches);
+        preg_match('/<body>.*?<\/body>/', str_replace(["\r", "\n", "\r\n", "<br/>"], '', $this->single_http_get('https://www.dayfund.cn/', "prevalue_10000.html", [
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
+        ])->getBody()->getContents()), $matches);
         if (!empty($body = $matches[0] ?? '')) {
             // region 匹配页码
             preg_match_all('/prevalue_(\d+).html/', $body, $matches);
@@ -95,29 +109,16 @@ class FundValuationUpdate extends Command
             if ($max_page <= 0) {
                 Log::error('_dayfund获取页码失败');
                 return false;
+            } else {
+                // 页码url集合
+                $all_pages = collect()->range(1, $max_page)->map(fn($i) => "prevalue_{$i}");
+                $all_pages = $all_pages->combine($all_pages->map(fn($page) => "{$page}.html"));
             }
             // endregion
-            // region 匹配表格内容
-            preg_match('/<table>.*?<\/table>/', $body, $matches);
-            if (!empty($table = $matches[0])) {
-                preg_match_all('/<tr[^>]*>(.*?)<\/tr>/', $table, $matches);
-                if (!empty($matches[1]) && !empty($tr = $matches[1][0])) {
-                    preg_match_all('/<td[^>]*>(.*?)<\/td>/', $tr, $matches);
-                    $table_headers = array_map(function ($value) {
-                        return strip_tags($value);
-                    }, $matches[1]);
-                }
-            }
-            //endregion
         }
         unset($matches);
         //endregion
 
-        $retryTimes = 5;
-        $all_pages = collect();
-        for ($i = 1; $i <= $max_page; $i++) {
-            $all_pages["prevalue_{$i}"] = "prevalue_{$i}.html";
-        }
         while ($all_pages->isNotEmpty() && $retryTimes > 0) {
             $chunks = $all_pages->chunk(10);
             $chunks
@@ -149,21 +150,29 @@ class FundValuationUpdate extends Command
                                 Log::debug($page_content);
                                 return;
                             }
-                            foreach ($matches[1] as $index => $tr) {
+                            $trs = $matches[1];
+                            $code_key = '基金代码';
+                            $valuation_time_key = '估值时间';
+                            $estimated_net_value_key = '最新估值';// 预估净值 最新预估净值
+                            foreach ($trs as $index => $tr) {
                                 preg_match_all('/<td[^>]*>(.*?)<\/td>/', $tr, $matches);
                                 $values = array_map(function ($value) {
                                     return strip_tags($value);
                                 }, $matches[1]);
-                                if ($index == 0) continue;
-                                if (count($values) == count($table_headers)) {
+                                if ($index == 0) {
+                                    $table_headers = $values;
+                                    $table_headers_str = ',' . implode(',', $table_headers) . ',';
+                                    preg_match('/,[^,]*估[^,]*值[^,^时间]*,/', $table_headers_str, $matches);
+                                    if (!empty($matches[0])) $estimated_net_value_key = trim($matches[0], ',');
+                                } else if (count($table_headers) == count($values)) {
                                     $funds_value = array_combine($table_headers, $values);
-                                    //$this->comment("写入基金估值：{$funds_value['估值时间']}-{$funds_value['基金代码']}-{$funds_value['基金名称']}-{$funds_value['最新预估净值']}");
+                                    //$this->comment("写入基金估值：{$funds_value[$valuation_time_key]}-{$funds_value[$code_key]}-{$funds_value['基金名称']}-{$funds_value[$estimated_net_value_key]}");
                                     // 只写入当天的估值
                                     $this->dispatchFundValuationUpdateJob([
-                                        'code' => $funds_value['基金代码'],
-                                        'valuation_time' => $funds_value['估值时间'],
+                                        'code' => $funds_value[$code_key],
+                                        'valuation_time' => $funds_value[$valuation_time_key],
                                         'valuation_source' => $valuation_source,
-                                        'estimated_net_value' => $funds_value['最新预估净值'],
+                                        'estimated_net_value' => $funds_value[$estimated_net_value_key],
                                     ]);
                                 }
                             }
@@ -178,6 +187,7 @@ class FundValuationUpdate extends Command
 
     /**
      * 天天基金网
+     *
      * @return void
      */
     private function _eastmoney()
@@ -224,7 +234,9 @@ class FundValuationUpdate extends Command
 
     /**
      * 构建GuzzleHttp客户端
+     *
      * @param string $base_uri
+     *
      * @return Client
      */
     private function build_http_client(string $base_uri, array $headers = [])
@@ -243,10 +255,12 @@ class FundValuationUpdate extends Command
 
     /**
      * 单个http get请求
-     * @param string $base_uri 接口url
-     * @param string $path 接口
-     * @param array $headers 请求头
-     * @param int $retryTimes 重试次数
+     *
+     * @param string $base_uri   接口url
+     * @param string $path       接口
+     * @param array  $headers    请求头
+     * @param int    $retryTimes 重试次数
+     *
      * @return Response|ResponseInterface
      * @throws GuzzleException
      */
@@ -269,10 +283,12 @@ class FundValuationUpdate extends Command
 
     /**
      * 多个http并发 get请求
-     * @param string $base_uri 接口url
-     * @param array|Collection $paths 接口
-     * @param array $headers 请求头
-     * @param int $retryTimes 重试次数
+     *
+     * @param string           $base_uri   接口url
+     * @param array|Collection $paths      接口
+     * @param array            $headers    请求头
+     * @param int              $retryTimes 重试次数
+     *
      * @return array
      */
     private function multi_http_get(string $base_uri, array|\Illuminate\Support\Collection $paths, array $headers = [], int $retryTimes = 5): array
@@ -319,7 +335,9 @@ class FundValuationUpdate extends Command
 
     /**
      * 调度队列任务
+     *
      * @param array $data
+     *
      * @return false|\Illuminate\Foundation\Bus\PendingDispatch
      */
     private function dispatchFundValuationUpdateJob(array $data): \Illuminate\Foundation\Bus\PendingDispatch|bool
