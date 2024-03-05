@@ -30,8 +30,8 @@ class BlueprintMixin
     {
         return function () {
             /* @var $this Blueprint */
-            $this->timestampInteger('created_at')->nullable()->comment('创建时间');
-            $this->timestampInteger('updated_at')->nullable()->comment('更新时间');
+            $this->timestampInteger('created_at')->comment('创建时间');
+            $this->timestampInteger('updated_at')->comment('更新时间');
         };
     }
 

@@ -1,0 +1,42 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Console\Command;
+use App\Utils\Tools;
+
+class {{ class }} extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = '{{ command }}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Command description';
+
+    private $job_start_time;
+
+    /**
+     * Execute the console command.
+     *
+     * @return int
+     */
+    public function handle()
+    {
+        $this->job_start_time = microtime(true);
+        $this->_handle();
+        $this->info('完成|' . $this->description . '|耗时：' . Tools::secondToTimeText(microtime(true) - $this->job_start_time));
+        return Command::SUCCESS;
+    }
+
+    private function _handle()
+    {
+    }
+}

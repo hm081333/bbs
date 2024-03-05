@@ -16,9 +16,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $cost 持有成本
  * @property string $share 持有份额
  * @property string $amount 持有金额
- * @property \Illuminate\Support\Carbon|null $created_at 创建时间
- * @property \Illuminate\Support\Carbon|null $updated_at 更新时间
- * @property int|null $deleted_at 删除时间
+ * @property \Carbon\Carbon|null $created_at 创建时间
+ * @property \Carbon\Carbon|null $updated_at 更新时间
+ * @property \Carbon\Carbon|null $deleted_at 删除时间
+ * @property-read string $sex_name
+ * @property-write mixed $sn
+ * @property-write mixed $sort
  * @method static \Illuminate\Database\Eloquent\Builder|UserFund newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|UserFund newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|UserFund query()
@@ -33,9 +36,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|UserFund whereShare($value)
  * @method static \Illuminate\Database\Eloquent\Builder|UserFund whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|UserFund whereUserId($value)
- * @property-read string $sex_name
- * @property-write mixed $sn
- * @property-write mixed $sort
  * @mixin \Eloquent
  */
 class UserFund extends BaseModel

@@ -31,9 +31,8 @@ return new class extends Migration {
             $table->string('password')->comment('密码');
             $table->text('o_pwd')->nullable()->comment('原始密码');
             $table->rememberToken();
-            $table->unsignedInteger('created_at')->nullable()->comment('创建时间');
-            $table->unsignedInteger('updated_at')->nullable()->comment('更新时间');
-            $table->unsignedInteger('deleted_at')->nullable()->comment('删除时间');
+            $table->timestampsInteger();
+            $table->softDeletesInteger();
             $table->comment('用户表');
         });
     }

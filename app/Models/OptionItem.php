@@ -13,26 +13,18 @@ use Illuminate\Support\Facades\Cache;
 /**
  * App\Models\OptionItem
  *
- * @property int $id
- * @property string $code 选项编码
- * @property string $value 选项值
- * @property int $sort 选项排序
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
  * @property-read mixed $key
+ * @property-read string $sex_name
  * @property-read \App\Models\Option|null $option
+ * @property-write mixed $sn
+ * @property-write mixed $sort
  * @method static \Illuminate\Database\Eloquent\Builder|OptionItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OptionItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OptionItem onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|OptionItem query()
- * @method static \Illuminate\Database\Eloquent\Builder|OptionItem whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OptionItem whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OptionItem whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OptionItem whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OptionItem whereSort($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OptionItem whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OptionItem whereValue($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OptionItem withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|OptionItem withoutTrashed()
  * @mixin Eloquent

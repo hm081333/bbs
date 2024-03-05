@@ -22,10 +22,12 @@ use Illuminate\Support\Carbon;
  * @property string|null $size 文件大小
  * @property string|null $width 宽度
  * @property string|null $height 高度
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
+ * @property \Carbon\Carbon|null $created_at 创建时间
+ * @property \Carbon\Carbon|null $updated_at 更新时间
+ * @property \Carbon\Carbon|null $deleted_at 删除时间
+ * @property-read string $sex_name
  * @property-read string $url
+ * @property-write mixed $sn
  * @property-write mixed $sort
  * @method static Builder|File newModelQuery()
  * @method static Builder|File newQuery()
@@ -45,8 +47,6 @@ use Illuminate\Support\Carbon;
  * @method static Builder|File whereWidth($value)
  * @method static Builder|File withTrashed()
  * @method static Builder|File withoutTrashed()
- * @property-read string $sex_name
- * @property-write mixed $sn
  * @mixin Eloquent
  */
 class File extends BaseModel

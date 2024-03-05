@@ -14,25 +14,18 @@ use Illuminate\Support\Facades\Cache;
 /**
  * App\Models\Option
  *
- * @property int $id
- * @property string $name 选项名称
- * @property string $code 选项编码
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ * @property-read string $sex_name
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\OptionItem> $items
  * @property-read int|null $items_count
+ * @property-write mixed $sn
  * @property-write mixed $sort
  * @method static \Illuminate\Database\Eloquent\Builder|Option newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Option newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Option onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Option query()
- * @method static \Illuminate\Database\Eloquent\Builder|Option whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Option whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Option whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Option whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Option whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Option whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Option withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Option withoutTrashed()
  * @mixin Eloquent

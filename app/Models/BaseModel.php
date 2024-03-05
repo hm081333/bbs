@@ -22,9 +22,9 @@ use Illuminate\Support\Str;
 /**
  * App\Models\BaseModel
  *
- * @property Carbon $created_at
- * @property Carbon $updated_at
- * @property Carbon $deleted_at
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
  * @property-read string $sex_name
  * @property-write mixed $sn
  * @property-write mixed $sort

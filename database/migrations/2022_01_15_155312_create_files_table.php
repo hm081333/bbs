@@ -24,9 +24,8 @@ class CreateFilesTable extends Migration
             $table->string('size')->nullable()->comment('文件大小');
             $table->string('width')->nullable()->comment('宽度');
             $table->string('height')->nullable()->comment('高度');
-            $table->unsignedInteger('created_at')->nullable()->comment('创建时间');
-            $table->unsignedInteger('updated_at')->nullable()->comment('更新时间');
-            $table->unsignedInteger('deleted_at')->nullable()->comment('删除时间');
+            $table->timestampsInteger();
+            $table->softDeletesInteger();
             $table->comment('文件表');
         });
     }

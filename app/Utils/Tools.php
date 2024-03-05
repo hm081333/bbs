@@ -89,8 +89,8 @@ class Tools
      * 产生随机字串，可用来自动生成密码
      * 默认长度6位 字母和数字混合 支持中文
      *
-     * @param string $len 长度
-     * @param string $type 字串类型 0 字母 1 数字 其它 混合
+     * @param string $len      长度
+     * @param string $type     字串类型 0 字母 1 数字 其它 混合
      * @param string $addChars 额外字符
      *
      * @return string
@@ -146,11 +146,11 @@ class Tools
      * @static
      * @access public
      *
-     * @param string $str 需要转换的字符串
-     * @param string $start 开始位置
-     * @param string $length 截取长度
+     * @param string $str     需要转换的字符串
+     * @param string $start   开始位置
+     * @param string $length  截取长度
      * @param string $charset 编码格式
-     * @param string $suffix 截断显示字符
+     * @param string $suffix  截断显示字符
      *
      * @return string
      */
@@ -438,7 +438,7 @@ class Tools
      * @desc 用于控制器层
      *
      * @param Closure $callback 回调函数
-     * @param int $attempts 重试次数
+     * @param int     $attempts 重试次数
      *
      * @return mixed
      * @throws Throwable
@@ -457,7 +457,7 @@ class Tools
      * @desc 用于控制器层
      *
      * @param Closure $callback 回调函数
-     * @param string $unique 唯一标识
+     * @param string  $unique   唯一标识
      *
      * @return mixed
      * @throws BadRequestException
@@ -486,8 +486,8 @@ class Tools
     /**
      * 模型别称
      *
-     * @param Model|string $model 模型
-     * @param string $prefix 别称前缀
+     * @param Model|string $model  模型
+     * @param string       $prefix 别称前缀
      *
      * @return string
      */
@@ -503,7 +503,7 @@ class Tools
      * @param        $left_operand
      * @param string $operator
      * @param        $right_operand
-     * @param int $scale
+     * @param int    $scale
      *
      * @return bool|string|null
      */
@@ -578,7 +578,7 @@ class Tools
      * 重建url，追加参数
      *
      * @param string $url
-     * @param array $extra_query
+     * @param array  $extra_query
      *
      * @return string
      */
@@ -659,7 +659,7 @@ class Tools
     /**
      * 二维数组根据首字母分组排序
      *
-     * @param array $data 二维数组
+     * @param array  $data      二维数组
      * @param string $targetKey 首字母的键名
      *
      * @return array             根据首字母关联的二维数组
@@ -1065,8 +1065,8 @@ class Tools
     /**
      * 临时目录路径
      *
-     * @param string $path 相对路径
-     * @param bool $create 是否创建目录
+     * @param string $path   相对路径
+     * @param bool   $create 是否创建目录
      *
      * @return string
      */
@@ -1079,8 +1079,8 @@ class Tools
     /**
      * 日志目录路径
      *
-     * @param string $path 相对路径
-     * @param bool $create 是否创建目录
+     * @param string $path   相对路径
+     * @param bool   $create 是否创建目录
      *
      * @return string
      */
@@ -1093,8 +1093,8 @@ class Tools
     /**
      * 备份目录路径
      *
-     * @param string $path 相对路径
-     * @param bool $create 是否创建目录
+     * @param string $path   相对路径
+     * @param bool   $create 是否创建目录
      *
      * @return string
      */
@@ -1170,6 +1170,7 @@ class Tools
 
     /**
      * 模型映射器
+     *
      * @return \App\Utils\Register\ModelMap
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
@@ -1232,10 +1233,68 @@ class Tools
 
     // endregion
 
+    //region HTML压缩
+
+    /**
+     * PHP压缩html js css的函数
+     * 激进
+     * 清除换行符,清除制表符,去掉注释标记
+     *
+     * 网页里面的js代码中不要使用//行注释
+     * /* 块注释会自动剔除
+     *
+     * 函数自动剔除标记之间多余的空白
+     *
+     * 判断标记的属性的属性值是否被""包裹之间
+     * 如果有就剔除属性和属性值之间的所有空格
+     * 如果没有""就保留一个空格，避免破坏html结构。
+     *
+     * @param $string string HTML内容
+     *
+     * @return $string 压缩后HTML内容
+     */
+    public static function compress_html(string $string): string
+    {
+        // remove new lines & tabs
+        $string = preg_replace('/[\\n\\r\\t]+/', ' ', $string);
+        // remove extra whitespace
+        $string = preg_replace('/\\s{2,}/', ' ', $string);
+        // remove inter-tag whitespace
+        $string = preg_replace('/>\\s</', '><', $string);
+        // remove CSS & JS comments
+        $string = preg_replace('/\\/\\*.*?\\*\\//i', '', $string);
+        return $string;
+        // $string = str_replace(["\r\n", "\r", "\n", "\t"], '', $string); //清除换行符
+        // return preg_replace([//去掉注释标记
+        //     "/> *([^ ]*) *</",
+        //     "/[\s]+/",
+        //     "/<!--[\\w\\W\r\\n]*?-->/",
+        //     "/\" /",
+        //     "/ \"/",
+        //     "'/\*[^*]*\*/'",
+        //     '/\>[^\S ]+/s',  // 删除标签后面空格
+        //     '/[^\S ]+\</s',  // 删除标签前面的空格
+        //     '/(\s)+/s',       // 将多个空格合并成一个
+        // ], [
+        //     ">\\1<",
+        //     " ",
+        //     "",
+        //     "\"",
+        //     "\"",
+        //     "",
+        //     '>',
+        //     '<',
+        //     '\\1',
+        // ], $string);
+    }
+    //endregion
+
     // region 基金股市相关
     /**
      * 是否大A开门日期
+     *
      * @param $time
+     *
      * @return bool
      * @throws InternalServerErrorException
      * @throws InvalidArgumentException
@@ -1248,7 +1307,9 @@ class Tools
 
     /**
      * 是否大A开门时间
+     *
      * @param $time
+     *
      * @return bool
      * @throws InternalServerErrorException
      * @throws InvalidArgumentException

@@ -22,9 +22,8 @@ return new class extends Migration
             $table->decimal('unit_net_value', 10, 4)->nullable()->comment('单位净值');
             $table->decimal('cumulative_net_value', 10, 4)->nullable()->comment('累计净值');
             $table->unsignedInteger('net_value_time')->nullable()->comment('基金净值时间');
-            $table->unsignedInteger('created_at')->nullable()->comment('创建时间');
-            $table->unsignedInteger('updated_at')->nullable()->comment('更新时间');
-            $table->unsignedInteger('deleted_at')->nullable()->comment('删除时间');
+            $table->timestampsInteger();
+            $table->softDeletesInteger();
             $table->comment('基金表');
         });
     }

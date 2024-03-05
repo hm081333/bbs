@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -15,10 +14,8 @@ return new class extends Migration
     {
         Schema::create('baidu_ids', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('created_at')->nullable()->comment('创建时间');
-            $table->unsignedInteger('updated_at')->nullable()->comment('更新时间');
-            $table->unsignedInteger('deleted_at')->nullable()->comment('删除时间');
-//            $table->softDeletes();
+            $table->timestampsInteger();
+            $table->softDeletesInteger();
             $table->comment('百度ID表');
         });
     }

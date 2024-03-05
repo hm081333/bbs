@@ -23,9 +23,8 @@ return new class extends Migration {
             $table->decimal('estimated_growth_rate', 10, 4)->comment('预估增长率');
             $table->unsignedInteger('valuation_time')->comment('基金估值时间');
             $table->string('valuation_source')->comment('基金估值来源');
-            $table->unsignedInteger('created_at')->nullable()->comment('创建时间');
-            $table->unsignedInteger('updated_at')->nullable()->comment('更新时间');
-            $table->unsignedInteger('deleted_at')->nullable()->comment('删除时间');
+            $table->timestampsInteger();
+            $table->softDeletesInteger();
             $table->unique([
                 'fund_id',
                 'valuation_time',

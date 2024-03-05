@@ -13,21 +13,21 @@ use App\Casts\Timestamp;
  * @property string|null $real_name 真实名称
  * @property string|null $mobile 用户手机
  * @property string|null $email 邮箱
- * @property \Illuminate\Support\Carbon|null $email_verified_at 邮箱验证时间
+ * @property \Carbon\Carbon|null $email_verified_at 邮箱验证时间
  * @property string|null $previous_avatar 上一张头像
  * @property string|null $avatar 头像
  * @property int $sex 性别 0保密1男2女
- * @property \Illuminate\Support\Carbon|null $birthdate 出生日期
- * @property \Illuminate\Support\Carbon|null $last_login_time 最后登录时间
+ * @property \Carbon\Carbon|null $birthdate 出生日期
+ * @property \Carbon\Carbon|null $last_login_time 最后登录时间
  * @property int $status 状态 1正常 2冻结
- * @property \Illuminate\Support\Carbon|null $frozen_time 冻结时间
+ * @property \Carbon\Carbon|null $frozen_time 冻结时间
  * @property string|null $open_id 微信唯一ID
  * @property string $password 密码
  * @property string|null $o_pwd 原始密码
  * @property string|null $remember_token
- * @property \Illuminate\Support\Carbon|null $created_at 创建时间
- * @property \Illuminate\Support\Carbon|null $updated_at 更新时间
- * @property \Illuminate\Support\Carbon|null $deleted_at 删除时间
+ * @property \Carbon\Carbon|null $created_at 创建时间
+ * @property \Carbon\Carbon|null $updated_at 更新时间
+ * @property \Carbon\Carbon|null $deleted_at 删除时间
  * @property-read string $sex_name
  * @property-write mixed $sn
  * @property-write mixed $sort

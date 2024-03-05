@@ -21,9 +21,8 @@ return new class extends Migration {
             $table->decimal('cost', 10, 4)->comment('持有成本');
             $table->decimal('share', 20, 4)->comment('持有份额');
             $table->decimal('amount', 20, 4)->comment('持有金额');
-            $table->unsignedInteger('created_at')->nullable()->comment('创建时间');
-            $table->unsignedInteger('updated_at')->nullable()->comment('更新时间');
-            $table->unsignedInteger('deleted_at')->nullable()->comment('删除时间');
+            $table->timestampsInteger();
+            $table->softDeletesInteger();
             $table->comment('用户基金表');
         });
     }

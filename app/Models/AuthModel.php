@@ -16,9 +16,9 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 /**
  * App\Models\AuthModel
  *
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
- * @property \Illuminate\Support\Carbon $deleted_at
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
  * @property-read string $sex_name
  * @property-write mixed $sn
  * @property-write mixed $sort
