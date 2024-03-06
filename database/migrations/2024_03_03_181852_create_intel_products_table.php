@@ -14,17 +14,22 @@ return new class extends Migration {
     {
         Schema::create('intel_products', function (Blueprint $table) {
             $table->id();
+            $table->string('language', 10)->comment('规格语言');
+            $table->string('unique_key')->unique()->comment('唯一标识(ark_product_id:language)');
             $table->foreignId('category_id')->comment('分类ID');
             $table->foreignId('series_id')->comment('系列ID');
-            $table->string('ark_series_id')->index()->comment('ARK系列ID');
-            $table->string('ark_product_id')->unique()->comment('ARK产品ID');
+            $table->string('ark_series_id')->comment('ARK系列ID');
+            $table->string('ark_product_id')->comment('ARK产品ID');
             $table->string('name')->comment('名称');
-            $table->string('chinese_name')->comment('中文名称');
-            $table->json('multilingual_name')->comment('多语言名称');
-            $table->json('path')->comment('规格列表路径');
-            $table->json('url')->comment('规格列表URL');
+            $table->string('path')->comment('规格列表路径');
+            $table->string('url')->comment('规格列表URL');
             $table->timestampsInteger();
             $table->softDeletesInteger();
+            $table->index([
+                'language',
+                'ark_series_id',
+                'ark_product_id',
+            ]);
             $table->index([
                 'category_id',
                 'series_id',

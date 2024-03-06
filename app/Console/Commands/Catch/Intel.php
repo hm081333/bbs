@@ -79,18 +79,14 @@ class Intel extends Command
     private function _catch()
     {
         $this->getProductCategoryAndSeries();
-        $this->saveProductCategory();
-        $this->saveProductSeries();
         $this->getProductList();
-        $this->saveProduct();
         $this->getProductSpec();
     }
 
     private function getProductCategoryAndSeries()
     {
         $url = $this->getUrlFromString('/content/www/us/en/ark.html');
-        $language = 'en_us';
-        $base_url = str_replace(implode('/', array_reverse(explode('_', $language))), '{language_key}', $url);
+        $base_url = str_replace(implode('/', array_reverse(explode('_', 'en_us'))), '{language_key}', $url);
         $html = $this->curlGet($url);
         preg_match_all('/<li[^>]*class="[^"]*lang-option[^"]*"[^>]*>[^<]*<a[^>]*data-locale="(.*?)"[^>]*href="(.*?)"[^>]*>(.*?)<\/a>[^<]*<\/li>/', $html, $matches);
         $language_list = [];
@@ -98,14 +94,16 @@ class Intel extends Command
             $name = trim($matches[3][$index]);
             $item = [
                 'name' => $name,
-                'selected' => $key == $language,
+                // 'selected' => $key == $language,
             ];
             $item['url'] = str_replace('{language_key}', implode('/', array_reverse(explode('_', $key))), $base_url);
             $language_list[$key] = $item;
         }
         collect($language_list)->each(fn($info, $language) => $this->_getProductCategoryAndSeries($info['url'], $language));
-        file_put_contents(Tools::backupPath('intel_ark_category.json'), Tools::jsonEncode($this->product_category_list));
-        file_put_contents(Tools::backupPath('intel_ark_series.json'), Tools::jsonEncode($this->product_series_list));
+        // file_put_contents(Tools::backupPath('intel_ark_category.json'), Tools::jsonEncode($this->product_category_list));
+        // file_put_contents(Tools::backupPath('intel_ark_series.json'), Tools::jsonEncode($this->product_series_list));
+        $this->saveProductCategory();
+        $this->saveProductSeries();
     }
 
     private function _getProductCategoryAndSeries(string $url, string $language)
@@ -122,18 +120,16 @@ class Intel extends Command
         foreach ($product_category_list as $category_panel_key => $product_category_name) {
             $product_category_name = $this->removeExtraSpaces($product_category_name);
             $product_category = [
+                'pid' => 0,
+                'level' => 0,
+                'language' => $language,
                 'panel_key' => $category_panel_key,
+                'unique_key' => "{$category_panel_key}:{$language}",
+                'name' => $product_category_name,
             ];
-            if (isset($this->product_category_list[$product_category['panel_key']])) $product_category = $this->product_category_list[$product_category['panel_key']];
-            // 英文名作为主名称
-            if ($language == 'en_us') $product_category['name'] = $product_category_name;
-            if ($language == 'zh_cn') $product_category['chinese_name'] = $product_category_name;
-            //region 多语言名称
-            $product_category['multilingual_name'] = $product_category['multilingual_name'] ?? [];
-            $product_category['multilingual_name'][$language] = $product_category_name;
-            //endregion
-            $this->product_category_list[$product_category['panel_key']] = $product_category;
-            dump($product_category_name);
+            $this->product_category_list[$product_category['unique_key']] = $product_category;
+            dump("{$language}|主分类：{$product_category_name}");
+
             // 正则匹配出旗下子产品分类
             preg_match('/<div[^>]*class="product-categories product-categories-2"[^>]*data-parent-panel-key="' . $product_category['panel_key'] . '"[^>]*>[^<]*<div class="row category-row">([^<]*<div[^>]*data-wap_ref="category\|subcategory"[^>]*>.*?<\/div>[^<]*)+<\/div>[^<]*<\/div>/', $section, $matches);
             $product_subcategory_html = $matches[0];
@@ -142,47 +138,37 @@ class Intel extends Command
             foreach (array_combine($matches[1], $matches[2]) as $subcategory_panel_key => $product_subcategory_name) {
                 $product_subcategory_name = $this->removeExtraSpaces($product_subcategory_name);
                 $product_subcategory = [
+                    'parent_unique_key' => $product_category['unique_key'],
+                    'pid' => null,
+                    'level' => 1,
+                    'language' => $language,
                     'panel_key' => $subcategory_panel_key,
-                    'parent_panel_key' => $product_category['panel_key'],
+                    'unique_key' => "{$subcategory_panel_key}:{$language}",
+                    'name' => $product_subcategory_name,
                 ];
-                if (isset($this->product_category_list[$product_subcategory['panel_key']])) $product_subcategory = $this->product_category_list[$product_subcategory['panel_key']];
-                // 英文名作为主名称
-                if ($language == 'en_us') $product_subcategory['name'] = $product_subcategory_name;
-                if ($language == 'zh_cn') $product_subcategory['chinese_name'] = $product_subcategory_name;
-                //region 多语言名称
-                $product_subcategory['multilingual_name'] = $product_subcategory['multilingual_name'] ?? [];
-                $product_subcategory['multilingual_name'][$language] = $product_subcategory_name;
-                //endregion
-                $this->product_category_list[$product_subcategory['panel_key']] = $product_subcategory;
-                dump($product_subcategory_name);
+                $this->product_category_list[$product_subcategory['unique_key']] = $product_subcategory;
+                dump("{$language}|子分类：{$product_subcategory_name}");
+
                 // 正则匹配出分类下产品系列
                 preg_match('/<div[^>]*class="products processors"[^>]*data-parent-panel-key="' . $product_subcategory['panel_key'] . '"[^>]*>[^<]*<div class="product-row">([^<]*<div[^>]*class="product[^>]*>.*?<\/div>[^<]*)+<\/div>[^<]*<\/div>/', $section, $matches);
                 $product_html = $matches[0];
                 // 正则匹配出分类下所有产品系列
                 preg_match_all('/<a class="ark-accessible-color" href="(.*?)">(.*?)<\/a>/', $product_html, $matches);
                 foreach (array_combine($matches[2], $matches[1]) as $product_series_name => $product_series_path) {
-                    preg_match('/\/(\d+)\//', $product_series_path, $matches);
                     $product_series_name = $this->removeExtraSpaces($product_series_name);
+                    preg_match('/\/(\d+)\//', $product_series_path, $matches);
+                    $product_series_ark_series_id = trim($matches[1]);
                     $product_series = [
-                        'category_panel_key' => $product_subcategory['panel_key'],
-                        'ark_series_id' => $matches[1],
-                        'multilingual_name' => [],
-                        'path' => [],
-                        'url' => [],
+                        'category_unique_key' => $product_subcategory['unique_key'],
+                        'language' => $language,
+                        'unique_key' => "{$product_series_ark_series_id}:{$language}",
+                        'ark_series_id' => $product_series_ark_series_id,
+                        'name' => $product_series_name,
+                        'path' => $product_series_path,
+                        'url' => $this->getUrlFromString($product_series_path),
                     ];
-                    if (isset($this->product_series_list[$product_series['ark_series_id']])) $product_series = $this->product_series_list[$product_series['ark_series_id']];
-
-                    // 英文名作为主名称
-                    if ($language == 'en_us') $product_series['name'] = $product_series_name;
-                    if ($language == 'zh_cn') $product_series['chinese_name'] = $product_series_name;
-                    //region 多语言名称，路径，链接
-                    $product_series['multilingual_name'][$language] = $product_series_name;
-                    $product_series['path'][$language] = $product_series_path;
-                    $product_series['url'][$language] = $this->getUrlFromString($product_series_path);
-                    //endregion
-
-                    $this->product_series_list[$product_series['ark_series_id']] = $product_series;
-                    dump($product_series_name);
+                    $this->product_series_list[$product_series['unique_key']] = $product_series;
+                    dump("{$language}|产品系列：{$product_series_name}");
                 }
             }
         }
@@ -190,198 +176,238 @@ class Intel extends Command
 
     private function saveProductCategory()
     {
-        collect($this->product_category_list)->groupBy('parent_panel_key')->each(function ($product_category_list, $parent_panel_key) {
-            $pid = 0;
-            $level = 0;
-            if (!empty($parent_panel_key)) {
-                $parent_product_category = IntelProductCategory::where('panel_key', $parent_panel_key)->select(['id', 'level'])->first();
-                $pid = $parent_product_category->id;
-                $level = $parent_product_category->level + 1;
-            }
-            IntelProductCategory::insert($product_category_list->whereNotIn('panel_key', IntelProductCategory::where('pid', $pid)->select('panel_key')->pluck('panel_key'))->map(function ($product_category) use ($pid, $level) {
-                $product_category['created_at'] = $this->now_time;
-                $product_category['updated_at'] = $this->now_time;
-                unset($product_category['parent_panel_key']);
-                $product_category['pid'] = $pid;
-                $product_category['level'] = $level;
-                $product_category['multilingual_name'] = Tools::jsonEncode($product_category['multilingual_name']);
-                return $product_category;
-            })->toArray());
-            dump($parent_panel_key);
-        });
+        $product_category_list = collect($this->product_category_list);
+        $product_category_list
+            ->whereNull('parent_unique_key')
+            ->chunk(500)
+            ->each(function (Collection $product_category_list_chunk) {
+                IntelProductCategory::insert($product_category_list_chunk
+                    ->whereNotIn('unique_key', IntelProductCategory::whereIn('unique_key', $product_category_list_chunk->pluck('unique_key'))
+                        ->select('unique_key')
+                        ->pluck('unique_key'))
+                    ->map(function ($product_category) {
+                        $product_category['created_at'] = $this->now_time;
+                        $product_category['updated_at'] = $this->now_time;
+                        unset($product_category['parent_unique_key']);
+                        return $product_category;
+                    })
+                    ->toArray());
+                $this->info('产品分类保存处理完成' . $product_category_list_chunk->count() . '条');
+                unset($product_category_list_chunk);
+            });
+
+        $top_product_category_ids = IntelProductCategory::where('pid', 0)
+            ->select(['id', 'unique_key'])
+            ->pluck('id', 'unique_key');
+
+        $product_category_list
+            ->whereNotNull('parent_unique_key')
+            ->chunk(500)
+            ->each(function (Collection $product_category_list_chunk) use ($top_product_category_ids) {
+                IntelProductCategory::insert($product_category_list_chunk
+                    ->whereNotIn('unique_key', IntelProductCategory::whereIn('unique_key', $product_category_list_chunk->pluck('unique_key'))
+                        ->select('unique_key')
+                        ->pluck('unique_key'))
+                    ->map(function ($product_category) use ($top_product_category_ids) {
+                        $product_category['created_at'] = $this->now_time;
+                        $product_category['updated_at'] = $this->now_time;
+                        $product_category['pid'] = $top_product_category_ids[$product_category['parent_unique_key']];
+                        unset($product_category['parent_unique_key']);
+                        return $product_category;
+                    })
+                    ->toArray());
+                $this->info('产品分类保存处理完成' . $product_category_list_chunk->count() . '条');
+                unset($product_category_list_chunk);
+            });
+        $this->info('产品分类保存成功');
         $this->product_category_list = [];
     }
 
     private function saveProductSeries()
     {
-        collect($this->product_series_list)->groupBy('category_panel_key')->each(function ($product_series_list, $category_panel_key) {
-            $product_category_id = IntelProductCategory::where('panel_key', $category_panel_key)->select(['id'])->value('id');
-            IntelProductSeries::insert($product_series_list->whereNotIn('ark_series_id', IntelProductSeries::where('category_id', $product_category_id)->select('ark_series_id')->pluck('ark_series_id'))->map(function ($product_series) use ($product_category_id) {
-                $product_series['created_at'] = $this->now_time;
-                $product_series['updated_at'] = $this->now_time;
-                unset($product_series['category_panel_key']);
-                $product_series['category_id'] = $product_category_id;
-                $product_series['multilingual_name'] = Tools::jsonEncode($product_series['multilingual_name']);
-                $product_series['path'] = Tools::jsonEncode($product_series['path']);
-                $product_series['url'] = Tools::jsonEncode($product_series['url']);
-                return $product_series;
-            })->toArray());
-            dump($category_panel_key);
-        });
+        collect($this->product_series_list)
+            ->chunk(500)
+            ->each(function (Collection $product_series_list_chunk) {
+                $product_category_ids = IntelProductCategory::whereIn('unique_key', $product_series_list_chunk
+                    ->pluck('category_unique_key')
+                    ->unique())
+                    ->select(['id', 'unique_key'])
+                    ->pluck('id', 'unique_key');
+                IntelProductSeries::insert($product_series_list_chunk
+                    ->whereNotIn('unique_key', IntelProductSeries::whereIn('unique_key', $product_series_list_chunk->pluck('unique_key'))
+                        ->select('unique_key')
+                        ->pluck('unique_key'))
+                    ->map(function ($product_series) use ($product_category_ids) {
+                        $product_series['created_at'] = $this->now_time;
+                        $product_series['updated_at'] = $this->now_time;
+                        $product_series['category_id'] = $product_category_ids[$product_series['category_unique_key']];
+                        unset($product_series['category_unique_key']);
+                        return $product_series;
+                    })
+                    ->toArray());
+                $this->info('产品系列保存处理完成' . $product_series_list_chunk->count() . '条');
+                unset($product_series_list_chunk);
+            });
+        $this->info('产品系列保存成功');
         $this->product_series_list = [];
     }
 
     private function getProductList()
     {
-        if (empty($this->product_series_list)) $this->product_series_list = Tools::jsonDecode(file_get_contents(Tools::backupPath('intel_ark_series.json')));
-        collect($this->product_series_list)->chunk(100)->each(function (Collection $product_series_list) {
-            $product_series_list->each(function (array $product_series) {
-                foreach ($product_series['url'] as $language => $url) {
-                    $runtime_file_path = $this->getCurlRuntimeFilePath($url);
-                    if (file_exists($runtime_file_path)) {
-                        $content = file_get_contents($runtime_file_path);
-                        if (!empty($content)) {
-                            $this->_getProductList($product_series, $language, $content);
-                            unset($product_series['url'][$language]);
-                        }
+        IntelProductSeries::chunk(500, function (Collection $product_series_list) {
+            $product_series_list = $product_series_list->filter(function (IntelProductSeries $product_series) {
+                [$ark_series_id, $language] = explode(':', $product_series['unique_key']);
+                $runtime_file_path = $this->getCurlRuntimeFilePath($product_series['url']);
+                if (file_exists($runtime_file_path)) {
+                    $content = file_get_contents($runtime_file_path);
+                    if (!empty($content)) {
+                        $this->_getProductList($product_series, $language, $content);
+                        return false;
+                    } else {
+                        @unlink($runtime_file_path);
                     }
                 }
-
-                $retryTimes = 5;
-                $product_series_urls = collect($product_series['url']);
-                while ($product_series_urls->isNotEmpty() && $retryTimes > 0) {
-                    // 拆分并赋值给新变量，防止后续修改 $product_series_urls 导致死循环
-                    $chunks = $product_series_urls->chunk(10);
-                    $chunks
-                        ->each(function (Collection $urls) use (&$product_series_urls, $product_series) {
-                            $responses = $this->multi_http_get($this->base_uri, $urls);
-                            unset($urls);
-                            $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
-                            // 追加失败重试集合（找出不在本次成功相应集合中的差集，为未成功响应集合）
-                            $product_series_urls = $product_series_urls->diffKeys($responses['fulfilled']);
-                            // dump($product_series_urls);
-                            // 处理响应
-                            $responses['fulfilled']->each(function (\GuzzleHttp\Psr7\Response $response, $language) use ($product_series) {
-                                $content = $response->getBody()->getContents();
-                                unset($response);
-                                if (!empty($content)) {
-                                    $content = Tools::compress_html($content);
-                                    file_put_contents($this->getCurlRuntimeFilePath($product_series['url'][$language]), $content);
-                                    $this->_getProductList($product_series, $language, $content);
-                                }
-                            });
-                            unset($responses);
-                        });
-                    $retryTimes--;
-                    sleep(1);
-                }
+                return true;
             });
+
+            $product_series_list = $product_series_list->pluck([], 'unique_key');
+
+            $retryTimes = 5;
+            $product_series_urls = $product_series_list->pluck('url', 'unique_key');
+            while ($product_series_urls->isNotEmpty() && $retryTimes > 0) {
+                $product_series_urls->chunk(10)->each(function (Collection $urls) use (&$product_series_urls, $product_series_list) {
+                    $responses = $this->multi_http_get($this->base_uri, $urls);
+                    unset($urls);
+                    $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
+                    // 追加失败重试集合（找出不在本次成功相应集合中的差集，为未成功响应集合）
+                    $product_series_urls = $product_series_urls->diffKeys($responses['fulfilled']);
+                    // dump($product_series_urls);
+                    // 处理响应
+                    $responses['fulfilled']->each(function (\GuzzleHttp\Psr7\Response $response, $product_series_unique_key) use ($product_series_list) {
+                        $content = $response->getBody()->getContents();
+                        unset($response);
+                        if (!empty($content)) {
+                            $content = Tools::compress_html($content);
+                            $product_series = $product_series_list[$product_series_unique_key];
+                            file_put_contents($this->getCurlRuntimeFilePath($product_series['url']), $content);
+                            [$ark_series_id, $language] = explode(':', $product_series['unique_key']);
+                            $this->_getProductList($product_series, $language, $content);
+                        } else {
+                            dd($content);
+                        }
+                    });
+                    unset($responses);
+                });
+                $retryTimes--;
+                sleep(1);
+            }
+
+            $this->saveProduct();
         });
-        file_put_contents(Tools::backupPath('intel_ark_product.json'), Tools::jsonEncode($this->product_list));
+        // file_put_contents(Tools::backupPath('intel_ark_product.json'), Tools::jsonEncode($this->product_list));
     }
 
-    private function _getProductList($product_series, $language, $product_list_html)
+    private function _getProductList(IntelProductSeries $product_series, string $language, string $product_list_html)
     {
         $product_list_html = str_replace(["<br/>", "<br>"], '', $product_list_html);
-        // foreach ($product_series['url'] as $language => $product_series_url) {
-        //     $product_list_html = $this->curlGet($product_series_url);
         //region 正则匹配出内容区域
         preg_match('/<table[^>]*id="product-table"[^>]*>.*?<tbody[^>]*>(.*?)<\/tbody><\/table>/', $product_list_html, $matches);
         $product_list_table_tbody = $matches[1];
         //endregion
         // 正则匹配出产品下所有规格详情链接
         preg_match_all('/<tr.*?data-product-id="(.*?)".*?<a href="(.*?)">(.*?)<\/a>.*?<\/tr>/', $product_list_table_tbody, $matches);
-        foreach ($matches[1] as $index => $product_id) {
+        foreach ($matches[1] as $index => $ark_product_id) {
+            $ark_product_id = $this->removeExtraSpaces($ark_product_id);
             $product_name = $this->removeExtraSpaces($matches[3][$index]);
             $product_path = $this->removeExtraSpaces($matches[2][$index]);
             $product = [
-                'ark_product_id' => $product_id,
+                'language' => $language,
+                'unique_key' => "{$ark_product_id}:{$language}",
+                'category_id' => $product_series['category_id'],
+                'series_id' => $product_series['id'],
+                'ark_product_id' => $ark_product_id,
                 'ark_series_id' => $product_series['ark_series_id'],
+                'name' => $product_name,
+                'path' => $product_path,
+                'url' => $this->getUrlFromString($product_path),
             ];
-            if (isset($this->product_list[$product_id])) $product = $this->product_list[$product_id];
-
-            // 英文名作为主名称
-            if ($language == 'en_us') $product['name'] = $product_name;
-            if ($language == 'zh_cn') $product['chinese_name'] = $product_name;
-            //region 多语言名称，路径，链接
-            $product['multilingual_name'][$language] = $product_name;
-            $product['path'][$language] = $product_path;
-            $product['url'][$language] = $this->getUrlFromString($product_path);
-            //endregion
-
-            $this->product_list[$product_id] = $product;
-            dump($product_name);
-            // $this->getProductSpec($product);
+            $this->product_list[$product['unique_key']] = $product;
+            dump("{$language}|产品：{$product_name}");
         }
-        // }
     }
 
     private function saveProduct()
     {
-        collect($this->product_list)->groupBy('ark_series_id')->each(function ($product_list, $ark_series_id) {
-            $product_series = IntelProductSeries::where('ark_series_id', $ark_series_id)->select(['id', 'category_id'])->first();
-
-            IntelProduct::insert($product_list->whereNotIn('ark_product_id', IntelProduct::where('ark_series_id', $ark_series_id)->select('ark_product_id')->pluck('ark_product_id'))->map(function ($product) use ($product_series) {
-                $product['created_at'] = $this->now_time;
-                $product['updated_at'] = $this->now_time;
-                $product['series_id'] = $product_series->id;
-                $product['category_id'] = $product_series->category_id;
-                $product['multilingual_name'] = Tools::jsonEncode($product['multilingual_name']);
-                $product['path'] = Tools::jsonEncode($product['path']);
-                $product['url'] = Tools::jsonEncode($product['url']);
-                return $product;
-            })->toArray());
-            dump($ark_series_id);
-        });
+        collect($this->product_list)
+            ->chunk(500)
+            ->each(function (Collection $product_list_chunk) {
+                IntelProduct::insert($product_list_chunk
+                    ->whereNotIn('unique_key', IntelProduct::whereIn('unique_key', $product_list_chunk->pluck('unique_key'))
+                        ->select('unique_key')
+                        ->pluck('unique_key'))
+                    ->map(function ($product) {
+                        $product['created_at'] = $this->now_time;
+                        $product['updated_at'] = $this->now_time;
+                        return $product;
+                    })->toArray());
+                $this->info('产品保存处理完成' . $product_list_chunk->count() . '条');
+            });
+        $this->info('产品保存成功');
+        $this->product_list = [];
     }
 
     private function getProductSpec()
     {
         IntelProduct::chunk(500, function (Collection $product_list) {
-            $product_list->each(function (IntelProduct $product) {
-                $product_urls = $product['url'];
-                foreach ($product_urls as $language => $url) {
-                    $runtime_file_path = $this->getCurlRuntimeFilePath($url);
-                    if (file_exists($runtime_file_path)) {
-                        $content = file_get_contents($runtime_file_path);
-                        if (!empty($content)) {
-                            $this->_getProductSpec($product, $language, $content);
-                            unset($product_urls[$language]);
-                        }
+            $product_list = $product_list->filter(function (IntelProduct $product) {
+                [$ark_product_id, $language] = explode(':', $product['unique_key']);
+                $runtime_file_path = $this->getCurlRuntimeFilePath($product['url']);
+                if (file_exists($runtime_file_path)) {
+                    $content = file_get_contents($runtime_file_path);
+                    if (!empty($content)) {
+                        $this->_getProductSpec($product, $language, $content);
+                        return false;
+                    } else {
+                        @unlink($runtime_file_path);
                     }
                 }
-
-                $retryTimes = 5;
-                $product_urls = collect($product_urls);
-                while ($product_urls->isNotEmpty() && $retryTimes > 0) {
-                    // 拆分并赋值给新变量，防止后续修改 $product_urls 导致死循环
-                    $chunks = $product_urls->chunk(10);
-                    $chunks
-                        ->each(function (Collection $urls) use (&$product_urls, $product) {
-                            $responses = $this->multi_http_get($this->base_uri, $urls);
-                            unset($urls);
-                            $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
-                            // 追加失败重试集合（找出不在本次成功相应集合中的差集，为未成功响应集合）
-                            $product_urls = $product_urls->diffKeys($responses['fulfilled']);
-                            // dump($product_urls);
-                            // 处理响应
-                            $responses['fulfilled']->each(function (\GuzzleHttp\Psr7\Response $response, $language) use ($product) {
-                                $content = $response->getBody()->getContents();
-                                unset($response);
-                                if (!empty($content)) {
-                                    $content = Tools::compress_html($content);
-                                    file_put_contents($this->getCurlRuntimeFilePath($product['url'][$language]), $content);
-                                    $this->_getProductSpec($product, $language, $content);
-                                }
-                            });
-                            unset($responses);
-                        });
-                    $retryTimes--;
-                    sleep(1);
-                }
-
-                $this->_saveProductSpec($product, array_pop($this->product_specs_list));
+                return true;
             });
+
+            $product_list = $product_list->pluck([], 'unique_key');
+
+            $product_urls = $product_list->pluck('url', 'unique_key');
+            $retryTimes = 5;
+            while ($product_urls->isNotEmpty() && $retryTimes > 0) {
+                $product_urls->chunk(10)->each(function (Collection $urls) use (&$product_urls, $product_list) {
+                    $responses = $this->multi_http_get($this->base_uri, $urls);
+                    unset($urls);
+                    $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
+                    // 追加失败重试集合（找出不在本次成功相应集合中的差集，为未成功响应集合）
+                    $product_urls = $product_urls->diffKeys($responses['fulfilled']);
+                    // dump($product_urls);
+                    // 处理响应
+                    $responses['fulfilled']->each(function (\GuzzleHttp\Psr7\Response $response, $product_unique_key) use ($product_list) {
+                        $content = $response->getBody()->getContents();
+                        unset($response);
+                        if (!empty($content)) {
+                            $content = Tools::compress_html($content);
+                            $product = $product_list[$product_unique_key];
+                            file_put_contents($this->getCurlRuntimeFilePath($product['url']), $content);
+                            [$ark_product_id, $language] = explode(':', $product['unique_key']);
+                            $this->_getProductSpec($product, $language, $content);
+                        } else {
+                            dd($content);
+                        }
+                    });
+                    unset($responses);
+                });
+                $retryTimes--;
+                sleep(1);
+            }
+
+            $this->saveProductSpec();
+
         });
         // file_put_contents(Tools::backupPath('intel_ark_product_specs.json'), Tools::jsonEncode($this->product_specs_list));
         // dd($this->product_specs_list);
@@ -394,19 +420,16 @@ class Intel extends Command
         //region 正则匹配出内容区域
         preg_match('/<div[^>]*class="specs-section active"[^>]*>(<section[^>]*>.*?<\/section>)+<\/div>/', $content, $matches);
         if (empty($matches[0])) {
-            @unlink($this->getCurlRuntimeFilePath($product['url'][$language]));
-            $this->error($product['multilingual_name'][$language]);
+            @unlink($product['url']);
+            $this->error($product['name']);
             return false;
             dd($content);
         }
-        // $this->info($product['multilingual_name'][$language]);
+        // $this->info($product['name']);
         $specs_section = $matches[0];
         //endregion
         preg_match_all('/<section[^>]*>(.*?)<\/section>/', $specs_section, $matches);
         $specifications_html = $matches[1];
-
-        $product_specs_list = [];
-        if (!empty($this->product_specs_list[$product['ark_product_id']])) $product_specs_list = $this->product_specs_list[$product['ark_product_id']];
         foreach ($specifications_html as $specification_tab_index => $specification_html) {
             preg_match('/<div[^>]*class="[^"]*subhead[^"]*"[^>]*>.*?<h2 class="h2">(.*?)<\/h2>.*?<\/div>/', $specification_html, $matches);
             // 规格分类名称
@@ -416,47 +439,49 @@ class Intel extends Command
                 $key = trim(strip_tags($matches[2][$index]));
                 $label = trim(strip_tags($matches[1][$index]));
                 $value = trim(strip_tags($matches[3][$index]));
-                $product_specs_key = "{$product['ark_product_id']}:{$language}:{$key}";
                 $product_specs_item = [
-                    'unique_key' => $product_specs_key,
+                    'language' => $language,
+                    'unique_key' => "{$product['ark_product_id']}:{$language}:{$key}",
+                    'category_id' => $product['category_id'],
+                    'series_id' => $product['series_id'],
+                    'product_id' => $product['id'],
+                    'ark_series_id' => $product['ark_series_id'],
+                    'ark_product_id' => $product['ark_product_id'],
+                    'tab_index' => $specification_tab_index,
+                    'tab_title' => $specification_tab_title,
+                    'key' => $key,
+                    'label' => $label,
+                    'value' => $value,
+                    'value_url' => null,
                 ];
-                if (!empty($product_specs_list[$product_specs_key])) $product_specs_item = $product_specs_list[$product_specs_key];
-                // $product_specs_item['category_id'] = $product['category_id'];
-                // $product_specs_item['series_id'] = $product['series_id'];
-                // $product_specs_item['product_id'] = $product['id'];
-                // $product_specs_item['ark_series_id'] = $product['ark_series_id'];
-                // $product_specs_item['ark_product_id'] = $product['ark_product_id'];
-                $product_specs_item['language'] = $language;
-                $product_specs_item['tab_index'] = $specification_tab_index;
-                $product_specs_item['tab_title'] = $specification_tab_title;
-                $product_specs_item['key'] = $key;
-                $product_specs_item['label'] = $label;
-                $product_specs_item['value'] = $value;
-                $product_specs_item['value_url'] = null;
                 if (preg_match('/<a[^>]*href="(.*?)".*?<\/a>/', $matches[3][$index], $a_matches)) $product_specs_item['value_url'] = $this->getUrlFromString(trim($a_matches[1]));
 
-                $product_specs_list[$product_specs_key] = $product_specs_item;
+                $this->product_specs_list[$product_specs_item['unique_key']] = $product_specs_item;
+                // dump("{$language}|产品：{$product['name']}，规格：{$label}");
             }
         }
-        $this->product_specs_list[$product['ark_product_id']] = $product_specs_list;
+        dump("{$language}|规格产品：{$product['name']}");
     }
 
-    private function _saveProductSpec($product, array $product_specs_list)
+    private function saveProductSpec()
     {
-        dump(count($product_specs_list));
-        collect($product_specs_list)->chunk(500)->each(function (Collection $product_specs_list) use ($product) {
-            IntelProductSpec::insert($product_specs_list->whereNotIn('unique_key', IntelProductSpec::where('product_id', $product['id'])->select('unique_key')->pluck('unique_key'))->map(function ($product_spec) use ($product) {
-                $product_spec['category_id'] = $product['category_id'];
-                $product_spec['series_id'] = $product['series_id'];
-                $product_spec['product_id'] = $product['id'];
-                $product_spec['ark_series_id'] = $product['ark_series_id'];
-                $product_spec['ark_product_id'] = $product['ark_product_id'];
-                $product_spec['created_at'] = $this->now_time;
-                $product_spec['updated_at'] = $this->now_time;
-                return $product_spec;
-            })->toArray());
-        });
-        dump($product['ark_product_id']);
+        collect($this->product_specs_list)
+            ->chunk(500)
+            ->each(function (Collection $product_specs_list_chunk) {
+                IntelProductSpec::insert($product_specs_list_chunk
+                    ->whereNotIn('unique_key', IntelProductSpec::whereIn('unique_key', $product_specs_list_chunk->pluck('unique_key'))
+                        ->select('unique_key')
+                        ->pluck('unique_key'))
+                    ->map(function ($product_spec) {
+                        $product_spec['created_at'] = $this->now_time;
+                        $product_spec['updated_at'] = $this->now_time;
+                        return $product_spec;
+                    })->toArray());
+                $this->info('产品规格保存处理完成' . $product_specs_list_chunk->count() . '条');
+            });
+        // dump($product['ark_product_id']);
+        $this->info('产品规格保存成功');
+        $this->product_specs_list = [];
     }
 
     private function curlGet(string $url, $cache = true)
@@ -468,7 +493,6 @@ class Intel extends Command
             $response = $this->single_http_get($this->base_uri, $url);
             $content = $response->getBody()->getContents();
             unset($response);
-            $content = Tools::compressBinaryDecode($content);
             $content = Tools::compress_html($content);
             if ($cache) file_put_contents($runtime_file_path, $content);
         }
@@ -494,7 +518,7 @@ class Intel extends Command
 
     private function removeExtraSpaces($string): string
     {
-        return preg_replace("/[\s]+/", " ", $string);
+        return trim(preg_replace("/[\s]+/", " ", $string));
     }
 
     /**

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -15,14 +14,22 @@ return new class extends Migration
     {
         Schema::create('intel_product_categories', function (Blueprint $table) {
             $table->id();
+            $table->string('language', 10)->comment('规格语言');
+            $table->string('unique_key')->unique()->comment('唯一标识(panel_key:language)');
             $table->foreignId('pid')->index()->comment('上级分类ID');
             $table->foreignId('level')->comment('层级，0最高');
-            $table->string('panel_key')->unique()->comment('标识码');
+            $table->string('panel_key')->comment('标识码');
             $table->string('name')->comment('名称');
-            $table->string('chinese_name')->comment('中文名称');
-            $table->json('multilingual_name')->comment('多语言名称');
             $table->timestampsInteger();
             $table->softDeletesInteger();
+            $table->index([
+                'language',
+                'panel_key',
+            ]);
+            $table->index([
+                'language',
+                'pid',
+            ]);
             $table->comment('Intel产品分类');
         });
     }
