@@ -5,8 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFilesTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -14,7 +13,7 @@ class CreateFilesTable extends Migration
      */
     public function up()
     {
-        Schema::create('files', function (Blueprint $table) {
+        Schema::create('system_files', function (Blueprint $table) {
             $table->id();
             $table->string('name')->comment('文件名');
             $table->string('path')->unique()->comment('文件路径');
@@ -26,7 +25,7 @@ class CreateFilesTable extends Migration
             $table->string('height')->nullable()->comment('高度');
             $table->timestampsInteger();
             $table->softDeletesInteger();
-            $table->comment('文件表');
+            $table->comment('系统文件表');
         });
     }
 
@@ -37,6 +36,6 @@ class CreateFilesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('files');
+        Schema::dropIfExists('system_files');
     }
-}
+};

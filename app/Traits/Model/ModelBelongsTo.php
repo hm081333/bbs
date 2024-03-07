@@ -3,8 +3,8 @@
 namespace App\Traits\Model;
 
 use App\Models\Area;
-use App\Models\File;
-use App\Models\OptionItem;
+use App\Models\System\SystemFile;
+use App\Models\System\SystemOptionItem;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait ModelBelongsTo
@@ -16,7 +16,7 @@ trait ModelBelongsTo
      */
     public function belongsToFile($key)
     {
-        return $this->belongsTo(File::class, $key, 'id')->select(['id', 'origin_name', 'path']);
+        return $this->belongsTo(SystemFile::class, $key, 'id')->select(['id', 'origin_name', 'path']);
     }
 
     /**
@@ -26,7 +26,7 @@ trait ModelBelongsTo
      */
     public function belongsToOptionItem($key)
     {
-        return $this->belongsTo(OptionItem::class, $key, 'id')->select(['id', 'value']);
+        return $this->belongsTo(SystemOptionItem::class, $key, 'id')->select(['id', 'value']);
     }
 
     /**

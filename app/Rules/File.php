@@ -3,7 +3,6 @@
 namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
-use Illuminate\Support\Facades\Log;
 
 class File implements Rule
 {
@@ -17,7 +16,7 @@ class File implements Rule
     public function passes($attribute, $value)
     {
         if (!is_array($value)) return false;
-        return empty($value['path']) || \App\Models\File::where('path', $value['path'])
+        return empty($value['path']) || \App\Models\System\SystemFile::where('path', $value['path'])
                 ->select(['id'])
                 ->exists();
     }

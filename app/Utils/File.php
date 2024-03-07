@@ -105,8 +105,10 @@ class File
 
     /**
      * 保存文件到指定目录
+     *
      * @param string $path
-     * @return \App\Models\File
+     *
+     * @return \App\Models\System\SystemFile
      * @throws Exception
      */
     public function save(string $path)
@@ -123,7 +125,7 @@ class File
         // 对于图片，获取宽高
         $file_data = array_merge($file_data, $this->getImageSize());
         $file_data['path'] = $this->getFilePath($path);
-        return \App\Models\File::create($file_data);
+        return \App\Models\System\SystemFile::create($file_data);
     }
 
     /**

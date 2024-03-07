@@ -3,7 +3,7 @@
 namespace App\Casts;
 
 use App\Models\BaseModel;
-use App\Models\OptionItem;
+use App\Models\System\SystemOptionItem;
 use App\Utils\Tools;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
@@ -25,7 +25,7 @@ class OptionItems implements CastsAttributes
         $texts = [];
         $value = Tools::jsonDecode($value) ?? [];
         foreach ($value as $item) {
-            $texts[] = empty($item) ? '' : OptionItem::getValue($item);
+            $texts[] = empty($item) ? '' : SystemOptionItem::getValue($item);
         }
         $model->setAttribute($append_key, $texts);
         return $value;

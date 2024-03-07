@@ -47,4 +47,12 @@ class BlueprintMixin
             return $this->timestampInteger($column)->nullable()->comment('删除时间');
         };
     }
+
+    public function sort()
+    {
+        return function (): ColumnDefinition {
+            /* @var $this Blueprint */
+            return $this->unsignedTinyInteger('sort')->index()->default(255)->comment('排序');
+        };
+    }
 }

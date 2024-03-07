@@ -21,7 +21,7 @@ class OptionItem implements CastsAttributes
         $value = (int)$value;
         $append_key = "{$key}_text";
         $model->accept($append_key);
-        $model->setAttribute($append_key, empty($value) ? '' : \App\Models\OptionItem::getValue($value));
+        $model->setAttribute($append_key, empty($value) ? '' : \App\Models\System\SystemOptionItem::getValue($value));
         return $value;
     }
 

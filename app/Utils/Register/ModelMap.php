@@ -7,15 +7,15 @@ use App\Exceptions\Server\InternalServerErrorException;
 /**
  * 模型映射类
  *
- * @property \App\Models\BaiduId $BaiduId App\Models\BaiduId
- * @property \App\Models\File $File App\Models\File
- * @property \App\Models\Fund\Fund $FundFund App\Models\Fund\Fund
- * @property \App\Models\Fund\FundNetValue $FundFundNetValue App\Models\Fund\FundNetValue
- * @property \App\Models\Fund\FundValuation $FundFundValuation App\Models\Fund\FundValuation
- * @property \App\Models\Option $Option App\Models\Option
- * @property \App\Models\OptionItem $OptionItem App\Models\OptionItem
- * @property \App\Models\User $User App\Models\User
- * @property \App\Models\UserFund $UserFund App\Models\UserFund
+ * @property \App\Models\BaiduId                 $BaiduId App\Models\BaiduId
+ * @property \App\Models\System\SystemFile       $File App\Models\File
+ * @property \App\Models\Fund\Fund               $FundFund App\Models\Fund\Fund
+ * @property \App\Models\Fund\FundNetValue       $FundFundNetValue App\Models\Fund\FundNetValue
+ * @property \App\Models\Fund\FundValuation      $FundFundValuation App\Models\Fund\FundValuation
+ * @property \App\Models\System\SystemOption     $Option App\Models\Option
+ * @property \App\Models\System\SystemOptionItem $OptionItem App\Models\OptionItem
+ * @property \App\Models\User                    $User App\Models\User
+ * @property \App\Models\UserFund                $UserFund App\Models\UserFund
  * Class ModelMap
  */
 class ModelMap

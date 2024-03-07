@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\System;
 
-use App\Jobs\ObjectStorageServiceJob;
+use App\Models\BaseModel;
 use App\Utils\Tools;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\File
@@ -29,27 +27,27 @@ use Illuminate\Support\Carbon;
  * @property-read string $url
  * @property-write mixed $sn
  * @property-write mixed $sort
- * @method static Builder|File newModelQuery()
- * @method static Builder|File newQuery()
- * @method static Builder|File onlyTrashed()
- * @method static Builder|File query()
- * @method static Builder|File whereCreatedAt($value)
- * @method static Builder|File whereDeletedAt($value)
- * @method static Builder|File whereExtension($value)
- * @method static Builder|File whereHeight($value)
- * @method static Builder|File whereId($value)
- * @method static Builder|File whereMimeType($value)
- * @method static Builder|File whereName($value)
- * @method static Builder|File whereOriginName($value)
- * @method static Builder|File wherePath($value)
- * @method static Builder|File whereSize($value)
- * @method static Builder|File whereUpdatedAt($value)
- * @method static Builder|File whereWidth($value)
- * @method static Builder|File withTrashed()
- * @method static Builder|File withoutTrashed()
+ * @method static Builder|SystemFile newModelQuery()
+ * @method static Builder|SystemFile newQuery()
+ * @method static Builder|SystemFile onlyTrashed()
+ * @method static Builder|SystemFile query()
+ * @method static Builder|SystemFile whereCreatedAt($value)
+ * @method static Builder|SystemFile whereDeletedAt($value)
+ * @method static Builder|SystemFile whereExtension($value)
+ * @method static Builder|SystemFile whereHeight($value)
+ * @method static Builder|SystemFile whereId($value)
+ * @method static Builder|SystemFile whereMimeType($value)
+ * @method static Builder|SystemFile whereName($value)
+ * @method static Builder|SystemFile whereOriginName($value)
+ * @method static Builder|SystemFile wherePath($value)
+ * @method static Builder|SystemFile whereSize($value)
+ * @method static Builder|SystemFile whereUpdatedAt($value)
+ * @method static Builder|SystemFile whereWidth($value)
+ * @method static Builder|SystemFile withTrashed()
+ * @method static Builder|SystemFile withoutTrashed()
  * @mixin Eloquent
  */
-class File extends BaseModel
+class SystemFile extends BaseModel
 {
     //use HasFactory;
     use SoftDeletes;

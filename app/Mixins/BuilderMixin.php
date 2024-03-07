@@ -3,10 +3,9 @@
 namespace App\Mixins;
 
 use App\Exceptions\Request\BadRequestException;
-use App\Models\OptionItem;
+use App\Models\System\SystemOptionItem;
 use App\Utils\Tools;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -195,7 +194,7 @@ class BuilderMixin
             // 获取搜索值
             $option_item_id = request()->input($input_field ?? $search_field);
             return $this->when(isset($option_item_id) && !empty($option_item_id), function (Builder $query) use ($search_field, $option_item_id) {
-                $option_item_value = OptionItem::getValue($option_item_id);
+                $option_item_value = SystemOptionItem::getValue($option_item_id);
                 $arr = explode('-', $option_item_value);
                 if (count($arr) > 1) return $query->whereIn($search_field, $arr);
                 return $query->where($search_field, $option_item_value);

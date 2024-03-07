@@ -1,36 +1,35 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\System;
 
+use App\Models\BaseModel;
 use Eloquent;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 /**
  * App\Models\Option
  *
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property \Carbon\Carbon $deleted_at
- * @property-read string $sex_name
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\OptionItem> $items
- * @property-read int|null $items_count
- * @property-write mixed $sn
- * @property-write mixed $sort
- * @method static \Illuminate\Database\Eloquent\Builder|Option newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Option newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Option onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Option query()
- * @method static \Illuminate\Database\Eloquent\Builder|Option withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Option withoutTrashed()
+ * @property \Carbon\Carbon                                                                          $created_at
+ * @property \Carbon\Carbon                                                                          $updated_at
+ * @property \Carbon\Carbon                                                                          $deleted_at
+ * @property-read string                                                                             $sex_name
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\System\SystemOptionItem> $items
+ * @property-read int|null                                                                           $items_count
+ * @property-write mixed                                                                             $sn
+ * @property-write mixed                                                                             $sort
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOption newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOption newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOption onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOption query()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOption withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOption withoutTrashed()
  * @mixin Eloquent
  */
-class Option extends BaseModel
+class SystemOption extends BaseModel
 {
     //use HasFactory;
     use SoftDeletes;
@@ -76,8 +75,10 @@ class Option extends BaseModel
 
     /**
      * 获取选项信息
+     *
      * @param $code
-     * @return Option|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|Builder|object|null
+     *
+     * @return SystemOption|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|Builder|object|null
      */
     private static function getOption($code)
     {
@@ -90,15 +91,17 @@ class Option extends BaseModel
 
     /**
      * 获取选项信息
+     *
      * @param $code
      * @param $option
-     * @return Option|\Illuminate\Database\Eloquent\Builder|Model|Builder|object|null
+     *
+     * @return SystemOption|\Illuminate\Database\Eloquent\Builder|Model|Builder|object|null
      */
     public static function cacheOption($code, $option)
     {
         static::setCache($code, $option);
         foreach ($option['items'] as $item) {
-            OptionItem::setCache($item->id, $item->value);
+            SystemOptionItem::setCache($item->id, $item->value);
         }
         return $option;
     }
@@ -109,7 +112,7 @@ class Option extends BaseModel
      */
     public function items()
     {
-        return $this->hasMany(OptionItem::class, 'code', 'code')
+        return $this->hasMany(SystemOptionItem::class, 'code', 'code')
             ->select(['id', 'code', 'value'])
             ->orderBy('sort')
             ->orderBy('id');

@@ -1,11 +1,11 @@
-<?php   
+<?php
 return array (
-  'BaiduId' => 
+  'BaiduId' =>
   array (
     'model' => '\\App\\Models\\BaiduId',
     'table' => 'baidu_ids',
     'table_full_name' => 'ly_baidu_ids',
-    'column' => 
+    'column' =>
     array (
       'id' => 'bigint',
       'created_at' => 'integer',
@@ -13,12 +13,12 @@ return array (
       'deleted_at' => 'integer',
     ),
   ),
-  'File' => 
+  'File' =>
   array (
-    'model' => '\\App\\Models\\File',
+    'model' => '\\App\\Models\\System\\SystemFile',
     'table' => 'files',
     'table_full_name' => 'ly_files',
-    'column' => 
+    'column' =>
     array (
       'id' => 'bigint',
       'name' => 'string',
@@ -34,12 +34,12 @@ return array (
       'deleted_at' => 'integer',
     ),
   ),
-  'FundFund' => 
+  'FundFund' =>
   array (
     'model' => '\\App\\Models\\Fund\\Fund',
     'table' => 'funds',
     'table_full_name' => 'ly_funds',
-    'column' => 
+    'column' =>
     array (
       'id' => 'bigint',
       'code' => 'string',
@@ -54,12 +54,12 @@ return array (
       'deleted_at' => 'integer',
     ),
   ),
-  'FundFundNetValue' => 
+  'FundFundNetValue' =>
   array (
     'model' => '\\App\\Models\\Fund\\FundNetValue',
     'table' => 'fund_net_values',
     'table_full_name' => 'ly_fund_net_values',
-    'column' => 
+    'column' =>
     array (
       'id' => 'bigint',
       'fund_id' => 'bigint',
@@ -73,12 +73,12 @@ return array (
       'deleted_at' => 'integer',
     ),
   ),
-  'FundFundValuation' => 
+  'FundFundValuation' =>
   array (
     'model' => '\\App\\Models\\Fund\\FundValuation',
     'table' => 'fund_valuations',
     'table_full_name' => 'ly_fund_valuations',
-    'column' => 
+    'column' =>
     array (
       'id' => 'bigint',
       'fund_id' => 'bigint',
@@ -95,30 +95,30 @@ return array (
       'deleted_at' => 'integer',
     ),
   ),
-  'Option' => 
+  'Option' =>
   array (
-    'model' => '\\App\\Models\\Option',
+    'model' => '\\App\\Models\\System\\SystemOption',
     'table' => 'options',
     'table_full_name' => 'ly_options',
-    'column' => 
+    'column' =>
     array (
     ),
   ),
-  'OptionItem' => 
+  'OptionItem' =>
   array (
-    'model' => '\\App\\Models\\OptionItem',
+    'model' => '\\App\\Models\\System\\SystemOptionItem',
     'table' => 'option_items',
     'table_full_name' => 'ly_option_items',
-    'column' => 
+    'column' =>
     array (
     ),
   ),
-  'User' => 
+  'User' =>
   array (
     'model' => '\\App\\Models\\User',
     'table' => 'users',
     'table_full_name' => 'ly_users',
-    'column' => 
+    'column' =>
     array (
       'id' => 'bigint',
       'user_name' => 'string',
@@ -143,12 +143,12 @@ return array (
       'deleted_at' => 'integer',
     ),
   ),
-  'UserFund' => 
+  'UserFund' =>
   array (
     'model' => '\\App\\Models\\UserFund',
     'table' => 'user_funds',
     'table_full_name' => 'ly_user_funds',
-    'column' => 
+    'column' =>
     array (
       'id' => 'bigint',
       'user_id' => 'bigint',

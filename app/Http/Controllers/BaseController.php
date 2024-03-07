@@ -17,15 +17,16 @@ use Tymon\JWTAuth\JWTGuard;
 
 /**
  * 控制器类
- * @property \App\Models\BaiduId $modelBaiduId BaiduId
- * @property \App\Models\File $modelFile File
- * @property \App\Models\Fund\Fund $modelFundFund Fund
- * @property \App\Models\Fund\FundNetValue $modelFundFundNetValue FundNetValue
- * @property \App\Models\Fund\FundValuation $modelFundFundValuation FundValuation
- * @property \App\Models\Option $modelOption Option
- * @property \App\Models\OptionItem $modelOptionItem OptionItem
- * @property \App\Models\User $modelUser User
- * @property \App\Models\UserFund $modelUserFund UserFund
+ *
+ * @property \App\Models\BaiduId                 $modelBaiduId BaiduId
+ * @property \App\Models\System\SystemFile       $modelFile File
+ * @property \App\Models\Fund\Fund               $modelFundFund Fund
+ * @property \App\Models\Fund\FundNetValue       $modelFundFundNetValue FundNetValue
+ * @property \App\Models\Fund\FundValuation      $modelFundFundValuation FundValuation
+ * @property \App\Models\System\SystemOption     $modelOption Option
+ * @property \App\Models\System\SystemOptionItem $modelOptionItem OptionItem
+ * @property \App\Models\User                    $modelUser User
+ * @property \App\Models\UserFund                $modelUserFund UserFund
  * Class BaseController
  */
 class BaseController extends \Illuminate\Routing\Controller

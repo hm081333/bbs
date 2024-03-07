@@ -23,7 +23,7 @@ class Files implements Rule
             if (in_array($file['path'], $files)) return false;
             $files[] = $file['path'];
         }
-        return \App\Models\File::whereIn('path', $files)
+        return \App\Models\System\SystemFile::whereIn('path', $files)
             ->select(['id'])
             ->count();
     }

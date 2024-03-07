@@ -93,6 +93,7 @@ class Intel extends Command
         foreach ($matches[1] as $index => $key) {
             $name = trim($matches[3][$index]);
             $item = [
+                'key' => $key,
                 'name' => $name,
                 // 'selected' => $key == $language,
             ];

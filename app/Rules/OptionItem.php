@@ -29,7 +29,7 @@ class OptionItem implements Rule
      */
     public function passes($attribute, $value)
     {
-        return $value === null || \App\Models\OptionItem::where('id', $value)
+        return $value === null || \App\Models\System\SystemOptionItem::where('id', $value)
                 ->when(!empty($this->option_code), function (\Illuminate\Database\Eloquent\Builder $query) use ($attribute) {
                     $query->where('code', is_bool($this->option_code) ? $attribute : $this->option_code);
                 })

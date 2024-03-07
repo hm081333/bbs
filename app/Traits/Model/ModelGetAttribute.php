@@ -3,7 +3,7 @@
 namespace App\Traits\Model;
 
 use App\Models\Area;
-use App\Models\OptionItem;
+use App\Models\System\SystemOptionItem;
 
 trait ModelGetAttribute
 {
@@ -34,7 +34,7 @@ trait ModelGetAttribute
     protected function getOptionItemText(string $key): string
     {
         $id = $this->getAttribute($key);
-        return empty($id) ? '' : OptionItem::getValue($id);
+        return empty($id) ? '' : SystemOptionItem::getValue($id);
     }
 
     /**
