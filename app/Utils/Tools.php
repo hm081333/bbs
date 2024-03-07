@@ -491,7 +491,7 @@ class Tools
      *
      * @return string
      */
-    public static function modelAlias(Model|string $model, string $prefix = '')
+    public static function modelAlias(Model|string $model, string $prefix = ''): string
     {
         $model_name = is_object($model) ? get_class($model) : $model;
         return $prefix . str_replace('\\', '', str_replace('App\\Models\\', '', $model_name));

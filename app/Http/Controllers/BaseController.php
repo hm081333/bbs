@@ -16,18 +16,27 @@ use Illuminate\Support\Facades\Route;
 use Tymon\JWTAuth\JWTGuard;
 
 /**
- * 控制器类
+ * 模型映射类
  *
- * @property \App\Models\BaiduId                 $modelBaiduId BaiduId
- * @property \App\Models\System\SystemFile       $modelFile File
- * @property \App\Models\Fund\Fund               $modelFundFund Fund
- * @property \App\Models\Fund\FundNetValue       $modelFundFundNetValue FundNetValue
- * @property \App\Models\Fund\FundValuation      $modelFundFundValuation FundValuation
- * @property \App\Models\System\SystemOption     $modelOption Option
- * @property \App\Models\System\SystemOptionItem $modelOptionItem OptionItem
- * @property \App\Models\User                    $modelUser User
- * @property \App\Models\UserFund                $modelUserFund UserFund
- * Class BaseController
+ * @property-read \App\Models\BaiduId modelBaiduId App\Models\BaiduId
+ * @property-read \App\Models\Fund\Fund modelFundFund App\Models\Fund\Fund
+ * @property-read \App\Models\Fund\FundNetValue modelFundFundNetValue App\Models\Fund\FundNetValue
+ * @property-read \App\Models\Fund\FundValuation modelFundFundValuation App\Models\Fund\FundValuation
+ * @property-read \App\Models\Intel\IntelProduct modelIntelIntelProduct App\Models\Intel\IntelProduct
+ * @property-read \App\Models\Intel\IntelProductCategory modelIntelIntelProductCategory App\Models\Intel\IntelProductCategory
+ * @property-read \App\Models\Intel\IntelProductSeries modelIntelIntelProductSeries App\Models\Intel\IntelProductSeries
+ * @property-read \App\Models\Intel\IntelProductSpec modelIntelIntelProductSpec App\Models\Intel\IntelProductSpec
+ * @property-read \App\Models\Mongodb\AccessLog modelMongodbAccessLog App\Models\Mongodb\AccessLog
+ * @property-read \App\Models\Mongodb\SqlLog modelMongodbSqlLog App\Models\Mongodb\SqlLog
+ * @property-read \App\Models\System\AdministrativeDivision modelSystemAdministrativeDivision App\Models\System\AdministrativeDivision
+ * @property-read \App\Models\System\SystemFile modelSystemSystemFile App\Models\System\SystemFile
+ * @property-read \App\Models\System\SystemLanguage modelSystemSystemLanguage App\Models\System\SystemLanguage
+ * @property-read \App\Models\System\SystemOption modelSystemSystemOption App\Models\System\SystemOption
+ * @property-read \App\Models\System\SystemOptionItem modelSystemSystemOptionItem App\Models\System\SystemOptionItem
+ * @property-read \App\Models\User modelUser App\Models\User
+ * @property-read \App\Models\UserFund modelUserFund App\Models\UserFund
+ * @package App\Http\Controllers
+ * @class BaseController
  */
 class BaseController extends \Illuminate\Routing\Controller
 {
@@ -37,7 +46,7 @@ class BaseController extends \Illuminate\Routing\Controller
 
     public function __get($name)
     {
-        if (str_contains($name, 'model')) {
+        if (str_starts_with($name, 'model')) {
             $name = str_replace('model', '', $name);
             return Tools::model()->$name;
         }

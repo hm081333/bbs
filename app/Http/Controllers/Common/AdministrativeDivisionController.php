@@ -25,7 +25,7 @@ class AdministrativeDivisionController extends BaseController
      */
     public function province_city_tree()
     {
-        return $this->success('', $this->modelArea->getProvinceCityTree());
+        return $this->success('', $this->modelSystemAdministrativeDivision->getProvinceCityTree());
     }
 
     /**
@@ -38,7 +38,7 @@ class AdministrativeDivisionController extends BaseController
         $params = $this->getParams();
         $tree = $params['tree'] ?? false;
         $list = Cache::rememberForever('province_city_page_list', function () {
-            return $this->modelArea
+            return $this->modelSystemAdministrativeDivision
                 ->select([
                     'id',
                     'id AS value',

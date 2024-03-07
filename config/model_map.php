@@ -179,6 +179,28 @@ return array (
     array (
     ),
   ),
+  'SystemAdministrativeDivision' => 
+  array (
+    'model' => '\\App\\Models\\System\\AdministrativeDivision',
+    'table' => 'administrative_divisions',
+    'table_full_name' => 'ly_administrative_divisions',
+    'column' => 
+    array (
+      'id' => 'bigint',
+      'name' => 'string',
+      'attr' => 'string',
+      'code' => 'bigint',
+      'initial' => 'string',
+      'pid' => 'bigint',
+      'level' => 'boolean',
+      'sort' => 'boolean',
+      'lat' => 'decimal',
+      'lng' => 'decimal',
+      'created_at' => 'integer',
+      'updated_at' => 'integer',
+      'deleted_at' => 'integer',
+    ),
+  ),
   'SystemSystemFile' => 
   array (
     'model' => '\\App\\Models\\System\\SystemFile',
