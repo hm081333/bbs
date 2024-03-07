@@ -5,21 +5,21 @@ namespace App\Console\Commands\Backup;
 use App\Utils\Tools;
 use Illuminate\Console\Command;
 
-class Area extends Command
+class AdministrativeDivision extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'backup:area';
+    protected $signature = 'backup:administrative-division';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = '备份区域表';
+    protected $description = '备份行政区划表';
 
     /**
      * Create a new command instance.
@@ -38,7 +38,7 @@ class Area extends Command
      */
     public function handle()
     {
-        $modelArea = new \App\Models\Area;
+        $modelArea = new \App\Models\System\AdministrativeDivision();
         $areas = $modelArea
             ->select([
                 'id',
@@ -56,9 +56,9 @@ class Area extends Command
             ->toArray();
         $areas = array_merge(Tools::translateDataToTree($areas));
         $areas = $this->parse($areas);
-        file_put_contents(Tools::backupPath('area.json'), Tools::jsonEncode($areas));
+        file_put_contents(Tools::backupPath('administrative_division.json'), Tools::jsonEncode($areas));
         // 指令输出
-        $this->info('备份区域表完成！');
+        $this->info($this->description . ' 完成！');
         return 0;
     }
 

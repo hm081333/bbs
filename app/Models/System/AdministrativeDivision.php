@@ -2,7 +2,6 @@
 
 namespace App\Models\System;
 
-use App\Models\System\AdministrativeDivision;
 use App\Models\BaseModel;
 use App\Utils\Tools;
 use Eloquent;
