@@ -15,8 +15,12 @@ class ModelMap extends Command
 
     protected $description = '生成模型类映射';
 
+
     public function handle()
     {
+        // 解决Doctrine\DBAL没有enum类型的问题
+        \Illuminate\Support\Facades\DB::getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', \Doctrine\DBAL\Types\Types::STRING);
+
         $this->info($this->description . '...');
 
         $model_map = $this->getModelMapList(Tools::scanFile(app_path('Models')), '\\App\\Models');

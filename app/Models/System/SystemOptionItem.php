@@ -8,20 +8,30 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * App\Models\OptionItem
+ * App\Models\System\SystemOptionItem
  *
- * @property \Carbon\Carbon                            $created_at
- * @property \Carbon\Carbon                            $updated_at
- * @property \Carbon\Carbon                            $deleted_at
- * @property-read mixed                                $key
- * @property-read string                               $sex_name
+ * @property int $id
+ * @property string $code 选项编码
+ * @property string $value 选项值
+ * @property int $sort 排序
+ * @property \Carbon\Carbon $created_at 创建时间
+ * @property \Carbon\Carbon $updated_at 更新时间
+ * @property \Carbon\Carbon|null $deleted_at 删除时间
+ * @property-read mixed $key
+ * @property-read string $sex_name
  * @property-read \App\Models\System\SystemOption|null $option
- * @property-write mixed                               $sn
- * @property-write mixed                               $sort
+ * @property-write mixed $sn
  * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem whereCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem whereSort($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem whereValue($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|SystemOptionItem withoutTrashed()
  * @mixin Eloquent

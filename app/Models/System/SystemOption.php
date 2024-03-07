@@ -11,20 +11,29 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * App\Models\Option
+ * App\Models\System\SystemOption
  *
- * @property \Carbon\Carbon                                                                          $created_at
- * @property \Carbon\Carbon                                                                          $updated_at
- * @property \Carbon\Carbon                                                                          $deleted_at
- * @property-read string                                                                             $sex_name
+ * @property int $id
+ * @property string $name 选项名称
+ * @property string $code 选项编码
+ * @property \Carbon\Carbon $created_at 创建时间
+ * @property \Carbon\Carbon $updated_at 更新时间
+ * @property \Carbon\Carbon|null $deleted_at 删除时间
+ * @property-read string $sex_name
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\System\SystemOptionItem> $items
- * @property-read int|null                                                                           $items_count
- * @property-write mixed                                                                             $sn
- * @property-write mixed                                                                             $sort
+ * @property-read int|null $items_count
+ * @property-write mixed $sn
+ * @property-write mixed $sort
  * @method static \Illuminate\Database\Eloquent\Builder|SystemOption newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SystemOption newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SystemOption onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|SystemOption query()
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOption whereCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOption whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOption whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOption whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOption whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SystemOption whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SystemOption withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|SystemOption withoutTrashed()
  * @mixin Eloquent

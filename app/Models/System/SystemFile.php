@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * App\Models\File
+ * App\Models\System\SystemFile
  *
  * @property int $id
  * @property string $name 文件名
@@ -20,8 +20,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $size 文件大小
  * @property string|null $width 宽度
  * @property string|null $height 高度
- * @property \Carbon\Carbon|null $created_at 创建时间
- * @property \Carbon\Carbon|null $updated_at 更新时间
+ * @property \Carbon\Carbon $created_at 创建时间
+ * @property \Carbon\Carbon $updated_at 更新时间
  * @property \Carbon\Carbon|null $deleted_at 删除时间
  * @property-read string $sex_name
  * @property-read string $url

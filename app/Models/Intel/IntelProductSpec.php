@@ -8,7 +8,7 @@ use App\Models\BaseModel;
  * App\Models\Intel\IntelProductSpec
  *
  * @property int $id
- * @property string $language 规格语言
+ * @property string $language 语言
  * @property string $unique_key 唯一标识(ark_product_id:language:key)
  * @property int $category_id 分类ID
  * @property int $series_id 系列ID

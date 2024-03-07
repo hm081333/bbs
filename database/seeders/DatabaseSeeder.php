@@ -15,5 +15,9 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // \App\Models\User::factory(10)->create();
+
+        // 创建测试数据
+        $this->call(LanguageSeeder::class);
+        $this->call(AdministrativeDivisionSeeder::class);
     }
 }

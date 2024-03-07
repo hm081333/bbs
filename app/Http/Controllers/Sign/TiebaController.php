@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Sign;
 
-class TiebaController extends \App\Http\Controllers\BaseController
+use App\Http\Controllers\BaseController;
+
+class TiebaController extends BaseController
 {
     protected function getRules()
     {

@@ -16,6 +16,7 @@ class LanguageSeeder extends Seeder
      */
     public function run()
     {
+        config(['app.no_sql_log' => true]);
         $now_time = Tools::time();
         $language_list = collect([
             [

@@ -8,7 +8,7 @@ use App\Models\BaseModel;
  * App\Models\Intel\IntelProductCategory
  *
  * @property int $id
- * @property string $language 规格语言
+ * @property string $language 语言
  * @property string $unique_key 唯一标识(panel_key:language)
  * @property int $pid 上级分类ID
  * @property int $level 层级，0最高
