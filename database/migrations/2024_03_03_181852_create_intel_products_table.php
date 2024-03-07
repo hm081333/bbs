@@ -14,7 +14,20 @@ return new class extends Migration {
     {
         Schema::create('intel_products', function (Blueprint $table) {
             $table->id();
-            $table->string('language', 10)->comment('规格语言');
+            $table->enum('language', [
+                'id_id',
+                'de_de',
+                'en_us',
+                'es_xl',
+                'fr_fr',
+                'pt_br',
+                'vi_vn',
+                'th_th',
+                'ko_kr',
+                'ja_jp',
+                'zh_cn',
+                'zh_tw',
+            ])->comment('语言');
             $table->string('unique_key')->unique()->comment('唯一标识(ark_product_id:language)');
             $table->foreignId('category_id')->comment('分类ID');
             $table->foreignId('series_id')->comment('系列ID');

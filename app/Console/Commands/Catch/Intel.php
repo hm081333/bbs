@@ -420,7 +420,7 @@ class Intel extends Command
         //region 正则匹配出内容区域
         preg_match('/<div[^>]*class="specs-section active"[^>]*>(<section[^>]*>.*?<\/section>)+<\/div>/', $content, $matches);
         if (empty($matches[0])) {
-            @unlink($product['url']);
+            @unlink($this->getCurlRuntimeFilePath($product['url']));
             $this->error($product['name']);
             return false;
             dd($content);
