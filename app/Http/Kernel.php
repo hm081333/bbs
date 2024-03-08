@@ -7,6 +7,7 @@ use App\Http\Middleware\Auth\UserAuth;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\DBTransaction;
 use App\Http\Middleware\EncryptCookies;
+use App\Http\Middleware\JSONResponse;
 use App\Http\Middleware\OPCacheRequest;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
@@ -87,20 +88,19 @@ class Kernel extends HttpKernel
      * @var array<string, class-string|string>
      */
     protected $routeMiddleware = [
-        // 用户端
-        'auth.user' => UserAuth::class,
         // 使用速率限制
         //'throttle' => ThrottleRequests::class,
         // 使用 Redis 管理速率限制
         'throttle' => ThrottleRequestsWithRedis::class,
+        // 身份验证
         'auth' => Authenticate::class,
-        'auth.basic' => AuthenticateWithBasicAuth::class,
-        'cache.headers' => SetCacheHeaders::class,
-        'can' => Authorize::class,
-        'guest' => RedirectIfAuthenticated::class,
-        'password.confirm' => RequirePassword::class,
-        'signed' => ValidateSignature::class,
+        // 'auth.basic' => AuthenticateWithBasicAuth::class,
+        // 'cache.headers' => SetCacheHeaders::class,
+        // 'can' => Authorize::class,
+        // 'guest' => RedirectIfAuthenticated::class,
+        // 'password.confirm' => RequirePassword::class,
+        // 'signed' => ValidateSignature::class,
         //'throttle' => ThrottleRequests::class,
-        'verified' => EnsureEmailIsVerified::class,
+        // 'verified' => EnsureEmailIsVerified::class,
     ];
 }

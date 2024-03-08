@@ -28,5 +28,6 @@ Route::prefix('system')->name('system.')->group(function () {
 
 Route::prefix('administrativeDivision')->name('administrativeDivision.')->group(function () {
     Route::any('page', [AdministrativeDivisionController::class, 'page'])->name('page');
+    Route::any('province_city_list', [AdministrativeDivisionController::class, 'province_city_list'])->name('province_city_list');
     Route::any('province_city_tree', [AdministrativeDivisionController::class, 'province_city_tree'])->name('province_city_tree');
 });

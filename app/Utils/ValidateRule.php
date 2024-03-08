@@ -136,6 +136,9 @@ class ValidateRule
             case 'city':
                 $this->rules[$param_key][] = new \App\Rules\City;
                 break;
+            case 'district':
+                $this->rules[$param_key][] = new \App\Rules\District;
+                break;
             case 'rules':
                 // 手撸规则
                 if (is_array($rule)) {

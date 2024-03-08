@@ -3,13 +3,13 @@
 return [
 
     /*
-    |--------------------------------------------------------------------------
-    | Filename & Format
-    |--------------------------------------------------------------------------
-    |
-    | The default filename
-    |
-    */
+   |--------------------------------------------------------------------------
+   | Filename & Format
+   |--------------------------------------------------------------------------
+   |
+   | The default filename
+   |
+   */
 
     'filename'  => '_ide_helper.php',
 
@@ -152,7 +152,10 @@ return [
     */
 
     'ignored_models' => [
-
+        \App\Models\Mongodb\AccessLog::class,
+        \App\Models\Mongodb\SqlLog::class,
+        \App\Models\BaseModel::class,
+        \App\Models\AuthModel::class,
     ],
 
     /*
@@ -227,7 +230,9 @@ return [
     |
     */
     'custom_db_types' => [
-
+        'mysql' => [
+            'enum' => 'string',
+        ],
     ],
 
     /*
@@ -322,7 +327,8 @@ return [
     |
     | When using custom relation types its possible for the class name to not contain
     | the proper return type of the relation. The key of the array is the relationship
-    | method name. The value of the array is the return type of the relation.
+    | method name. The value of the array is the return type of the relation ('many'
+    | or 'morphTo').
     | e.g. `'relationName' => 'many'`.
     |
     */

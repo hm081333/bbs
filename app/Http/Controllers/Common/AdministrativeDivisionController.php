@@ -21,35 +21,44 @@ class AdministrativeDivisionController extends BaseController
 
     /**
      * 省市联动
+     *
+     */
+    public function province_city_list()
+    {
+        return response()->api('', $this->modelSystemAdministrativeDivision->getListWithLevel(2));
+    }
+
+    /**
+     * 省市联动
+     *
      * @return JsonResponse
      */
     public function province_city_tree()
     {
-        return $this->success('', $this->modelSystemAdministrativeDivision->getProvinceCityTree());
+        return response()->api('', $this->modelSystemAdministrativeDivision->getProvinceCityTree());
+    }
+
+    /**
+     * 省市区联动
+     *
+     * @return JsonResponse
+     */
+    public function province_city_district_tree()
+    {
+        return $this->success('', $this->modelSystemAdministrativeDivision->getProvinceCityDistrictTree());
     }
 
     /**
      * 列表数据
+     *
      * @return JsonResponse
      * @throws BadRequestException
      */
-    public function page()
+    public function list()
     {
         $params = $this->getParams();
         $tree = $params['tree'] ?? false;
-        $list = Cache::rememberForever('province_city_page_list', function () {
-            return $this->modelSystemAdministrativeDivision
-                ->select([
-                    'id',
-                    'id AS value',
-                    'pid',
-                    'name',
-                    'name AS label',
-                ])
-                ->where('level', '<', 2)
-                ->get()
-                ->toArray();
-        });
+        $list = $this->modelSystemAdministrativeDivision->getListWithLevel(2);
         if ($tree) {
             $list = Cache::rememberForever('province_city_page_tree', function () use ($list) {
                 return array_merge(Tools::translateDataToTree($list));

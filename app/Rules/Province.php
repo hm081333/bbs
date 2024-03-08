@@ -14,9 +14,9 @@ class Province implements Rule
      */
     public function passes($attribute, $value)
     {
-        return \App\Models\Area::where('id', $value)
+        return \App\Models\System\AdministrativeDivision::where('id', $value)
             ->where('level', 0)
-            ->select(['id'])
+            ->select('id')
             ->exists();
     }
 

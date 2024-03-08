@@ -16,7 +16,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'user',
         'passwords' => 'users',
     ],
 
@@ -33,13 +33,13 @@ return [
     | users are actually retrieved out of your database or other storage
     | mechanisms used by this application to persist your user's data.
     |
-    | Supported: "session"
+    | Supported: "session", "jwt"
     |
     */
 
     'guards' => [
-        'web' => [
-            'driver' => 'session',//'jwt',
+        'user' => [
+            'driver' => 'jwt',
             'provider' => 'user',
         ],
     ],

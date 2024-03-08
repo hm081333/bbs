@@ -5,7 +5,7 @@ namespace App\Casts;
 use App\Models\BaseModel;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
-class Area implements CastsAttributes
+class AdministrativeDivision implements CastsAttributes
 {
     /**
      * Cast the given value.
@@ -22,8 +22,8 @@ class Area implements CastsAttributes
         $append_key = "{$key}_text";
         $append_attr_key = "{$key}_attr_text";
         $model->accept([$append_key, $append_attr_key]);
-        $model->setAttribute($append_key, empty($value) ? '' : \App\Models\Area::getValue($value, 'name'));
-        $model->setAttribute($append_attr_key, empty($value) ? '' : \App\Models\Area::getValue($value, 'attr'));
+        $model->setAttribute($append_key, empty($value) ? '' : \App\Models\System\AdministrativeDivision::getValue($value, 'name'));
+        $model->setAttribute($append_attr_key, empty($value) ? '' : \App\Models\System\AdministrativeDivision::getValue($value, 'attr'));
         return $value;
     }
 

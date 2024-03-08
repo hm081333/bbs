@@ -4,13 +4,15 @@ namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\BaseController;
 use App\Models\System\SystemLanguage;
+use App\Utils\Tools;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 class LanguageController extends BaseController
 {
-    public function list()
+    public function list(Response $response)
     {
-        return $this->success('', SystemLanguage::get());
+        return $response::api('', Tools::model()->SystemSystemLanguage->get());
     }
 
     /**

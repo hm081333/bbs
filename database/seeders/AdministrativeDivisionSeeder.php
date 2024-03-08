@@ -23,7 +23,6 @@ class AdministrativeDivisionSeeder extends Seeder
         $areas = file_get_contents(Tools::backupPath('administrative_division.json'));
         $areas = Tools::jsonDecode($areas);
         foreach ($areas as $area) {
-
             // if (empty($area['lat'])) $area['lat'] = null;
             // if (empty($area['lng'])) $area['lng'] = null;
             (new AdministrativeDivision())->saveData($area);

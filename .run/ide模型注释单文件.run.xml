@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="ide模型注释单文件" type="PhpLocalRunConfigurationType" factoryName="PHP Console" path="$PROJECT_DIR$/artisan" scriptParameters="ide-helper:eloquent">
+  <configuration default="false" name="ide模型注释单文件" type="PhpLocalRunConfigurationType" factoryName="PHP Console" path="$PROJECT_DIR$/artisan" scriptParameters="ide-helper:models -N -R">
     <CommandLine workingDirectory="$PROJECT_DIR$" />
     <method v="2" />
   </configuration>

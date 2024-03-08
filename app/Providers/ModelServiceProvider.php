@@ -41,6 +41,13 @@ class ModelServiceProvider extends ServiceProvider
     {
         Builder::mixin(new BuilderMixin());
         Blueprint::mixin(new BlueprintMixin());
+        /*Request::macro('isVip', function(){
+            if(auth()->check())
+            {
+                return $this->user()->is_vip;
+            }
+            return false;
+        });*/
     }
 
 }

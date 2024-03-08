@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\Request\BadRequestException;
 use App\Traits\Auth\UserAuth;
-use App\Traits\JsonResponses;
 use App\Utils\Tools;
 use App\Utils\ValidateRule;
 use Exception;
@@ -41,7 +40,6 @@ use Tymon\JWTAuth\JWTGuard;
 class BaseController extends \Illuminate\Routing\Controller
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
-    use JsonResponses;
     use UserAuth;
 
     public function __get($name)

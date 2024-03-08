@@ -75,36 +75,25 @@ class ModelMap extends Command
                     BaseModel::class,
                     AuthModel::class,
                 ])) continue;
-                $this->info($modelClass);// 打印当前处理模型类名
                 // $modelAlias = Tools::modelAlias($modelClass, 'model');
                 $modelAlias = Tools::modelAlias($modelInstance);
+                $this->info($modelClass . ' ---- ' . $modelAlias);// 打印当前处理模型类名
                 $table_prefix = $modelInstance->getConnection()->getTablePrefix();
                 $table_name_without_prefix = $modelInstance->getTable();
+                $table_name = $table_prefix . $table_name_without_prefix;
                 $table_columns = [];
-                foreach (Schema::getColumnListing($table_name_without_prefix) as $column_name) {
+                if (Schema::hasTable($table_name_without_prefix)) foreach (Schema::getColumnListing($table_name_without_prefix) as $column_name) {
                     $table_columns[$column_name] = $this->identifyColumnType($column_name, Schema::getColumnType($table_name_without_prefix, $column_name));
                 }
                 $model_list[$modelAlias] = [
                     'model' => $modelClass,
                     'table' => $table_name_without_prefix,
-                    'table_full_name' => $table_prefix . $table_name_without_prefix,
+                    'table_full_name' => $table_name,
                     'column' => $table_columns,
                 ];
             }
         }
         return $model_list;
-    }
-
-    /**
-     * 保存模型映射
-     *
-     * @param array $model_map
-     *
-     * @return false|int
-     */
-    private function saveModelMap(array $model_map): bool|int
-    {
-        return file_put_contents(config_path('model_map.php'), "<?php   \nreturn " . var_export($model_map, true) . ';');
     }
 
     /**
@@ -117,13 +106,27 @@ class ModelMap extends Command
      */
     private function identifyColumnType(string $column_name, string $column_type): string
     {
-        // if ($column_type == 'bigint') return 'integer';
-        return $column_type;
+        return match ($column_type) {
+            'bigint' => 'integer',
+            'decimal' => 'float',
+            'text' => 'string',
+            default => $column_type,
+        };
         //region 时间类型
-        if (str_ends_with($column_name, '_at') || str_ends_with($column_name, '_time')) {
-            dd($column_name, $column_type);
-        }
+        if ((str_ends_with($column_name, '_at') || str_ends_with($column_name, '_time')) && $column_type == 'integer') return \App\Casts\Timestamp::class;
         //endregion
+    }
+
+    /**
+     * 保存模型映射
+     *
+     * @param array $model_map
+     *
+     * @return false|int
+     */
+    private function saveModelMap(array $model_map): bool|int
+    {
+        return file_put_contents(config_path('model_map.php'), "<?php   \nreturn " . var_export($model_map, true) . ';');
     }
 
     private function writeClassDoc(string $name, string $path, array $properties, string $property_name_prefix = '')

@@ -4,7 +4,7 @@ namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 
-class City implements Rule
+class District implements Rule
 {
     /**
      * Determine if the validation rule passes.
@@ -15,7 +15,7 @@ class City implements Rule
     public function passes($attribute, $value)
     {
         return \App\Models\System\AdministrativeDivision::where('id', $value)
-            ->where('level', 1)
+            ->where('level', 2)
             ->select('id')
             ->exists();
     }

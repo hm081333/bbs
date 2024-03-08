@@ -7,7 +7,7 @@ return array (
     'table_full_name' => 'ly_baidu_ids',
     'column' => 
     array (
-      'id' => 'bigint',
+      'id' => 'integer',
       'created_at' => 'integer',
       'updated_at' => 'integer',
       'deleted_at' => 'integer',
@@ -20,13 +20,13 @@ return array (
     'table_full_name' => 'ly_funds',
     'column' => 
     array (
-      'id' => 'bigint',
+      'id' => 'integer',
       'code' => 'string',
       'name' => 'string',
       'pinyin_initial' => 'string',
       'type' => 'string',
-      'unit_net_value' => 'decimal',
-      'cumulative_net_value' => 'decimal',
+      'unit_net_value' => 'float',
+      'cumulative_net_value' => 'float',
       'net_value_time' => 'integer',
       'created_at' => 'integer',
       'updated_at' => 'integer',
@@ -40,12 +40,12 @@ return array (
     'table_full_name' => 'ly_fund_net_values',
     'column' => 
     array (
-      'id' => 'bigint',
-      'fund_id' => 'bigint',
+      'id' => 'integer',
+      'fund_id' => 'integer',
       'code' => 'string',
       'name' => 'string',
-      'unit_net_value' => 'decimal',
-      'cumulative_net_value' => 'decimal',
+      'unit_net_value' => 'float',
+      'cumulative_net_value' => 'float',
       'net_value_time' => 'integer',
       'created_at' => 'integer',
       'updated_at' => 'integer',
@@ -59,14 +59,14 @@ return array (
     'table_full_name' => 'ly_fund_valuations',
     'column' => 
     array (
-      'id' => 'bigint',
-      'fund_id' => 'bigint',
+      'id' => 'integer',
+      'fund_id' => 'integer',
       'code' => 'string',
       'name' => 'string',
-      'unit_net_value' => 'decimal',
-      'estimated_net_value' => 'decimal',
-      'estimated_growth' => 'decimal',
-      'estimated_growth_rate' => 'decimal',
+      'unit_net_value' => 'float',
+      'estimated_net_value' => 'float',
+      'estimated_growth' => 'float',
+      'estimated_growth_rate' => 'float',
       'valuation_time' => 'integer',
       'valuation_source' => 'string',
       'created_at' => 'integer',
@@ -81,11 +81,11 @@ return array (
     'table_full_name' => 'ly_intel_products',
     'column' => 
     array (
-      'id' => 'bigint',
+      'id' => 'integer',
       'language' => 'string',
       'unique_key' => 'string',
-      'category_id' => 'bigint',
-      'series_id' => 'bigint',
+      'category_id' => 'integer',
+      'series_id' => 'integer',
       'ark_series_id' => 'string',
       'ark_product_id' => 'string',
       'name' => 'string',
@@ -103,11 +103,11 @@ return array (
     'table_full_name' => 'ly_intel_product_categories',
     'column' => 
     array (
-      'id' => 'bigint',
+      'id' => 'integer',
       'language' => 'string',
       'unique_key' => 'string',
-      'pid' => 'bigint',
-      'level' => 'bigint',
+      'pid' => 'integer',
+      'level' => 'integer',
       'panel_key' => 'string',
       'name' => 'string',
       'created_at' => 'integer',
@@ -122,10 +122,10 @@ return array (
     'table_full_name' => 'ly_intel_product_series',
     'column' => 
     array (
-      'id' => 'bigint',
+      'id' => 'integer',
       'language' => 'string',
       'unique_key' => 'string',
-      'category_id' => 'bigint',
+      'category_id' => 'integer',
       'ark_series_id' => 'string',
       'name' => 'string',
       'path' => 'string',
@@ -142,19 +142,19 @@ return array (
     'table_full_name' => 'ly_intel_product_specs',
     'column' => 
     array (
-      'id' => 'bigint',
+      'id' => 'integer',
       'language' => 'string',
       'unique_key' => 'string',
-      'category_id' => 'bigint',
-      'series_id' => 'bigint',
-      'product_id' => 'bigint',
+      'category_id' => 'integer',
+      'series_id' => 'integer',
+      'product_id' => 'integer',
       'ark_series_id' => 'string',
       'ark_product_id' => 'string',
       'tab_index' => 'boolean',
       'tab_title' => 'string',
       'key' => 'string',
       'label' => 'string',
-      'value' => 'text',
+      'value' => 'string',
       'value_url' => 'string',
       'created_at' => 'integer',
       'updated_at' => 'integer',
@@ -186,16 +186,16 @@ return array (
     'table_full_name' => 'ly_administrative_divisions',
     'column' => 
     array (
-      'id' => 'bigint',
+      'id' => 'integer',
       'name' => 'string',
       'attr' => 'string',
-      'code' => 'bigint',
+      'code' => 'integer',
       'initial' => 'string',
-      'pid' => 'bigint',
+      'pid' => 'integer',
       'level' => 'boolean',
       'sort' => 'boolean',
-      'lat' => 'decimal',
-      'lng' => 'decimal',
+      'lat' => 'float',
+      'lng' => 'float',
       'created_at' => 'integer',
       'updated_at' => 'integer',
       'deleted_at' => 'integer',
@@ -208,7 +208,7 @@ return array (
     'table_full_name' => 'ly_system_files',
     'column' => 
     array (
-      'id' => 'bigint',
+      'id' => 'integer',
       'name' => 'string',
       'path' => 'string',
       'origin_name' => 'string',
@@ -229,7 +229,7 @@ return array (
     'table_full_name' => 'ly_system_languages',
     'column' => 
     array (
-      'id' => 'bigint',
+      'id' => 'integer',
       'key' => 'string',
       'name' => 'string',
       'locale' => 'string',
@@ -245,7 +245,7 @@ return array (
     'table_full_name' => 'ly_system_options',
     'column' => 
     array (
-      'id' => 'bigint',
+      'id' => 'integer',
       'name' => 'string',
       'code' => 'string',
       'created_at' => 'integer',
@@ -260,7 +260,7 @@ return array (
     'table_full_name' => 'ly_system_option_items',
     'column' => 
     array (
-      'id' => 'bigint',
+      'id' => 'integer',
       'code' => 'string',
       'value' => 'string',
       'sort' => 'boolean',
@@ -276,7 +276,7 @@ return array (
     'table_full_name' => 'ly_users',
     'column' => 
     array (
-      'id' => 'bigint',
+      'id' => 'integer',
       'user_name' => 'string',
       'nick_name' => 'string',
       'real_name' => 'string',
@@ -292,7 +292,7 @@ return array (
       'frozen_time' => 'integer',
       'open_id' => 'string',
       'password' => 'string',
-      'o_pwd' => 'text',
+      'o_pwd' => 'string',
       'remember_token' => 'string',
       'created_at' => 'integer',
       'updated_at' => 'integer',
@@ -306,14 +306,14 @@ return array (
     'table_full_name' => 'ly_user_funds',
     'column' => 
     array (
-      'id' => 'bigint',
-      'user_id' => 'bigint',
-      'fund_id' => 'bigint',
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'fund_id' => 'integer',
       'code' => 'string',
       'name' => 'string',
-      'cost' => 'decimal',
-      'share' => 'decimal',
-      'amount' => 'decimal',
+      'cost' => 'float',
+      'share' => 'float',
+      'amount' => 'float',
       'created_at' => 'integer',
       'updated_at' => 'integer',
       'deleted_at' => 'integer',
