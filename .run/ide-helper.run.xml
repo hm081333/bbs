@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ide-helper" type="CompoundRunConfigurationType">
+    <toRun name="ide metadata注释" type="PhpLocalRunConfigurationType" />
+    <toRun name="ide模型注释单文件" type="PhpLocalRunConfigurationType" />
+    <toRun name="ide注释" type="PhpLocalRunConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>

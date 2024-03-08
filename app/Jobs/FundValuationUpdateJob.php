@@ -1,0 +1,135 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Models\Fund\Fund;
+use App\Models\Fund\FundNetValue;
+use App\Models\Fund\FundValuation;
+use App\Utils\Tools;
+use Carbon\Carbon;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
+
+/**
+ * 基金估值更新任务
+ */
+class FundValuationUpdateJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * @var int 任务推送时间
+     */
+    private int $dispatchTime;
+
+    /**
+     * @var array 估值数据
+     */
+    private array $fundValuationData;
+
+    /**
+     * @var Carbon 估值时间
+     */
+    private Carbon $valuation_time;
+
+    /**
+     * @var string 基金代码
+     */
+    private string $fundCode;
+
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct(array $data)
+    {
+        $this->dispatchTime = time();
+        $this->fundValuationData = $data;
+
+        $this->fundCode = (string)$this->fundValuationData['code'];
+        if (!empty($this->fundValuationData['valuation_time'])) $this->valuation_time = Tools::timeToCarbon($this->fundValuationData['valuation_time']);
+
+        $this->onQueue('fund');
+        $this->onConnection('redis');
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle()
+    {
+        if (empty($this->fundCode)) $this->fundCode = (string)$this->fundValuationData['code'];
+        if (empty($this->fundCode) || empty($this->valuation_time)) return;
+        // 基金估值更新逻辑
+        /* @var $fund Fund */
+        if ($fund = Fund::getByCode($this->fundCode)) {
+            $fund_valuation_filter = [
+                'fund_id' => $fund->id,
+                'valuation_time' => $this->valuation_time->timestamp,
+                'valuation_source' => urlencode($this->fundValuationData['valuation_source']),
+            ];
+            $fund_valuation_cache_key = base64_encode(Tools::jsonEncode($fund_valuation_filter));
+            $fund_valuation_set_key = 'fund:valuation:' . $this->valuation_time->copy()->format('Ymd');
+            // 判断估值数据的唯一条件，是否存在于今天估值集合中
+            $fund_valuation_status = Redis::sismember($fund_valuation_set_key, $fund_valuation_cache_key);
+            // if (!$fund_valuation_status) $fund_valuation_status = FundValuation::getCacheOrSet($fund_valuation_cache_key, function () use ($fund_valuation_filter) {
+            //     return 0;
+            //     // return FundValuation::where($fund_valuation_filter)->count('id');
+            // }, 3600);
+            if (!$fund_valuation_status) {
+                // 估值数据的唯一条件，添加到今天估值集合中
+                Redis::sadd($fund_valuation_set_key, $fund_valuation_cache_key);
+                $insert_data = [
+                    'fund_id' => $fund->id,
+                    'code' => $fund->code,
+                    'name' => $fund->name,
+                    'unit_net_value' => 0,
+                    // 最新预估净值
+                    'estimated_net_value' => empty($this->fundValuationData['estimated_net_value']) ? null : $this->fundValuationData['estimated_net_value'],
+                    'estimated_growth' => 0,
+                    'estimated_growth_rate' => 0,
+                    // 估值时间
+                    'valuation_time' => $this->valuation_time->timestamp,
+                    // 估值来源
+                    'valuation_source' => urlencode($this->fundValuationData['valuation_source']),
+                ];
+                $insert_data['created_at'] = $insert_data['updated_at'] = $this->dispatchTime;
+                // 计算增长和增长率
+                if (empty($fund->unit_net_value)) {
+                    /* @var $fundNetValue FundNetValue */
+                    $fundNetValue = FundNetValue::where('code', $this->fundCode)
+                        ->orderByDesc('net_value_time')
+                        ->first();
+                    if ($fundNetValue) {
+                        $fund->net_value_time = $fundNetValue->net_value_time;// 净值更新时间
+                        $fund->unit_net_value = $fundNetValue->unit_net_value;// 单位净值
+                        $fund->cumulative_net_value = $fundNetValue->cumulative_net_value;// 累计净值
+                        $fund->save();
+                    }
+                }
+                if (!empty($fund->unit_net_value)) {
+                    $insert_data['unit_net_value'] = $fund->unit_net_value;
+                    $insert_data['estimated_growth'] = Tools::math($this->fundValuationData['estimated_net_value'], '-', $insert_data['unit_net_value'], 4);
+                    $estimated_growth_rate = Tools::math($insert_data['estimated_growth'], '/', $insert_data['unit_net_value'], 10);
+                    $insert_data['estimated_growth_rate'] = Tools::math($estimated_growth_rate, '*', '100', 4);
+                }
+                // $fundValuation = FundValuation::create($insert_data);
+                // \App\Events\FundValuationUpdated::dispatch($fundValuation);
+                Redis::sadd('fund:valuation:wait-write', Tools::jsonEncode($insert_data));
+            }
+            // 估值数据的唯一条件，添加到今天估值集合中
+            Redis::sadd($fund_valuation_set_key, $fund_valuation_cache_key);
+            // 如果集合未设置过期时间，设置过期时间为明天
+            if (Redis::ttl($fund_valuation_set_key) < 0) Redis::expireat($fund_valuation_set_key, Tools::today()->addDay()->timestamp);
+            // FundValuation::setCache($fund_valuation_cache_key, 1, 3600);
+        }
+    }
+}
