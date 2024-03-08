@@ -17,7 +17,6 @@
         "ext-sqlite3": "*",
         "aliyuncs/oss-sdk-php": "^2.4",
         "beyondcode/laravel-websockets": "^1.14",
-        "fruitcake/laravel-cors": "^2.0.5",
         "guzzlehttp/guzzle": "^7.2",
         "inertiajs/inertia-laravel": "^0.6.3",
         "james-heinrich/getid3": "^1.9",

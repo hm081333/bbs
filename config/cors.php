@@ -34,8 +34,7 @@ return [
         // '*',
         'http://localhost:*',
         'http://127.0.0.1:*',
-        'http://*.gdsbuild.com',
-        'https://*.gdsbuild.com',
+        'http://192.168.2.60:*',
     ],
 
     'allowed_origins_patterns' => [
