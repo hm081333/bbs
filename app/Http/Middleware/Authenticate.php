@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\Request\BadRequestException;
 use App\Exceptions\Request\UnauthorizedException;
 use Closure;
 use Illuminate\Auth\AuthenticationException;
@@ -50,8 +51,8 @@ class Authenticate implements AuthenticatesRequests
     /**
      * 确定用户是否登录到任何给定的警卫。
      *
-     * @param Request $request
-     * @param string|null  $guard
+     * @param Request     $request
+     * @param string|null $guard
      *
      * @return void
      *
@@ -72,7 +73,15 @@ class Authenticate implements AuthenticatesRequests
         // }
 
         $guard = $this->auth->guard($guard);
-        if (!$guard->check() || !$guard->payload()->get('account_type')) $this->unauthenticated();
+        if (!$guard->check()) $this->unauthenticated();
+        $account_type = $guard->payload()->get('account_type');
+        if (!$account_type) $this->unauthenticated();
+        if ($account_type == 'admin') {
+            $admin = $guard->user();
+            if (!$admin->is_super) {
+                if (!$admin->role->permissions()->where('is_interface', 1)->where('component', $request->route()->uri())->first(['permission_id'])) throw new BadRequestException('权限不足');
+            }
+        }
     }
 
     /**
