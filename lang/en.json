@@ -121,6 +121,7 @@
     "Open in a parent frame": "Open in a parent frame",
     "Open in the topmost frame": "Open in the topmost frame",
     "Open on the website": "Open on the website",
+    "option_item": "The selected :attribute option is invalid.",
     "Origin Is Unreachable": "Origin Is Unreachable",
     "Page Expired": "Page Expired",
     "Pagination Navigation": "Pagination Navigation",

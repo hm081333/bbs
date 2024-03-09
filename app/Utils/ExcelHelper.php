@@ -2,7 +2,7 @@
 
 namespace App\Utils;
 
-use App\Exceptions\Server\Exception;
+use App\Exceptions\Server\BaseServerException;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -55,16 +55,18 @@ class ExcelHelper
 
     /**
      * 生成表格 返回写入器
+     *
      * @param array $header     表头数组
      * @param array $sheet_data 表格数据数组
+     *
      * @return Xlsx
-     * @throws Exception
+     * @throws BaseServerException
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
     public function writeSheet(array $header, array $sheet_data)
     {
-        if (empty($header)) throw new Exception('参数错误');
+        if (empty($header)) throw new BaseServerException('参数错误');
         // 实例化 Spreadsheet 对象
         $spreadsheet = new Spreadsheet();
 
@@ -132,11 +134,13 @@ class ExcelHelper
 
     /**
      * 生成表格并保存
+     *
      * @param array  $header
      * @param array  $sheet_data
      * @param string $filename
+     *
      * @return void
-     * @throws Exception
+     * @throws BaseServerException
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */

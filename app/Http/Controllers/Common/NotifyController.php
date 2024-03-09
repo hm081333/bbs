@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Common;
 
 use App\Exceptions\Request\BadRequestException;
-use App\Exceptions\Server\Exception;
+use App\Exceptions\Server\BaseServerException;
 use App\Http\Controllers\BaseController;
 use App\Utils\File;
 use App\Utils\Tools;

@@ -3,7 +3,7 @@
 namespace App\Exceptions\Request;
 
 
-class NotFoundException extends Exception
+class NotFoundException extends BaseRequestException
 {
     /**
      * 未找到 异常抛出

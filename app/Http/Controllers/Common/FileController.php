@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Common;
 
 use App\Exceptions\Request\BadRequestException;
-use App\Exceptions\Server\Exception;
+use App\Exceptions\Server\BaseServerException;
 use App\Http\Controllers\BaseController;
 use App\Utils\File;
 use App\Utils\Tools;
@@ -289,10 +289,12 @@ class FileController extends BaseController
 
     /**
      * 上传图片
+     *
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws BadRequestException
-     * @throws Exception
+     * @throws BaseServerException
      */
     public function uploadImage(Request $request)
     {
@@ -316,11 +318,13 @@ class FileController extends BaseController
 
     /**
      * 上传图片逻辑
+     *
      * @param UploadedFile $file
      * @param string $path
+     *
      * @return array
      * @throws BadRequestException
-     * @throws Exception
+     * @throws BaseServerException
      */
     private function _uploadImage(UploadedFile $file, string $path)
     {
@@ -342,9 +346,10 @@ class FileController extends BaseController
 
     /**
      * 远程图片
+     *
      * @return JsonResponse
      * @throws BadRequestException
-     * @throws Exception
+     * @throws BaseServerException
      */
     public function remoteImage()
     {
@@ -362,10 +367,12 @@ class FileController extends BaseController
 
     /**
      * 上传视频
+     *
      * @param Request $request
+     *
      * @return JsonResponse
      * @throws BadRequestException
-     * @throws Exception
+     * @throws BaseServerException
      */
     public function uploadVideo(Request $request)
     {
@@ -389,11 +396,13 @@ class FileController extends BaseController
 
     /**
      * 上传视频逻辑
+     *
      * @param UploadedFile $file
      * @param string $path
+     *
      * @return array
      * @throws BadRequestException
-     * @throws Exception
+     * @throws BaseServerException
      */
     private function _uploadVideo(UploadedFile $file, string $path)
     {

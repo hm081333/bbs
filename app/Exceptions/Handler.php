@@ -17,7 +17,7 @@ class Handler extends ExceptionHandler
      * @var array<int, class-string<Throwable>>
      */
     protected $dontReport = [
-        \App\Exceptions\Exception::class,
+        \App\Exceptions\BaseException::class,
     ];
 
     /**
@@ -47,7 +47,7 @@ class Handler extends ExceptionHandler
                 'code' => 400,
                 'msg' => $e->getMessage(),
             ];
-            if ($e instanceof \App\Exceptions\Exception) {
+            if ($e instanceof \App\Exceptions\BaseException) {
                 $responseData['code'] = $e->getCode();
             } else if ($e instanceof \Tymon\JWTAuth\Exceptions\JWTException) {
                 $responseData['code'] = '401';

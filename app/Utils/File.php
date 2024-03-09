@@ -2,7 +2,7 @@
 
 namespace App\Utils;
 
-use App\Exceptions\Server\Exception;
+use App\Exceptions\Server\BaseServerException;
 use App\Exceptions\Server\InternalServerErrorException;
 use App\Jobs\ObjectStorageServiceJob;
 use Illuminate\Http\UploadedFile;
@@ -109,11 +109,11 @@ class File
      * @param string $path
      *
      * @return \App\Models\System\SystemFile
-     * @throws Exception
+     * @throws BaseServerException
      */
     public function save(string $path)
     {
-        if (!$this->file) throw new Exception('找不到文件');
+        if (!$this->file) throw new BaseServerException('找不到文件');
 
         $file_data = [
             'name' => $this->getFileName(),

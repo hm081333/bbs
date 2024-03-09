@@ -3,7 +3,7 @@
 namespace App\Exceptions\Request;
 
 
-class ForbiddenException extends Exception
+class ForbiddenException extends BaseRequestException
 {
     /**
      * 禁止访问 异常抛出

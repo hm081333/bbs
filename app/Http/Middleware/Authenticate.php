@@ -4,33 +4,16 @@ namespace App\Http\Middleware;
 
 use App\Exceptions\Request\BadRequestException;
 use App\Exceptions\Request\UnauthorizedException;
+use App\Utils\Tools;
 use Closure;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Request;
 
 class Authenticate implements AuthenticatesRequests
 {
-    /**
-     * The authentication factory instance.
-     *
-     * @var Auth
-     */
-    protected $auth;
-
-    /**
-     * Create a new middleware instance.
-     *
-     * @param Auth $auth
-     *
-     * @return void
-     */
-    public function __construct(Auth $auth)
-    {
-        $this->auth = $auth;
-    }
-
     /**
      * 处理传入请求。
      *
@@ -40,60 +23,14 @@ class Authenticate implements AuthenticatesRequests
      *
      * @return mixed
      *
-     * @throws AuthenticationException
+     * @throws BadRequestException
+     * @throws UnauthorizedException
+     * @throws BindingResolutionException
      */
     public function handle(Request $request, Closure $next, string|null $guard = null)
     {
-        $this->authenticate($request, $guard);
+        Tools::auth()->check($guard);
         return $next($request);
-    }
-
-    /**
-     * 确定用户是否登录到任何给定的警卫。
-     *
-     * @param Request     $request
-     * @param string|null $guard
-     *
-     * @return void
-     *
-     * @throws UnauthorizedException
-     */
-    protected function authenticate(Request $request, string|null $guard)
-    {
-        // if (empty($guards)) {
-        //     $guards = [null];
-        // }
-        //
-        // foreach ($guards as $guard) {
-        //     dd($this->auth->shouldUse($guard));
-        //     $guard = $this->auth->guard($guard);
-        //     if ($this->auth->guard($guard)->check()) {
-        //         return $this->auth->shouldUse($guard);
-        //     }
-        // }
-
-        $guard = $this->auth->guard($guard);
-        if (!$guard->check()) $this->unauthenticated();
-        $account_type = $guard->payload()->get('account_type');
-        if (!$account_type) $this->unauthenticated();
-        if ($account_type == 'admin') {
-            $admin = $guard->user();
-            if (!$admin->is_super) {
-                if (!$admin->role->permissions()->where('is_interface', 1)->where('component', $request->route()->uri())->first(['permission_id'])) throw new BadRequestException('权限不足');
-            }
-        }
-    }
-
-    /**
-     * 处理未经身份验证的用户。
-     *
-     * @return void
-     *
-     * @throws UnauthorizedException
-     */
-    protected function unauthenticated()
-    {
-        throw new UnauthorizedException('请登录');
     }
 
 }

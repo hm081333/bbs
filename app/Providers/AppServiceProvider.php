@@ -2,13 +2,14 @@
 
 namespace App\Providers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * 注册任何应用程序服务。
      */
     public function register(): void
     {
@@ -17,6 +18,20 @@ class AppServiceProvider extends ServiceProvider
         //     $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         // }
         //endregion
+
+        $this->app->singleton(\App\Utils\Register\JWTAuth::class, function ($app) {
+            return new \App\Utils\Register\JWTAuth;
+        });
+    }
+
+    /**
+     * 获取服务提供者的服务
+     *
+     * @return array
+     */
+    public function provides(): array
+    {
+        return [\App\Utils\Register\JWTAuth::class];
     }
 
     /**
@@ -24,8 +39,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Response::macro('api', function (string|null $msg, mixed $data) {
-            return Response::json([
+        Response::macro('api', function (string|null $msg, mixed $data): JsonResponse {
+            return new JsonResponse([
                 'code' => 200,
                 'msg' => $msg,
                 'data' => $data,

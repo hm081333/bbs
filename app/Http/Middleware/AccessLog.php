@@ -22,22 +22,7 @@ class AccessLog
      */
     private function getAuthId($data)
     {
-        $token_parser = app()->make('tymon.jwt.parser');
-        $token_str = $token_parser->parseToken();
-        if (empty($token_str)) return $data;
-        try {
-            $JWTParser = new Parser(new JoseEncoder());
-            $token = $JWTParser->parse($token_str);
-            $claims = $token->claims();
-            $data['account_type'] = $claims->get('account_type', '');
-            $data['account_id'] = $claims->get('sub', 0);
-        } catch (Exception $e) {
-            Log::error('获取令牌信息失败');
-            Log::error($token_str);
-            Log::error($e);
-            // throw $e;
-        }
-        return $data;
+        return Tools::auth()->getTokenData($data);
     }
 
     /**

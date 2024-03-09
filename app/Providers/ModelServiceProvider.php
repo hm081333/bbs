@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\ServiceProvider;
 
-class ModelServiceProvider extends ServiceProvider
+class ModelServiceProvider extends ServiceProvider implements \Illuminate\Contracts\Support\DeferrableProvider
 {
     /**
      * 注册所有的应用服务
@@ -18,7 +18,7 @@ class ModelServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(\App\Utils\Register\ModelMap::class, function ($app) {
-            return new \App\Utils\Register\ModelMap();
+            return new \App\Utils\Register\ModelMap;
         });
     }
 
@@ -27,7 +27,7 @@ class ModelServiceProvider extends ServiceProvider
      *
      * @return array
      */
-    public function provides()
+    public function provides(): array
     {
         return [\App\Utils\Register\ModelMap::class];
     }

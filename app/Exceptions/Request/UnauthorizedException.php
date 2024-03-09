@@ -3,7 +3,7 @@
 namespace App\Exceptions\Request;
 
 
-class UnauthorizedException extends Exception
+class UnauthorizedException extends BaseRequestException
 {
     /**
      * 未登录 异常抛出

@@ -8,9 +8,12 @@ use App\Models\BaseModel;
 use App\Utils\Aliyun\Oss;
 use App\Utils\Aliyun\Sms;
 use App\Utils\Juhe\Calendar;
+use App\Utils\Register\JWTAuth;
+use App\Utils\Register\ModelMap;
 use Closure;
 use DB;
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -619,7 +622,7 @@ class Tools
      * 获取积分配置
      *
      * @return array
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function getPoint()
     {
@@ -1171,12 +1174,23 @@ class Tools
     /**
      * 模型映射器
      *
-     * @return \App\Utils\Register\ModelMap
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @return ModelMap
+     * @throws BindingResolutionException
      */
-    public static function model(): Register\ModelMap
+    public static function model(): ModelMap
     {
-        return app()->make(\App\Utils\Register\ModelMap::class);
+        return app()->make(ModelMap::class);
+    }
+
+    /**
+     * 身份验证器
+     *
+     * @return JWTAuth
+     * @throws BindingResolutionException
+     */
+    public static function auth(): JWTAuth
+    {
+        return app()->make(JWTAuth::class);
     }
     // endregion
 

@@ -2,7 +2,7 @@
 
 namespace App\Exceptions\Server;
 
-class InternalServerErrorException extends Exception
+class InternalServerErrorException extends BaseServerException
 {
     /**
      * 服务器运行异常错误

@@ -3,7 +3,7 @@
 namespace App\Exceptions\Request;
 
 
-class BadRequestException extends Exception
+class BadRequestException extends BaseRequestException
 {
     /**
      * 请求错误 异常抛出

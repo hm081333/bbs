@@ -2,9 +2,9 @@
 
 namespace App\Console;
 
-use App\Console\Commands\Fund\FundNetValueUpdate;
-use App\Console\Commands\Fund\FundValuationUpdate;
-use App\Console\Commands\Fund\FundValuationWrite;
+use App\Console\Commands\Fund\NetValueUpdateCommand;
+use App\Console\Commands\Fund\ValuationUpdateCommand;
+use App\Console\Commands\Fund\ValuationWriteCommand;
 use App\Utils\Tools;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -19,7 +19,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $now_time = Tools::now();
         // $schedule->command('inspire')->hourly();
-        $schedule->command(FundNetValueUpdate::class)
+        $schedule->command(NetValueUpdateCommand::class)
             ->when(fn() => Tools::isOpenDoorDay($now_time))
             ->between('18:00', '24:00')
             ->everyThirtyMinutes()
@@ -36,7 +36,7 @@ class Kernel extends ConsoleKernel
                 // 任务已经执行。。。
                 // Log::debug('FundNetValueUpdate run after');
             });
-        $schedule->command(FundValuationUpdate::class, ['--dayfund'])
+        $schedule->command(ValuationUpdateCommand::class, ['--dayfund'])
             ->when(fn() => Tools::isOpenDoorDay($now_time) && Tools::isOpenDoorTime($now_time))
             ->everyFiveMinutes()
             ->onOneServer()
@@ -52,7 +52,7 @@ class Kernel extends ConsoleKernel
                 // 任务已经执行。。。
                 // Log::debug('FundValuationUpdate --dayfund run after');
             });
-        $schedule->command(FundValuationUpdate::class, ['--eastmoney'])
+        $schedule->command(ValuationUpdateCommand::class, ['--eastmoney'])
             ->when(fn() => Tools::isOpenDoorDay($now_time) && Tools::isOpenDoorTime($now_time))
             ->everyFiveMinutes()
             ->onOneServer()
@@ -68,7 +68,7 @@ class Kernel extends ConsoleKernel
                 // 任务已经执行。。。
                 // Log::debug('FundValuationUpdate --eastmoney run after');
             });
-        $schedule->command(FundValuationWrite::class)
+        $schedule->command(ValuationWriteCommand::class)
             ->when(fn() => Tools::isOpenDoorDay($now_time) && Tools::isOpenDoorTime($now_time))
             ->everyMinute()
             ->onOneServer()

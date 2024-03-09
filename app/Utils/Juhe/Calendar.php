@@ -2,7 +2,7 @@
 
 namespace App\Utils\Juhe;
 
-use App\Exceptions\Server\Exception;
+use App\Exceptions\Server\BaseServerException;
 use App\Exceptions\Server\InternalServerErrorException;
 use App\Utils\Tools;
 use Illuminate\Support\Carbon;

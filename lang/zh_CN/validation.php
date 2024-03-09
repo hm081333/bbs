@@ -105,6 +105,7 @@ return [
     'not_in'               => '已选的属性 :attribute 非法。',
     'not_regex'            => ':Attribute 的格式错误。',
     'numeric'              => ':Attribute 必须是一个数字。',
+    'option_item'          => ':Attribute 选项不存在',
     'password'             => [
         'letters'       => ':Attribute 必须至少包含一个字母。',
         'mixed'         => ':Attribute 必须至少包含一个大写字母和一个小写字母。',

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Casts\Timestamp;
+use App\Casts\TimestampCast;
 
 class User extends AuthModel
 {
@@ -20,10 +20,10 @@ class User extends AuthModel
     ];
 
     protected $casts = [
-        'email_verified_at' => Timestamp::class,
-        'birthdate' => Timestamp::class,
-        'last_login_time' => Timestamp::class,
-        'frozen_time' => Timestamp::class,
+        'email_verified_at' => TimestampCast::class,
+        'birthdate' => TimestampCast::class,
+        'last_login_time' => TimestampCast::class,
+        'frozen_time' => TimestampCast::class,
     ];
 
     //endregion

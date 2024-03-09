@@ -2,14 +2,14 @@
 
 namespace App\Models\Fund;
 
-use App\Casts\Timestamp;
+use App\Casts\TimestampCast;
 use App\Models\BaseModel;
 use Illuminate\Support\Facades\Cache;
 
 class Fund extends BaseModel
 {
     protected $casts = [
-        'net_value_time' => Timestamp::class,
+        'net_value_time' => TimestampCast::class,
     ];
 
     /**

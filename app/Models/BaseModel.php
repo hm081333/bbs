@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Casts\Timestamp;
+use App\Casts\TimestampCast;
 use App\Events\ModelSavedEvent;
 use App\Events\ModelSavingEvent;
 use App\Traits\Model\ModelBelongsTo;
@@ -60,9 +60,9 @@ class BaseModel extends Model
         // 添加 序列化隐藏的属性
         $this->hidden[] = 'deleted_at';
         $this->casts = array_merge([
-            'created_at' => Timestamp::class,
-            'updated_at' => Timestamp::class,
-            'deleted_at' => Timestamp::class,
+            'created_at' => TimestampCast::class,
+            'updated_at' => TimestampCast::class,
+            'deleted_at' => TimestampCast::class,
         ], $this->casts);
         // 添加 模型的事件映射
         $this->dispatchesEvents['saving'] = ModelSavingEvent::class;
