@@ -163,6 +163,7 @@ class Intel extends Command
                     $product_series_ark_series_id = $this->removeExtraSpaceAndHtmlTag($matches[1]);
                     $product_series = [
                         'category_unique_key' => $product_subcategory['unique_key'],
+                        'category_panel_key' => $product_subcategory['panel_key'],
                         'language' => $language,
                         'unique_key' => "{$product_series_ark_series_id}:{$language}",
                         'ark_series_id' => $product_series_ark_series_id,
