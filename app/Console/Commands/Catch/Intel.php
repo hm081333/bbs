@@ -14,6 +14,7 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
 
 class Intel extends Command
 {
@@ -37,6 +38,7 @@ class Intel extends Command
     private $base_uri = 'https://ark.intel.com';
     private array $client = [];
 
+    private $curl_runtime_file_paths = [];
     private $product_category_list = [];
     private $product_series_list = [];
     private $product_list = [];
@@ -91,7 +93,7 @@ class Intel extends Command
         preg_match_all('/<li[^>]*class="[^"]*lang-option[^"]*"[^>]*>[^<]*<a[^>]*data-locale="(.*?)"[^>]*href="(.*?)"[^>]*>(.*?)<\/a>[^<]*<\/li>/', $html, $matches);
         $language_list = [];
         foreach ($matches[1] as $index => $key) {
-            $name = trim($matches[3][$index]);
+            $name = $this->removeExtraSpaceAndHtmlTag($matches[3][$index]);
             $item = [
                 'key' => $key,
                 'name' => $name,
@@ -119,7 +121,7 @@ class Intel extends Command
         preg_match_all('/<div class="ark-accessible-color col-xs-12 col-sm-6 col-md-4 product-category with-icons"[^>]*data-panel-key=\s*([^\s]+)[^>]*>.*?<span class="name show-icon" role="button">(.*?)<\/span>.*?<\/div>/', $section, $matches);
         $product_category_list = array_combine($matches[1], $matches[2]);
         foreach ($product_category_list as $category_panel_key => $product_category_name) {
-            $product_category_name = $this->removeExtraSpaces($product_category_name);
+            $product_category_name = $this->removeExtraSpaceAndHtmlTag($product_category_name);
             $product_category = [
                 'pid' => 0,
                 'level' => 0,
@@ -137,7 +139,7 @@ class Intel extends Command
             // 正则匹配出旗下所有子产品分类
             preg_match_all('/<div[^>]*data-panel-key="(.*?)"[^>]*>[^<]*<span class="name ark-accessible-color">([^<]*)<\/span>[^<]*<\/div>/', $product_subcategory_html, $matches);
             foreach (array_combine($matches[1], $matches[2]) as $subcategory_panel_key => $product_subcategory_name) {
-                $product_subcategory_name = $this->removeExtraSpaces($product_subcategory_name);
+                $product_subcategory_name = $this->removeExtraSpaceAndHtmlTag($product_subcategory_name);
                 $product_subcategory = [
                     'parent_unique_key' => $product_category['unique_key'],
                     'pid' => null,
@@ -156,9 +158,9 @@ class Intel extends Command
                 // 正则匹配出分类下所有产品系列
                 preg_match_all('/<a class="ark-accessible-color" href="(.*?)">(.*?)<\/a>/', $product_html, $matches);
                 foreach (array_combine($matches[2], $matches[1]) as $product_series_name => $product_series_path) {
-                    $product_series_name = $this->removeExtraSpaces($product_series_name);
+                    $product_series_name = $this->removeExtraSpaceAndHtmlTag($product_series_name);
                     preg_match('/\/(\d+)\//', $product_series_path, $matches);
-                    $product_series_ark_series_id = trim($matches[1]);
+                    $product_series_ark_series_id = $this->removeExtraSpaceAndHtmlTag($matches[1]);
                     $product_series = [
                         'category_unique_key' => $product_subcategory['unique_key'],
                         'language' => $language,
@@ -182,7 +184,15 @@ class Intel extends Command
             ->whereNull('parent_unique_key')
             ->chunk(500)
             ->each(function (Collection $product_category_list_chunk) {
-                IntelProductCategory::insert($product_category_list_chunk
+                IntelProductCategory::upsert($product_category_list_chunk
+                    ->map(function ($product_category) {
+                        $product_category['created_at'] = $this->now_time;
+                        $product_category['updated_at'] = $this->now_time;
+                        unset($product_category['parent_unique_key']);
+                        return $product_category;
+                    })
+                    ->toArray(), ['unique_key']);
+                /*IntelProductCategory::insert($product_category_list_chunk
                     ->whereNotIn('unique_key', IntelProductCategory::whereIn('unique_key', $product_category_list_chunk->pluck('unique_key'))
                         ->select('unique_key')
                         ->pluck('unique_key'))
@@ -192,7 +202,7 @@ class Intel extends Command
                         unset($product_category['parent_unique_key']);
                         return $product_category;
                     })
-                    ->toArray());
+                    ->toArray());*/
                 $this->info('产品分类保存处理完成' . $product_category_list_chunk->count() . '条');
                 unset($product_category_list_chunk);
             });
@@ -205,7 +215,16 @@ class Intel extends Command
             ->whereNotNull('parent_unique_key')
             ->chunk(500)
             ->each(function (Collection $product_category_list_chunk) use ($top_product_category_ids) {
-                IntelProductCategory::insert($product_category_list_chunk
+                IntelProductCategory::upsert($product_category_list_chunk
+                    ->map(function ($product_category) use ($top_product_category_ids) {
+                        $product_category['created_at'] = $this->now_time;
+                        $product_category['updated_at'] = $this->now_time;
+                        $product_category['pid'] = $top_product_category_ids[$product_category['parent_unique_key']];
+                        unset($product_category['parent_unique_key']);
+                        return $product_category;
+                    })
+                    ->toArray(), ['unique_key']);
+                /*IntelProductCategory::insert($product_category_list_chunk
                     ->whereNotIn('unique_key', IntelProductCategory::whereIn('unique_key', $product_category_list_chunk->pluck('unique_key'))
                         ->select('unique_key')
                         ->pluck('unique_key'))
@@ -216,7 +235,7 @@ class Intel extends Command
                         unset($product_category['parent_unique_key']);
                         return $product_category;
                     })
-                    ->toArray());
+                    ->toArray());*/
                 $this->info('产品分类保存处理完成' . $product_category_list_chunk->count() . '条');
                 unset($product_category_list_chunk);
             });
@@ -234,7 +253,16 @@ class Intel extends Command
                     ->unique())
                     ->select(['id', 'unique_key'])
                     ->pluck('id', 'unique_key');
-                IntelProductSeries::insert($product_series_list_chunk
+                IntelProductSeries::upsert($product_series_list_chunk
+                    ->map(function ($product_series) use ($product_category_ids) {
+                        $product_series['created_at'] = $this->now_time;
+                        $product_series['updated_at'] = $this->now_time;
+                        $product_series['category_id'] = $product_category_ids[$product_series['category_unique_key']];
+                        unset($product_series['category_unique_key']);
+                        return $product_series;
+                    })
+                    ->toArray(), ['unique_key']);
+                /*IntelProductSeries::insert($product_series_list_chunk
                     ->whereNotIn('unique_key', IntelProductSeries::whereIn('unique_key', $product_series_list_chunk->pluck('unique_key'))
                         ->select('unique_key')
                         ->pluck('unique_key'))
@@ -245,7 +273,7 @@ class Intel extends Command
                         unset($product_series['category_unique_key']);
                         return $product_series;
                     })
-                    ->toArray());
+                    ->toArray());*/
                 $this->info('产品系列保存处理完成' . $product_series_list_chunk->count() . '条');
                 unset($product_series_list_chunk);
             });
@@ -258,15 +286,10 @@ class Intel extends Command
         IntelProductSeries::chunk(500, function (Collection $product_series_list) {
             $product_series_list = $product_series_list->filter(function (IntelProductSeries $product_series) {
                 [$ark_series_id, $language] = explode(':', $product_series['unique_key']);
-                $runtime_file_path = $this->getCurlRuntimeFilePath($product_series['url']);
-                if (file_exists($runtime_file_path)) {
-                    $content = file_get_contents($runtime_file_path);
-                    if (!empty($content)) {
-                        $this->_getProductList($product_series, $language, $content);
-                        return false;
-                    } else {
-                        @unlink($runtime_file_path);
-                    }
+                $content = $this->getCurlRuntimeContent($product_series['url']);
+                if (!empty($content)) {
+                    $this->_getProductList($product_series, $language, $content);
+                    return false;
                 }
                 return true;
             });
@@ -284,13 +307,12 @@ class Intel extends Command
                     $product_series_urls = $product_series_urls->diffKeys($responses['fulfilled']);
                     // dump($product_series_urls);
                     // 处理响应
-                    $responses['fulfilled']->each(function (\GuzzleHttp\Psr7\Response $response, $product_series_unique_key) use ($product_series_list) {
-                        $content = $response->getBody()->getContents();
+                    $responses['fulfilled']->each(function (Response $response, $product_series_unique_key) use ($product_series_list) {
+                        $content = $this->parseResponse($response);
                         unset($response);
                         if (!empty($content)) {
-                            $content = Tools::compress_html($content);
                             $product_series = $product_series_list[$product_series_unique_key];
-                            file_put_contents($this->getCurlRuntimeFilePath($product_series['url']), $content);
+                            $this->saveCurlRuntimeContent($product_series['url'], $content);
                             [$ark_series_id, $language] = explode(':', $product_series['unique_key']);
                             $this->_getProductList($product_series, $language, $content);
                         } else {
@@ -310,7 +332,7 @@ class Intel extends Command
 
     private function _getProductList(IntelProductSeries $product_series, string $language, string $product_list_html)
     {
-        $product_list_html = str_replace(["<br/>", "<br>"], '', $product_list_html);
+        $product_list_html = $this->removeHtmlWarp($product_list_html);
         //region 正则匹配出内容区域
         preg_match('/<table[^>]*id="product-table"[^>]*>.*?<tbody[^>]*>(.*?)<\/tbody><\/table>/', $product_list_html, $matches);
         $product_list_table_tbody = $matches[1];
@@ -318,9 +340,9 @@ class Intel extends Command
         // 正则匹配出产品下所有规格详情链接
         preg_match_all('/<tr.*?data-product-id="(.*?)".*?<a href="(.*?)">(.*?)<\/a>.*?<\/tr>/', $product_list_table_tbody, $matches);
         foreach ($matches[1] as $index => $ark_product_id) {
-            $ark_product_id = $this->removeExtraSpaces($ark_product_id);
-            $product_name = $this->removeExtraSpaces($matches[3][$index]);
-            $product_path = $this->removeExtraSpaces($matches[2][$index]);
+            $ark_product_id = $this->removeExtraSpaceAndHtmlTag($ark_product_id);
+            $product_name = $this->removeExtraSpaceAndHtmlTag($matches[3][$index]);
+            $product_path = $this->removeExtraSpaceAndHtmlTag($matches[2][$index]);
             $product = [
                 'language' => $language,
                 'unique_key' => "{$ark_product_id}:{$language}",
@@ -342,7 +364,14 @@ class Intel extends Command
         collect($this->product_list)
             ->chunk(500)
             ->each(function (Collection $product_list_chunk) {
-                IntelProduct::insert($product_list_chunk
+                IntelProduct::upsert($product_list_chunk
+                    ->map(function ($product) {
+                        $product['created_at'] = $this->now_time;
+                        $product['updated_at'] = $this->now_time;
+                        return $product;
+                    })
+                    ->toArray(), ['unique_key']);
+                /*IntelProduct::insert($product_list_chunk
                     ->whereNotIn('unique_key', IntelProduct::whereIn('unique_key', $product_list_chunk->pluck('unique_key'))
                         ->select('unique_key')
                         ->pluck('unique_key'))
@@ -350,7 +379,8 @@ class Intel extends Command
                         $product['created_at'] = $this->now_time;
                         $product['updated_at'] = $this->now_time;
                         return $product;
-                    })->toArray());
+                    })
+                ->toArray());*/
                 $this->info('产品保存处理完成' . $product_list_chunk->count() . '条');
             });
         $this->info('产品保存成功');
@@ -362,15 +392,10 @@ class Intel extends Command
         IntelProduct::chunk(500, function (Collection $product_list) {
             $product_list = $product_list->filter(function (IntelProduct $product) {
                 [$ark_product_id, $language] = explode(':', $product['unique_key']);
-                $runtime_file_path = $this->getCurlRuntimeFilePath($product['url']);
-                if (file_exists($runtime_file_path)) {
-                    $content = file_get_contents($runtime_file_path);
-                    if (!empty($content)) {
-                        $this->_getProductSpec($product, $language, $content);
-                        return false;
-                    } else {
-                        @unlink($runtime_file_path);
-                    }
+                $curl_runtime = $this->getCurlRuntimeInfo($product['url']);
+                if (!empty($curl_runtime['content'])) {
+                    $this->_getProductSpec($product, $language, $curl_runtime['content']);
+                    return false;
                 }
                 return true;
             });
@@ -388,13 +413,12 @@ class Intel extends Command
                     $product_urls = $product_urls->diffKeys($responses['fulfilled']);
                     // dump($product_urls);
                     // 处理响应
-                    $responses['fulfilled']->each(function (\GuzzleHttp\Psr7\Response $response, $product_unique_key) use ($product_list) {
-                        $content = $response->getBody()->getContents();
+                    $responses['fulfilled']->each(function (Response $response, $product_unique_key) use ($product_list) {
+                        $content = $this->parseResponse($response);
                         unset($response);
                         if (!empty($content)) {
-                            $content = Tools::compress_html($content);
                             $product = $product_list[$product_unique_key];
-                            file_put_contents($this->getCurlRuntimeFilePath($product['url']), $content);
+                            $this->saveCurlRuntimeContent($product['url'], $content);
                             [$ark_product_id, $language] = explode(':', $product['unique_key']);
                             $this->_getProductSpec($product, $language, $content);
                         } else {
@@ -416,12 +440,12 @@ class Intel extends Command
 
     private function _getProductSpec($product, $language, $content)
     {
-        $content = str_replace(["<br/>", "<br>"], '', $content);
+        $content = $this->removeHtmlWarp($content);
         $content = preg_replace('/<div[^>]*class="[^"]*arkSignInBanner[^"]*"[^>]*>.*?<\/section><\/div>/', '', $content);
         //region 正则匹配出内容区域
         preg_match('/<div[^>]*class="specs-section active"[^>]*>(<section[^>]*>.*?<\/section>)+<\/div>/', $content, $matches);
         if (empty($matches[0])) {
-            @unlink($this->getCurlRuntimeFilePath($product['url']));
+            $this->unlinkCurlRuntime($product['url']);
             $this->error($product['name']);
             return false;
             dd($content);
@@ -434,12 +458,13 @@ class Intel extends Command
         foreach ($specifications_html as $specification_tab_index => $specification_html) {
             preg_match('/<div[^>]*class="[^"]*subhead[^"]*"[^>]*>.*?<h2 class="h2">(.*?)<\/h2>.*?<\/div>/', $specification_html, $matches);
             // 规格分类名称
-            $specification_tab_title = $this->removeExtraSpaces($matches[1]);
+            $specification_tab_title = $this->removeExtraSpaceAndHtmlTag($matches[1]);
+            dump($specification_tab_title);
             preg_match_all('/<li.*?<span[^>]*class="[^"]*label[^"]*"[^>]*>(.*?)<\/span><span[^>]*class="[^"]*value[^"]*"[^>]*data-key="(.*?)"[^>]*>(.*?)<\/span>.*?\/li>/', $specification_html, $matches);
             foreach ($matches[0] as $index => $key) {
-                $key = trim(strip_tags($matches[2][$index]));
-                $label = trim(strip_tags($matches[1][$index]));
-                $value = trim(strip_tags($matches[3][$index]));
+                $key = $this->removeExtraSpaceAndHtmlTag($matches[2][$index]);
+                $label = $this->removeExtraSpaceAndHtmlTag($matches[1][$index]);
+                $value = $this->removeExtraSpaceAndHtmlTag($matches[3][$index]);
                 $product_specs_item = [
                     'language' => $language,
                     'unique_key' => "{$product['ark_product_id']}:{$language}:{$key}",
@@ -452,10 +477,19 @@ class Intel extends Command
                     'tab_title' => $specification_tab_title,
                     'key' => $key,
                     'label' => $label,
+                    'label_tips_rich_text' => null,
                     'value' => $value,
                     'value_url' => null,
                 ];
-                if (preg_match('/<a[^>]*href="(.*?)".*?<\/a>/', $matches[3][$index], $a_matches)) $product_specs_item['value_url'] = $this->getUrlFromString(trim($a_matches[1]));
+                if (preg_match('/<a[^>]*href="(.*?)".*?<\/a>/', $matches[3][$index], $a_matches)) $product_specs_item['value_url'] = $this->getUrlFromString($this->removeExtraSpaceAndHtmlTag($a_matches[1]));
+                unset($a_matches);
+                preg_match('/data-modal="(.*?)"/', $matches[1][$index], $tips_model_id_matches);
+                if ($tips_model_id = $tips_model_id_matches[1] ?? '') {
+                    preg_match('/<div[^>]*class="[^"]*support-modal[^"]*"[^>]*id="' . $tips_model_id . '"[^>]*>.*?<h2[^>]*>(.*?)<\/h2>.*?<p[^>]*>(.*?)<\/p>.*?<\/div>/', $content, $tips_model_matches);
+                    $product_specs_item['label_tips_rich_text'] = htmlspecialchars($tips_model_matches[2]);
+                    unset($tips_model_matches);
+                }
+                unset($tips_model_id_matches);
 
                 $this->product_specs_list[$product_specs_item['unique_key']] = $product_specs_item;
                 // dump("{$language}|产品：{$product['name']}，规格：{$label}");
@@ -469,7 +503,14 @@ class Intel extends Command
         collect($this->product_specs_list)
             ->chunk(500)
             ->each(function (Collection $product_specs_list_chunk) {
-                IntelProductSpec::insert($product_specs_list_chunk
+                IntelProductSpec::upsert($product_specs_list_chunk
+                    ->map(function ($product_spec) {
+                        $product_spec['created_at'] = $this->now_time;
+                        $product_spec['updated_at'] = $this->now_time;
+                        return $product_spec;
+                    })
+                    ->toArray(), ['unique_key']);
+                /*IntelProductSpec::insert($product_specs_list_chunk
                     ->whereNotIn('unique_key', IntelProductSpec::whereIn('unique_key', $product_specs_list_chunk->pluck('unique_key'))
                         ->select('unique_key')
                         ->pluck('unique_key'))
@@ -477,7 +518,8 @@ class Intel extends Command
                         $product_spec['created_at'] = $this->now_time;
                         $product_spec['updated_at'] = $this->now_time;
                         return $product_spec;
-                    })->toArray());
+                    })
+                ->toArray());*/
                 $this->info('产品规格保存处理完成' . $product_specs_list_chunk->count() . '条');
             });
         // dump($product['ark_product_id']);
@@ -485,25 +527,75 @@ class Intel extends Command
         $this->product_specs_list = [];
     }
 
-    private function curlGet(string $url, $cache = true)
+    private function curlGet(string $url): string
     {
-        $runtime_file_path = $this->getCurlRuntimeFilePath($url);
-        if (file_exists($runtime_file_path) && $cache) {
-            $content = file_get_contents($runtime_file_path);
-        } else {
-            $response = $this->single_http_get($this->base_uri, $url);
-            $content = $response->getBody()->getContents();
-            unset($response);
-            $content = Tools::compress_html($content);
-            if ($cache) file_put_contents($runtime_file_path, $content);
+        $content = $this->getCurlRuntimeContent($url);
+        if (empty($content)) {
+            $this->unlinkCurlRuntime($url);
+            $content = $this->parseResponse($this->single_http_get($this->base_uri, $url));
+            $this->saveCurlRuntimeContent($url, $content);
         }
-        return str_replace(["<br/>", "<br>"], '', $content);
+        return $this->removeHtmlWarp($content);
     }
 
+    private function parseResponse(Response $response): string
+    {
+        $content = $response->getBody()->getContents();
+        if (empty($content)) return '';
+        $content = Tools::compress_html($content);
+        return $content;
+    }
+
+    private function getCurlRuntimeInfo(string $url): array
+    {
+        return [
+            'url' => $url,
+            'file_path' => $this->getCurlRuntimeFilePath($url),
+            'content' => $this->getCurlRuntimeContent($url),
+        ];
+    }
+
+    private function getCurlRuntimeContent(string $url): ?string
+    {
+        $file_path = $this->getCurlRuntimeFilePath($url);
+        $content = null;
+        if (file_exists($file_path)) {
+            $content = file_get_contents($file_path);
+            if (empty($content)) {
+                $content = null;
+                @unlink($file_path);
+            }
+        }
+        return $content;
+    }
+
+    private function saveCurlRuntimeContent(string $url, string $content): bool
+    {
+        if (empty($content)) return false;
+        return !!file_put_contents($this->getCurlRuntimeFilePath($url), $content);
+    }
+
+    private function unlinkCurlRuntime(string $url): bool
+    {
+        return @unlink($this->getCurlRuntimeFilePath($url));
+    }
+
+    /**
+     * 获取请求缓存路径
+     *
+     * @param string $url
+     *
+     * @return string
+     */
     private function getCurlRuntimeFilePath(string $url): string
     {
-        $url_path_info = pathinfo(preg_replace('/((https|http|ssftp|rtsp|mms)?:\/\/)/', '', $url));
-        return Tools::runtimePath($url_path_info['dirname'], true) . '/' . $url_path_info['basename'];
+        $key = urlencode($url);
+        if (!isset($this->curl_runtime_file_paths[$key])) {
+            $url_path_info = pathinfo(preg_replace('/((https|http|ssftp|rtsp|mms)?:\/\/)/', '', $url));
+            $this->curl_runtime_file_paths[$key] = Tools::runtimePath($url_path_info['dirname'], true) . '/' . $url_path_info['basename'];
+        }
+        return $this->curl_runtime_file_paths[$key];
+
     }
 
     private function getUrlFromString(string $string): string
@@ -517,9 +609,14 @@ class Intel extends Command
         return preg_replace('/((https|http|ssftp|rtsp|mms)?:\/\/[^\/]+)/', '', $string);
     }
 
-    private function removeExtraSpaces($string): string
+    private function removeHtmlWarp($string): string
     {
-        return trim(preg_replace("/[\s]+/", " ", $string));
+        return preg_replace('/<br\/?>/', '', $string);
+    }
+
+    private function removeExtraSpaceAndHtmlTag($string): string
+    {
+        return trim(strip_tags(preg_replace("/[\s]+/", " ", htmlspecialchars_decode($string))));
     }
 
     /**
@@ -563,7 +660,7 @@ class Intel extends Command
             try {
                 $response = $this->build_http_client($base_uri, $headers)->get($path);
                 if ($response->getStatusCode() == 200) return $response;
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->error($e->getMessage());
             }
             $retryTimes--;
