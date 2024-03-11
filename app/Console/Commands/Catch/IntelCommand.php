@@ -78,8 +78,8 @@ class IntelCommand extends Command
 
     private function _catch()
     {
-        $this->getProductCategoryAndSeries();
-        $this->getProductList();
+        // $this->getProductCategoryAndSeries();
+        // $this->getProductList();
         $this->getProductSpec();
     }
 
@@ -91,7 +91,7 @@ class IntelCommand extends Command
         preg_match_all('/<li[^>]*class="[^"]*lang-option[^"]*"[^>]*>[^<]*<a[^>]*data-locale="(.*?)"[^>]*href="(.*?)"[^>]*>(.*?)<\/a>[^<]*<\/li>/', $html, $matches);
         $language_list = [];
         foreach ($matches[1] as $index => $key) {
-            $name = trim($matches[3][$index]);
+            $name = $this->removeExtraSpaceAndHtmlTag($matches[3][$index]);
             $item = [
                 'key' => $key,
                 'name' => $name,
@@ -119,7 +119,7 @@ class IntelCommand extends Command
         preg_match_all('/<div class="ark-accessible-color col-xs-12 col-sm-6 col-md-4 product-category with-icons"[^>]*data-panel-key=\s*([^\s]+)[^>]*>.*?<span class="name show-icon" role="button">(.*?)<\/span>.*?<\/div>/', $section, $matches);
         $product_category_list = array_combine($matches[1], $matches[2]);
         foreach ($product_category_list as $category_panel_key => $product_category_name) {
-            $product_category_name = $this->removeExtraSpaces($product_category_name);
+            $product_category_name = $this->removeExtraSpaceAndHtmlTag($product_category_name);
             $product_category = [
                 'pid' => 0,
                 'level' => 0,
@@ -137,7 +137,7 @@ class IntelCommand extends Command
             // 正则匹配出旗下所有子产品分类
             preg_match_all('/<div[^>]*data-panel-key="(.*?)"[^>]*>[^<]*<span class="name ark-accessible-color">([^<]*)<\/span>[^<]*<\/div>/', $product_subcategory_html, $matches);
             foreach (array_combine($matches[1], $matches[2]) as $subcategory_panel_key => $product_subcategory_name) {
-                $product_subcategory_name = $this->removeExtraSpaces($product_subcategory_name);
+                $product_subcategory_name = $this->removeExtraSpaceAndHtmlTag($product_subcategory_name);
                 $product_subcategory = [
                     'parent_unique_key' => $product_category['unique_key'],
                     'pid' => null,
@@ -156,9 +156,9 @@ class IntelCommand extends Command
                 // 正则匹配出分类下所有产品系列
                 preg_match_all('/<a class="ark-accessible-color" href="(.*?)">(.*?)<\/a>/', $product_html, $matches);
                 foreach (array_combine($matches[2], $matches[1]) as $product_series_name => $product_series_path) {
-                    $product_series_name = $this->removeExtraSpaces($product_series_name);
+                    $product_series_name = $this->removeExtraSpaceAndHtmlTag($product_series_name);
                     preg_match('/\/(\d+)\//', $product_series_path, $matches);
-                    $product_series_ark_series_id = trim($matches[1]);
+                    $product_series_ark_series_id = $this->removeExtraSpaceAndHtmlTag($matches[1]);
                     $product_series = [
                         'category_unique_key' => $product_subcategory['unique_key'],
                         'language' => $language,
@@ -318,9 +318,9 @@ class IntelCommand extends Command
         // 正则匹配出产品下所有规格详情链接
         preg_match_all('/<tr.*?data-product-id="(.*?)".*?<a href="(.*?)">(.*?)<\/a>.*?<\/tr>/', $product_list_table_tbody, $matches);
         foreach ($matches[1] as $index => $ark_product_id) {
-            $ark_product_id = $this->removeExtraSpaces($ark_product_id);
-            $product_name = $this->removeExtraSpaces($matches[3][$index]);
-            $product_path = $this->removeExtraSpaces($matches[2][$index]);
+            $ark_product_id = $this->removeExtraSpaceAndHtmlTag($ark_product_id);
+            $product_name = $this->removeExtraSpaceAndHtmlTag($matches[3][$index]);
+            $product_path = $this->removeExtraSpaceAndHtmlTag($matches[2][$index]);
             $product = [
                 'language' => $language,
                 'unique_key' => "{$ark_product_id}:{$language}",
@@ -434,12 +434,13 @@ class IntelCommand extends Command
         foreach ($specifications_html as $specification_tab_index => $specification_html) {
             preg_match('/<div[^>]*class="[^"]*subhead[^"]*"[^>]*>.*?<h2 class="h2">(.*?)<\/h2>.*?<\/div>/', $specification_html, $matches);
             // 规格分类名称
-            $specification_tab_title = $this->removeExtraSpaces($matches[1]);
+            $specification_tab_title = $this->removeExtraSpaceAndHtmlTag($matches[1]);
+            dump($specification_tab_title);
             preg_match_all('/<li.*?<span[^>]*class="[^"]*label[^"]*"[^>]*>(.*?)<\/span><span[^>]*class="[^"]*value[^"]*"[^>]*data-key="(.*?)"[^>]*>(.*?)<\/span>.*?\/li>/', $specification_html, $matches);
             foreach ($matches[0] as $index => $key) {
-                $key = trim(strip_tags($matches[2][$index]));
-                $label = trim(strip_tags($matches[1][$index]));
-                $value = trim(strip_tags($matches[3][$index]));
+                $key = $this->removeExtraSpaceAndHtmlTag($matches[2][$index]);
+                $label = $this->removeExtraSpaceAndHtmlTag($matches[1][$index]);
+                $value = $this->removeExtraSpaceAndHtmlTag($matches[3][$index]);
                 $product_specs_item = [
                     'language' => $language,
                     'unique_key' => "{$product['ark_product_id']}:{$language}:{$key}",
@@ -455,12 +456,13 @@ class IntelCommand extends Command
                     'value' => $value,
                     'value_url' => null,
                 ];
-                if (preg_match('/<a[^>]*href="(.*?)".*?<\/a>/', $matches[3][$index], $a_matches)) $product_specs_item['value_url'] = $this->getUrlFromString(trim($a_matches[1]));
+                if (preg_match('/<a[^>]*href="(.*?)".*?<\/a>/', $matches[3][$index], $a_matches)) $product_specs_item['value_url'] = $this->getUrlFromString($this->removeExtraSpaceAndHtmlTag($a_matches[1]));
 
                 $this->product_specs_list[$product_specs_item['unique_key']] = $product_specs_item;
                 // dump("{$language}|产品：{$product['name']}，规格：{$label}");
             }
         }
+        dd(123);
         dump("{$language}|规格产品：{$product['name']}");
     }
 
@@ -517,9 +519,9 @@ class IntelCommand extends Command
         return preg_replace('/((https|http|ssftp|rtsp|mms)?:\/\/[^\/]+)/', '', $string);
     }
 
-    private function removeExtraSpaces($string): string
+    private function removeExtraSpaceAndHtmlTag($string): string
     {
-        return trim(preg_replace("/[\s]+/", " ", $string));
+        return trim(strip_tags(preg_replace("/[\s]+/", " ", htmlspecialchars_decode($string))));
     }
 
     /**
