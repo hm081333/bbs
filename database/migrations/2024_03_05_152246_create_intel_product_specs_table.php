@@ -29,27 +29,27 @@ return new class extends Migration {
                 'zh_tw',
             ])->comment('语言');
             $table->string('unique_key')->unique()->comment('唯一标识(ark_product_id:language:key)');
-            $table->foreignId('category_id')->comment('分类ID');
-            $table->foreignId('series_id')->comment('系列ID');
-            $table->foreignId('product_id')->comment('产品ID');
+            $table->foreignId('category_id')->index()->comment('分类ID');
+            $table->foreignId('series_id')->index()->comment('系列ID');
+            $table->foreignId('product_id')->index()->comment('产品ID');
             $table->string('ark_series_id')->comment('ARK系列ID');
             $table->string('ark_product_id')->comment('ARK产品ID');
             $table->unsignedTinyInteger('tab_index')->comment('规格分类下标');
             $table->string('tab_title')->comment('规格分类名称');
             $table->string('key')->comment('规格键');
             $table->string('label')->comment('规格名称');
+            $table->text('label_tips_rich_text')->nullable()->comment('规格名称说明（富文本内容）');
             $table->text('value')->comment('规格值');
             $table->string('value_url')->nullable()->comment('规格值绑定URL');
             $table->timestampsInteger();
             $table->softDeletesInteger();
-            $table->index([
-                // 'category_id',
-                // 'series_id',
-                'language',
-                'product_id',
-                'tab_index',
-                'key',
-            ], 'id_index');
+            // $table->index([
+            //     // 'category_id',
+            //     // 'series_id',
+            //     'product_id',
+            //     'tab_index',
+            //     'key',
+            // ], 'id_index');
             $table->index([
                 // 'ark_series_id',
                 'language',

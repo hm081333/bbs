@@ -31,12 +31,17 @@ return new class extends Migration
             ])->comment('语言');
             $table->string('unique_key')->unique()->comment('唯一标识(ark_series_id:language)');
             $table->foreignId('category_id')->index()->comment('分类ID');
+            $table->string('category_panel_key')->comment('分类标识码');
             $table->string('ark_series_id')->comment('ARK系列ID');
             $table->string('name')->comment('名称');
             $table->string('path')->comment('规格列表路径');
             $table->string('url')->comment('规格列表URL');
             $table->timestampsInteger();
             $table->softDeletesInteger();
+            $table->index([
+                'language',
+                'category_panel_key',
+            ]);
             $table->index([
                 'language',
                 'ark_series_id',
