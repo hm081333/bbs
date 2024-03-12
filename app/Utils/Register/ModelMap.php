@@ -18,6 +18,7 @@ use App\Exceptions\Server\InternalServerErrorException;
  * @property-read \App\Models\Mongodb\AccessLog MongodbAccessLog App\Models\Mongodb\AccessLog
  * @property-read \App\Models\Mongodb\SqlLog MongodbSqlLog App\Models\Mongodb\SqlLog
  * @property-read \App\Models\System\AdministrativeDivision SystemAdministrativeDivision App\Models\System\AdministrativeDivision
+ * @property-read \App\Models\System\SystemConfig SystemSystemConfig App\Models\System\SystemConfig
  * @property-read \App\Models\System\SystemFile SystemSystemFile App\Models\System\SystemFile
  * @property-read \App\Models\System\SystemLanguage SystemSystemLanguage App\Models\System\SystemLanguage
  * @property-read \App\Models\System\SystemOption SystemSystemOption App\Models\System\SystemOption

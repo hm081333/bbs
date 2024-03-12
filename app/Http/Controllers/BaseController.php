@@ -3,16 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\Request\BadRequestException;
-use App\Traits\Auth\UserAuth;
 use App\Utils\Tools;
 use App\Utils\ValidateRule;
 use Exception;
-use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Support\Facades\Route;
-use Tymon\JWTAuth\JWTGuard;
 
 /**
  * 模型映射类
@@ -28,6 +25,7 @@ use Tymon\JWTAuth\JWTGuard;
  * @property-read \App\Models\Mongodb\AccessLog             modelMongodbAccessLog             App\Models\Mongodb\AccessLog
  * @property-read \App\Models\Mongodb\SqlLog                modelMongodbSqlLog                App\Models\Mongodb\SqlLog
  * @property-read \App\Models\System\AdministrativeDivision modelSystemAdministrativeDivision App\Models\System\AdministrativeDivision
+ * @property-read \App\Models\System\SystemConfig           modelSystemSystemConfig           App\Models\System\SystemConfig
  * @property-read \App\Models\System\SystemFile             modelSystemSystemFile             App\Models\System\SystemFile
  * @property-read \App\Models\System\SystemLanguage         modelSystemSystemLanguage         App\Models\System\SystemLanguage
  * @property-read \App\Models\System\SystemOption           modelSystemSystemOption           App\Models\System\SystemOption
@@ -40,15 +38,9 @@ use Tymon\JWTAuth\JWTGuard;
 class BaseController extends \Illuminate\Routing\Controller
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
-    use UserAuth;
 
-    public function __get($name)
+    public function __construct()
     {
-        if (str_starts_with($name, 'model')) {
-            $name = str_replace('model', '', $name);
-            return Tools::model()->$name;
-        }
-        throw new Exception('非法调用不存在函数');
     }
 
     /**
@@ -64,29 +56,30 @@ class BaseController extends \Illuminate\Routing\Controller
     /**
      * 获取参数函数
      *
-     * @param array|null $rule
+     * @param array|null $rule 默认null，使用getRules中的规则定义（没有定义即为空规则）；传入规则数组时使用自定义规则。空规则数组返回所有请求参数。
      *
      * @return array
      * @throws BadRequestException
      */
-    protected function getParams(array|null $rule = null)
+    protected function getParams(?array $rule = null)
     {
         if (!is_array($rule)) {
             [$controller, $action] = explode('@', Route::currentRouteAction());
-            $rules = $this->getRules() ?? [];
-            $rule = $rules[$action] ?? [];
+            if ($controller == static::class) {
+                $rules = $this->getRules() ?? [];
+                $rule = $rules[$action] ?? [];
+            }
         }
         return ValidateRule::instance($rule)->validateRequest();
     }
 
-    /**
-     * 获取在身份验证期间要使用的守卫。
-     *
-     * @return JWTGuard|Guard
-     */
-    public function guard($name = null)
+    public function __get($name)
     {
-        return auth($name);
+        if (str_starts_with($name, 'model')) {
+            $name = str_replace('model', '', $name);
+            return Tools::model()->$name;
+        }
+        throw new Exception('非法调用不存在函数');
     }
 
 }

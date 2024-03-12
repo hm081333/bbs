@@ -80,28 +80,29 @@ class ValidateRule
      * @return array
      * @throws BadRequestException
      */
-    public function validateRequest()
+    public function validateRequest(): array
     {
         /* @var $request Request */
         $request = app(Request::class);
         $request_data = $request->all();
+        // 没有参数规则的情况下，返回所有请求参数
         if (empty($this->rules)) return $request_data;
-        $request_data = $this->only(array_filter($request_data, function ($val) {
-            return isset($val);
-        }), $this->dataKeys);
+        // 有参数规则的情况下，只获取指定请求参数，并过滤null
+        $request_data = $this->only(array_filter($request_data, fn($val) => isset($val)), $this->dataKeys);
+        // 校验规则
         $this->validate($request_data);
+        // 验证成功，替换验证成功的请求参数
+        $request->merge($request_data);
         return $request_data;
     }
 
-    public function only($data, $keys)
+    public function only($data, $keys): array
     {
         $results = [];
         $placeholder = new stdClass;
         foreach ($keys as $key) {
             $value = data_get($data, $key, array_key_exists($key, $this->defaultValues) ? $this->defaultValues[$key] : $placeholder);
-            if ($value !== $placeholder) {
-                Arr::set($results, $key, $value);
-            }
+            if ($value !== $placeholder) Arr::set($results, $key, $value);
         }
         return $results;
     }

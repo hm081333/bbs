@@ -72,41 +72,16 @@ class JWTAuth
     }
 
     /**
-     * 确定用户是否登录到任何给定的警卫。
+     * 处理未经授权的用户。
      *
-     * @param string|null $guard_key
+     * @return null
      *
-     * @return bool|null
-     *
-     * @throws BadRequestException
      * @throws UnauthorizedException
      */
-    public function check(string|null $guard_key = null, bool $thr = true)
+    protected function unauthorized(bool $thr = true)
     {
-        $guard = $this->guard($guard_key);
-        if (!$guard->check() || !$guard->payload()->get('account_type')) return !!$this->unauthenticated($thr);
-        if ($guard_key == 'admin') {
-            $admin = $guard->user();
-            if (!$admin->is_super) {
-                if (!$admin->role->permissions()->where('is_interface', 1)->where('component', \request()->route()->uri())->first(['permission_id'])) throw new BadRequestException('权限不足');
-            }
-        }
-        return true;
-    }
-
-    /**
-     * 获取当前登录用户ID
-     *
-     * @param string|null $guard
-     * @param bool        $thr
-     *
-     * @return int
-     * @throws UnauthorizedException
-     */
-    public function getId(string|null $guard = null, bool $thr = true): ?int
-    {
-        $id = $this->guard($guard)->id();
-        return $id ?: $this->unauthenticated($thr);
+        if ($thr) throw new BadRequestException('请登录');
+        return null;
     }
 
     /**
@@ -118,10 +93,85 @@ class JWTAuth
      * @return AuthModel|Authenticatable|null
      * @throws UnauthorizedException
      */
-    public function getUser(string|null $guard = null, bool $thr = true): AuthModel|Authenticatable|null
+    public function user(string|null $guard = null, bool $thr = true): AuthModel|Authenticatable|null
     {
         $user = $this->guard($guard)->user();
         return $user ?: $this->unauthenticated($thr);
+    }
+
+    /**
+     * 获取当前登录用户ID
+     *
+     * @param string|null $guard
+     * @param bool        $thr
+     *
+     * @return int
+     * @throws UnauthorizedException
+     */
+    public function id(string|null $guard = null, bool $thr = true): ?int
+    {
+        $user = $this->user($guard, false);
+        return $user ? $user->getAuthIdentifier() : $this->unauthenticated($thr);
+    }
+
+    /**
+     * 确定用户是否登录且有权限
+     *
+     * @param string|null $guard_key
+     * @param bool        $thr
+     *
+     * @return bool
+     * @throws UnauthorizedException
+     */
+    public function check(string|null $guard_key = null, bool $thr = true): bool
+    {
+        $user = $this->user($guard_key, false);
+        $guard = $this->guard($guard_key);
+        if (!$user || !$guard->payload()->get('account_type')) return !!$this->unauthenticated($thr);
+        if ($guard_key == 'admin' && !$user->is_super) {
+            if (!$user->role->permissions()->where('is_interface', 1)->where('component', \request()->route()->uri())->first(['permission_id'])) return !!$this->unauthorized($thr);
+        }
+        return true;
+    }
+
+    /**
+     * 是否访客
+     *
+     * @param string|null $guard_key
+     *
+     * @return bool
+     * @throws UnauthorizedException
+     */
+    public function guest(string|null $guard_key = null): bool
+    {
+        return $this->check($guard_key, false);
+    }
+
+    /**
+     * 尝试使用给定的凭据对用户进行身份验证并返回令牌
+     *
+     * @param string|null $guard_key
+     * @param array       $credentials 凭据，含有password的查询条件数组
+     * @param bool        $login       是否登陆，为false时只校验不返回token
+     *
+     * @return bool|string
+     */
+    public function attempt(string|null $guard_key = null, array $credentials = [], bool $login = true): bool|string
+    {
+        return $this->guard($guard_key)->attempt($credentials, $login);
+    }
+
+    /**
+     * 为用户创建令牌
+     *
+     * @param string|null $guard_key
+     * @param AuthModel   $user 登陆的用户模型
+     *
+     * @return string
+     */
+    public function login(string|null $guard_key = null, AuthModel $user): string
+    {
+        return $this->guard($guard_key)->login($user);
     }
 
     /**
@@ -130,7 +180,7 @@ class JWTAuth
      * @return array
      * @throws BindingResolutionException
      */
-    public function getTokenData(array $data = [])
+    public function getTokenData(array $data = []): array
     {
         $token_parser = app()->make('tymon.jwt.parser');
         $token_str = $token_parser->parseToken();

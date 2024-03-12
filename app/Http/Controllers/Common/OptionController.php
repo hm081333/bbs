@@ -6,6 +6,7 @@ use App\Http\Controllers\BaseController;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Response;
 use StdClass;
 
 class OptionController extends BaseController
@@ -27,9 +28,9 @@ class OptionController extends BaseController
      */
     public function dict()
     {
-        return $this->success('', Cache::rememberForever('option_dict', function () {
+        return Response::api('', Cache::rememberForever('option_dict', function () {
             $all = [];
-            $list = $this->modelOption
+            $list = $this->modelSystemSystemOption
                 ->with(['items'])
                 ->select(['code'])
                 ->orderBy('id')
@@ -54,16 +55,16 @@ class OptionController extends BaseController
     {
         // $params = $this->getParams();
         $all = [];
-        $list = $this->modelOption
+        $list = $this->modelSystemSystemOption
             ->with(['items'])
             ->select(['name', 'code', 'updated_at'])
             ->orderBy('id')
             ->get();
         foreach ($list as $item) {
             $all[$item->code] = $item;
-            $this->modelOption::cacheOption($item->code, $item);
+            $this->modelSystemSystemOption::cacheOption($item->code, $item);
         }
-        return $this->success('', $all ?: (new StdClass()));
+        return Response::api('', $all ?: (new StdClass()));
     }
 
     /**
@@ -83,12 +84,12 @@ class OptionController extends BaseController
                 $code = $code['code'];
             }
             $list[$code] = null;
-            $item = $this->modelOption::getCache($code);
+            $item = $this->modelSystemSystemOption::getCache($code);
             if (!$updated_at || $item->updated_at > $updated_at) {
                 $list[$code] = $item;
             }
         }
-        return $this->success('', $list ?: (new StdClass()));
+        return Response::api('', $list ?: (new StdClass()));
     }
 
 }

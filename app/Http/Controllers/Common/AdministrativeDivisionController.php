@@ -30,7 +30,6 @@ class AdministrativeDivisionController extends BaseController
      */
     public function index()
     {
-        dd(Tools::auth()->getUser('user'));
         $params = $this->getParams();
         return Response::api('', $params['tree'] ? $this->modelSystemAdministrativeDivision->getTreeWithLevel($params['level']) : $this->modelSystemAdministrativeDivision->getListWithLevel($params['level']));
     }

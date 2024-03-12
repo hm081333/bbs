@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Common;
 use App\Http\Controllers\BaseController;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Response;
 
 class SystemController extends BaseController
 {
@@ -16,7 +17,7 @@ class SystemController extends BaseController
 
     public function config(string $type = 'more')
     {
-        return $this->success('', $this->modelSystemConfig::getList($type));
+        return Response::api('', $this->modelSystemSystemConfig::getList($type));
     }
 
 }

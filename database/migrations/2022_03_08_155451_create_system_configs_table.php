@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSystemConfigsTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -15,15 +14,15 @@ class CreateSystemConfigsTable extends Migration
     {
         Schema::create('system_configs', function (Blueprint $table) {
             $table->id();
+            $table->string('unique')->unique()->comment('系统设置类型');
             $table->string('type')->index()->comment('系统设置类型');
             $table->string('key')->index()->comment('系统设置键');
             $table->longText('value')->comment('系统设置值');
             $table->string('data_type')->nullable()->comment('数据类型');
-            $table->timestamps();
-            $table->softDeletes();
+            $table->timestampsInteger();
+            $table->softDeletesInteger();
+            $table->comment('系统设置表');
         });
-        // 表注释
-        DB::statement("ALTER TABLE `zz_system_configs` comment '系统设置表'");
     }
 
     /**
@@ -35,4 +34,4 @@ class CreateSystemConfigsTable extends Migration
     {
         Schema::dropIfExists('system_configs');
     }
-}
+};

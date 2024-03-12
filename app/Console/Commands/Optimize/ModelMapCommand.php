@@ -23,7 +23,7 @@ class ModelMapCommand extends Command
     public function handle()
     {
         // 解决Doctrine\DBAL没有enum类型的问题
-        \Illuminate\Support\Facades\DB::getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', \Doctrine\DBAL\Types\Types::STRING);
+        // \Illuminate\Support\Facades\DB::getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', \Doctrine\DBAL\Types\Types::STRING);
 
         $this->info($this->description . '...');
 

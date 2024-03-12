@@ -29,8 +29,8 @@ return new class extends Migration {
                 'zh_tw',
             ])->comment('语言');
             $table->string('unique_key')->unique()->comment('唯一标识(ark_product_id:language)');
-            $table->foreignId('category_id')->comment('分类ID');
-            $table->foreignId('series_id')->comment('系列ID');
+            $table->foreignId('category_id')->index()->comment('分类ID');
+            $table->foreignId('series_id')->index()->comment('系列ID');
             $table->string('ark_series_id')->comment('ARK系列ID');
             $table->string('ark_product_id')->comment('ARK产品ID');
             $table->string('name')->comment('名称');

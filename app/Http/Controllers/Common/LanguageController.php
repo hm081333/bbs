@@ -10,67 +10,23 @@ use Illuminate\Support\Facades\Response;
 
 class LanguageController extends BaseController
 {
-    public function list(Response $response)
-    {
-        return $response::api('', Tools::model()->SystemSystemLanguage->get());
-    }
-
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function index()
     {
-        //
+        $locale = \App::currentLocale();
+        return Response::api('', Tools::model()->SystemSystemLanguage->get(), ['current_locale' => $locale]);
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function store(Request $request)
+    public function list()
     {
-        return $this->success();
+        return Response::api('', Tools::model()->SystemSystemLanguage->get());
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int                      $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

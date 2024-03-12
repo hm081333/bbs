@@ -142,7 +142,7 @@ class BuilderMixin
      */
     public function searchInput()
     {
-        return function (string $search_field, $operator = null, $input_field = null): Builder {
+        return function (string|null $search_field, $operator = null, $input_field = null): Builder {
             /* @var $this Builder */
             // 搜索字段 为空 不进行查询
             if (empty($search_field)) return $this;

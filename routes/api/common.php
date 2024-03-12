@@ -17,6 +17,7 @@ Route::prefix('opcache')->name('opcache.')->group(function () {
 });
 
 Route::prefix('language')->name('language.')->group(function () {
+    Route::any('', [LanguageController::class, 'index'])->name('index');
     Route::any('list', [LanguageController::class, 'list'])->name('list');
 });
 
