@@ -119,27 +119,35 @@ class Intel extends Command
         //endregion
         // 正则匹配出产品分类
         preg_match_all('/<div class="ark-accessible-color col-xs-12 col-sm-6 col-md-4 product-category with-icons"[^>]*data-panel-key=\s*([^\s]+)[^>]*>.*?<span class="name show-icon" role="button">(.*?)<\/span>.*?<\/div>/', $section, $matches);
-        $product_category_list = array_combine($matches[1], $matches[2]);
-        foreach ($product_category_list as $category_panel_key => $product_category_name) {
-            $product_category_name = $this->removeExtraSpaceAndHtmlTag($product_category_name);
+        $category_panel_keys = $matches[1];
+        $category_names = $matches[2];
+        unset($matches);
+        foreach ($category_names as $category_index => $category_name) {
+            $category_panel_key = $this->removeExtraSpaceAndHtmlTag($category_panel_keys[$category_index]);
+            $category_name = $this->removeExtraSpaceAndHtmlTag($category_name);
             $product_category = [
                 'pid' => 0,
                 'level' => 0,
                 'language' => $language,
                 'panel_key' => $category_panel_key,
                 'unique_key' => "{$category_panel_key}:{$language}",
-                'name' => $product_category_name,
+                'name' => $category_name,
+                'sort' => $category_index,
             ];
             $this->product_category_list[$product_category['unique_key']] = $product_category;
-            dump("{$language}|主分类：{$product_category_name}");
+            dump("{$language}|主分类：{$category_name}");
 
             // 正则匹配出旗下子产品分类
             preg_match('/<div[^>]*class="product-categories product-categories-2"[^>]*data-parent-panel-key="' . $product_category['panel_key'] . '"[^>]*>[^<]*<div class="row category-row">([^<]*<div[^>]*data-wap_ref="category\|subcategory"[^>]*>.*?<\/div>[^<]*)+<\/div>[^<]*<\/div>/', $section, $matches);
             $product_subcategory_html = $matches[0];
             // 正则匹配出旗下所有子产品分类
             preg_match_all('/<div[^>]*data-panel-key="(.*?)"[^>]*>[^<]*<span class="name ark-accessible-color">([^<]*)<\/span>[^<]*<\/div>/', $product_subcategory_html, $matches);
-            foreach (array_combine($matches[1], $matches[2]) as $subcategory_panel_key => $product_subcategory_name) {
-                $product_subcategory_name = $this->removeExtraSpaceAndHtmlTag($product_subcategory_name);
+            $subcategory_panel_keys = $matches[1];
+            $subcategory_names = $matches[2];
+            unset($matches);
+            foreach ($subcategory_names as $subcategory_index => $subcategory_name) {
+                $subcategory_panel_key = $this->removeExtraSpaceAndHtmlTag($subcategory_panel_keys[$subcategory_index]);
+                $subcategory_name = $this->removeExtraSpaceAndHtmlTag($subcategory_name);
                 $product_subcategory = [
                     'parent_unique_key' => $product_category['unique_key'],
                     'pid' => null,
@@ -147,10 +155,11 @@ class Intel extends Command
                     'language' => $language,
                     'panel_key' => $subcategory_panel_key,
                     'unique_key' => "{$subcategory_panel_key}:{$language}",
-                    'name' => $product_subcategory_name,
+                    'name' => $subcategory_name,
+                    'sort' => $subcategory_index,
                 ];
                 $this->product_category_list[$product_subcategory['unique_key']] = $product_subcategory;
-                dump("{$language}|子分类：{$product_subcategory_name}");
+                dump("{$language}|子分类：{$subcategory_name}");
 
                 // 正则匹配出分类下产品系列
                 preg_match('/<div[^>]*class="products processors"[^>]*data-parent-panel-key="' . $product_subcategory['panel_key'] . '"[^>]*>[^<]*<div class="product-row">([^<]*<div[^>]*class="product[^>]*>.*?<\/div>[^<]*)+<\/div>[^<]*<\/div>/', $section, $matches);
