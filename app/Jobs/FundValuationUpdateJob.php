@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Fund\Fund;
+use App\Models\Fund\FundProduct;
 use App\Models\Fund\FundNetValue;
 use App\Models\Fund\FundValuation;
 use App\Utils\Tools;
@@ -69,8 +69,8 @@ class FundValuationUpdateJob implements ShouldQueue
         if (empty($this->fundCode)) $this->fundCode = (string)$this->fundValuationData['code'];
         if (empty($this->fundCode) || empty($this->valuation_time)) return;
         // 基金估值更新逻辑
-        /* @var $fund Fund */
-        if ($fund = Fund::getByCode($this->fundCode)) {
+        /* @var $fund FundProduct */
+        if ($fund = FundProduct::getByCode($this->fundCode)) {
             $fund_valuation_filter = [
                 'fund_id' => $fund->id,
                 'valuation_time' => $this->valuation_time->timestamp,

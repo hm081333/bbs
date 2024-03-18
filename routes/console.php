@@ -2,7 +2,7 @@
 
 use App\Exceptions\Server\InternalServerErrorException;
 use App\Jobs\FundValuationUpdateJob;
-use App\Models\Fund\Fund;
+use App\Models\Fund\FundProduct;
 use App\Models\Fund\FundNetValue;
 use App\Models\Fund\FundValuation;
 use App\Utils\Tools;

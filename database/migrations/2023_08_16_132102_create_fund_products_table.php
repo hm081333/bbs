@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('funds', function (Blueprint $table) {
+        Schema::create('fund_products', function (Blueprint $table) {
             $table->id();
             $table->string('code')->unique()->comment('基金代码');
             $table->string('name')->comment('基金名称');
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedInteger('net_value_time')->nullable()->comment('基金净值时间');
             $table->timestampsInteger();
             $table->softDeletesInteger();
-            $table->comment('基金表');
+            $table->comment('基金产品表');
         });
     }
 
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('funds');
+        Schema::dropIfExists('fund_products');
     }
 };

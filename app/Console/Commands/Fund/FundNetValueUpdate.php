@@ -4,7 +4,7 @@ namespace App\Console\Commands\Fund;
 
 use App\Jobs\FundNetValueUpdateJob;
 use App\Jobs\FundUpdateJob;
-use App\Models\Fund\Fund;
+use App\Models\Fund\FundProduct;
 use App\Models\Fund\FundNetValue;
 use App\Utils\Tools;
 use Carbon\Carbon;
