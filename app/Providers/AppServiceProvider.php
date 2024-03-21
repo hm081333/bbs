@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Response::macro('api', function (string|null $msg, mixed $data, array $extend = []): JsonResponse {
+        Response::macro('api', function (string|null $msg, mixed $data = null, array $extend = []): JsonResponse {
             return new JsonResponse(array_merge([
                 'code' => 200,
                 'msg' => $msg,

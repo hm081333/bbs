@@ -6,8 +6,10 @@ use App\Events\ModelSavedEvent;
 use App\Events\ModelSavingEvent;
 use App\Listeners\ModelSavedListener;
 use App\Listeners\ModelSavingListener;
+use App\Listeners\SqlListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
@@ -28,9 +30,9 @@ class EventServiceProvider extends ServiceProvider
         ModelSavingEvent::class => [
             ModelSavingListener::class,
         ],
-        // QueryExecuted::class => [
-        //    SqlListener::class,
-        // ],
+        QueryExecuted::class => [
+           SqlListener::class,
+        ],
     ];
 
     /**

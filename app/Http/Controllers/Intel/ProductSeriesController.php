@@ -27,7 +27,7 @@ class ProductSeriesController extends BaseController
             ->whereInput('language')
             ->whereInput('category_panel_key')
             ->whereInput('category_id')
-            ->orderBy('id')
+            ->orderByDesc('ark_series_id')
             ->getPage();
         return Response::api('', $page);
     }

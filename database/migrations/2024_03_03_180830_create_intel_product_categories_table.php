@@ -33,6 +33,7 @@ return new class extends Migration {
             $table->foreignId('level')->comment('层级，0最高');
             $table->string('panel_key')->comment('标识码');
             $table->string('name')->comment('名称');
+            $table->sort();
             $table->timestampsInteger();
             $table->softDeletesInteger();
             $table->index([

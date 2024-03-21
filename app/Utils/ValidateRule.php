@@ -176,13 +176,11 @@ class ValidateRule
             default:
                 // 需要获取的数据key值
                 if (is_bool($rule)) {
-                    $rule_key = array_search($rule_key, $this->rules[$param_key]);
+                    $rule_key_exist = array_search($rule_key, $this->rules[$param_key]);
                     // 规则为true，且不存在该规则时
-                    if ($rule && $rule_key === false) $this->rules[$param_key][] = $rule_key;
+                    if ($rule && $rule_key_exist === false) $this->rules[$param_key][] = $rule_key;
                     // 规则为false，且存在该规则时
-                    if (!$rule && $rule_key !== false) {
-                        array_splice($this->rules[$param_key], $rule_key, 1);
-                    }
+                    if (!$rule && $rule_key_exist !== false) array_splice($this->rules[$param_key], $rule_key, 1);
                 } else if (!is_array($rule)) {
                     $this->rules[$param_key][] = $rule_key . ':' . $rule;
                 } else if (is_array($rule)) {

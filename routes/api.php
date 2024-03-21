@@ -20,13 +20,19 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('common')
     ->name('common.')
-    ->namespace('Common')
     ->group(base_path('routes/api/common.php'));
 
 Route::prefix('intel')
     ->name('intel.')
-    ->namespace('Intel')
     ->group(base_path('routes/api/intel.php'));
+
+Route::prefix('fund')
+    ->name('fund.')
+    ->group(base_path('routes/api/fund.php'));
+
+Route::prefix('user')
+    ->name('user.')
+    ->group(base_path('routes/api/user.php'));
 
 Route::any('webhook', function (\Illuminate\Http\Request $request) {
     $token = 'b49913863c50dfcd20acae835ebf8948';

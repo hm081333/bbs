@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Fund\Fund;
+use App\Models\Fund\FundProduct;
 use App\Models\Fund\FundNetValue;
 use App\Utils\Tools;
 use Carbon\Carbon;
@@ -68,8 +68,8 @@ class FundNetValueUpdateJob implements ShouldQueue
         if (empty($this->fundCode)) $this->fundCode = (string)$this->fundNetValue['code'];
         if (empty($this->fundCode) || empty($this->net_value_time)) return;
         // 基金净值更新逻辑
-        /* @var $fund Fund */
-        $fund = Fund::getByCode($this->fundCode);
+        /* @var $fund FundProduct */
+        $fund = FundProduct::getByCode($this->fundCode);
         if ($fund) {
             /* @var $fund_net_value FundNetValue */
             $fund_net_value = Tools::model()->FundFundNetValue

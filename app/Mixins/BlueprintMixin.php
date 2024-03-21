@@ -76,4 +76,30 @@ class BlueprintMixin
             $this->foreignId('district')->nullable($nullable)->comment('区');
         };
     }
+
+    /**
+     * 往数据库表添加管理员关联字段
+     *
+     * @return Closure
+     */
+    public function adminId()
+    {
+        return function (): ColumnDefinition {
+            /* @var $this Blueprint */
+            return $this->foreignId('admin_id')->comment('管理员ID');
+        };
+    }
+
+    /**
+     * 往数据库表添加用户关联字段
+     *
+     * @return Closure
+     */
+    public function userId()
+    {
+        return function (): ColumnDefinition {
+            /* @var $this Blueprint */
+            return $this->foreignId('user_id')->comment('管理员ID');
+        };
+    }
 }

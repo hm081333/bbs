@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\User;
 
 use App\Casts\TimestampCast;
+use App\Models\AuthModel;
 
 class User extends AuthModel
 {
@@ -27,5 +28,15 @@ class User extends AuthModel
     ];
 
     //endregion
+
+    // /**
+    //  * 登录日志
+    //  *
+    //  * @return \Illuminate\Database\Eloquent\Relations\HasMany
+    //  */
+    // public function loginLog(): \Illuminate\Database\Eloquent\Relations\HasMany
+    // {
+    //     return $this->hasMany(UserLoginLog::class);
+    // }
 
 }

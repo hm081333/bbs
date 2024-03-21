@@ -29,8 +29,10 @@ class ProductCategoryController extends BaseController
         $page = $this->modelIntelIntelProductCategory
             ->whereInput('pid')
             ->whereInput('language')
-            ->orderBy('id')
-            ->when($params['tree'], fn(Builder $query) => $query->with(['children']))
+            ->orderBy('sort')
+            ->when($params['tree'], fn(Builder $query) => $query->with([
+                'children' => fn($query) => $query->orderBy('sort'),
+            ]))
             ->getPage();
         return Response::api('', $page);
     }

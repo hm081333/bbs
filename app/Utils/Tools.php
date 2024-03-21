@@ -175,23 +175,40 @@ class Tools
     }
 
     /**
+     * 获取所有设备类型
+     *
+     * @return string|string[]
+     */
+    public static function getDeviceTypes(?string $type = null): array|string
+    {
+        // 0:pc 1:H5 2:IOS 3:安卓
+        $types = [
+            'pc' => 'PC',
+            'h5' => 'H5',
+            'ios' => 'IOS',
+            'android' => '安卓',
+        ];
+        return $type ? $types[$type] ?? '未知设备类型' : $types;
+    }
+
+    /**
      * 获取设备类型
      *
-     * @return int
+     * @return string
      */
     public static function getDeviceType()
     {
-        $is_mobile = static::isMobile();
-        $type = !$is_mobile ? 0 : 1;
         // 全部变成小写字母
         $agent = strtolower(request()->server('HTTP_USER_AGENT'));
         // 分别进行判断
-        if (strpos($agent, 'iphone') !== false || strpos($agent, 'ipad') !== false) {
-            $type = 2;
+        if (str_contains($agent, 'android')) {
+            $type = 'android';
+        } else if (str_contains($agent, 'iphone') || str_contains($agent, 'ipad')) {
+            $type = 'ios';
+        } else {
+            $type = static::isMobile() ? 'h5' : 'pc';
         }
-        if (strpos($agent, 'android') !== false) {
-            $type = 3;
-        }
+        $type = static::isMobile() ? 'h5' : 'pc';
         return $type;
     }
 
@@ -200,7 +217,7 @@ class Tools
      *
      * @return bool
      */
-    public static function isMobile()
+    public static function isMobile(): bool
     {
         $server = request()->server();
         // 如果有HTTP_X_WAP_PROFILE则一定是移动设备

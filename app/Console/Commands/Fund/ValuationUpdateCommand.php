@@ -6,7 +6,7 @@ use App\Exceptions\Server\InternalServerErrorException;
 use App\Jobs\FundNetValueUpdateJob;
 use App\Jobs\FundUpdateJob;
 use App\Jobs\FundValuationUpdateJob;
-use App\Models\Fund\Fund;
+use App\Models\Fund\FundProduct;
 use App\Utils\Juhe\Calendar;
 use App\Utils\Tools;
 use Exception;
@@ -192,7 +192,7 @@ class ValuationUpdateCommand extends Command
      */
     private function _eastmoney()
     {
-        $try_list = Fund::select(['code'])
+        $try_list = FundProduct::select(['code'])
             ->pluck('code');
         while ($try_list->isNotEmpty()) {
             $try_list = $this->_eastmoney_request($try_list);

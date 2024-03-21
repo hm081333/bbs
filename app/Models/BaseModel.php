@@ -19,20 +19,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
-/**
- * App\Models\BaseModel
- *
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property \Carbon\Carbon $deleted_at
- * @property-read string $sex_name
- * @property-write mixed $sn
- * @property-write mixed $sort
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
- * @mixin Eloquent
- */
 class BaseModel extends Model
 {
     //use HasFactory;

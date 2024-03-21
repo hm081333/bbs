@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Fund\Fund;
+use App\Models\Fund\FundProduct;
 use App\Utils\Tools;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -63,8 +63,8 @@ class FundUpdateJob implements ShouldQueue
     public function handle()
     {
         // 基金数据更新逻辑
-        /* @var $fund Fund */
-        $fund = Fund::getByCode($this->fundCode);
+        /* @var $fund FundProduct */
+        $fund = FundProduct::getByCode($this->fundCode);
         if (!$fund) {
             Log::channel('fund')->info("create fund|{$this->fundCode}|{$this->fundData['name']}|{$this->fundData['pinyin_initial']}");
             // 基金数据不存在，插入
@@ -80,9 +80,9 @@ class FundUpdateJob implements ShouldQueue
                 if (!empty($this->fundData['unit_net_value'])) $insert_data['unit_net_value'] = $this->fundData['unit_net_value'];// 单位净值
                 if (!empty($this->fundData['cumulative_net_value'])) $insert_data['cumulative_net_value'] = $this->fundData['cumulative_net_value'];// 累计净值
             }
-            $fund = Fund::create($insert_data);
+            $fund = FundProduct::create($insert_data);
             // 基金信息写入缓存，方便后续使用
-            Fund::setCache($this->fundCode, $fund, null);
+            FundProduct::setCache($this->fundCode, $fund, null);
         } else if (
             $fund->name != $this->fundData['name']
             ||
@@ -107,7 +107,7 @@ class FundUpdateJob implements ShouldQueue
             //$fund->updated_at = Tools::now();
             $fund->save();
             // 基金信息写入缓存，方便后续使用
-            Fund::setCache($this->fundCode, $fund, null);
+            FundProduct::setCache($this->fundCode, $fund, null);
         }
     }
 }

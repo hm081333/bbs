@@ -19,11 +19,9 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('testa', function () {
-    \App\Models\Intel\IntelProductCategory::where('level', 1)->chunk(500, function (\Illuminate\Support\Collection $category_list) {
-        $category_list->each(function ($category) {
-            \App\Models\Intel\IntelProductSeries::where('category_id', $category->id)->update([
-                'category_panel_key' => $category['panel_key'],
-            ]);
+    \App\Models\Fund\FundProduct::chunk(500, function (\Illuminate\Support\Collection $list) {
+        $list->each(function ($item) {
+            dd(\Overtrue\Pinyin\Pinyin::abbr($item['name'])->join(''));
         });
     });
 })->purpose('cesi');

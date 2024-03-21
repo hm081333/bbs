@@ -5,12 +5,10 @@ namespace App\Utils\Register;
 use App\Exceptions\Request\BadRequestException;
 use App\Exceptions\Request\UnauthorizedException;
 use App\Models\AuthModel;
-use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
@@ -52,7 +50,7 @@ class JWTAuth
      *
      * @return Guard|JWTGuard
      */
-    public function guard(string|null $guard_key = null)
+    public function guard(string|null $guard_key = null): Guard|JWTGuard
     {
         if (!isset($this->guards[$guard_key])) $this->guards[$guard_key] = $this->auth->guard($guard_key);
         return $this->guards[$guard_key];
@@ -61,8 +59,10 @@ class JWTAuth
     /**
      * 处理未经身份验证的用户。
      *
-     * @return null
+     * @param bool $thr
      *
+     *
+     * @return null
      * @throws UnauthorizedException
      */
     protected function unauthenticated(bool $thr = true)
@@ -74,44 +74,16 @@ class JWTAuth
     /**
      * 处理未经授权的用户。
      *
+     * @param bool $thr
+     *
      * @return null
      *
-     * @throws UnauthorizedException
+     * @throws BadRequestException
      */
     protected function unauthorized(bool $thr = true)
     {
         if ($thr) throw new BadRequestException('请登录');
         return null;
-    }
-
-    /**
-     * 获取当前登录用户
-     *
-     * @param string|null $guard
-     * @param bool        $thr
-     *
-     * @return AuthModel|Authenticatable|null
-     * @throws UnauthorizedException
-     */
-    public function user(string|null $guard = null, bool $thr = true): AuthModel|Authenticatable|null
-    {
-        $user = $this->guard($guard)->user();
-        return $user ?: $this->unauthenticated($thr);
-    }
-
-    /**
-     * 获取当前登录用户ID
-     *
-     * @param string|null $guard
-     * @param bool        $thr
-     *
-     * @return int
-     * @throws UnauthorizedException
-     */
-    public function id(string|null $guard = null, bool $thr = true): ?int
-    {
-        $user = $this->user($guard, false);
-        return $user ? $user->getAuthIdentifier() : $this->unauthenticated($thr);
     }
 
     /**
@@ -121,17 +93,54 @@ class JWTAuth
      * @param bool        $thr
      *
      * @return bool
+     * @throws BadRequestException
      * @throws UnauthorizedException
      */
     public function check(string|null $guard_key = null, bool $thr = true): bool
     {
-        $user = $this->user($guard_key, false);
         $guard = $this->guard($guard_key);
+        $check = $guard->check();
+        if (!$check) return !!$this->unauthenticated($thr);
+        $user = $guard->user();
         if (!$user || !$guard->payload()->get('account_type')) return !!$this->unauthenticated($thr);
         if ($guard_key == 'admin' && !$user->is_super) {
             if (!$user->role->permissions()->where('is_interface', 1)->where('component', \request()->route()->uri())->first(['permission_id'])) return !!$this->unauthorized($thr);
         }
         return true;
+    }
+
+    /**
+     * 获取当前登录用户
+     *
+     * @param string|null $guard_key
+     * @param bool        $thr
+     *
+     * @return AuthModel|Authenticatable|null
+     * @throws BadRequestException
+     * @throws UnauthorizedException
+     */
+    public function user(string|null $guard_key = null, bool $thr = true): AuthModel|Authenticatable|null
+    {
+        if (!$this->check($guard_key, $thr)) return $this->unauthenticated($thr);
+        $user = $this->guard($guard_key)->user();
+        return $user ?: $this->unauthenticated($thr);
+    }
+
+    /**
+     * 获取当前登录用户ID
+     *
+     * @param string|null $guard_key
+     * @param bool        $thr
+     *
+     * @return int|null
+     * @throws BadRequestException
+     * @throws UnauthorizedException
+     */
+    public function id(string|null $guard_key = null, bool $thr = true): ?int
+    {
+        if (!$this->check($guard_key, $thr)) return $this->unauthenticated($thr);
+        $user = $this->user($guard_key, false);
+        return $user ? $user->getAuthIdentifier() : $this->unauthenticated($thr);
     }
 
     /**
@@ -173,6 +182,31 @@ class JWTAuth
     {
         return $this->guard($guard_key)->login($user);
     }
+
+    /**
+     * 退出登录
+     *
+     * @param string|null $guard_key
+     *
+     * @return void
+     */
+    public function logout(string|null $guard_key = null): void
+    {
+        $this->guard($guard_key)->logout();
+    }
+
+    /**
+     * 刷新token
+     *
+     * @param string|null $guard_key
+     *
+     * @return string
+     */
+    public function refresh(string|null $guard_key = null): string
+    {
+        return $this->guard($guard_key)->refresh();
+    }
+
 
     /**
      * 获取令牌对应账号ID与账号类型

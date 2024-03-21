@@ -4,7 +4,7 @@ namespace App\Console\Commands\Fund;
 
 use App\Jobs\FundNetValueCatchJob;
 use App\Jobs\FundValuationCatchJob;
-use App\Models\Fund\Fund;
+use App\Models\Fund\FundProduct;
 use App\Utils\Juhe\Calendar;
 use App\Utils\Tools;
 use Illuminate\Console\Command;
@@ -45,12 +45,12 @@ class IterateCommand extends Command
             }
         }
 
-        Fund::chunk(500, function (Collection $fund_list) {
-            $fund_list->each(function (Fund $fund) {
+        FundProduct::chunk(500, function (Collection $fund_list) {
+            $fund_list->each(function (FundProduct $fund) {
                 // 缓存所有基金
                 if ($this->option('cache')) {
                     $this->info("刷新缓存｜{$fund->code}");
-                    Fund::setCache($fund->code, $fund, null);
+                    FundProduct::setCache($fund->code, $fund, null);
                     $this->info("缓存完成｜{$fund->code}");
                 }
                 // 同步（天天基金网）估值

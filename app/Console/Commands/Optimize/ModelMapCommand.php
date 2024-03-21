@@ -139,7 +139,7 @@ class ModelMapCommand extends Command
         $path_info = pathinfo($path);
         $file_name = $path_info['basename'];
         $class_name = str_replace('.php', '', $file_name);
-        $class_namespace = str_replace(DIRECTORY_SEPARATOR, '\\', str_replace($this->app_path, $this->app_namespace, $path_info['dirname']));
+        $class_namespace = str_replace('/', '\\', str_replace($this->app_path, $this->app_namespace, $path_info['dirname']));
 
         $class_doc_str = "/**{$this->PHP_EOL} * {$name}{$this->PHP_EOL} *{$this->PHP_EOL}";
         // @property [类型] [名称] [描述]s

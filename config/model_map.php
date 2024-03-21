@@ -13,26 +13,6 @@ return array (
       'deleted_at' => 'int',
     ),
   ),
-  'FundFund' => 
-  array (
-    'model' => '\\App\\Models\\Fund\\Fund',
-    'table' => 'funds',
-    'table_full_name' => 'ly_funds',
-    'column' => 
-    array (
-      'id' => 'integer',
-      'code' => 'varchar',
-      'name' => 'varchar',
-      'pinyin_initial' => 'varchar',
-      'type' => 'varchar',
-      'unit_net_value' => 'float',
-      'cumulative_net_value' => 'float',
-      'net_value_time' => 'int',
-      'created_at' => 'int',
-      'updated_at' => 'int',
-      'deleted_at' => 'int',
-    ),
-  ),
   'FundFundNetValue' => 
   array (
     'model' => '\\App\\Models\\Fund\\FundNetValue',
@@ -44,6 +24,26 @@ return array (
       'fund_id' => 'integer',
       'code' => 'varchar',
       'name' => 'varchar',
+      'unit_net_value' => 'float',
+      'cumulative_net_value' => 'float',
+      'net_value_time' => 'int',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'FundFundProduct' => 
+  array (
+    'model' => '\\App\\Models\\Fund\\FundProduct',
+    'table' => 'fund_products',
+    'table_full_name' => 'ly_fund_products',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'code' => 'varchar',
+      'name' => 'varchar',
+      'pinyin_initial' => 'varchar',
+      'type' => 'varchar',
       'unit_net_value' => 'float',
       'cumulative_net_value' => 'float',
       'net_value_time' => 'int',
@@ -86,8 +86,8 @@ return array (
       'unique_key' => 'varchar',
       'category_id' => 'integer',
       'series_id' => 'integer',
-      'ark_series_id' => 'varchar',
-      'ark_product_id' => 'varchar',
+      'ark_series_id' => 'integer',
+      'ark_product_id' => 'integer',
       'name' => 'varchar',
       'path' => 'varchar',
       'url' => 'varchar',
@@ -110,6 +110,7 @@ return array (
       'level' => 'integer',
       'panel_key' => 'varchar',
       'name' => 'varchar',
+      'sort' => 'tinyint',
       'created_at' => 'int',
       'updated_at' => 'int',
       'deleted_at' => 'int',
@@ -126,7 +127,8 @@ return array (
       'language' => 'enum',
       'unique_key' => 'varchar',
       'category_id' => 'integer',
-      'ark_series_id' => 'varchar',
+      'category_panel_key' => 'varchar',
+      'ark_series_id' => 'integer',
       'name' => 'varchar',
       'path' => 'varchar',
       'url' => 'varchar',
@@ -148,12 +150,13 @@ return array (
       'category_id' => 'integer',
       'series_id' => 'integer',
       'product_id' => 'integer',
-      'ark_series_id' => 'varchar',
-      'ark_product_id' => 'varchar',
+      'ark_series_id' => 'integer',
+      'ark_product_id' => 'integer',
       'tab_index' => 'tinyint',
       'tab_title' => 'varchar',
       'key' => 'varchar',
       'label' => 'varchar',
+      'label_tips_rich_text' => 'string',
       'value' => 'string',
       'value_url' => 'varchar',
       'created_at' => 'int',
@@ -287,9 +290,9 @@ return array (
       'deleted_at' => 'int',
     ),
   ),
-  'User' => 
+  'UserUser' => 
   array (
-    'model' => '\\App\\Models\\User',
+    'model' => '\\App\\Models\\User\\User',
     'table' => 'users',
     'table_full_name' => 'ly_users',
     'column' => 
@@ -317,9 +320,9 @@ return array (
       'deleted_at' => 'int',
     ),
   ),
-  'UserFund' => 
+  'UserUserFund' => 
   array (
-    'model' => '\\App\\Models\\UserFund',
+    'model' => '\\App\\Models\\User\\UserFund',
     'table' => 'user_funds',
     'table_full_name' => 'ly_user_funds',
     'column' => 
@@ -329,9 +332,47 @@ return array (
       'fund_id' => 'integer',
       'code' => 'varchar',
       'name' => 'varchar',
-      'cost' => 'float',
-      'share' => 'float',
-      'amount' => 'float',
+      'hold_cost' => 'float',
+      'hold_share' => 'float',
+      'hold_amount' => 'float',
+      'hold_income' => 'float',
+      'sort' => 'tinyint',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'UserUserLoginLog' => 
+  array (
+    'model' => '\\App\\Models\\User\\UserLoginLog',
+    'table' => 'user_login_logs',
+    'table_full_name' => 'ly_user_login_logs',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'ip' => 'varchar',
+      'user_agent' => 'string',
+      'device_type' => 'enum',
+      'quit_time' => 'int',
+      'length_time' => 'int',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+    ),
+  ),
+  'UserUserOptionalFund' => 
+  array (
+    'model' => '\\App\\Models\\User\\UserOptionalFund',
+    'table' => 'user_optional_funds',
+    'table_full_name' => 'ly_user_optional_funds',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'fund_id' => 'integer',
+      'code' => 'varchar',
+      'name' => 'varchar',
+      'sort' => 'tinyint',
       'created_at' => 'int',
       'updated_at' => 'int',
       'deleted_at' => 'int',

@@ -10,34 +10,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
-/**
- * App\Models\SystemConfig
- *
- * @property int $id
- * @property string $type 系统设置类型
- * @property string $key 系统设置键
- * @property string $value 系统设置值
- * @property string|null $data_type 数据类型
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
- * @property-write mixed $sort
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig query()
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig whereDataType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig whereKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig whereValue($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|SystemConfig withoutTrashed()
- * @mixin Eloquent
- */
 class SystemConfig extends BaseModel
 {
     protected static function booted()

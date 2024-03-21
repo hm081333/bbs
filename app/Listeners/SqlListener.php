@@ -29,15 +29,18 @@ class SqlListener
      * Handle the event.
      *
      * @param QueryExecuted $event
+     *
      * @return void
      */
     public function handle(QueryExecuted $event)
     {
         // 只统计mysql语句
         if ($event->connectionName != 'mysql') return;
-        if (!config('app.slow_query_log', false)) return;
+        if (!config('app.query_log', false)) return;
         $log = $this->interpolateQuery($event->sql, $event->bindings);
-        if ($event->time >= 1000) Log::channel('sql')->info("{$event->time}|{$log}");
+        Log::channel('sql')->info("{$event->time}|{$log}");
+        return;
+        if (config('app.slow_query_log', false) && $event->time >= 1000) Log::channel('sql')->info("{$event->time}|{$log}");
         $request = request();
         $data = [
             'sql' => $log,
@@ -83,8 +86,10 @@ class SqlListener
 
     /**
      * 拼接SQL
+     *
      * @param $query    string sql字符串（带？号）
      * @param $params   array sql参数
+     *
      * @return string
      */
     public function interpolateQuery($query, $params)
@@ -126,6 +131,7 @@ class SqlListener
 
     /**
      * 获取临牌对应账号ID
+     *
      * @return array
      */
     private function getAuthId($data)

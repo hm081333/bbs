@@ -60,7 +60,8 @@ return [
     // 'asset_url' => env('ASSET_URL'),
     'asset_url' => env('ASSET_URL', null),
 
-    // 'slow_query_log' => true,
+    'query_log' => true,
+    'slow_query_log' => true,
 
     /*
     |--------------------------------------------------------------------------

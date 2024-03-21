@@ -16,11 +16,11 @@ class ProductController extends BaseController
                 ...ValidateRule::listRule(),
                 'category_id' => ['desc' => '分类ID', 'int', 'exists' => [$this->modelIntelIntelProductCategory::class, 'id']],
                 'series_id' => ['desc' => '系列ID', 'int', 'exists' => [$this->modelIntelIntelProductSeries::class, 'id']],
-                'ark_series_id' => ['desc' => 'ARK系列ID', 'string', 'exists' => [$this->modelIntelIntelProductSeries::class, 'ark_series_id']],
+                'ark_series_id' => ['desc' => 'ARK系列ID', 'int', 'exists' => [$this->modelIntelIntelProductSeries::class, 'ark_series_id']],
                 'language' => ['desc' => '语言', 'string', 'exists' => [$this->modelSystemSystemLanguage::class, 'key'], 'default' => 'zh_cn'],
             ],
             'info' => [
-                'ark_product_id' => ['desc' => 'ARK产品ID', 'string', 'exists' => [$this->modelIntelIntelProduct::class, 'ark_product_id']],
+                'ark_product_id' => ['desc' => 'ARK产品ID', 'int', 'exists' => [$this->modelIntelIntelProduct::class, 'ark_product_id']],
                 'language' => ['desc' => '语言', 'string', 'exists' => [$this->modelSystemSystemLanguage::class, 'key'], 'default' => 'zh_cn'],
             ],
         ];
@@ -40,7 +40,7 @@ class ProductController extends BaseController
             ->whereInput('ark_series_id')
             ->whereInput('category_id')
             ->whereInput('series_id')
-            ->orderBy('id')
+            // ->orderBy('id')
             ->getPage();
         return Response::api('', $page);
     }

@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Fund\Fund;
+use App\Models\Fund\FundProduct;
 use App\Models\Fund\FundNetValue;
 use App\Models\Fund\FundValuation;
 use App\Utils\Tools;
@@ -61,8 +61,8 @@ class FundNetValueCatchJob implements ShouldQueue
     {
         if ($this->catchType == 'sync-eastmoney') {
             try {
-                /* @var $fund Fund */
-                $fund = Fund::getByCode($this->fundCode);
+                /* @var $fund FundProduct */
+                $fund = FundProduct::getByCode($this->fundCode);
                 $allPages = 1;
                 for ($page = 1; $page <= $allPages; $page++) {
                     $res = Tools::curl(5)

@@ -230,7 +230,7 @@ class BuilderMixin
             /* @var $this Builder */
             // 搜索字段为空 或者 模糊查询值为空 不进行查询
             if (empty($search_field) || empty($value)) return $this;
-            return $this->where($search_field, 'like', $value, $boolean);
+            return $this->where($search_field, 'like', "%{$value}%", $boolean);
         };
     }
 

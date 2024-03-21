@@ -32,8 +32,8 @@ return new class extends Migration {
             $table->foreignId('category_id')->index()->comment('分类ID');
             $table->foreignId('series_id')->index()->comment('系列ID');
             $table->foreignId('product_id')->index()->comment('产品ID');
-            $table->string('ark_series_id')->comment('ARK系列ID');
-            $table->string('ark_product_id')->comment('ARK产品ID');
+            $table->bigInteger('ark_series_id')->comment('ARK系列ID');
+            $table->bigInteger('ark_product_id')->comment('ARK产品ID');
             $table->unsignedTinyInteger('tab_index')->comment('规格分类下标');
             $table->string('tab_title')->comment('规格分类名称');
             $table->string('key')->comment('规格键');
