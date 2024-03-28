@@ -340,7 +340,6 @@ return array (
       'last_login_time' => 'int',
       'status' => 'tinyint',
       'frozen_time' => 'int',
-      'open_id' => 'varchar',
       'password' => 'varchar',
       'o_pwd' => 'string',
       'remember_token' => 'varchar',
@@ -419,6 +418,7 @@ return array (
       'open_id' => 'varchar',
       'nickname' => 'varchar',
       'headimgurl' => 'varchar',
+      'avatar' => 'varchar',
       'unionid' => 'varchar',
       'subscribe' => 'tinyint',
       'language' => 'varchar',
@@ -431,7 +431,6 @@ return array (
       'qr_scene_str' => 'varchar',
       'created_at' => 'int',
       'updated_at' => 'int',
-      'deleted_at' => 'int',
     ),
   ),
 );

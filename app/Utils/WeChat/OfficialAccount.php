@@ -2,13 +2,10 @@
 
 namespace App\Utils\WeChat;
 
-use App\Exceptions\Request\BadRequestException;
 use App\Exceptions\Server\InternalServerErrorException;
-use App\Models\User\User;
-use App\Utils\TieBa\Misc;
+use App\Models\WeChat\WechatOfficialAccountUser;
 use App\Utils\Tools;
 use EasyWeChat\Kernel\HttpClient\Response;
-use Illuminate\Support\Facades\Log;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -95,5 +92,26 @@ class OfficialAccount
             'openid' => trim($openid),
             // 'lang' => 'zh_CN',
         ]);
+    }
+
+    /**
+     * 更新所有用户信息
+     *
+     * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public static function updateAllUserInfo()
+    {
+        Tools::model()->WeChatWechatOfficialAccountUser->each(function (WechatOfficialAccountUser $user) {
+            $user_info = static::userInfo($user->open_id)->toArray();
+            // 2021年12月27日之后，不再输出头像、昵称信息。
+            unset($user_info['nickname'], $user_info['headimgurl']);
+            foreach ($user->getAttributes() as $attribute => $value) {
+                if (isset($user_info[$attribute])) {
+                    $user[$attribute] = $user_info[$attribute];
+                }
+            }
+            if ($user->isDirty()) $user->save();
+        });
     }
 }

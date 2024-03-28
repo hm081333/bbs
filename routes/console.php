@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\WeChat\WechatOfficialAccountUser;
 use App\Utils\GuzzleHttp;
 use App\Utils\Juhe\Calendar;
 use App\Utils\Tools;
@@ -23,12 +24,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('testa', function () {
-    Tools::model()->WeChatWechatOfficialAccountUser->each(function ($user){
-        $user_info=OfficialAccount::userInfo($user->open_id);
-        // $user->
-        dump($user_info);
-    });
-    dd(123);
+    dd(OfficialAccount::updateAllUserInfo());
     $start_year = '2007';
     $http = new GuzzleHttp();
     //https://sousuo.www.gov.cn/sousuo/search.shtml?code=17da70961a7&dataTypeId=107&searchWord=国务院办公厅关于2024年部分节假日安排的通知
