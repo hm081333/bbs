@@ -23,11 +23,12 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('testa', function () {
-    $code = "041YEL0w34vnv23xlZ2w3JUtuu2YEL0f"; // $_GET['code']
-    dd(OfficialAccount::oauthCallback($code));
-    // $res = \App\Utils\WeChat\OfficialAccount::userInfo('oYtVv1CoGhTWLk9jlTzj7rS4-CpY');
-    // dd($res->toArray());
-    dd(unserialize('a:3:{s:6:"app_id";s:18:"wx10cfa95954e03f6b";s:10:"app_secret";s:32:"3247476d1834940ddf6e11739b48e2c6";s:5:"token";s:5:"LYiHo";}'));
+    Tools::model()->WeChatWechatOfficialAccountUser->each(function ($user){
+        $user_info=OfficialAccount::userInfo($user->open_id);
+        // $user->
+        dump($user_info);
+    });
+    dd(123);
     $start_year = '2007';
     $http = new GuzzleHttp();
     //https://sousuo.www.gov.cn/sousuo/search.shtml?code=17da70961a7&dataTypeId=107&searchWord=国务院办公厅关于2024年部分节假日安排的通知

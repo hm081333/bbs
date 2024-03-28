@@ -4,7 +4,6 @@ namespace App\Console\Commands\Task;
 
 use App\Utils\TieBa\Misc;
 use App\Utils\Tools;
-use App\Utils\WeChat\OfficialAccount;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -32,9 +31,6 @@ class TiebaCommand extends Command
             case 'send_detail':
                 Log::info('推送签到详情信息');
                 Misc::sendTieBaSignDetailAll();
-                break;
-            default:
-                die('非法参数！');
                 break;
         }
         $this->info('完成|' . $this->description . '|耗时：' . Tools::secondToTimeText(microtime(true) - $this->job_start_time));
