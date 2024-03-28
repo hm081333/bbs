@@ -7,7 +7,6 @@ use App\Exceptions\Server\InternalServerErrorException;
 /**
  * 模型映射类
  *
- * @property-read \App\Models\BaiduId BaiduId App\Models\BaiduId
  * @property-read \App\Models\Fund\FundNetValue FundFundNetValue App\Models\Fund\FundNetValue
  * @property-read \App\Models\Fund\FundProduct FundFundProduct App\Models\Fund\FundProduct
  * @property-read \App\Models\Fund\FundValuation FundFundValuation App\Models\Fund\FundValuation
@@ -23,10 +22,13 @@ use App\Exceptions\Server\InternalServerErrorException;
  * @property-read \App\Models\System\SystemLanguage SystemSystemLanguage App\Models\System\SystemLanguage
  * @property-read \App\Models\System\SystemOption SystemSystemOption App\Models\System\SystemOption
  * @property-read \App\Models\System\SystemOptionItem SystemSystemOptionItem App\Models\System\SystemOptionItem
+ * @property-read \App\Models\Tieba\BaiduId TiebaBaiduId App\Models\Tieba\BaiduId
+ * @property-read \App\Models\Tieba\BaiduTieba TiebaBaiduTieba App\Models\Tieba\BaiduTieba
  * @property-read \App\Models\User\User UserUser App\Models\User\User
  * @property-read \App\Models\User\UserFund UserUserFund App\Models\User\UserFund
  * @property-read \App\Models\User\UserLoginLog UserUserLoginLog App\Models\User\UserLoginLog
  * @property-read \App\Models\User\UserOptionalFund UserUserOptionalFund App\Models\User\UserOptionalFund
+ * @property-read \App\Models\WeChat\WechatOfficialAccountUser WeChatWechatOfficialAccountUser App\Models\WeChat\WechatOfficialAccountUser
  * @package App\Utils\Register
  * @class ModelMap
  */
@@ -36,6 +38,7 @@ class ModelMap
      * @var \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|array
      */
     private array $config;
+    private array $model;
 
     public function __construct()
     {
@@ -58,7 +61,11 @@ class ModelMap
                     return empty($names[2]) ? $model_info['table'] : $model_info['table_full_name'];
                 }
             }
-            if (class_exists($model_info['model'])) return new $model_info['model'];
+            if (class_exists($model_info['model'])) {
+                if (!isset($this->model[$model_alias])) $this->model[$model_alias] = new $model_info['model'];
+                return $this->model[$model_alias];
+                return clone $this->model[$model_alias];
+            }
         }
         throw new InternalServerErrorException('非法调用不存在函数');
     }

@@ -38,8 +38,7 @@ class SqlListener
         if ($event->connectionName != 'mysql') return;
         if (!config('app.query_log', false)) return;
         $log = $this->interpolateQuery($event->sql, $event->bindings);
-        Log::channel('sql')->info("{$event->time}|{$log}");
-        return;
+        // Log::channel('sql')->info("{$event->time}|{$log}");
         if (config('app.slow_query_log', false) && $event->time >= 1000) Log::channel('sql')->info("{$event->time}|{$log}");
         $request = request();
         $data = [
@@ -60,7 +59,7 @@ class SqlListener
             // 'agency_manager_id' => $this->getAuthId('agency_manager'),
         ];
         $data = $this->getAuthId($data);
-        if (Tools::isCli()) {
+        if (\App::runningInConsole()) {
             $argv = $_SERVER['argv'];
             $data['url'] = array_shift($argv);
             $data['path_info'] = implode(' ', $argv);

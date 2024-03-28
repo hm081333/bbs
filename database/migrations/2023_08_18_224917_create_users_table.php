@@ -27,7 +27,6 @@ return new class extends Migration {
             $table->unsignedInteger('last_login_time')->nullable()->comment('最后登录时间');
             $table->tinyInteger('status')->default(1)->comment('状态 1正常 2冻结');
             $table->unsignedInteger('frozen_time')->nullable()->comment('冻结时间');
-            $table->string('open_id')->nullable()->comment('微信唯一ID');
             $table->string('password')->comment('密码');
             $table->text('o_pwd')->nullable()->comment('原始密码');
             $table->rememberToken();

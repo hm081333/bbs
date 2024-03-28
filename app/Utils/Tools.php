@@ -15,7 +15,7 @@ use DB;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +30,19 @@ use function unserialize;
 class Tools
 {
     // region 自定义方法
+
+    /**
+     * 判断字符串是否json
+     *
+     * @param string $string
+     *
+     * @return bool
+     */
+    public static function is_json(string $string)
+    {
+        return !!preg_match('/^[ \t]*[{\[]/', $string);
+    }
+
     /**
      * JSON编码
      *
@@ -1322,15 +1335,30 @@ class Tools
 
     // region 基金股市相关
     /**
+     * 大A最近开门日期
+     *
+     * @param float|int|string|Carbon|null $time
+     *
+     * @return Carbon
+     * @throws InternalServerErrorException
+     * @throws InvalidArgumentException
+     */
+    public static function lastOpenDoorDay(float|int|string|Carbon|null $day = null): Carbon
+    {
+        $day = $day ? static::timeToCarbon($day) : static::today();
+        return static::isOpenDoorDay($day) ? $day : static::lastOpenDoorDay($day->subDay());
+    }
+
+    /**
      * 是否大A开门日期
      *
-     * @param $time
+     * @param float|int|string|Carbon|null $time
      *
      * @return bool
      * @throws InternalServerErrorException
      * @throws InvalidArgumentException
      */
-    public static function isOpenDoorDay($time = null): bool
+    public static function isOpenDoorDay(float|Carbon|int|string $time = null): bool
     {
         $time = $time ? static::timeToCarbon($time) : static::now();
         return $time->isWeekday() && !Calendar::isHoliday($time);

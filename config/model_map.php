@@ -1,18 +1,5 @@
 <?php   
 return array (
-  'BaiduId' => 
-  array (
-    'model' => '\\App\\Models\\BaiduId',
-    'table' => 'baidu_ids',
-    'table_full_name' => 'ly_baidu_ids',
-    'column' => 
-    array (
-      'id' => 'integer',
-      'created_at' => 'int',
-      'updated_at' => 'int',
-      'deleted_at' => 'int',
-    ),
-  ),
   'FundFundNetValue' => 
   array (
     'model' => '\\App\\Models\\Fund\\FundNetValue',
@@ -290,6 +277,48 @@ return array (
       'deleted_at' => 'int',
     ),
   ),
+  'TiebaBaiduId' => 
+  array (
+    'model' => '\\App\\Models\\Tieba\\BaiduId',
+    'table' => 'baidu_ids',
+    'table_full_name' => 'ly_baidu_ids',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'bduss' => 'string',
+      'name' => 'varchar',
+      'bid' => 'integer',
+      'stoken' => 'varchar',
+      'portrait' => 'varchar',
+      'refresh_time' => 'int',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'TiebaBaiduTieba' => 
+  array (
+    'model' => '\\App\\Models\\Tieba\\BaiduTieba',
+    'table' => 'baidu_tiebas',
+    'table_full_name' => 'ly_baidu_tiebas',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'baidu_id' => 'integer',
+      'fid' => 'integer',
+      'tieba' => 'varchar',
+      'no' => 'tinyint',
+      'status' => 'integer',
+      'latest' => 'int',
+      'last_error' => 'string',
+      'refresh_time' => 'int',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
   'UserUser' => 
   array (
     'model' => '\\App\\Models\\User\\User',
@@ -373,6 +402,33 @@ return array (
       'code' => 'varchar',
       'name' => 'varchar',
       'sort' => 'tinyint',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'WeChatWechatOfficialAccountUser' => 
+  array (
+    'model' => '\\App\\Models\\WeChat\\WechatOfficialAccountUser',
+    'table' => 'wechat_official_account_users',
+    'table_full_name' => 'ly_wechat_official_account_users',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'open_id' => 'varchar',
+      'nickname' => 'varchar',
+      'headimgurl' => 'varchar',
+      'unionid' => 'varchar',
+      'subscribe' => 'tinyint',
+      'language' => 'varchar',
+      'subscribe_time' => 'int',
+      'remark' => 'varchar',
+      'groupid' => 'int',
+      'tagid_list' => 'json',
+      'subscribe_scene' => 'varchar',
+      'qr_scene' => 'varchar',
+      'qr_scene_str' => 'varchar',
       'created_at' => 'int',
       'updated_at' => 'int',
       'deleted_at' => 'int',

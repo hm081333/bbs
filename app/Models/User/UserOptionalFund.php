@@ -6,9 +6,12 @@ use App\Models\BaseModel;
 use App\Models\Fund\FundProduct;
 use App\Utils\Tools;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserOptionalFund extends BaseModel
 {
+    use SoftDeletes;
+
     protected static function booted()
     {
         static::creating(function (UserOptionalFund $model) {

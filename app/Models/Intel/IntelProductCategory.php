@@ -4,9 +4,12 @@ namespace App\Models\Intel;
 
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class IntelProductCategory extends BaseModel
 {
+    use SoftDeletes;
+
     /**
      * 类型转换。
      *

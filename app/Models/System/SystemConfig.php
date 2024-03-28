@@ -4,14 +4,14 @@ namespace App\Models\System;
 
 use App\Models\BaseModel;
 use App\Utils\Tools;
-use Eloquent;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 class SystemConfig extends BaseModel
 {
+    use SoftDeletes;
+
     protected static function booted()
     {
         static::saved(function () {
@@ -21,8 +21,10 @@ class SystemConfig extends BaseModel
 
     /**
      * 获取参数
+     *
      * @param $key
      * @param $default
+     *
      * @return mixed
      */
     public static function getValue($key, $default = null)
@@ -33,6 +35,7 @@ class SystemConfig extends BaseModel
 
     /**
      * 获取所有设置
+     *
      * @return Collection
      */
     public static function getAll()
@@ -50,7 +53,9 @@ class SystemConfig extends BaseModel
 
     /**
      * 获取所有设置
+     *
      * @param $type
+     *
      * @return Collection
      */
     public static function getList($type = false)

@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 /**
  * 模型映射类
  *
- * @property-read \App\Models\BaiduId modelBaiduId App\Models\BaiduId
  * @property-read \App\Models\Fund\FundNetValue modelFundFundNetValue App\Models\Fund\FundNetValue
  * @property-read \App\Models\Fund\FundProduct modelFundFundProduct App\Models\Fund\FundProduct
  * @property-read \App\Models\Fund\FundValuation modelFundFundValuation App\Models\Fund\FundValuation
@@ -30,10 +29,13 @@ use Illuminate\Support\Facades\Route;
  * @property-read \App\Models\System\SystemLanguage modelSystemSystemLanguage App\Models\System\SystemLanguage
  * @property-read \App\Models\System\SystemOption modelSystemSystemOption App\Models\System\SystemOption
  * @property-read \App\Models\System\SystemOptionItem modelSystemSystemOptionItem App\Models\System\SystemOptionItem
+ * @property-read \App\Models\Tieba\BaiduId modelTiebaBaiduId App\Models\Tieba\BaiduId
+ * @property-read \App\Models\Tieba\BaiduTieba modelTiebaBaiduTieba App\Models\Tieba\BaiduTieba
  * @property-read \App\Models\User\User modelUserUser App\Models\User\User
  * @property-read \App\Models\User\UserFund modelUserUserFund App\Models\User\UserFund
  * @property-read \App\Models\User\UserLoginLog modelUserUserLoginLog App\Models\User\UserLoginLog
  * @property-read \App\Models\User\UserOptionalFund modelUserUserOptionalFund App\Models\User\UserOptionalFund
+ * @property-read \App\Models\WeChat\WechatOfficialAccountUser modelWeChatWechatOfficialAccountUser App\Models\WeChat\WechatOfficialAccountUser
  * @package App\Http\Controllers
  * @class BaseController
  */

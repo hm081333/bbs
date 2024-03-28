@@ -255,7 +255,7 @@ class BuilderMixin
     }
 
     /**
-     * 根据参数，查询第一条数据或抛出
+     * 根据参数，查询一条数据或抛出
      *
      * @return \Closure
      */
@@ -264,6 +264,22 @@ class BuilderMixin
         return function (string $thr_str = '数据异常') {
             /* @var $this Builder */
             return $this->firstOr(fn() => throw new BadRequestException($thr_str));
+        };
+    }
+
+    /**
+     * 根据主键，查询一条数据或抛出
+     *
+     * @return \Closure
+     */
+    public function findOrThrow()
+    {
+        return function ($id, array|string $columns = ['*'], ?string $thr_str = null) {
+            /* @var $this Builder */
+            $args = func_get_args();
+            $thr_str = $args[2] ?? $args[1] ?? '数据异常';
+            $columns = isset($args[2]) ? $args[1] : ['*'];
+            return $this->findOr($id, $columns, fn() => throw new BadRequestException($thr_str));
         };
     }
 

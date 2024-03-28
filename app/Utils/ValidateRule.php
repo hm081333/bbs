@@ -67,8 +67,8 @@ class ValidateRule
     public static function listRule($rule = [])
     {
         return array_merge([
-            'limit' => ['desc' => '数量', 'required', 'min' => 1],
-            'page' => ['desc' => '页码', 'required', 'min' => 1],
+            'limit' => ['desc' => '数量', 'required', 'min' => 1, 'default' => 15],
+            'page' => ['desc' => '页码', 'required', 'min' => 1, 'default' => 1],
             'search_field' => ['desc' => '搜索字段'],
             'search_keyword' => ['desc' => '搜索关键字'],
         ], $rule);

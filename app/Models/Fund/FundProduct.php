@@ -4,10 +4,12 @@ namespace App\Models\Fund;
 
 use App\Casts\TimestampCast;
 use App\Models\BaseModel;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FundProduct extends BaseModel
 {
+    use SoftDeletes;
+
     protected $casts = [
         'net_value_time' => TimestampCast::class,
     ];

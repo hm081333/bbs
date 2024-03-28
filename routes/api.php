@@ -30,6 +30,10 @@ Route::prefix('fund')
     ->name('fund.')
     ->group(base_path('routes/api/fund.php'));
 
+Route::prefix('tieba')
+    ->name('tieba.')
+    ->group(base_path('routes/api/tieba.php'));
+
 Route::prefix('user')
     ->name('user.')
     ->group(base_path('routes/api/user.php'));

@@ -4,11 +4,13 @@ namespace App\Models\Intel;
 
 use App\Casts\HtmlCast;
 use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class IntelProductSpec extends BaseModel
 {
+    use SoftDeletes;
+
     protected $casts = [
         'label_tips_rich_text' => HtmlCast::class,
     ];

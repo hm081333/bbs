@@ -4,14 +4,14 @@ namespace App\Models\System;
 
 use App\Models\BaseModel;
 use App\Utils\Tools;
-use Eloquent;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
 
 class AdministrativeDivision extends BaseModel
 {
+    use SoftDeletes;
+
     protected $hidden = [
         'created_at',
         'updated_at',

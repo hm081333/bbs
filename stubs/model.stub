@@ -3,7 +3,9 @@
 namespace {{ namespace }};
 
 use App\Models\BaseModel;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class {{ class }} extends BaseModel
 {
+    use SoftDeletes;
 }
