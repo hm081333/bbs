@@ -2,7 +2,7 @@
 
 namespace App\Exceptions;
 
-use App\Utils\Bark;
+use App\Utils\Notify\Bark;
 use App\Utils\Tools;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
@@ -67,7 +67,7 @@ class Handler extends ExceptionHandler
                         get_class($e) . ':' . $e->getCode(),
                         $e->getMessage(),
                     ], array_filter(array_map(fn($trace) => isset($trace['file']) ? str_replace(base_path(), '', $trace['file']) . ':' . $trace['line'] : false, $e->getTrace())))))
-                    ->send();
+                    ->dispatch();
                 $responseData['msg'] = '请求错误，请联系管理员。';
             }
             if (Tools::isDebug()) {

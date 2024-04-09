@@ -18,25 +18,22 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
+Route::prefix('admin')
+    ->middleware('auth:admin')
+    ->name('admin.')
+    ->namespace('Admin')
+    ->group(base_path('routes/api/admin.php'));
+
+Route::prefix('home')
+    ->middleware('auth:user')
+    ->name('home.')
+    ->namespace('Home')
+    ->group(base_path('routes/api/home.php'));
+
 Route::prefix('common')
     ->name('common.')
+    ->namespace('Common')
     ->group(base_path('routes/api/common.php'));
-
-Route::prefix('intel')
-    ->name('intel.')
-    ->group(base_path('routes/api/intel.php'));
-
-Route::prefix('fund')
-    ->name('fund.')
-    ->group(base_path('routes/api/fund.php'));
-
-Route::prefix('tieba')
-    ->name('tieba.')
-    ->group(base_path('routes/api/tieba.php'));
-
-Route::prefix('user')
-    ->name('user.')
-    ->group(base_path('routes/api/user.php'));
 
 Route::any('webhook', function (\Illuminate\Http\Request $request) {
     $token = 'b49913863c50dfcd20acae835ebf8948';

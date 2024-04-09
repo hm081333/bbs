@@ -15,10 +15,8 @@ return new class extends Migration {
     {
         Schema::create('system_option_items', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->comment('选项编码');
-            // $table->string('key')->comment('选项键');
+            $table->string('code')->index()->comment('选项编码');
             $table->string('value')->comment('选项值');
-            // $table->string('status')->comment('选项状态');
             $table->sort();
             $table->timestampsInteger();
             $table->softDeletesInteger();

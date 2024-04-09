@@ -1,5 +1,156 @@
 <?php   
 return array (
+  'Adv' => 
+  array (
+    'model' => '\\App\\Models\\Adv',
+    'table' => 'advs',
+    'table_full_name' => 'ly_advs',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'category_id' => 'integer',
+      'title' => 'varchar',
+      'image' => 'varchar',
+      'url' => 'varchar',
+      'is_show' => 'tinyint',
+      'sort' => 'tinyint',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'AdvCategory' => 
+  array (
+    'model' => '\\App\\Models\\AdvCategory',
+    'table' => 'adv_categories',
+    'table_full_name' => 'ly_adv_categories',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'name' => 'varchar',
+      'code' => 'varchar',
+      'pid' => 'integer',
+      'sort' => 'tinyint',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'ArticleArticle' => 
+  array (
+    'model' => '\\App\\Models\\Article\\Article',
+    'table' => 'articles',
+    'table_full_name' => 'ly_articles',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'category_id' => 'integer',
+      'title' => 'varchar',
+      'desc' => 'varchar',
+      'cover' => 'varchar',
+      'content' => 'longtext',
+      'code' => 'varchar',
+      'read_times' => 'integer',
+      'is_show' => 'tinyint',
+      'sort' => 'tinyint',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'ArticleArticleCategory' => 
+  array (
+    'model' => '\\App\\Models\\Article\\ArticleCategory',
+    'table' => 'article_categories',
+    'table_full_name' => 'ly_article_categories',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'pid' => 'integer',
+      'title' => 'varchar',
+      'code' => 'varchar',
+      'is_show' => 'tinyint',
+      'sort' => 'tinyint',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'ForumForumCommunity' => 
+  array (
+    'model' => '\\App\\Models\\Forum\\ForumCommunity',
+    'table' => 'forum_communities',
+    'table_full_name' => 'ly_forum_communities',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'pid' => 'integer',
+      'level' => 'tinyint',
+      'name' => 'varchar',
+      'is_show' => 'tinyint',
+      'sort' => 'tinyint',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'ForumForumReply' => 
+  array (
+    'model' => '\\App\\Models\\Forum\\ForumReply',
+    'table' => 'forum_replies',
+    'table_full_name' => 'ly_forum_replies',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'forum_topic_id' => 'integer',
+      'content' => 'longtext',
+      'is_top' => 'tinyint',
+      'is_show' => 'tinyint',
+      'sort' => 'tinyint',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'ForumForumTopic' => 
+  array (
+    'model' => '\\App\\Models\\Forum\\ForumTopic',
+    'table' => 'forum_topics',
+    'table_full_name' => 'ly_forum_topics',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'forum_community_id' => 'integer',
+      'forum_topic_type_id' => 'integer',
+      'title' => 'varchar',
+      'content' => 'longtext',
+      'is_top' => 'tinyint',
+      'is_show' => 'tinyint',
+      'sort' => 'tinyint',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'ForumForumTopicType' => 
+  array (
+    'model' => '\\App\\Models\\Forum\\ForumTopicType',
+    'table' => 'forum_topic_types',
+    'table_full_name' => 'ly_forum_topic_types',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'forum_community_id' => 'integer',
+      'name' => 'varchar',
+      'is_show' => 'tinyint',
+      'sort' => 'tinyint',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
   'FundFundNetValue' => 
   array (
     'model' => '\\App\\Models\\Fund\\FundNetValue',
@@ -348,6 +499,43 @@ return array (
       'deleted_at' => 'int',
     ),
   ),
+  'UserUserFeedback' => 
+  array (
+    'model' => '\\App\\Models\\User\\UserFeedback',
+    'table' => 'user_feedback',
+    'table_full_name' => 'ly_user_feedback',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'contact' => 'varchar',
+      'content' => 'longtext',
+      'images' => 'json',
+      'status' => 'tinyint',
+      'dispose_time' => 'int',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'UserUserFeedbackLog' => 
+  array (
+    'model' => '\\App\\Models\\User\\UserFeedbackLog',
+    'table' => 'user_feedback_logs',
+    'table_full_name' => 'ly_user_feedback_logs',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_feedback_id' => 'integer',
+      'status' => 'tinyint',
+      'remark' => 'longtext',
+      'operator_id' => 'integer',
+      'operator_type' => 'varchar',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
   'UserUserFund' => 
   array (
     'model' => '\\App\\Models\\User\\UserFund',
@@ -384,6 +572,57 @@ return array (
       'device_type' => 'enum',
       'quit_time' => 'int',
       'length_time' => 'int',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+    ),
+  ),
+  'UserUserNotifyBarkSetting' => 
+  array (
+    'model' => '\\App\\Models\\User\\UserNotifyBarkSetting',
+    'table' => 'user_notify_bark_settings',
+    'table_full_name' => 'ly_user_notify_bark_settings',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'enable' => 'tinyint',
+      'server_address' => 'varchar',
+      'device_key' => 'varchar',
+      'level' => 'varchar',
+      'sound' => 'varchar',
+      'base_group' => 'varchar',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+    ),
+  ),
+  'UserUserNotifyDingDingBotSetting' => 
+  array (
+    'model' => '\\App\\Models\\User\\UserNotifyDingDingBotSetting',
+    'table' => 'user_notify_ding_ding_bot_settings',
+    'table_full_name' => 'ly_user_notify_ding_ding_bot_settings',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'enable' => 'tinyint',
+      'token' => 'varchar',
+      'secret' => 'varchar',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+    ),
+  ),
+  'UserUserNotifyPushPlusSetting' => 
+  array (
+    'model' => '\\App\\Models\\User\\UserNotifyPushPlusSetting',
+    'table' => 'user_notify_push_plus_settings',
+    'table_full_name' => 'ly_user_notify_push_plus_settings',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'enable' => 'tinyint',
+      'token' => 'varchar',
+      'topic' => 'varchar',
       'created_at' => 'int',
       'updated_at' => 'int',
     ),

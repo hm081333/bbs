@@ -7,6 +7,14 @@ use App\Exceptions\Server\InternalServerErrorException;
 /**
  * 模型映射类
  *
+ * @property-read \App\Models\Adv Adv App\Models\Adv
+ * @property-read \App\Models\AdvCategory AdvCategory App\Models\AdvCategory
+ * @property-read \App\Models\Article\Article ArticleArticle App\Models\Article\Article
+ * @property-read \App\Models\Article\ArticleCategory ArticleArticleCategory App\Models\Article\ArticleCategory
+ * @property-read \App\Models\Forum\ForumCommunity ForumForumCommunity App\Models\Forum\ForumCommunity
+ * @property-read \App\Models\Forum\ForumReply ForumForumReply App\Models\Forum\ForumReply
+ * @property-read \App\Models\Forum\ForumTopic ForumForumTopic App\Models\Forum\ForumTopic
+ * @property-read \App\Models\Forum\ForumTopicType ForumForumTopicType App\Models\Forum\ForumTopicType
  * @property-read \App\Models\Fund\FundNetValue FundFundNetValue App\Models\Fund\FundNetValue
  * @property-read \App\Models\Fund\FundProduct FundFundProduct App\Models\Fund\FundProduct
  * @property-read \App\Models\Fund\FundValuation FundFundValuation App\Models\Fund\FundValuation
@@ -25,8 +33,13 @@ use App\Exceptions\Server\InternalServerErrorException;
  * @property-read \App\Models\Tieba\BaiduId TiebaBaiduId App\Models\Tieba\BaiduId
  * @property-read \App\Models\Tieba\BaiduTieba TiebaBaiduTieba App\Models\Tieba\BaiduTieba
  * @property-read \App\Models\User\User UserUser App\Models\User\User
+ * @property-read \App\Models\User\UserFeedback UserUserFeedback App\Models\User\UserFeedback
+ * @property-read \App\Models\User\UserFeedbackLog UserUserFeedbackLog App\Models\User\UserFeedbackLog
  * @property-read \App\Models\User\UserFund UserUserFund App\Models\User\UserFund
  * @property-read \App\Models\User\UserLoginLog UserUserLoginLog App\Models\User\UserLoginLog
+ * @property-read \App\Models\User\UserNotifyBarkSetting UserUserNotifyBarkSetting App\Models\User\UserNotifyBarkSetting
+ * @property-read \App\Models\User\UserNotifyDingDingBotSetting UserUserNotifyDingDingBotSetting App\Models\User\UserNotifyDingDingBotSetting
+ * @property-read \App\Models\User\UserNotifyPushPlusSetting UserUserNotifyPushPlusSetting App\Models\User\UserNotifyPushPlusSetting
  * @property-read \App\Models\User\UserOptionalFund UserUserOptionalFund App\Models\User\UserOptionalFund
  * @property-read \App\Models\WeChat\WechatOfficialAccountUser WeChatWechatOfficialAccountUser App\Models\WeChat\WechatOfficialAccountUser
  * @package App\Utils\Register

@@ -9,7 +9,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 class Controller extends \App\Http\Controllers\BaseController
 {
 
-    public function test()
+    public function index()
     {
         return 123;
     }

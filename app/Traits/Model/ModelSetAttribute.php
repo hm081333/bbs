@@ -4,13 +4,14 @@ namespace App\Traits\Model;
 
 use App\Exceptions\Request\BadRequestException;
 use App\Utils\Tools;
-use Illuminate\Support\Facades\Auth;
 
 trait ModelSetAttribute
 {
     /**
      * 排序
+     *
      * @param string|integer $value
+     *
      * @return void
      */
     public function setSortAttribute($value)
@@ -20,7 +21,9 @@ trait ModelSetAttribute
 
     /**
      * 编号
+     *
      * @param                  $prefix
+     *
      * @return void
      */
     public function setSnAttribute($prefix)
@@ -29,10 +32,13 @@ trait ModelSetAttribute
     }
 
     //region 自定义方法
+
     /**
      * 生成编号
+     *
      * @param string $prefix 编号前缀
      * @param string $column 编号字段
+     *
      * @return string
      */
     protected function generateSerialNumber(string $prefix, string $column = 'sn')
@@ -43,32 +49,20 @@ trait ModelSetAttribute
 
     /**
      * 设置操作者信息
-     * @param string $type 操作来源类型
+     *
+     * @desc 设置为当前登录账号信息
+     *
      * @return void
      * @throws BadRequestException
      */
-    public function setOperator($type = false)
+    public function setOperator()
     {
-        if (!$this->getAttribute('operator_type')) {
-            if ($type) {
-                $this->setAttribute('operator_type', $type);
-            } else {
-                $route_names = explode('.', request()->route()->getName());
-                $this->setAttribute('operator_type', $route_names[0]);
-            }
-        }
-        switch ($this->getAttribute('operator_type')) {
-            case 'admin':
-                $operator_id = auth('admin')->id();
-                break;
-            case 'home':
-            case 'user':
-                $operator_id = auth('user')->id();
-                break;
-            default:
-                throw new BadRequestException('非法操作');
-        }
-        $this->setAttribute('operator_id', $operator_id);
+        $operator = Tools::auth()->getTokenData();
+        $operator_type = $operator['account_type'];
+        $operator_id = $operator['account_id'];
+        if (empty($operator_type) || empty($operator_id)) throw new BadRequestException('非法操作');
+        $this->setAttribute('operator_type', $operator_type);
+        $this->setAttribute('operator_id', $operator['account_id']);
     }
     //endregion
 }

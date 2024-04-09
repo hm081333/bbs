@@ -6,6 +6,7 @@ use App\Models\BaseModel;
 use App\Utils\Tools;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 
 class FilesCast implements CastsAttributes
 {
@@ -17,17 +18,16 @@ class FilesCast implements CastsAttributes
      * @param mixed     $value
      * @param array     $attributes
      *
-     * @return mixed
+     * @return array
      */
     public function get(Model $model, string $key, mixed $value, array $attributes)
     {
-        $value = Tools::jsonDecode($value) ?? [];
         return array_map(function ($path) {
             return [
                 'path' => $path,
                 'url' => Tools::storageAsset($path),
             ];
-        }, $value);
+        }, is_array($value) ? $value : (Tools::jsonDecode($value) ?? []));
     }
 
     /**
@@ -35,13 +35,14 @@ class FilesCast implements CastsAttributes
      *
      * @param BaseModel $model
      * @param string    $key
-     * @param mixed     $value
+     * @param array     $value
      * @param array     $attributes
      *
-     * @return mixed
+     * @return string
      */
     public function set(Model $model, string $key, mixed $value, array $attributes)
     {
+        if (Arr::isAssoc($value)) $value = [$value];
         $save_value = [];
         foreach ($value as $item) {
             if (!empty($item) && isset($item['path']) && !empty($item['path'])) $save_value[] = $item['path'];

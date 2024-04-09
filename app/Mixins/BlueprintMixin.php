@@ -63,13 +63,40 @@ class BlueprintMixin
     }
 
     /**
+     * 往数据库表添加开关字段
+     *
+     * @return Closure
+     */
+    public function bool()
+    {
+        return function (string $column, bool $default = false): ColumnDefinition {
+            /* @var $this Blueprint */
+            return $this->boolean($column)->unsigned()->default(intval($default))->index();
+        };
+    }
+
+    /**
+     * 往数据库表添加操作者字段
+     *
+     * @return Closure
+     */
+    public function operator()
+    {
+        return function ($nullable = true) {
+            /* @var $this Blueprint */
+            $this->foreignId('operator_id')->nullable($nullable)->comment('操作者ID');
+            $this->string('operator_type')->nullable($nullable)->comment('操作者类型');
+        };
+    }
+
+    /**
      * 往数据库表添加省市区字段
      *
      * @return Closure
      */
     public function ProvinceCityDistrict()
     {
-        return function ($nullable = true): ColumnDefinition {
+        return function ($nullable = true) {
             /* @var $this Blueprint */
             $this->foreignId('province')->nullable($nullable)->comment('省');
             $this->foreignId('city')->nullable($nullable)->comment('市');

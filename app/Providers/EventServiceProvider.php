@@ -27,9 +27,9 @@ class EventServiceProvider extends ServiceProvider
         ModelSavedEvent::class => [
             ModelSavedListener::class,
         ],
-        ModelSavingEvent::class => [
-            ModelSavingListener::class,
-        ],
+        // ModelSavingEvent::class => [
+        //     ModelSavingListener::class,
+        // ],
         QueryExecuted::class => [
            SqlListener::class,
         ],

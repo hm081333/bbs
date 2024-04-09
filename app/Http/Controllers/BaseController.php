@@ -9,11 +9,21 @@ use Exception;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 
 /**
  * 模型映射类
  *
+ * @property-read \App\Models\Adv modelAdv App\Models\Adv
+ * @property-read \App\Models\AdvCategory modelAdvCategory App\Models\AdvCategory
+ * @property-read \App\Models\Article\Article modelArticleArticle App\Models\Article\Article
+ * @property-read \App\Models\Article\ArticleCategory modelArticleArticleCategory App\Models\Article\ArticleCategory
+ * @property-read \App\Models\Forum\ForumCommunity modelForumForumCommunity App\Models\Forum\ForumCommunity
+ * @property-read \App\Models\Forum\ForumReply modelForumForumReply App\Models\Forum\ForumReply
+ * @property-read \App\Models\Forum\ForumTopic modelForumForumTopic App\Models\Forum\ForumTopic
+ * @property-read \App\Models\Forum\ForumTopicType modelForumForumTopicType App\Models\Forum\ForumTopicType
  * @property-read \App\Models\Fund\FundNetValue modelFundFundNetValue App\Models\Fund\FundNetValue
  * @property-read \App\Models\Fund\FundProduct modelFundFundProduct App\Models\Fund\FundProduct
  * @property-read \App\Models\Fund\FundValuation modelFundFundValuation App\Models\Fund\FundValuation
@@ -32,8 +42,13 @@ use Illuminate\Support\Facades\Route;
  * @property-read \App\Models\Tieba\BaiduId modelTiebaBaiduId App\Models\Tieba\BaiduId
  * @property-read \App\Models\Tieba\BaiduTieba modelTiebaBaiduTieba App\Models\Tieba\BaiduTieba
  * @property-read \App\Models\User\User modelUserUser App\Models\User\User
+ * @property-read \App\Models\User\UserFeedback modelUserUserFeedback App\Models\User\UserFeedback
+ * @property-read \App\Models\User\UserFeedbackLog modelUserUserFeedbackLog App\Models\User\UserFeedbackLog
  * @property-read \App\Models\User\UserFund modelUserUserFund App\Models\User\UserFund
  * @property-read \App\Models\User\UserLoginLog modelUserUserLoginLog App\Models\User\UserLoginLog
+ * @property-read \App\Models\User\UserNotifyBarkSetting modelUserUserNotifyBarkSetting App\Models\User\UserNotifyBarkSetting
+ * @property-read \App\Models\User\UserNotifyDingDingBotSetting modelUserUserNotifyDingDingBotSetting App\Models\User\UserNotifyDingDingBotSetting
+ * @property-read \App\Models\User\UserNotifyPushPlusSetting modelUserUserNotifyPushPlusSetting App\Models\User\UserNotifyPushPlusSetting
  * @property-read \App\Models\User\UserOptionalFund modelUserUserOptionalFund App\Models\User\UserOptionalFund
  * @property-read \App\Models\WeChat\WechatOfficialAccountUser modelWeChatWechatOfficialAccountUser App\Models\WeChat\WechatOfficialAccountUser
  * @package App\Http\Controllers
@@ -55,6 +70,19 @@ class BaseController extends \Illuminate\Routing\Controller
     protected function getRules()
     {
         return [];
+    }
+
+    /**
+     * 响应一个成功消息
+     *
+     * @param string     $message
+     * @param mixed|null $data
+     *
+     * @return JsonResponse
+     */
+    public function success(string $message = '', mixed $data = null): JsonResponse
+    {
+        return Response::api($message, $data);
     }
 
     /**

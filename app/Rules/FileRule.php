@@ -3,6 +3,7 @@
 namespace App\Rules;
 
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Support\Arr;
 
 class FileRule implements ValidationRule
 {
@@ -33,7 +34,7 @@ class FileRule implements ValidationRule
      */
     public function passes(string $attribute, mixed $value): bool
     {
-        if (!is_array($value)) return false;
+        if (!is_array($value) || !Arr::isAssoc($value)) return false;
         return empty($value['path']) || \App\Models\System\SystemFile::where('path', $value['path'])
                 ->select(['id'])
                 ->exists();

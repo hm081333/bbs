@@ -51,7 +51,7 @@ class BaseModel extends Model
             'deleted_at' => TimestampCast::class,
         ], $this->casts);
         // 添加 模型的事件映射
-        $this->dispatchesEvents['saving'] = ModelSavingEvent::class;
+        // $this->dispatchesEvents['saving'] = ModelSavingEvent::class;
         $this->dispatchesEvents['saved'] = ModelSavedEvent::class;
         parent::__construct($attributes);
     }

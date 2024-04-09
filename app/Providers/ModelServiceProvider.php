@@ -7,6 +7,7 @@ use App\Mixins\BuilderMixin;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\ServiceProvider;
+use MongoDB\Laravel\Eloquent\Model;
 
 class ModelServiceProvider extends ServiceProvider implements \Illuminate\Contracts\Support\DeferrableProvider
 {
@@ -41,13 +42,6 @@ class ModelServiceProvider extends ServiceProvider implements \Illuminate\Contra
     {
         Builder::mixin(new BuilderMixin());
         Blueprint::mixin(new BlueprintMixin());
-        /*Request::macro('isVip', function(){
-            if(auth()->check())
-            {
-                return $this->user()->is_vip;
-            }
-            return false;
-        });*/
     }
 
 }

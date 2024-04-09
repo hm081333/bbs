@@ -88,17 +88,16 @@ class Misc
         $baiduId = Tools::model()->TiebaBaiduId->find($baidu_id);
         if (empty($baiduId->stoken) && empty($baiduId->bid)) $baiduId->bid = static::getUseridOld($baiduId['bduss']);
         $pn = 1;
-        while (true) {
+        while ($baiduId->stoken || $baiduId->bid) {
             $ngf = collect();
-            if (empty($baiduId->stoken)) {
-                if (empty($baiduId->bid)) break;
-                $rc = static::getTieba($baiduId->bid, $baiduId->bduss, $pn);//fetch forum list //default 200 per page
-                if (!empty($rc['forum_list']['non-gconforum']) && is_array($rc['forum_list']['non-gconforum'])) $ngf = $ngf->merge($rc['forum_list']['non-gconforum']);
-                if (!empty($rc['forum_list']['gconforum']) && is_array($rc['forum_list']['gconforum'])) $ngf = $ngf->merge($rc['forum_list']['gconforum']);
-            } else {
+            if ($baiduId->stoken) {
                 $rc = self::getTieba2($baiduId->bduss, $baiduId->stoken, $pn);//fetch forum list //default 200 per page
                 if (empty($rc)) break;
                 if (!empty($rc['data']['like_forum']['list']) && is_array($rc['data']['like_forum']['list'])) $ngf = $ngf->merge($rc['data']['like_forum']['list']);
+            } else {
+                $rc = static::getTieba($baiduId->bid, $baiduId->bduss, $pn);//fetch forum list //default 200 per page
+                if (!empty($rc['forum_list']['non-gconforum']) && is_array($rc['forum_list']['non-gconforum'])) $ngf = $ngf->merge($rc['forum_list']['non-gconforum']);
+                if (!empty($rc['forum_list']['gconforum']) && is_array($rc['forum_list']['gconforum'])) $ngf = $ngf->merge($rc['forum_list']['gconforum']);
             }
             if ($ngf->isNotEmpty()) {
                 // $refresh_time = $rc['time'];
@@ -429,7 +428,7 @@ class Misc
      *
      * @throws BindingResolutionException
      */
-    public function doSignByBaiDuId($baidu_id)
+    public static function doSignByBaiDuId($baidu_id)
     {
         set_time_limit(0);
         //处理所有未签到的贴吧
@@ -449,7 +448,7 @@ class Misc
                 $main_table . '.fid',
                 'bid.bduss',
             ])
-            ->each(fn(BaiduTieba $item) => $this->doSign($item), 100);
+            ->each(fn(BaiduTieba $item) => static::doSign($item), 100);
     }
 
     /**
@@ -498,43 +497,37 @@ class Misc
     /**
      * 执行一个贴吧的签到
      *
-     * @param $tieba_id
+     * @param BaiduTieba $tieba
      *
      * @return array|mixed
-     * @throws BadRequestException
      * @throws BindingResolutionException
-     * @throws UnauthorizedException
      */
-    public static function doSignByTieBaId($tieba_id)
+    public static function doSignByTieBa(BaiduTieba $tieba)
     {
-        $user_id = Tools::auth()->id('user');
-        $main_table = Tools::model()->TiebaBaiduTieba->getTable();
-        $tieba_info = Tools::model()->TiebaBaiduTieba
-            ->leftJoin(Tools::model()->TiebaBaiduId->getTable() . ' AS bid', $main_table . '.baidu_id', '=', 'bid.id')
-            ->where($main_table . '.user_id', $user_id)
-            ->where('bid.user_id', $user_id)
-            ->where($main_table . '.id', $tieba_id)
-            ->select([
-                $main_table . '.id',
-                $main_table . '.tieba',
-                $main_table . '.fid',
-                'bid.bduss',
-            ])
-            ->first();
-        if (empty($tieba_info)) throw new BadRequestException('您没有该贴吧');
-        static::doSign($tieba_info);
-        return true;
+        // $user_id = Tools::auth()->id('user');
+        // $main_table = Tools::model()->TiebaBaiduTieba->getTable();
+        // $tieba_info = Tools::model()->TiebaBaiduTieba
+        //     ->leftJoin(Tools::model()->TiebaBaiduId->getTable() . ' AS bid', $main_table . '.baidu_id', '=', 'bid.id')
+        //     ->where($main_table . '.user_id', $user_id)
+        //     ->where('bid.user_id', $user_id)
+        //     ->where($main_table . '.id', $tieba_id)
+        //     ->select([
+        //         $main_table . '.id',
+        //         $main_table . '.tieba',
+        //         $main_table . '.fid',
+        //         'bid.bduss',
+        //     ])
+        //     ->first();
+        // if (empty($tieba_info)) throw new BadRequestException('您没有该贴吧');
+        return static::doSign($tieba);
     }
 
     /**
      * 对一个贴吧执行完整的签到任务
      *
-     * @param $kw
-     * @param $id
-     * @param $bduss
-     * @param $fid
+     * @param BaiduTieba $tieba
      *
-     * @return array|mixed
+     * @return BaiduTieba
      * @throws BindingResolutionException
      */
     public static function doSign(BaiduTieba $tieba)
@@ -543,56 +536,45 @@ class Misc
         $again_error_id_2 = 1101; //特殊的重复签到错误代码！！！签到过快=已签到
         $again_error_id_3 = 1102; //特殊的重复签到错误代码！！！签到过快=已签到
         $kw = addslashes($tieba->tieba);
+        $bduss = $tieba->bduss ?? $tieba->baidu->bduss;
 
         if (empty($tieba->fid)) $tieba->fid = static::getFid($kw);//贴吧唯一ID
 
-        $time = Tools::now();
         $status_succ = false;
-        $error_code = 0;
-        $error_msg = '';
         //三种签到方式依次尝试
-        $tbs = static::getTbs($tieba->bduss);
+        $tbs = static::getTbs($bduss);
         //客户端
         if ($status_succ === false) {
-            $r = static::DoSign_Client($kw, $tieba->fid, $tieba->bduss, $tbs);
+            $r = static::doSign_Client($kw, $tieba->fid, $bduss, $tbs);
             $v = json_decode($r, true);
             if ($v != $r && $v != null) {//decode失败时会直接返回原文或NULL
-                // $time = $v['time'];
-                if (empty($v['error_code']) || $v['error_code'] == $again_error_id) {
-                    $status_succ = true;
-                } else {
-                    $error_code = $v['error_code'];
-                    $error_msg = $v['error_msg'];
-                }
+                $status_succ = empty($v['error_code']) || $v['error_code'] == $again_error_id;
+                $tieba->status = $status_succ ? 0 : $v['error_code'];
+                $tieba->last_error = $status_succ ? null : $v['error_msg'];
             }
         }
-
         //手机网页
         if ($status_succ === false) {
-            $r = static::DoSign_Mobile($kw, $tieba->fid, $tieba->bduss, $tbs);
+            $r = static::doSign_Mobile($kw, $tieba->fid, $bduss, $tbs);
             $v = json_decode($r, true);
             if ($v != $r && $v != null) {//decode失败时会直接返回原文或NULL
-                if (empty($v['no']) || $v['no'] == $again_error_id_2 || $v['no'] == $again_error_id_3) {
-                    $status_succ = true;
-                } else {
-                    $error_code = $v['no'];
-                    $error_msg = $v['error'];
-                }
+                $status_succ = empty($v['no']) || $v['no'] == $again_error_id_2 || $v['no'] == $again_error_id_3;
+                $tieba->status = $status_succ ? 0 : $v['no'];
+                $tieba->last_error = $status_succ ? null : $v['error'];
             }
         }
-
         //网页---尽量不用
         if ($status_succ === false) {
-            if (static::DoSign_Default($kw, $tieba->fid, $tieba->bduss) === true) {
-                $status_succ = true;
+            $status_succ = static::doSign_Default($kw, $tieba->fid, $bduss) === true;
+            if ($status_succ) {
+                $tieba->status = 0;
+                $tieba->last_error = null;
             }
         }
 
-        $tieba->latest = $time;
-        $tieba->status = $status_succ ? 0 : $error_code;
-        $tieba->last_error = $status_succ ? null : $error_msg;
+        $tieba->latest = Tools::now();
         $tieba->save();
-        return true;
+        return $tieba;
     }
 
     /**
@@ -655,7 +637,7 @@ class Misc
      *
      * @return string
      */
-    public static function DoSign_Client($kw, $fid, $ck, $tbs)
+    public static function doSign_Client($kw, $fid, $ck, $tbs)
     {
         $ch = new Curl('http://c.tieba.baidu.com/c/c/forum/sign');
         $ch->addcookie("BDUSS=" . $ck);
@@ -680,12 +662,12 @@ class Misc
      * @return string
      * @throws \Exception
      */
-    public static function DoSign_Mobile($kw, $fid, $ck, $tbs)
+    public static function doSign_Mobile($kw, $fid, $ck, $tbs): string
     {
-        $url = 'http://tieba.baidu.com/mo/q/sign?tbs=' . $tbs . '&kw=' . urlencode($kw) . '&is_like=1&fid=' . $fid;
-        Tools::curl()->setHeader(['User-Agent: fuck phone', 'Referer: http://tieba.baidu.com/f?kw=' . $kw, 'Host: tieba.baidu.com', 'X-Forwarded-For: 115.28.1.' . mt_rand(1, 255), 'Origin: http://tieba.baidu.com', 'Connection: Keep-Alive']);
-        Tools::curl()->setCookie(['BDUSS' => $ck]);
-        return Tools::curl()->get($url);
+        //没问题了
+        $ch = new Curl('http://tieba.baidu.com/mo/q/sign?tbs=' . $tbs . '&kw=' . urlencode($kw) . '&is_like=1&fid=' . $fid, ['User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Mobile/15E148 Safari/604.1', 'Referer: http://tieba.baidu.com/f?kw=' . $kw, 'Host: tieba.baidu.com', 'X-Forwarded-For: ' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(0, 255), 'Origin: http://tieba.baidu.com', 'Connection: Keep-Alive']);
+        $ch->addcookie(['BDUSS' => $ck, 'BAIDUID' => strtoupper(md5(time()))]);
+        return $ch->exec();
     }
 
     /**
@@ -698,26 +680,31 @@ class Misc
      * @return bool
      * @throws \Exception
      */
-    public static function DoSign_Default($kw, $fid, $ck)
+    public static function doSign_Default($kw, $fid, $ck): bool
     {
-        $url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw) . '&fid=' . $fid;
-        $s = Tools::curl()
-            ->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded'])
-            ->setCookie(['BDUSS' => $ck])
-            ->get($url);
+        $cookie = ['BDUSS' => $ck, 'BAIDUID' => strtoupper(md5(time()))];
+        $ch = new Curl('http://tieba.baidu.com/mo/m?kw=' . urlencode($kw) . '&fid=' . $fid, ['User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Mobile/15E148 Safari/604.1', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded']);
+        $ch->addcookie($cookie);
+        $s = $ch->exec();
+        $ch->close();
         preg_match('/\<td style=\"text-align:right;\"\>\<a href=\"(.*)\"\>签到\<\/a\>\<\/td\>\<\/tr\>/', $s, $s);
         if (isset($s[1])) {
-            $url = 'http://tieba.baidu.com' . $s[1];
-            Tools::curl()
-                ->setHeader(['Accept: text/html, application/xhtml+xml, */*', 'Accept-Language: zh-Hans-CN,zh-Hans;q=0.8,en-US;q=0.5,en;q=0.3', 'User-Agent: Fucking Phone'])
-                ->setCookie(['BDUSS' => $ck])
-                ->get($url);
+            $ch = new Curl(
+                'http://tieba.baidu.com' . $s[1],
+                [
+                    'Accept: text/html, application/xhtml+xml, */*',
+                    'Accept-Language: zh-Hans-CN,zh-Hans;q=0.8,en-US;q=0.5,en;q=0.3',
+                    'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Mobile/15E148 Safari/604.1',
+                ]
+            );
+            $ch->addcookie($cookie);
+            $ch->exec();
+            $ch->close();
             //临时判断解决方案
-            $url = 'http://tieba.baidu.com/mo/m?kw=' . urlencode($kw) . '&fid=' . $fid;
-            $s = Tools::curl()
-                ->setHeader(['User-Agent: fuck phone', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded'])
-                ->setCookie(['BDUSS' => $ck])
-                ->get($url);
+            $ch = new Curl('http://tieba.baidu.com/mo/m?kw=' . urlencode($kw) . '&fid=' . $fid, ['User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Mobile/15E148 Safari/604.1', 'Referer: http://wapp.baidu.com/', 'Content-Type: application/x-www-form-urlencoded']);
+            $ch->addcookie($cookie);
+            $s = $ch->exec();
+            $ch->close();
             //如果找不到这段html则表示没有签到则stripos()返回false，同时is_bool()返回true，最终返回false
             return !is_bool(stripos($s, '<td style="text-align:right;"><span >已签到</span></td>'));
         } else {

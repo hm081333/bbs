@@ -14,15 +14,16 @@ class BaiduTieba extends BaseModel
     protected $casts = [
         'latest' => TimestampCast::class,
         'refresh_time' => TimestampCast::class,
+        'no' => 'boolean',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id', 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function baidu()
     {
-        return $this->belongsTo(BaiduId::class, 'id', 'baidu_id');
+        return $this->belongsTo(BaiduId::class, 'baidu_id', 'id');
     }
 }

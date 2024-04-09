@@ -22,5 +22,6 @@ class DatabaseSeeder extends Seeder
         // 创建测试数据
         $this->call(LanguageSeeder::class);
         $this->call(AdministrativeDivisionSeeder::class);
+        // $this->call(OptionSeeder::class);
     }
 }

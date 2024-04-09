@@ -255,6 +255,25 @@ class BuilderMixin
     }
 
     /**
+     * 根据用户ID查询
+     *
+     * @return \Closure
+     */
+    public function whereUserId()
+    {
+        return function ($search_field = 'user_id', $value = null, $boolean = 'and'): Builder {
+            /* @var $this Builder */
+            $args = func_get_args();
+            if (count($args) && count($args) < 2 && is_numeric($args[0])) {
+                $search_field = 'user_id';
+                $value = $args[0];
+            }
+            if (empty($value)) $value = Tools::auth()->id('user');
+            return $this->where($search_field, '=', $value, $boolean);
+        };
+    }
+
+    /**
      * 根据参数，查询一条数据或抛出
      *
      * @return \Closure
