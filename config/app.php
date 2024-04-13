@@ -172,7 +172,11 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+
         App\Providers\ModelServiceProvider::class,
+        App\Providers\BuilderServiceProvider::class,
+        App\Providers\BlueprintServiceProvider::class,
+        App\Providers\RequestServiceProvider::class,
 
         MongoDB\Laravel\MongoDBServiceProvider::class,
     ])->toArray(),

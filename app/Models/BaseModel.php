@@ -23,7 +23,10 @@ class BaseModel extends Model
 {
     //use HasFactory;
     //use SoftDeletes;
-    use ModelGetAttribute, ModelSetAttribute, ModelBelongsTo, ModelSaveData;
+    use ModelGetAttribute,
+        ModelSetAttribute,
+        // ModelBelongsTo,
+        ModelSaveData;
 
     //region 类属性
     /**

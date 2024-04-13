@@ -40,8 +40,6 @@ class ModelServiceProvider extends ServiceProvider implements \Illuminate\Contra
      */
     public function boot()
     {
-        Builder::mixin(new BuilderMixin());
-        Blueprint::mixin(new BlueprintMixin());
     }
 
 }

@@ -31,7 +31,7 @@ class ForumTopic extends BaseModel
      */
     public function community()
     {
-        return $this->belongsTo(ForumCommunity::class);
+        return $this->belongsTo(ForumCommunity::class,'forum_community_id');
     }
 
     /**
@@ -39,9 +39,9 @@ class ForumTopic extends BaseModel
      *
      * @return BelongsTo
      */
-    public function type()
+    public function topicType()
     {
-        return $this->belongsTo(ForumTopicType::class);
+        return $this->belongsTo(ForumTopicType::class, 'forum_topic_type_id');
     }
 
     /**

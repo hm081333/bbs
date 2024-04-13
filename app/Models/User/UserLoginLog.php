@@ -19,7 +19,7 @@ class UserLoginLog extends BaseModel
         static::creating(function (UserLoginLog $model) {
             $model->setAttribute('ip', request()->ip());
             $model->setAttribute('user_agent', request()->userAgent());
-            $model->setAttribute('device_type', Tools::getDeviceType());
+            $model->setAttribute('device_type', request()->getDeviceType());
         });
     }
 

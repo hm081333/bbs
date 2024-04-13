@@ -17,6 +17,9 @@ class CommunityController extends BaseController
                 ...ValidateRule::listRule(),
                 'pid' => ['desc' => '父级ID', 'int', 'exists' => [Tools::model()->ForumForumCommunity::class, 'pid']],
             ],
+            'info' => [
+                'id' => ['desc' => 'ID', 'int', 'required', 'exists' => [Tools::model()->ForumForumCommunity::class, 'id']],
+            ],
         ];
     }
 
@@ -45,6 +48,7 @@ class CommunityController extends BaseController
      *
      * @return \Illuminate\Http\JsonResponse
      * @throws \App\Exceptions\Request\BadRequestException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function page()
     {
@@ -61,5 +65,16 @@ class CommunityController extends BaseController
             ->getPage();
         if ($params['page'] == 1) $page['title'] = $top_community ? $top_community->name : '板块';
         return $this->success('', $page);
+    }
+
+    public function info()
+    {
+        $params = $this->getParams();
+        $community = Tools::model()->ForumForumCommunity
+            ->with([
+                'topicTypes',
+            ])
+            ->find($params['id']);
+        return $this->success('', $community);
     }
 }

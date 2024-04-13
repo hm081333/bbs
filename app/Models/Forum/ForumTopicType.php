@@ -20,7 +20,7 @@ class ForumTopicType extends BaseModel
      */
     public function community()
     {
-        return $this->belongsTo(ForumCommunity::class);
+        return $this->belongsTo(ForumCommunity::class, 'forum_community_id');
     }
 
     /**

@@ -21,7 +21,7 @@ trait ModelSaveData
      */
     public function getRelationData()
     {
-        return collect($this->relationData);
+        return collect($this->relationData ?? []);
     }
 
     /**
@@ -71,7 +71,6 @@ trait ModelSaveData
      */
     public function appendData(array $data): static
     {
-        $this->clearRelationData();
         foreach ($data as $column => $value) {
             if (method_exists($this, $column) && is_array($value)) {
                 try {

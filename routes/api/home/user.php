@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('')->group(function () {
-    Route::post('info', [\App\Http\Controllers\Home\User\IndexController::class, 'info'])->name('info');
-    Route::post('login', [\App\Http\Controllers\Home\User\IndexController::class, 'login'])->name('login')
-        ->withoutMiddleware('auth:user');
+    Route::post('info', [\App\Http\Controllers\Home\User\IndexController::class, 'info'])->name('info')->withoutMiddleware('auth:user');
+    Route::post('login', [\App\Http\Controllers\Home\User\IndexController::class, 'login'])->name('login')->withoutMiddleware('auth:user');
     Route::post('logout', [\App\Http\Controllers\Home\User\IndexController::class, 'logout'])->name('logout');
 });
 

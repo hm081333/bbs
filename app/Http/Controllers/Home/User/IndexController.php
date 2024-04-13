@@ -221,7 +221,7 @@ class IndexController extends BaseController
     public function info()
     {
         // $params = $this->getParams();
-        $user = Tools::auth()->user('user');
+        $user = Tools::auth()->user('user', false);
         return Response::api('', $user);
     }
 

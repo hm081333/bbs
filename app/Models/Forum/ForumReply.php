@@ -30,7 +30,7 @@ class ForumReply extends BaseModel
      */
     public function topic()
     {
-        return $this->belongsTo(ForumTopic::class);
+        return $this->belongsTo(ForumTopic::class, 'forum_topic_id');
     }
     //endregion
 }

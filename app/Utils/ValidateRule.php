@@ -31,12 +31,17 @@ class ValidateRule
             $this->rules[$param_key] = [];
             if (!in_array($param_key, $this->dataKeys) && strpos($param_key, '*') === false) $this->dataKeys[] = $param_key;
             foreach ($param_rules as $rule_key => $rule) {
-                if (is_object($rule)) {
-                    // 规则为对象，表示为自定义规则
-                    $this->rules[$param_key][] = $rule;
-                } else if (is_int($rule_key)) {
-                    // 只有规则键 表示规则为真
-                    $this->$rule($param_key, true);
+                // 闭包包裹的规则，先调用闭包获取值
+                if ($rule instanceof \Closure) $rule = $rule();
+                if (is_int($rule_key)) {
+                    if (is_object($rule)) {
+                        // 规则为对象，表示为自定义规则
+                        $this->rules[$param_key][] = $rule;
+                    } else {
+                        // 只有规则键 表示规则为真
+                        $this->$rule($param_key, true);
+
+                    }
                 } else {
                     // 有规则键 调用规则键，传入参数键与规则
                     $this->$rule_key($param_key, $rule);
@@ -84,19 +89,22 @@ class ValidateRule
     {
         /* @var $request Request */
         $request = app(Request::class);
-        $request_data = $request->all();
         // 没有参数规则的情况下，返回所有请求参数
-        if (empty($this->rules)) return $request_data;
-        // 有参数规则的情况下，只获取指定请求参数，并过滤null
-        $request_data = $this->only(array_filter($request_data, fn($val) => isset($val)), $this->dataKeys);
-        // 校验规则
-        $this->validate($request_data);
+        if (empty($this->rules)) return $request->all();
+        // 有参数规则的情况下，只获取指定请求参数
+        $request_data = $request->all($this->dataKeys);
+        // 过滤null
+        $request_data = array_filter($request_data, fn($val) => isset($val));
+        // 有参数规则的情况下，只获取指定请求参数
+        $request_data = $this->only($request_data, $this->dataKeys);
+        // 校验规则，并获取验证后的输入
+        $validated = $this->validate($request_data);
         // 验证成功，替换验证成功的请求参数
-        $request->merge($request_data);
-        return $request_data;
+        $request->merge($validated);
+        return $validated;
     }
 
-    public function only($data, $keys): array
+    public function only(array $data, array $keys): array
     {
         $results = [];
         $placeholder = new stdClass;
@@ -110,16 +118,16 @@ class ValidateRule
     /**
      * 校验
      *
-     * @param $params
+     * @param array $params
      *
-     * @return bool
+     * @return array
      * @throws BadRequestException
      */
-    public function validate($params)
+    public function validate(array $params): array
     {
         $validator = Validator::make($params, $this->rules, $this->messages, $this->customAttributes);
         if ($validator->fails()) throw new BadRequestException($validator->errors()->first());
-        return true;
+        return $validator->validated();
     }
 
     /**

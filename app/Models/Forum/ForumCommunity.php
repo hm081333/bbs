@@ -42,7 +42,10 @@ class ForumCommunity extends BaseModel
      */
     public function topicTypes()
     {
-        return $this->hasMany(ForumTopicType::class);
+        return $this->hasMany(ForumTopicType::class)
+            ->where('is_show', 1)
+            ->orderBy('sort')
+            ->orderBy('id');
     }
 
     /**

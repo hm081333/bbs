@@ -4,18 +4,17 @@ namespace App\Utils;
 
 use App\Exceptions\Request\BadRequestException;
 use App\Exceptions\Server\InternalServerErrorException;
-use App\Models\BaseModel;
 use App\Utils\Aliyun\Oss;
 use App\Utils\Aliyun\Sms;
 use App\Utils\Juhe\Calendar;
 use App\Utils\Register\JWTAuth;
 use App\Utils\Register\ModelMap;
+use Carbon\Carbon;
 use Closure;
 use DB;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -384,7 +383,7 @@ class Tools
      */
     public static function time(bool $float = false): float|int
     {
-        return static::isCli() ? ($float ? microtime(true) : time()) : ($float ? request()->server('REQUEST_TIME_FLOAT') : request()->server('REQUEST_TIME'));
+        return static::isCli() ? ($float ? microtime(true) : time()) : request()->time($float);
     }
 
     /**
@@ -416,7 +415,7 @@ class Tools
                 :
                 Carbon::parse($time);
         } catch (Exception $exception) {
-            Log::error('Tools::timeToCarbon:Exception', $exception);
+            Log::error('Tools::timeToCarbon:Exception', (array)$exception);
         }
         return null;
     }
@@ -632,31 +631,6 @@ class Tools
         if (!empty($query)) $url .= '?' . static::urlQueryEncode($query);
         if (!empty($url_info['fragment'])) $url .= '#' . $url_info['fragment'];
         return $url;
-    }
-
-    /**
-     * 保存积分配置
-     *
-     * @param array $data
-     *
-     * @return bool
-     */
-    public static function setPoint(array $data)
-    {
-        $str = var_export($data, true);
-        file_put_contents(base_path() . '/config/point.php', "<?php \r\n return " . $str . ";");
-        return Cache::store('file')->forever('point', igbinary_serialize($data));
-    }
-
-    /**
-     * 获取积分配置
-     *
-     * @return array
-     * @throws InvalidArgumentException
-     */
-    public static function getPoint()
-    {
-        return igbinary_unserialize(Cache::store('file')->get('point')) ?: config('point', []);
     }
 
     /**
@@ -906,9 +880,9 @@ class Tools
     /**
      * 获取客户端真实ip
      *
-     * @return mixed
+     * @return string
      */
-    public static function getRealIpAddr()
+    public static function getRealIpAddr(): string
     {
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
             $ip = $_SERVER['HTTP_CLIENT_IP'];

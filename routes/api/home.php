@@ -25,6 +25,7 @@ Route::prefix('tieba')
 
 Route::prefix('forum')
     ->name('forum.')
+    ->withoutMiddleware('auth:user')
     ->group(base_path('routes/api/home/forum.php'));
 
 Route::prefix('user')
