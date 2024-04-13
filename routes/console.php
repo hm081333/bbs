@@ -26,7 +26,6 @@ Artisan::command('testa', function () {
     $where = ['id', '=', 1];
     @[$column, $operator, $value, $boolean] = $where;
     dd($column, $operator, $value, $boolean);
-    dd(\App\Utils\Notify\DingDingBot::instance()->setToken('223fcd5d355934a719291cd41fb9cc716d18107655082ef29ef2916cc4e6c505')->setSecret('SEC1588856b272d45282e5c5192ae1fc4083626774bf27deb9658356dffa80d5d8f')->setTitle('标题')->setContent('内容')->handle());
     die;
     dd(OfficialAccount::updateAllUserInfo());
     $start_year = '2007';
