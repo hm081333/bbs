@@ -1359,7 +1359,7 @@ class Tools
             (
                 $time->gte(date('Y-m-d 12:50'))
                 &&
-                $time->lte(date('Y-m-d 15:10'))
+                $time->lte(date('Y-m-d 15:15'))
             );
     }
     // endregion

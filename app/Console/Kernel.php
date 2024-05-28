@@ -52,22 +52,22 @@ class Kernel extends ConsoleKernel
                 // 任务已经执行。。。
                 // Log::debug('FundValuationUpdate --dayfund run after');
             });
-        $schedule->command(ValuationUpdateCommand::class, ['--eastmoney'])
-            ->when(fn() => Tools::isOpenDoorDay($now_time) && Tools::isOpenDoorTime($now_time))
-            ->everyFiveMinutes()
-            ->onOneServer()
-            // 后台运行
-            ->runInBackground()
-            ->sendOutputTo(Tools::logsPath('FundValuationUpdate/eastmoney/' . $now_time->format('Y-m-d')) . '/' . $now_time->format('H-i-s') . '.log')
-            ->before(function () use ($now_time) {
-                Tools::logsPath('FundValuationUpdate/eastmoney/' . $now_time->format('Y-m-d'), true);
-                // 任务即将执行。。。
-                // Log::debug('FundValuationUpdate --eastmoney run before');
-            })
-            ->after(function () {
-                // 任务已经执行。。。
-                // Log::debug('FundValuationUpdate --eastmoney run after');
-            });
+        // $schedule->command(ValuationUpdateCommand::class, ['--eastmoney'])
+        //     ->when(fn() => Tools::isOpenDoorDay($now_time) && Tools::isOpenDoorTime($now_time))
+        //     ->everyFiveMinutes()
+        //     ->onOneServer()
+        //     // 后台运行
+        //     ->runInBackground()
+        //     ->sendOutputTo(Tools::logsPath('FundValuationUpdate/eastmoney/' . $now_time->format('Y-m-d')) . '/' . $now_time->format('H-i-s') . '.log')
+        //     ->before(function () use ($now_time) {
+        //         Tools::logsPath('FundValuationUpdate/eastmoney/' . $now_time->format('Y-m-d'), true);
+        //         // 任务即将执行。。。
+        //         // Log::debug('FundValuationUpdate --eastmoney run before');
+        //     })
+        //     ->after(function () {
+        //         // 任务已经执行。。。
+        //         // Log::debug('FundValuationUpdate --eastmoney run after');
+        //     });
         $schedule->command(ValuationWriteCommand::class)
             ->when(fn() => Tools::isOpenDoorDay($now_time) && Tools::isOpenDoorTime($now_time))
             ->everyMinute()

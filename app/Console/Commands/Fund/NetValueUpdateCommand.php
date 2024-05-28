@@ -146,8 +146,8 @@ class NetValueUpdateCommand extends Command
         $base_uri_key = urlencode($base_uri);
         if (!isset($this->client[$base_uri_key])) $this->client[$base_uri_key] = new Client([
             'base_uri' => $base_uri . '/',
-            'connect_timeout' => 2,
-            'timeout' => 5,
+            'connect_timeout' => 5,
+            'timeout' => 10,
             'verify' => false,
             'headers' => $headers,
         ]);
