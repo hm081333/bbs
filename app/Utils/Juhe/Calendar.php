@@ -2,7 +2,6 @@
 
 namespace App\Utils\Juhe;
 
-use App\Exceptions\Server\BaseServerException;
 use App\Exceptions\Server\InternalServerErrorException;
 use App\Utils\Tools;
 use Carbon\Carbon;
@@ -71,7 +70,8 @@ class Calendar
      */
     public static function getYearMonthHolidayList(string $year_month): array
     {
-        return Cache::remember("holiday:{$year_month}", Tools::timeToCarbon($year_month)->startOfMonth()->addMonth(), function () use ($year_month) {
+        //Tools::timeToCarbon($year_month)->startOfMonth()->addMonth()
+        return Cache::rememberForever("holiday:{$year_month}", function () use ($year_month) {
             $holiday_year_month_list = [];
             $year_month_holiday = static::month($year_month);
             $year_month_holiday_data = $year_month_holiday['data'];

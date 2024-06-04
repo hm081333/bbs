@@ -2,16 +2,9 @@
 
 namespace App\Console\Commands\Fund;
 
-use App\Jobs\FundNetValueUpdateJob;
-use App\Jobs\FundUpdateJob;
-use App\Jobs\FundValuationUpdateJob;
 use App\Models\Fund\FundValuation;
-use App\Utils\Juhe\Calendar;
 use App\Utils\Tools;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
 class ValuationWriteCommand extends Command
@@ -81,7 +74,7 @@ class ValuationWriteCommand extends Command
                         });
                         $count = count($inserts);
                         // 数据库不存在的估值写入到待写入集合
-                        Redis::sadd($this->redis_key, ...$inserts);
+                        if ($count) Redis::sadd($this->redis_key, ...$inserts);
                         $this->info('成功|回填|' . $count . '|条基金估值|耗时：' . Tools::secondToTimeText(microtime(true) - $start_time));
                     } catch (\Exception $e) {
                         $this->info('失败|回填|' . count($failed_list) . '|条基金估值|耗时：' . Tools::secondToTimeText(microtime(true) - $start_time));
@@ -118,7 +111,9 @@ class ValuationWriteCommand extends Command
 
     /**
      * 获取估值在集合中的值
+     *
      * @param $fund_valuation
+     *
      * @return string
      */
     private function getFundValuationCacheKey($fund_valuation)

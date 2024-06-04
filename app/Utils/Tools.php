@@ -1320,7 +1320,7 @@ class Tools
     public static function lastOpenDoorDay(float|int|string|Carbon|null $day = null): Carbon
     {
         $day = $day ? static::timeToCarbon($day) : static::today();
-        return static::isOpenDoorDay($day) ? $day : static::lastOpenDoorDay($day->subDay());
+        return static::isOpenDoorDay($day) && $day->gte(date('Y-m-d 9:30')) ? $day : static::lastOpenDoorDay($day->subDay());
     }
 
     /**
