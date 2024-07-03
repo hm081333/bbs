@@ -42,6 +42,7 @@ use Illuminate\Support\Facades\Route;
  * @property-read \App\Models\Tieba\BaiduId modelTiebaBaiduId App\Models\Tieba\BaiduId
  * @property-read \App\Models\Tieba\BaiduTieba modelTiebaBaiduTieba App\Models\Tieba\BaiduTieba
  * @property-read \App\Models\User\User modelUserUser App\Models\User\User
+ * @property-read \App\Models\User\UserDailySignIn modelUserUserDailySignIn App\Models\User\UserDailySignIn
  * @property-read \App\Models\User\UserFeedback modelUserUserFeedback App\Models\User\UserFeedback
  * @property-read \App\Models\User\UserFeedbackLog modelUserUserFeedbackLog App\Models\User\UserFeedbackLog
  * @property-read \App\Models\User\UserFund modelUserUserFund App\Models\User\UserFund

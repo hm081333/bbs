@@ -33,6 +33,7 @@ use App\Exceptions\Server\InternalServerErrorException;
  * @property-read \App\Models\Tieba\BaiduId TiebaBaiduId App\Models\Tieba\BaiduId
  * @property-read \App\Models\Tieba\BaiduTieba TiebaBaiduTieba App\Models\Tieba\BaiduTieba
  * @property-read \App\Models\User\User UserUser App\Models\User\User
+ * @property-read \App\Models\User\UserDailySignIn UserUserDailySignIn App\Models\User\UserDailySignIn
  * @property-read \App\Models\User\UserFeedback UserUserFeedback App\Models\User\UserFeedback
  * @property-read \App\Models\User\UserFeedbackLog UserUserFeedbackLog App\Models\User\UserFeedbackLog
  * @property-read \App\Models\User\UserFund UserUserFund App\Models\User\UserFund

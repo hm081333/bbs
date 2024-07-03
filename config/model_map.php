@@ -87,6 +87,7 @@ return array (
       'pid' => 'integer',
       'level' => 'tinyint',
       'name' => 'varchar',
+      'desc' => 'varchar',
       'is_show' => 'tinyint',
       'sort' => 'tinyint',
       'created_at' => 'int',
@@ -494,6 +495,24 @@ return array (
       'password' => 'varchar',
       'o_pwd' => 'string',
       'remember_token' => 'varchar',
+      'created_at' => 'int',
+      'updated_at' => 'int',
+      'deleted_at' => 'int',
+    ),
+  ),
+  'UserUserDailySignIn' => 
+  array (
+    'model' => '\\App\\Models\\User\\UserDailySignIn',
+    'table' => 'user_daily_sign_ins',
+    'table_full_name' => 'ly_user_daily_sign_ins',
+    'column' => 
+    array (
+      'id' => 'integer',
+      'user_id' => 'integer',
+      'consecutive_sign_in_days' => 'int',
+      'total_consecutive_sign_in_days' => 'int',
+      'sign_in_days' => 'int',
+      'total_sign_in_days' => 'int',
       'created_at' => 'int',
       'updated_at' => 'int',
       'deleted_at' => 'int',
