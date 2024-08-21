@@ -5,7 +5,6 @@ namespace App\Utils;
 use App\Exceptions\Request\BadRequestException;
 use App\Exceptions\Server\InternalServerErrorException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Promise\Utils;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Collection;
@@ -141,7 +140,7 @@ class GuzzleHttp
                 // $rejected->each(fn($value) => $this->error($value['reason']->getMessage()));
                 unset($rejected);
                 // 追加成功列表
-                $successfully = $successfully->merge($fulfilled->mapWithKeys(fn($item, $key) => [$key => $item['value']]));
+                $fulfilled->each(fn($item, $key) => $successfully->put($key, $item['value']));
                 // 匹配成功列表不存在的合集，返回未成功请求的path
                 $paths = $paths->diffKeys($fulfilled);
                 // 重试次数减一
