@@ -50,45 +50,47 @@ class otcwuxiCommand extends Command
     private function _catchAll()
     {
         $this->comment('获取所有小说-开始');
-        $novel_paths = collect();
         try {
-            // 获取首页的小说
-            // $novel_paths = $novel_paths->merge($this->getIndexNovelPaths())->unique()->values();
-            $class_urls = collect([]);
-            for ($class = 1; $class <= 7; $class++) {
-                for ($page = 1; $page <= 5; $page++) {
-                    $class_urls->push("https://www.otcwuxi.com/class{$class}/p{$page}.html");
-                }
-            }
-            foreach ([
-                         'allvisit',// 总排行榜
-                         'monthvisit',// 月排行榜
-                         'weekvisit',// 周排行榜
-                         'dayvisit',// 日排行榜
-                     ] as $rank) {
-                for ($page = 1; $page <= 5; $page++) {
-                    $class_urls->push("https://www.otcwuxi.com/{$rank}/p{$page}.html");
-                }
-            }
+            // 获取所有小说路径
+            $novel_paths = $all_novel_paths = $this->_batchCatchNovelPath();
             $retryTimes = 5;
-            while ($class_urls->isNotEmpty() && $retryTimes > 0) {
-                $responses = $this->http->multiRequest('get', $class_urls);
-                $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
-                // 移除初始集合中 本次成功的集合（找出不在本次成功相应集合中的差集，为未成功响应集合）
-                $class_urls = $class_urls->diffKeys($responses['fulfilled']);
-                // dump($class_urls);
-                // 处理响应
-                $responses['fulfilled']->each(function (Response $response) use (&$novel_paths) {
-                    $novel_paths = $novel_paths->merge($this->pregNovelFromResponse($response))->unique()->values();
+            while ($novel_paths->isNotEmpty() && $retryTimes > 0) {
+                $novel_paths->chunk(50)->each(function (Collection $paths) use (&$all_novel_paths, &$novel_paths) {
+                    $novels = Novel::whereIn('source_detail_url', $paths->map(fn($path) => $this->getUrlFromString($path)))->get();
+                    $responses = $this->http->multiRequest('get', $paths);
+                    $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
+                    // 移除初始集合中 本次成功的集合（找出不在本次成功相应集合中的差集，为未成功响应集合）
+                    $novel_paths = $novel_paths->diffKeys($responses['fulfilled']);
+                    // 处理响应
+                    $responses['fulfilled']->each(function (Response $response, $index) use (&$all_novel_paths, &$novel_paths, $paths, $novels) {
+                        $html = $this->parseResponse($response);
+                        //region 获取可能出现的新小说，部分小说不存在列表中
+                        $new_novel_paths = $this->pregNovelFromResponse($response)->diff($all_novel_paths);
+                        $all_novel_paths = $all_novel_paths->merge($new_novel_paths);
+                        $novel_paths = $novel_paths->merge($new_novel_paths);
+                        //endregion
+                        unset($response);
+                        $path = $paths[$index];
+                        if (!empty($html)) {
+                            $novel = $novels->where('source_detail_url', $this->getUrlFromString($path))->first() ?? new Novel([
+                                'source_detail_url' => $this->getUrlFromString($path),
+                                'source_url' => $this->base_uri,
+                                'source_detail_path' => $path,
+                            ]);
+                            $novel = $this->_getMainInfo($html, $novel);
+                            $novel = $this->_getMenu($html, $novel);
+                        } else {
+                            dd($path, $html);
+                        }
+                        unset($html, $path);
+                    });
+                    unset($responses);
+                    sleep(1);
                 });
-                unset($responses);
                 $retryTimes--;
                 sleep(1);
             }
-            unset($class_urls);
-            $novel_paths->each(function ($novel_path) {
-                $this->_catchOnce($novel_path);
-            });
+            unset($novel_paths, $all_novel_paths, $retryTimes);
         } catch (\Throwable $e) {
             $this->error('获取所有小说-失败');
             $this->error($e->getMessage());
@@ -96,20 +98,53 @@ class otcwuxiCommand extends Command
         $this->comment('获取所有小说-结束');
     }
 
-    private function getIndexNovelPaths(): Collection
+    private function _batchCatchNovelPath(): Collection
     {
-        $this->comment('获取首页所有小说-开始');
+        $this->comment('获取所有小说路径-开始');
         $novel_paths = collect();
+        $novel_list_urls = collect([$this->base_uri]);
+        for ($class = 1; $class <= 7; $class++) {
+            for ($page = 1; $page <= 5; $page++) {
+                $novel_list_urls->push("https://www.otcwuxi.com/class{$class}/p{$page}.html");
+            }
+        }
+        foreach ([
+                     'allvisit',// 总排行榜
+                     'monthvisit',// 月排行榜
+                     'weekvisit',// 周排行榜
+                     'dayvisit',// 日排行榜
+                 ] as $rank) {
+            for ($page = 1; $page <= 5; $page++) {
+                $novel_list_urls->push("https://www.otcwuxi.com/{$rank}/p{$page}.html");
+            }
+        }
         try {
-            $response = $this->http->singleRequest('get');
-            $novel_paths = $novel_paths->merge($this->pregNovelFromResponse($response));
-            if ($novel_paths->isEmpty()) throw new InternalServerErrorException('小说列表解析异常');
+            $retryTimes = 5;
+            while ($novel_list_urls->isNotEmpty() && $retryTimes > 0) {
+                $novel_list_urls->chunk(50)->each(function (Collection $urls) use (&$novel_list_urls, &$novel_paths) {
+                    $responses = $this->http->multiRequest('get', $urls);
+                    unset($urls);
+                    $this->info('本批并发请求成功数量：' . $responses['fulfilled']->count());
+                    // 移除初始集合中 本次成功的集合（找出不在本次成功相应集合中的差集，为未成功响应集合）
+                    $novel_list_urls = $novel_list_urls->diffKeys($responses['fulfilled']);
+                    // 处理响应
+                    $responses['fulfilled']->each(function (Response $response) use (&$novel_paths) {
+                        $novel_paths = $novel_paths->merge($this->pregNovelFromResponse($response));
+                    });
+                    unset($responses);
+                    sleep(1);
+                });
+                $retryTimes--;
+                sleep(1);
+            }
+            unset($novel_list_urls);
         } catch (\Throwable $e) {
-            $this->error('获取首页所有小说-失败');
+            $this->error('获取所有小说路径-失败');
             $this->error($e->getMessage());
         }
-        $this->comment('获取首页所有小说-结束');
-        return $novel_paths;
+        $this->comment('获取所有小说路径-结束');
+        // 集合去重并返回
+        return $novel_paths->unique()->values();
     }
 
     private function pregNovelFromResponse(Response $response): Collection
@@ -119,6 +154,7 @@ class otcwuxiCommand extends Command
             $html = $this->parseResponse($response);
             unset($response);
             preg_match_all('/\/chapter\/[^\/]+\//', $html, $matches);
+            unset($html);
             $novel_paths = $novel_paths->merge($matches[0] ?? [])->unique()->values();
         } catch (\Throwable $e) {
             $this->error('小说列表解析异常');
@@ -164,6 +200,7 @@ class otcwuxiCommand extends Command
             $novel['last_updated_time'] = strtotime($matches[4]);
             // $novel['latest_chapter'] = $matches[5];
             $novel['intro'] = $matches[6];
+            $this->comment($novel['title']);
             $novel->save();
         } catch (\Throwable $e) {
             $this->error('获取小说主要信息-失败');
@@ -179,20 +216,28 @@ class otcwuxiCommand extends Command
         try {
             preg_match_all('/<dd[^>]*><a[^>]*href="([^"]+)"[^>]*title="([^"]+)">([^<]*)<\/a><\/dd>/', $html, $matches);
             if (empty($matches)) throw new InternalServerErrorException('小说主要信息解析异常');
-            $exists_novel_chapter_source_urls = NovelChapter::where('novel_id', $novel->id)->pluck('source_url')->toArray();
-            $chapters = [];
-            foreach (array_combine($matches[2], $matches[1]) as $title => $path) {
-                $chapter = [
-                    'novel_id' => $novel->id,
-                    'title' => $title,
-                    'source_path' => $path,
-                    'source_url' => $this->getUrlFromString($path),
-                ];
-                if (in_array($chapter['source_url'], $exists_novel_chapter_source_urls)) continue;
-                $this->comment($novel['title'] . ' - ' . $chapter['title']);
-                $chapters[] = $chapter;
-            }
-            $novel->chapters()->createMany($chapters);
+            collect(array_combine($matches[2], $matches[1]))->chunk(500)->each(function (Collection $title_paths) use ($novel) {
+                $exists_novel_chapter_source_urls = NovelChapter::where('novel_id', $novel->id)->pluck('source_url')->toArray();
+                $chapters = [];
+                $title_paths->each(function ($path, $title) use ($novel, $exists_novel_chapter_source_urls, &$chapters) {
+                    $source_url = $this->getUrlFromString($path);
+                    if (!in_array($source_url, $exists_novel_chapter_source_urls)) {
+                        $chapter = [
+                            'novel_id' => $novel->id,
+                            'title' => $title,
+                            'source_path' => $path,
+                            'source_url' => $source_url,
+                        ];
+                        $this->comment($novel['title'] . ' - ' . $chapter['title']);
+                        $chapters[] = $chapter;
+                        unset($chapter);
+                    }
+                    unset($source_url);
+                });
+                unset($exists_novel_chapter_source_urls);
+                if (!empty($chapters)) $novel->chapters()->createMany($chapters);
+                unset($chapters);
+            });
         } catch (\Throwable $e) {
             $this->error('获取小说目录-失败');
         }
@@ -200,7 +245,7 @@ class otcwuxiCommand extends Command
         return $novel;
     }
 
-    private function _getChapters(Novel $novel)
+    private function _getChapters(Novel $novel = null)
     {
         $this->comment('获取小说章节内容-开始');
         try {
@@ -242,7 +287,7 @@ class otcwuxiCommand extends Command
             $this->error($e->getMessage());
         }
         $this->comment('获取小说章节内容-结束');
-        return $novel;
+        return true;
     }
 
     private function getUrlFromString(string $string): string
@@ -262,8 +307,11 @@ class otcwuxiCommand extends Command
         preg_match('/charset=([^;]+);?/', $contentType, $matches);
         $charset = strtolower($matches[1] ?? '');
         if (empty($charset)) throw new InternalServerErrorException('抓取响应异常');
+        if ($charset == 'gb2312') $charset = 'gbk';
         $content = $response->getBody()->getContents();
         if ($charset !== 'utf-8') $content = mb_convert_encoding($content, 'utf-8', $charset);
+        // $content = mb_convert_kana($content, 'rnaskhc', 'utf-8');
+        $content = mb_convert_kana($content, 'rnas', 'utf-8');
         // file_put_contents(Tools::runtimePath('otcwuxi.html'), $content);
         // $content = file_get_contents(Tools::runtimePath('otcwuxi.html'));
         // HTML实体转换 例如：&nbsp;转空格
