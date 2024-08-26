@@ -66,8 +66,10 @@ class otcwuxiCommand extends Command
                         $html = $this->parseResponse($response);
                         //region 获取可能出现的新小说，部分小说不存在列表中
                         $new_novel_paths = $this->pregNovelFromResponse($response)->diff($all_novel_paths);
-                        $all_novel_paths = $all_novel_paths->merge($new_novel_paths);
-                        $novel_paths = $novel_paths->merge($new_novel_paths);
+                        if ($new_novel_paths->isNotEmpty()) {
+                            $all_novel_paths = $all_novel_paths->merge($new_novel_paths);
+                            $novel_paths = $novel_paths->merge($new_novel_paths);
+                        }
                         //endregion
                         unset($response);
                         $path = $paths[$index];
@@ -113,6 +115,7 @@ class otcwuxiCommand extends Command
                      'monthvisit',// 月排行榜
                      'weekvisit',// 周排行榜
                      'dayvisit',// 日排行榜
+                     'finish',// 完本
                  ] as $rank) {
             for ($page = 1; $page <= 5; $page++) {
                 $novel_list_urls->push("https://www.otcwuxi.com/{$rank}/p{$page}.html");
