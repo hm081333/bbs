@@ -182,7 +182,9 @@ class CUrl
 
     public function json_get($url, $timeoutMs = 5000)
     {
-        return json_decode($this->request($url, [], $timeoutMs), true);
+        return json_decode($this->setHeader([
+            'Accept' => 'application/json',
+        ])->request($url, [], $timeoutMs), true);
     }
 
     /**
@@ -200,7 +202,9 @@ class CUrl
 
     public function json_post($url, $data, $timeoutMs = 5000)
     {
-        return json_decode($this->request($url, $data, $timeoutMs), true);
+        return json_decode($this->setHeader([
+            'Accept' => 'application/json',
+        ])->request($url, $data, $timeoutMs), true);
     }
 
     /**
