@@ -58,7 +58,9 @@ class CUrl
 
     public function json_get($url, $params = [], $timeoutMs = 5000)
     {
-        return Tools::jsonDecode($this->get($url, $params, $timeoutMs));
+        return Tools::jsonDecode($this->setHeader([
+            'Accept' => 'application/json',
+        ])->get($url, $params, $timeoutMs));
     }
 
     /**
@@ -194,7 +196,9 @@ class CUrl
 
     public function json_post($url, $data, $timeoutMs = 5000)
     {
-        return Tools::jsonDecode($this->post($url, $data, $timeoutMs));
+        return Tools::jsonDecode($this->setHeader([
+            'Accept' => 'application/json',
+        ])->post($url, $data, $timeoutMs));
     }
 
     /**
