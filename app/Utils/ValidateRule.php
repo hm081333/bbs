@@ -29,7 +29,7 @@ class ValidateRule
     {
         foreach ($action_rule as $param_key => $param_rules) {
             $this->rules[$param_key] = [];
-            if (!in_array($param_key, $this->dataKeys) && strpos($param_key, '*') === false) $this->dataKeys[] = $param_key;
+            if (!in_array($param_key, $this->dataKeys) && strpos($param_key, '*') === false && strpos($param_key, '.') === false) $this->dataKeys[] = $param_key;
             foreach ($param_rules as $rule_key => $rule) {
                 // 闭包包裹的规则，先调用闭包获取值
                 if ($rule instanceof \Closure) $rule = $rule();
@@ -151,6 +151,9 @@ class ValidateRule
             case 'mobile':
                 $this->rules[$param_key][] = 'max:11';
                 $this->rules[$param_key][] = 'regex:/^1[0-9]{10}$/';
+                break;
+            case 'timestamp':
+                $this->rules[$param_key][] = new \App\Rules\TimestampRule;
                 break;
             case 'file':
                 $this->rules[$param_key][] = new \App\Rules\FileRule;
