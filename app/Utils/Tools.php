@@ -498,20 +498,19 @@ class Tools
     public static function concurrent(Closure $callback, string $unique = 'all'): mixed
     {
         // 锁缓存KEY，最好是使用Redis缓存
-        $cache_key = 'concurrent:' . Route::current()->uri() . ':' . $unique;
-        // 锁存在
-        if (Cache::has($cache_key)) throw new BadRequestException('服务器繁忙，请重试');
-        // 锁持续半个小时
-        Cache::put($cache_key, 1, 30 * 60);
+        $cache_lock_key = 'concurrent:' . Route::current()->uri() . ':' . $unique;
+        // 创建和管理锁
+        $lock = Cache::lock($cache_lock_key, 10 * 60);
+        if (!$lock->get()) throw new BadRequestException('服务器繁忙，请稍后重试');
         try {
             $callbackResult = $callback();
         } catch (Throwable $e) {
-            // 解锁
-            Cache::forget($cache_key);
+            // 释放 锁定
+            $lock->release();
             throw $e;
         }
-        // 解锁
-        Cache::forget($cache_key);
+        // 释放 锁定
+        $lock->release();
         return $callbackResult;
     }
 
