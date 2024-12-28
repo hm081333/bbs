@@ -498,7 +498,7 @@ class Tools
     public static function concurrent(Closure $callback, string $unique = 'all'): mixed
     {
         // 锁缓存KEY，最好是使用Redis缓存
-        $cache_lock_key = 'concurrent:' . Route::current()->uri() . ':' . $unique;
+        $cache_lock_key = 'concurrent:' . $unique;
         // 创建和管理锁
         $lock = Cache::lock($cache_lock_key, 10 * 60);
         if (!$lock->get()) throw new BadRequestException('服务器繁忙，请稍后重试');
@@ -512,6 +512,23 @@ class Tools
         // 释放 锁定
         $lock->release();
         return $callbackResult;
+    }
+
+    /**
+     * 并发锁
+     *
+     * @desc 用于控制器层
+     *
+     * @param Closure $callback   回调函数
+     * @param string  $unique_key 唯一标识
+     *
+     * @return mixed
+     * @throws BadRequestException
+     * @throws Throwable
+     */
+    public static function apiConcurrent(Closure $callback, string $unique_key = 'all'): mixed
+    {
+        return static::concurrent($callback, Route::current()->uri() . ':' . $unique_key);
     }
 
     /**
