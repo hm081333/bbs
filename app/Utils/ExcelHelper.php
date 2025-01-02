@@ -3,6 +3,7 @@
 namespace App\Utils;
 
 use App\Exceptions\Server\BaseServerException;
+use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -67,52 +68,66 @@ class ExcelHelper
     public function writeSheet(array $header, array $sheet_data)
     {
         if (empty($header)) throw new BaseServerException('参数错误');
+        if ($sheet_data instanceof Collection) $sheet_data = $sheet_data->toArray();
         // 实例化 Spreadsheet 对象
         $spreadsheet = new Spreadsheet();
 
         // 获取活动工作薄
         $sheet = $spreadsheet->getActiveSheet();
 
-        // 计算最后行与最后列
-        $highest = [
-            // 加1为表头
-            'row' => count($sheet_data) + 1,
-            // 列根据表头定义
-            'column' => count($header),
-        ];
-        // 列对应数据的数组下标
-        $column_keys = array_keys($header);
-        for ($row = 1; $row <= $highest['row']; $row++) {
-            $data = $row == 1 ? $header : $sheet_data[$row - 2];
-            for ($column = 1; $column <= $highest['column']; $column++) {
-                // 根据行与列获取单元格
-                $cell = $sheet->getCellByColumnAndRow($column, $row);
+        // 设置表头
+        foreach (array_values($header) as $index => $value) {
+            $sheet->setCellValueByColumnAndRow($index + 1, 1, $value);
+        }
+
+        // 设置单元格数据
+        foreach ($sheet_data as $row => $data) {
+            foreach (array_keys($header) as $column => $key) {
                 // 设置单元格数据
-                $cell->setValue($data[$column_keys[$column - 1]]);
-                $cell_style = $cell->getStyle();
-                // 设置单元格格式 文本格式
-                $cell_style->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
-                /**
-                 * 单元格文字样式设置
-                 */
-                // getStyle 获取单元格样式
-                // getFont 获取单元格文字样式
-                // setBold 设置文字粗细
-                // setName 设置文字字体
-                // setSize 设置文字大小
-                // $cell_style->getFont()->setBold(true)->setName('宋体')->setSize(20);
-                /**
-                 * 单元格文字颜色
-                 */
-                // getColor 获取坐标颜色
-                // setRGB 设置字体颜色
-                // getRGB 获取字体颜色
-                // setARGB 设置字体颜色
-                // getARGB 获取字体颜色
-                // $cell_style->getFont()->getColor()->setRGB('#AEEEEE');
-                // $cell_style->getFont()->getColor()->setARGB('FFFF0000');
+                $sheet->setCellValueByColumnAndRow($column + 1, $row + 2, $data[$key] ?? '');
             }
         }
+
+        // // 计算最后行与最后列
+        // $highest = [
+        //     // 加1为表头
+        //     'row'    => count($sheet_data) + 1,
+        //     // 列根据表头定义
+        //     'column' => count($header),
+        // ];
+        // // 列对应数据的数组下标
+        // $column_keys = array_keys($header);
+        // for ($row = 1; $row <= $highest['row']; $row++) {
+        //     $data = $row == 1 ? $header : $sheet_data[$row - 2];
+        //     for ($column = 1; $column <= $highest['column']; $column++) {
+        //         // 根据行与列获取单元格
+        //         $cell = $sheet->getCellByColumnAndRow($column, $row);
+        //         // 设置单元格数据
+        //         $cell->setValue($data[$column_keys[$column - 1]]);
+        //         $cell_style = $cell->getStyle();
+        //         // 设置单元格格式 文本格式
+        //         $cell_style->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
+        //         /**
+        //          * 单元格文字样式设置
+        //          */
+        //         // getStyle 获取单元格样式
+        //         // getFont 获取单元格文字样式
+        //         // setBold 设置文字粗细
+        //         // setName 设置文字字体
+        //         // setSize 设置文字大小
+        //         // $cell_style->getFont()->setBold(true)->setName('宋体')->setSize(20);
+        //         /**
+        //          * 单元格文字颜色
+        //          */
+        //         // getColor 获取坐标颜色
+        //         // setRGB 设置字体颜色
+        //         // getRGB 获取字体颜色
+        //         // setARGB 设置字体颜色
+        //         // getARGB 获取字体颜色
+        //         // $cell_style->getFont()->getColor()->setRGB('#AEEEEE');
+        //         // $cell_style->getFont()->getColor()->setARGB('FFFF0000');
+        //     }
+        // }
 
         // Xlsx类型，返回写入器
         return new Xlsx($spreadsheet);
