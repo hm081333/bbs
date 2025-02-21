@@ -495,22 +495,29 @@ class Tools
      * @throws BadRequestException
      * @throws Throwable
      */
-    public static function concurrent(Closure $callback, string $unique = 'all'): mixed
+    public static function concurrent(Closure $callback, string $unique = 'all', $timeout = 30): mixed
     {
         // 锁缓存KEY，最好是使用Redis缓存
         $cache_lock_key = 'concurrent:' . $unique;
+        $cache_lock_ttl = 10 * 60;
+        if (empty($timeout)) $timeout = 30;
         // 创建和管理锁
-        $lock = Cache::lock($cache_lock_key, 10 * 60);
-        if (!$lock->get()) throw new BadRequestException('服务器繁忙，请稍后重试');
+        $lock = Cache::lock($cache_lock_key, $cache_lock_ttl);
+        // if (!$lock->get()) throw new BadRequestException('服务器繁忙，请稍后重试');
         try {
+            $lock->block($timeout);
             $callbackResult = $callback();
+        } catch (\Illuminate\Contracts\Cache\LockTimeoutException $e) {
+            // 无法获取锁…
+            throw new BadRequestException('服务器繁忙，请稍后重试');
         } catch (Throwable $e) {
             // 释放 锁定
-            $lock->release();
+            $lock?->release();
             throw $e;
+        } finally {
+            // 释放 锁定
+            $lock?->release();
         }
-        // 释放 锁定
-        $lock->release();
         return $callbackResult;
     }
 
@@ -526,9 +533,9 @@ class Tools
      * @throws BadRequestException
      * @throws Throwable
      */
-    public static function apiConcurrent(Closure $callback, string $unique_key = 'all'): mixed
+    public static function apiConcurrent(Closure $callback, string $unique_key = 'all', $timeout = 30): mixed
     {
-        return static::concurrent($callback, Route::current()->uri() . ':' . $unique_key);
+        return static::concurrent($callback, Route::current()->uri() . ':' . $unique_key, $timeout);
     }
 
     /**
