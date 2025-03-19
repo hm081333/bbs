@@ -27,35 +27,56 @@ class ExcelHelper
      * @return array
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
-    public function readSheet(string $filename, int $begin_row = 1, array $assoc = [])
+    public static function readSheet(string $filename, int $begin_row = 1, array $assoc = [])
     {
         $objPHPExcel = IOFactory::load($filename, IReader::READ_DATA_ONLY | IReader::IGNORE_EMPTY_CELLS, [
             IOFactory::READER_XLSX,
             IOFactory::READER_XLS,
         ]);
         // 打开当前活动的工作表
-        $sheet = $objPHPExcel->getActiveSheet();
-        // 获取最后行与最后列
-        $highest = $sheet->getHighestRowAndColumn();
-        // 列编号转索引数字
-        $highest['column'] = count($assoc) ?: Coordinate::columnIndexFromString($highest['column']);
-        $table = [];
-        // 行循环
-        for ($row = $begin_row; $row <= $highest['row']; $row++) {
-            $line = [];
-            // 列循环，A对应的是1，所以从1开始
-            for ($column = 1; $column <= $highest['column']; $column++) {
-                $line[] = $sheet->getCellByColumnAndRow($column, $row)->getValue();
-            }
-            // 过滤空行
-            if (empty(array_filter($line, function ($item) {
-                return !empty($item);
-            }))) {
-                continue;
-            }
+        $worksheet = $objPHPExcel->getActiveSheet();
 
-            $table[] = !$assoc ? $line : array_combine($assoc, $line);
+        // 最大行
+        $maxDataRow = $worksheet->getHighestDataRow();
+        // 最大列
+        $maxDataColumn = empty($assoc) ? $worksheet->getHighestDataColumn() : Coordinate::stringFromColumnIndex(count($assoc));
+
+        $table = [];
+        // 最后行数据，应对合并单元格
+        $last_line = [];
+        // 行迭代器
+        $rowIterator = $worksheet->getRowIterator($begin_row, $maxDataRow);
+        foreach ($rowIterator as $row) {
+            // 忽略空行
+            if ($row->isEmpty()) continue;
+            $line = [];
+            // 列迭代器
+            $columnIterator = $row->getCellIterator('A', $maxDataColumn);
+            foreach ($columnIterator as $cell) {
+                //region 获取单元格值
+                try {
+                    // 查看计算该单元格公式的结果
+                    $cellValue = $cell->getCalculatedValue();
+                } catch (\Exception $e) {
+                    // 直接读取单元格的值
+                    $cellValue = $cell->getValue();
+                }
+                //endregion
+                // 去除左右空格
+                $line[] = is_null($cellValue) ? $cellValue : trim($cellValue);
+            }
+            if (empty(array_filter($line))) continue;
+
+            // 传入了自定义数组下标
+            if (!empty($assoc)) $line = array_combine($assoc, $line);
+
+            // 应对合并单元格
+            if (!empty($last_line)) $line = array_merge($last_line, array_filter($line));
+
+            $table[] = $line;
+            $last_line = $line;
         }
+
         return $table;
     }
 
