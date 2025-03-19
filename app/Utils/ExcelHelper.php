@@ -33,8 +33,8 @@ class ExcelHelper
             IOFactory::READER_XLSX,
             IOFactory::READER_XLS,
         ]);
-        // 打开第一个表
-        $sheet = $objPHPExcel->getSheet(0);
+        // 打开当前活动的工作表
+        $sheet = $objPHPExcel->getActiveSheet();
         // 获取最后行与最后列
         $highest = $sheet->getHighestRowAndColumn();
         // 列编号转索引数字
