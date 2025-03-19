@@ -27,7 +27,10 @@ class ExcelHelper
      */
     public function readSheet(string $filename, int $begin_row = 1, array $assoc = [])
     {
-        $objPHPExcel = IOFactory::load($filename);
+        $objPHPExcel = IOFactory::load($filename, IReader::READ_DATA_ONLY | IReader::IGNORE_EMPTY_CELLS, [
+            IOFactory::READER_XLSX,
+            IOFactory::READER_XLS,
+        ]);
         // 打开第一个表
         $sheet = $objPHPExcel->getSheet(0);
         // 获取最后行与最后列
