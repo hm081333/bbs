@@ -71,7 +71,9 @@ class ExcelHelper
             if (!empty($assoc)) $line = array_combine($assoc, $line);
 
             // 应对合并单元格
-            if (!empty($last_line)) $line = array_merge($last_line, array_filter($line));
+            if (!empty($last_line)) $line = array_merge($last_line, array_filter($line, function ($item) {
+                return !is_null($item) && $item !== '';
+            }));
 
             $table[] = $line;
             $last_line = $line;
