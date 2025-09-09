@@ -19,6 +19,7 @@ use DB;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -1078,6 +1079,85 @@ class Tools
         ];
     }
     // endregion
+
+    //region 异常处理
+    /**
+     * 格式化异常堆栈列表
+     *
+     * @param Throwable $e
+     *
+     * @return Collection
+     */
+    public static function parseTrace(Throwable $e): Collection
+    {
+        return collect($e->getTrace())
+            ->map(function ($trace) {
+                if (!empty($trace['file'])) $trace['file'] = str_replace('\\', '/', str_replace(base_path(DIRECTORY_SEPARATOR), '', $trace['file']));
+                return $trace;
+            })
+            ->filter(fn($trace) => !str_starts_with($trace['file'] ?? '', 'vendor/'))
+            ->values();
+    }
+
+    /**
+     * 异常堆栈列表转字符串列表
+     *
+     * @param Collection $traces
+     *
+     * @return Collection
+     */
+    public static function traceToStringArray(Collection $traces): Collection
+    {
+        return $traces->map(function ($t, $index) {
+            $new_trace_str = isset($t['file']) ? "{$t['file']}({$t['line']}): " : '';
+            $new_trace_str .= isset($t['class']) ? "{$t['class']}{$t['type']}{$t['function']}" : "{$t['function']}";
+            if (!empty($t['args'])) {
+                $new_trace_str .= '(';
+                foreach ($t['args'] as $arg) {
+                    $new_trace_str .= match (gettype($arg)) {
+                            'array' => 'Array',
+                            'object' => 'Object(' . get_class($arg) . ')',
+                            default => $arg,
+                        } . ',';
+                }
+                $new_trace_str = rtrim($new_trace_str, ',') . ')';
+            }
+            return $new_trace_str;
+        });
+    }
+
+    /**
+     * 堆栈字符串列表
+     *
+     * @param Throwable $e
+     *
+     * @return Collection
+     */
+    public static function buildTraceStringArray(Throwable $e): Collection
+    {
+        $traces = static::parseTrace($e);
+        return static::traceToStringArray($traces);
+    }
+
+    public static function writeErrorLog(Throwable $e)
+    {
+        // stacktrace
+        $error_log = '[' . get_class($e) . ':' . $e->getCode() . ']' . "\n" . $e->getMessage() . "\n" . '[' . str_replace('\\', '/', str_replace(base_path(DIRECTORY_SEPARATOR), '', $e->getFile())) . ":{$e->getLine()}]" . "\n" . '[stacktrace]' . "\n" . static::buildTraceStringArray($e)->reduce(function ($str, $item, $index) {
+                return $str . "#{$index} $item" . "\n";
+            }, '');
+        $context = array_merge(
+            method_exists($e, 'context') ? $e->context() : [],
+            Tools::auth()->getTokenData(),
+            ['exception' => $error_log],
+        );
+        if ($e instanceof \App\Exceptions\BaseException) {
+            Log::channel('exception')->error($e->getMessage(), $context);
+        } else {
+            Log::channel('error')->error($e->getMessage(), $context);
+        }
+        if ($e->getPrevious()) static::writeErrorLog($e->getPrevious());
+    }
+    //endregion
 
     // region 时间格式相关
     /**
