@@ -415,22 +415,23 @@ class Tools
         if ($time instanceof \Carbon\Carbon) return $time->copy();
         // 系统最大接受的时间戳：2100-01-01 00:00:00
         // $max_timestamp = config('options.common.max_timestamp');
+        $timeCarbon = null;
         try {
             $time = (string)$time;
             // 整数或者浮点数 且 不是时间拼成的数字字符串
-            if ((filter_var($time, FILTER_VALIDATE_INT) !== false || filter_var($time, FILTER_VALIDATE_FLOAT) !== false) && intval($time) === intval(date('U', $time))) {
-                return (match (strlen(intval($time))) {
-                    10 => Carbon::createFromTimestampUTC($time),
-                    13 => Carbon::createFromTimestampMsUTC($time),
-                    default => throw new BadRequestException('时间长度错误'),
-                })?->setTimezone('Asia/Shanghai');
+            if ((filter_var($time, FILTER_VALIDATE_INT) !== false || filter_var($time, FILTER_VALIDATE_FLOAT) !== false)) {
+                $timeCarbon = (match (strlen(intval($time))) {
+                    10 => Carbon::createFromTimestamp($time, config('app.timezone')),
+                    13 => Carbon::createFromTimestampMs($time, config('app.timezone')),
+                    default => null,
+                });
             }
             // 其他字符串，使用Carbon的parse尝试解析
-            return Carbon::parse($time);
+            if (!$timeCarbon) $timeCarbon = Carbon::parse($time, config('app.timezone'));
         } catch (Throwable $e) {
             // Log::error('Tools::timeToCarbon:Exception', (array)$e);
         }
-        return null;
+        return $timeCarbon;
     }
 
     /**
