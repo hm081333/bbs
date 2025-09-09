@@ -2,6 +2,10 @@
 
 namespace App\Utils;
 
+use AlibabaCloud\Client\AlibabaCloud;
+use AlibabaCloud\Client\Exception\ClientException;
+use AlibabaCloud\Client\Exception\ServerException;
+use AlibabaCloud\Sts\Sts;
 use App\Exceptions\Request\BadRequestException;
 use App\Exceptions\Server\InternalServerErrorException;
 use App\Utils\Aliyun\Oss;
@@ -937,6 +941,141 @@ class Tools
             $ip = $_SERVER['REMOTE_ADDR'];
         }
         return $ip;
+    }
+
+    /**
+     * 匹配港澳台不含+的手机号的正则
+     *
+     * @param $phone
+     *
+     * @return false|mixed
+     */
+    public static function isOutsidePhoneNumberPatternString()
+    {
+        return '/^(852|853|886)[0-9]+$/';
+    }
+
+    /**
+     * 匹配并返回港澳台不含+的手机号
+     *
+     * @param $phone
+     *
+     * @return false|mixed
+     */
+    public static function isOutsidePhoneNumber($phone)
+    {
+        preg_match(static::isOutsidePhoneNumberPatternString(), $phone, $outside_phone_matches);
+        return $outside_phone_matches[0] ?? false;
+    }
+
+    //手机验证
+    public static function isPhoneNumber($phone)
+    {
+        $chars = "/^((\(\d{2,3}\))|(\d{3}\-))?1(3|4|5|6|7|8|9)\d{9}$/";
+        if (preg_match($chars, $phone) || preg_match(static::isOutsidePhoneNumberPatternString(), $phone)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 生成指定数量的红包
+     *
+     * @param string|int|float $total
+     * @param string|int       $num
+     * @param string|int|float $min 最低红包金额
+     *
+     * @return array
+     */
+    public static function generateRedPackets($total, $num, $min = 0.01): array
+    {
+        for ($i = 1; $i < $num; $i++) {
+            // $safe_total = ($total - ($num - $i) * $min) / ($num - $i);//随机安全上限
+            $safe_total = Tools::math($total, '-', Tools::math(Tools::math($num, '-', $i), '*', $min)) / Tools::math($num, '-', $i);//随机安全上限
+            if (Tools::math($safe_total, '<', $min)) $safe_total = $min;
+            $rand = mt_rand(Tools::math($min, '*', 100, 0), Tools::math($safe_total, '*', 100, 0));
+            $money = Tools::math($rand, '/', 100);
+            $total = Tools::math($total, '-', $money);
+            $data[] = $money;
+        }
+        $data[] = $total;
+        shuffle($data);//重新打乱数组
+        return $data;
+    }
+
+    /**
+     * 获取阿里云STS Token临时身份凭证
+     *
+     * @desc STS Token
+     * @return array
+     * @throws ClientException
+     * @throws ServerException
+     */
+    public static function getAlibabaCloudStsToken()
+    {
+        $cacheKey = 'AlibabaCloudStsCredentials';
+        $endpoint = config('oss.configs.aliyun.endpoint');
+        $region = str_replace('.aliyuncs.com', '', $endpoint);
+        $regionId = str_replace('oss-', '', $region);
+        $accessKeyId = config('oss.configs.aliyun.access_key_id');
+        $accessKeySecret = config('oss.configs.aliyun.access_key_secret');
+        $roleArn = config('oss.configs.aliyun.role_arn');
+        $bucket = config('oss.configs.aliyun.bucket');
+        if (Cache::has($cacheKey)) {
+            $credentials = Cache::get($cacheKey);
+        } else {
+            // 初始化Alibaba Cloud客户端。
+            AlibabaCloud::accessKeyClient($accessKeyId, $accessKeySecret)
+                ->regionId($regionId)
+                ->asDefaultClient();
+            // 创建STS请求。
+            $request = Sts::v20150401()->assumeRole();
+            // 发起STS请求并获取结果。
+            // 将<YOUR_ROLE_SESSION_NAME>设置为自定义的会话名称，例如oss-role-session。
+            // 将<YOUR_ROLE_ARN>替换为拥有上传文件到指定OSS Bucket权限的RAM角色的ARN。
+            $result = $request
+                ->withRoleSessionName("{$bucket}-oss-role-session")
+                ->withDurationSeconds(43200)
+                ->withRoleArn($roleArn)
+                ->request();
+            // 获取STS请求结果中的凭证信息。
+            $credentials = $result->get('Credentials');
+            // 存储到缓存，有效时间减5分钟
+            Cache::put($cacheKey, $credentials, Tools::timeToCarbon($credentials['Expiration'])->setTimezone('PRC')->subMinutes(5));
+        }
+
+        // media/mch_57/media_cate_3/20220411/hvaq8oizjhqvfv7jmhb4j85txxwbr1yn.jpg
+        $date = Tools::now()->format('Ymd');
+        if (\request()->module() == 'mch') {
+            $mch_id = \request()->getMchPid(false) ?: 0;
+            $media_cate_id = \request()->input('media_cate_id', 0);
+            $path = "media/mch_{$mch_id}/media_cate_{$media_cate_id}/{$date}";
+        } else {
+            $path = \request()->input('path', 'uploads');
+            $auth_data = Tools::auth()->getTokenData();
+            if (!empty($auth_data['account_type']) && !empty($auth_data['account_id'])) {
+                $path = "{$path}/{$auth_data['account_type']}_{$auth_data['account_id']}/{$date}";
+            } else {
+                $path = "{$path}/{$date}";
+            }
+        }
+
+        // 构建返回的JSON数据。
+        return [
+            // 'AccessKeyId'     => $credentials['AccessKeyId'],
+            // 'AccessKeySecret' => $credentials['AccessKeySecret'],
+            // 'SecurityToken'   => $credentials['SecurityToken'],
+            'url'             => config('app.storage_url'),
+            'endpoint'        => $endpoint,
+            'region'          => $region,
+            'regionId'        => $regionId,
+            'bucket'          => $bucket,
+            'accessKeyId'     => $credentials['AccessKeyId'],
+            'accessKeySecret' => $credentials['AccessKeySecret'],
+            'stsToken'        => $credentials['SecurityToken'],
+            'path'            => $path,
+        ];
     }
     // endregion
 
