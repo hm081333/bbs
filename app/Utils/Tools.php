@@ -408,16 +408,38 @@ class Tools
     {
         if (empty($time)) return null;
         if ($time instanceof \Carbon\Carbon) return $time->copy();
+        // 系统最大接受的时间戳：2100-01-01 00:00:00
+        // $max_timestamp = config('options.common.max_timestamp');
         try {
-            return (filter_var($time, FILTER_VALIDATE_INT) !== false || filter_var($time, FILTER_VALIDATE_FLOAT) !== false) && strlen((int)$time) == 10
-                ?
-                Carbon::createFromTimestamp($time)
-                :
-                Carbon::parse($time);
-        } catch (Exception $exception) {
-            Log::error('Tools::timeToCarbon:Exception', (array)$exception);
+            $time = (string)$time;
+            // 整数或者浮点数 且 不是时间拼成的数字字符串
+            if ((filter_var($time, FILTER_VALIDATE_INT) !== false || filter_var($time, FILTER_VALIDATE_FLOAT) !== false) && intval($time) === intval(date('U', $time))) {
+                return (match (strlen(intval($time))) {
+                    10 => Carbon::createFromTimestampUTC($time),
+                    13 => Carbon::createFromTimestampMsUTC($time),
+                    default => throw new BadRequestException('时间长度错误'),
+                })?->setTimezone('Asia/Shanghai');
+            }
+            // 其他字符串，使用Carbon的parse尝试解析
+            return Carbon::parse($time);
+        } catch (Throwable $e) {
+            // Log::error('Tools::timeToCarbon:Exception', (array)$e);
         }
         return null;
+    }
+
+    /**
+     * 任意时间格式化
+     *
+     * @param Carbon|int|float|string|null $time
+     * @param string                       $format
+     * @param                              $default
+     *
+     * @return string
+     */
+    public static function timeFormat(\Carbon\Carbon|int|float|string|null $time, string $format = 'Y-m-d H:i:s', $default = ''): string
+    {
+        return static::timeToCarbon($time)?->format($format) ?: $default;
     }
 
     /**
