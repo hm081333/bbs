@@ -34,13 +34,10 @@ class JWTAuth
     /**
      * Create a new middleware instance.
      *
-     * @param Auth $auth
-     *
      * @return void
      */
     public function __construct()
     {
-        $this->auth = auth();
     }
 
     /**
@@ -52,6 +49,7 @@ class JWTAuth
      */
     public function guard(string|null $guard_key = null): Guard|JWTGuard
     {
+        if (!isset($this->auth)) $this->auth = auth();
         if (!isset($this->guards[$guard_key])) $this->guards[$guard_key] = $this->auth->guard($guard_key);
         return $this->guards[$guard_key];
     }
